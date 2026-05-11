@@ -1,0 +1,4 @@
+{
+  "input": "not-a-json-object",
+  "expected_exit": 0
+}

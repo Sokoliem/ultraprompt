@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ultraprompt-meta": {
+      "command": "py",
+      "args": ["-3", "${CLAUDE_PLUGIN_ROOT}/mcp/ultraprompt_meta.py"]
+    }
+  }
+}

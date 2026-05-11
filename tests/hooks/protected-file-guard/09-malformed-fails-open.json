@@ -1,0 +1,4 @@
+{
+  "input": "garbage",
+  "expected_exit": 0
+}

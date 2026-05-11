@@ -1,0 +1,33 @@
+{
+  "schema": "memory_schemas.v1",
+  "kinds": [
+    "episodic",
+    "repo_fact",
+    "repo_pattern",
+    "procedure",
+    "route_outcome",
+    "user_preference",
+    "project_preference",
+    "gap_memory",
+    "ecosystem_observation",
+    "dream_hypothesis"
+  ],
+  "scopes": ["user", "repo", "project", "plugin", "global"],
+  "statuses": ["candidate", "active", "stale", "contradicted", "retired", "quarantined", "deleted"],
+  "privacy_classes": ["metadata", "local_only", "contains_pii", "redacted"],
+  "evidence_kinds": ["event", "file", "artifact", "ledger", "user_confirmation", "dream_report", "gap", "route_feedback"],
+  "required_record_fields": [
+    "schema",
+    "id",
+    "kind",
+    "scope",
+    "status",
+    "privacy",
+    "text",
+    "confidence",
+    "importance",
+    "evidence",
+    "created_at",
+    "updated_at"
+  ]
+}

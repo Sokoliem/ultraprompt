@@ -1,0 +1,38 @@
+[
+  {
+    "intent": "is this release ready to ship",
+    "expected_skill": "release-readiness"
+  },
+  {
+    "intent": "review the repo end to end and find completeness gaps",
+    "expected_skill": "repo-review"
+  },
+  {
+    "intent": "write a full PRD for an AI coding assistant feature",
+    "expected_skill": "prd-ai-feature"
+  },
+  {
+    "intent": "plan the migration from postgres 14 to postgres 16",
+    "expected_skill": "migrate"
+  },
+  {
+    "intent": "find test gaps around the import workflow",
+    "expected_skill": "test-gap-analysis"
+  },
+  {
+    "intent": "review this Claude Code plugin before publishing",
+    "expected_skill": "plugin-review"
+  },
+  {
+    "intent": "security audit the auth and token handling",
+    "expected_skill": "security-audit"
+  },
+  {
+    "intent": "query memory for repo facts about this project",
+    "expected_skill": "repo-map"
+  },
+  {
+    "intent": "show me the best skill and agent path for a dashboard bug",
+    "expected_skill": "debug"
+  }
+]

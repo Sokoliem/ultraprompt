@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"file_path": "/repo/README.md"}},
+  "expected_exit": 0
+}

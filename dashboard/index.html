@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultraprompt Dashboard</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2300d9b8'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='ui-monospace,Menlo' font-size='18' font-weight='700' fill='%230a0e14'%3EU%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">UP</span>
+      <span class="brand-name">Ultraprompt</span>
+      <span class="version" id="version">…</span>
+    </div>
+    <input type="search" id="search" placeholder="search catalog…  (⌘K)" class="search">
+    <div class="topbar-actions">
+      <span class="status-dot" id="streamStatus" data-state="connecting" title="Live stream"></span>
+      <span class="status-label" id="streamLabel">connecting…</span>
+      <button id="refreshBtn" class="btn-ghost" title="Reload catalog">↻</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <aside class="pane pane-left">
+      <up-stats-card id="stats"></up-stats-card>
+      <up-catalog-tree id="tree"></up-catalog-tree>
+    </aside>
+
+    <section class="pane pane-center">
+      <up-detail-pane id="detail"></up-detail-pane>
+    </section>
+
+    <aside class="pane pane-right">
+      <up-activity-feed id="feed"></up-activity-feed>
+    </aside>
+  </main>
+
+  <footer class="statusbar" id="statusbar">
+    <span id="footerLeft"></span>
+    <span id="footerRight"></span>
+  </footer>
+
+  <script type="module" src="/assets/app.js"></script>
+</body>
+</html>

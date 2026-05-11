@@ -1,0 +1,4 @@
+{
+  "input": {"subagent_type": "reviewer", "task": "review the auth diff"},
+  "expected_exit": 0
+}

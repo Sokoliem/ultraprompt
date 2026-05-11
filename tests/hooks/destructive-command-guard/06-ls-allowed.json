@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"command": "ls -la /home/user"}},
+  "expected_exit": 0
+}

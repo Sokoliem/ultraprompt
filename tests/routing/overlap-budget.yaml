@@ -1,0 +1,39 @@
+# Ultraprompt V8 router overlap-budget cases
+# For each intent, the top skill must beat the runner-up by at least min_top_to_runner_up.
+# This catches catalog ambiguity where two skills compete on the same intent.
+
+- intent: "review the diff before merging"
+  min_top_to_runner_up: "0.10"
+
+- intent: "investigate a flaky test"
+  min_top_to_runner_up: "0.10"
+
+- intent: "build a new feature"
+  min_top_to_runner_up: "0.10"
+
+- intent: "audit auth and secret handling"
+  min_top_to_runner_up: "0.10"
+
+- intent: "audit dependency CVEs"
+  min_top_to_runner_up: "0.10"
+
+- intent: "harden the supply chain"
+  min_top_to_runner_up: "0.10"
+
+- intent: "review database migration safety"
+  min_top_to_runner_up: "0.10"
+
+- intent: "review the architecture"
+  min_top_to_runner_up: "0.10"
+
+- intent: "deprecate the v1 API"
+  min_top_to_runner_up: "0.10"
+
+- intent: "design eval suite for LLM"
+  min_top_to_runner_up: "0.10"
+
+- intent: "review prompt injection risks"
+  min_top_to_runner_up: "0.10"
+
+- intent: "triage technical debt"
+  min_top_to_runner_up: "0.10"

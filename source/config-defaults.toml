@@ -1,0 +1,49 @@
+# Ultraprompt V8 default configuration
+# User overrides go in ~/.claude/ultraprompt.toml
+
+[watched_repos]
+paths = []
+
+[worktree]
+dirty_warn_count = 50
+idle_warn_hours = 24
+stale_warn_days = 14
+unpushed_warn_count = 5
+
+[session]
+active_window_minutes = 15
+
+[auto_wip_save]
+enabled = true
+delta_threshold = 10
+cooldown_minutes = 15
+retention_days = 90
+include_untracked = true
+include_ignored = false
+push_to_backup_remote = false
+backup_remote = "wip-backup"
+
+[notification]
+enabled = true
+quiet_hours_start = "22:00"
+quiet_hours_end = "08:00"
+daily_digest_enabled = true
+daily_digest_at = "09:00"
+
+[monitor]
+launchd_interval_seconds = 1800
+
+[ledger]
+enabled = true
+retention_days = 365
+schema_version = 2
+
+[hooks]
+session_bootstrap_enabled = true
+auto_wip_save_enabled = true
+session_finalize_enabled = true
+stop_validation_check_enabled = false
+
+[claim_check]
+enabled = true
+min_confidence_for_warning = 0.6

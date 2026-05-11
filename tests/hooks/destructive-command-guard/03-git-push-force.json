@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"command": "git push --force origin main"}},
+  "expected_exit": 2
+}

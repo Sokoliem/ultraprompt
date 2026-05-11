@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "capability-graph.schema.json",
+  "title": "Ultraprompt Capability Graph",
+  "type": "object",
+  "required": ["schema", "plugin_version", "nodes", "edges", "health", "source_hash"],
+  "properties": {
+    "schema": {"const": "capability_graph.v1"},
+    "plugin_version": {"type": "string"},
+    "nodes": {"type": "array"},
+    "edges": {"type": "array"},
+    "health": {"type": "object"},
+    "source_hash": {"type": "string"}
+  }
+}

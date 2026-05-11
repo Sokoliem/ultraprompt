@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"command": "rm -f tmp/build.log"}},
+  "expected_exit": 0
+}

@@ -1,0 +1,1506 @@
+[
+  {
+    "name": "repo-completeness-panel",
+    "title": "Full Repo Completeness Audit",
+    "description": "Coordinated dispatch of all 8 repo-completeness agents with synthesis. Use for whole-repo audits; produces unified gap_ledger + repo_review_report.",
+    "phases": [
+      {
+        "phase": "map",
+        "agents": [
+          "repo-cartographer"
+        ],
+        "parallel": false,
+        "purpose": "Build repo map first; downstream agents consume it"
+      },
+      {
+        "phase": "audit",
+        "agents": [
+          "feature-completeness-auditor",
+          "wiring-gap-inspector",
+          "integration-contract-reviewer",
+          "test-gap-analyst",
+          "dead-code-and-drift-hunter",
+          "release-readiness-auditor"
+        ],
+        "parallel": true,
+        "purpose": "Specialist audits run in parallel; each consumes the repo map"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "gap-analysis-lead"
+        ],
+        "parallel": false,
+        "purpose": "Merge findings, dedupe, rank, sequence"
+      }
+    ],
+    "output_artifact": "repo_review_report",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 25,
+    "writes_gap_ledger": true,
+    "use_when": "User wants complete whole-repo audit with all dimensions covered.",
+    "artifacts": [
+      "repo_review_report"
+    ],
+    "validators": [
+      "artifact-validate.py"
+    ],
+    "ledger_writes": [
+      "gap-ledger"
+    ],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "mode": "read_only",
+    "risk": "medium",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only or proposal-only panel. Confirm before applying any generated remediation or runtime action."
+    },
+    "inputs": [
+      "repository or worktree path",
+      "audit objective",
+      "forbidden edit zones",
+      "optional release or milestone target"
+    ],
+    "success_criteria": [
+      "critical repo surfaces are mapped before audit",
+      "findings are deduplicated with evidence and severity",
+      "gaps are sequenced into immediate, near-term, and later work"
+    ],
+    "handoff_artifacts": [
+      "repo_review_report",
+      "gap-ledger entries",
+      "capability graph references",
+      "verification plan"
+    ],
+    "phase_contracts": {
+      "map": {
+        "input": "repo-completeness-panel scope plus outputs from prior phases",
+        "output": "map phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "map output is specific enough for the next phase to consume without re-discovery"
+      },
+      "audit": {
+        "input": "repo-completeness-panel scope plus outputs from prior phases",
+        "output": "audit phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "audit output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "repo-completeness-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Use feature-gap-panel for one feature, release-gate-panel for ship/no-ship, or codebase-health for lighter hygiene.",
+    "pathfinder_tags": [
+      "repo",
+      "completeness",
+      "audit",
+      "gap-ledger",
+      "panel"
+    ],
+    "memory_policy": {
+      "read": true,
+      "write_candidates": true,
+      "promote": false,
+      "notes": "May propose memory candidates from repeatable findings; promotion remains explicit."
+    },
+    "learning_policy": {
+      "create_candidates": true,
+      "apply": false,
+      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May use existing dream reports as context; does not launch background analysis without user approval."
+    }
+  },
+  {
+    "name": "feature-gap-panel",
+    "title": "Single-Feature End-to-End Audit",
+    "description": "Focused panel for ONE named feature. Cartographer + feature-completeness + wiring + test-gap, synthesized.",
+    "phases": [
+      {
+        "phase": "map",
+        "agents": [
+          "repo-cartographer"
+        ],
+        "parallel": false,
+        "purpose": "Map the feature surface (scoped to user's argument)"
+      },
+      {
+        "phase": "audit",
+        "agents": [
+          "feature-completeness-auditor",
+          "wiring-gap-inspector",
+          "test-gap-analyst"
+        ],
+        "parallel": true,
+        "purpose": "Three lenses on one feature"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "gap-analysis-lead"
+        ],
+        "parallel": false,
+        "purpose": "Single prioritized gap list with fix sequence"
+      }
+    ],
+    "output_artifact": "feature_gap_report",
+    "estimated_cost": "medium",
+    "estimated_time_minutes": 12,
+    "writes_gap_ledger": true,
+    "use_when": "User names ONE feature and wants end-to-end completeness verified.",
+    "artifacts": [
+      "feature_gap_report"
+    ],
+    "validators": [
+      "artifact-validate.py"
+    ],
+    "ledger_writes": [
+      "gap-ledger"
+    ],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only or proposal-only panel. Confirm before applying any generated remediation or runtime action."
+    },
+    "inputs": [
+      "feature name",
+      "expected behavior",
+      "relevant routes, commands, or user flows",
+      "acceptance criteria if available"
+    ],
+    "success_criteria": [
+      "feature entry points and persistence boundaries are mapped",
+      "completeness, wiring, and test risks are separated",
+      "fix sequence is narrow enough for one implementation slice"
+    ],
+    "handoff_artifacts": [
+      "feature_gap_report",
+      "gap-ledger entries",
+      "fix sequence",
+      "test plan"
+    ],
+    "phase_contracts": {
+      "map": {
+        "input": "feature-gap-panel scope plus outputs from prior phases",
+        "output": "map phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "map output is specific enough for the next phase to consume without re-discovery"
+      },
+      "audit": {
+        "input": "feature-gap-panel scope plus outputs from prior phases",
+        "output": "audit phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "audit output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "feature-gap-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use for whole-repo audits, speculative product ideation, or release decisions without a named feature.",
+    "pathfinder_tags": [
+      "feature",
+      "completeness",
+      "wiring",
+      "tests",
+      "panel"
+    ],
+    "memory_policy": {
+      "read": true,
+      "write_candidates": true,
+      "promote": false,
+      "notes": "May propose memory candidates from repeatable findings; promotion remains explicit."
+    },
+    "learning_policy": {
+      "create_candidates": true,
+      "apply": false,
+      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May use existing dream reports as context; does not launch background analysis without user approval."
+    }
+  },
+  {
+    "name": "contract-drift-panel",
+    "title": "API/Schema/Event Contract Drift Audit",
+    "description": "Producer-consumer contract review across all integration boundaries.",
+    "phases": [
+      {
+        "phase": "map",
+        "agents": [
+          "repo-cartographer"
+        ],
+        "parallel": false,
+        "purpose": "Identify contract surfaces (APIs, schemas, events)"
+      },
+      {
+        "phase": "audit",
+        "agents": [
+          "integration-contract-reviewer",
+          "test-gap-analyst"
+        ],
+        "parallel": true,
+        "purpose": "Find drift; identify which contracts lack tests"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "gap-analysis-lead"
+        ],
+        "parallel": false,
+        "purpose": "Prioritized contract gap list with migration sequencing"
+      }
+    ],
+    "output_artifact": "contract_drift_report",
+    "estimated_cost": "medium",
+    "estimated_time_minutes": 10,
+    "writes_gap_ledger": true,
+    "use_when": "User suspects API/schema/event drift between systems.",
+    "artifacts": [
+      "contract_drift_report"
+    ],
+    "validators": [
+      "artifact-validate.py"
+    ],
+    "ledger_writes": [
+      "gap-ledger"
+    ],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "mode": "read_only",
+    "risk": "medium",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only or proposal-only panel. Confirm before applying any generated remediation or runtime action."
+    },
+    "inputs": [
+      "boundary or integration area",
+      "known producers and consumers",
+      "schemas or docs to compare",
+      "compatibility expectations"
+    ],
+    "success_criteria": [
+      "producer-consumer pairs are identified",
+      "drift is classified as breaking, risky, or benign",
+      "missing contract tests are named"
+    ],
+    "handoff_artifacts": [
+      "contract_drift_report",
+      "contract test backlog",
+      "compatibility notes",
+      "gap-ledger entries"
+    ],
+    "phase_contracts": {
+      "map": {
+        "input": "contract-drift-panel scope plus outputs from prior phases",
+        "output": "map phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "map output is specific enough for the next phase to consume without re-discovery"
+      },
+      "audit": {
+        "input": "contract-drift-panel scope plus outputs from prior phases",
+        "output": "audit phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "audit output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "contract-drift-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use for database-only reviews or broad architecture critique without a contract boundary.",
+    "pathfinder_tags": [
+      "contracts",
+      "api",
+      "schema",
+      "events",
+      "compatibility",
+      "panel"
+    ],
+    "memory_policy": {
+      "read": true,
+      "write_candidates": true,
+      "promote": false,
+      "notes": "May propose memory candidates from repeatable findings; promotion remains explicit."
+    },
+    "learning_policy": {
+      "create_candidates": true,
+      "apply": false,
+      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May use existing dream reports as context; does not launch background analysis without user approval."
+    }
+  },
+  {
+    "name": "release-gate-panel",
+    "title": "Pre-Release Ship/No-Ship Audit",
+    "description": "Release readiness with security + test coverage + adversarial review.",
+    "phases": [
+      {
+        "phase": "map",
+        "agents": [
+          "repo-cartographer"
+        ],
+        "parallel": false,
+        "purpose": "Identify release surfaces (CI, deploy, migration, secrets)"
+      },
+      {
+        "phase": "audit",
+        "agents": [
+          "release-readiness-auditor",
+          "security-auditor",
+          "test-gap-analyst",
+          "adversarial"
+        ],
+        "parallel": true,
+        "purpose": "Four lenses on shipability"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "gap-analysis-lead"
+        ],
+        "parallel": false,
+        "purpose": "Final ship/no-ship verdict with phased remediation"
+      }
+    ],
+    "output_artifact": "release_gate_report",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 18,
+    "writes_gap_ledger": true,
+    "use_when": "User is at a release gate and needs ship/no-ship decision with all blockers identified.",
+    "artifacts": [
+      "release_gate_report"
+    ],
+    "validators": [
+      "artifact-validate.py"
+    ],
+    "ledger_writes": [
+      "gap-ledger"
+    ],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "mode": "read_only",
+    "risk": "high",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only or proposal-only panel. Confirm before applying any generated remediation or runtime action."
+    },
+    "inputs": [
+      "release candidate branch or package",
+      "target version",
+      "known blockers",
+      "required gates and deployment constraints"
+    ],
+    "success_criteria": [
+      "ship/no-ship verdict is explicit",
+      "blockers are backed by evidence",
+      "release risks are categorized by severity and owner"
+    ],
+    "handoff_artifacts": [
+      "release_gate_report",
+      "blocker list",
+      "release risk register",
+      "gap-ledger entries"
+    ],
+    "phase_contracts": {
+      "map": {
+        "input": "release-gate-panel scope plus outputs from prior phases",
+        "output": "map phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "map output is specific enough for the next phase to consume without re-discovery"
+      },
+      "audit": {
+        "input": "release-gate-panel scope plus outputs from prior phases",
+        "output": "audit phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "audit output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "release-gate-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use for early exploration, product scoping, or routine CI repair unless a release decision is being made.",
+    "pathfinder_tags": [
+      "release",
+      "readiness",
+      "security",
+      "tests",
+      "ship-no-ship",
+      "panel"
+    ],
+    "memory_policy": {
+      "read": true,
+      "write_candidates": true,
+      "promote": false,
+      "notes": "May propose memory candidates from repeatable findings; promotion remains explicit."
+    },
+    "learning_policy": {
+      "create_candidates": true,
+      "apply": false,
+      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May use existing dream reports as context; does not launch background analysis without user approval."
+    }
+  },
+  {
+    "name": "prd-panel",
+    "title": "Full PRD with cross-disciplinary review",
+    "description": "Coordinated PRD drafting + technical design + measurement + risk review.",
+    "phases": [
+      {
+        "phase": "product",
+        "agents": [
+          "principal-pm"
+        ],
+        "parallel": false,
+        "purpose": "Problem, users, goals, non-goals, requirements, scope"
+      },
+      {
+        "phase": "design_and_measure",
+        "agents": [
+          "technical-product-architect",
+          "evaluator"
+        ],
+        "parallel": true,
+        "purpose": "Technical design + measurement strategy in parallel"
+      },
+      {
+        "phase": "risk_review",
+        "agents": [
+          "risk-and-controls-reviewer"
+        ],
+        "parallel": false,
+        "purpose": "Compliance, privacy, operational risk assessment"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "principal-pm"
+        ],
+        "parallel": false,
+        "purpose": "Merge all outputs into final PRD with risk-acknowledged scope"
+      }
+    ],
+    "output_artifact": "prd_with_review",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 22,
+    "writes_gap_ledger": false,
+    "use_when": "User wants a PRD that has gone through technical, measurement, and risk review before engineering kickoff.",
+    "artifacts": [
+      "prd_with_review"
+    ],
+    "validators": [
+      "artifact-validate.py"
+    ],
+    "ledger_writes": [],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "mode": "proposal_only",
+    "risk": "medium",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only or proposal-only panel. Confirm before applying any generated remediation or runtime action."
+    },
+    "inputs": [
+      "product idea or problem statement",
+      "target users",
+      "constraints",
+      "known risks or regulatory concerns"
+    ],
+    "success_criteria": [
+      "problem, goals, non-goals, and requirements are explicit",
+      "technical feasibility and measurement strategy are reviewed",
+      "risk controls are integrated into scope"
+    ],
+    "handoff_artifacts": [
+      "prd_with_review",
+      "technical notes",
+      "measurement plan",
+      "risk register"
+    ],
+    "phase_contracts": {
+      "product": {
+        "input": "prd-panel scope plus outputs from prior phases",
+        "output": "product phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "product output is specific enough for the next phase to consume without re-discovery"
+      },
+      "design_and_measure": {
+        "input": "prd-panel scope plus outputs from prior phases",
+        "output": "design_and_measure phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "design_and_measure output is specific enough for the next phase to consume without re-discovery"
+      },
+      "risk_review": {
+        "input": "prd-panel scope plus outputs from prior phases",
+        "output": "risk_review phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "risk_review output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "prd-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use when the user only wants a one-page concept, MVP scope, or implementation without product review.",
+    "pathfinder_tags": [
+      "prd",
+      "product",
+      "measurement",
+      "risk",
+      "planning",
+      "panel"
+    ],
+    "memory_policy": {
+      "read": true,
+      "write_candidates": false,
+      "promote": false,
+      "notes": "May read relevant repository memory; does not write or promote memory entries."
+    },
+    "learning_policy": {
+      "create_candidates": false,
+      "apply": false,
+      "notes": "Does not create or apply learning candidates by default."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May consume existing dream reports when relevant; does not start background dream jobs."
+    }
+  },
+  {
+    "name": "ai-feature-panel",
+    "title": "AI/LLM Feature Spec with safety review",
+    "description": "AI-specific PRD with technical design, eval methodology, security review, and risk-and-controls review. The 4-agent chain for any LLM/agent/ML feature.",
+    "phases": [
+      {
+        "phase": "product",
+        "agents": [
+          "principal-pm"
+        ],
+        "parallel": false,
+        "purpose": "Problem framing, users, goals, non-goals (AI-aware)"
+      },
+      {
+        "phase": "design_and_evaluate",
+        "agents": [
+          "technical-product-architect",
+          "evaluator"
+        ],
+        "parallel": true,
+        "purpose": "Technical design with AI-specific sections + eval methodology"
+      },
+      {
+        "phase": "safety_and_compliance",
+        "agents": [
+          "security-auditor",
+          "risk-and-controls-reviewer"
+        ],
+        "parallel": true,
+        "purpose": "Security review for AI surface + compliance/privacy/data-handling"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "principal-pm"
+        ],
+        "parallel": false,
+        "purpose": "Final AI feature spec with safety controls, fallbacks, cost model"
+      }
+    ],
+    "output_artifact": "ai_feature_spec",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 28,
+    "writes_gap_ledger": false,
+    "use_when": "User is building an LLM/agent/ML feature and wants the full AI-product review chain before implementation.",
+    "artifacts": [
+      "ai_feature_spec"
+    ],
+    "validators": [
+      "artifact-validate.py"
+    ],
+    "ledger_writes": [],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "mode": "proposal_only",
+    "risk": "high",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only or proposal-only panel. Confirm before applying any generated remediation or runtime action."
+    },
+    "inputs": [
+      "AI feature concept",
+      "user and data context",
+      "model/tool constraints",
+      "safety, privacy, and evaluation expectations"
+    ],
+    "success_criteria": [
+      "AI behavior is scoped with non-goals and fallbacks",
+      "evaluation plan covers quality and safety",
+      "security and privacy controls are concrete"
+    ],
+    "handoff_artifacts": [
+      "ai_feature_spec",
+      "eval plan",
+      "safety controls",
+      "risk register"
+    ],
+    "phase_contracts": {
+      "product": {
+        "input": "ai-feature-panel scope plus outputs from prior phases",
+        "output": "product phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "product output is specific enough for the next phase to consume without re-discovery"
+      },
+      "design_and_evaluate": {
+        "input": "ai-feature-panel scope plus outputs from prior phases",
+        "output": "design_and_evaluate phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "design_and_evaluate output is specific enough for the next phase to consume without re-discovery"
+      },
+      "safety_and_compliance": {
+        "input": "ai-feature-panel scope plus outputs from prior phases",
+        "output": "safety_and_compliance phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "safety_and_compliance output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "ai-feature-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use for non-AI features, lightweight concept notes, or model benchmark design without product scope.",
+    "pathfinder_tags": [
+      "ai",
+      "llm",
+      "agents",
+      "evals",
+      "safety",
+      "risk",
+      "panel"
+    ],
+    "memory_policy": {
+      "read": true,
+      "write_candidates": false,
+      "promote": false,
+      "notes": "May read relevant repository memory; does not write or promote memory entries."
+    },
+    "learning_policy": {
+      "create_candidates": false,
+      "apply": false,
+      "notes": "Does not create or apply learning candidates by default."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May consume existing dream reports when relevant; does not start background dream jobs."
+    }
+  },
+  {
+    "name": "idea-panel",
+    "title": "Coordinated Idea Generation + Validation",
+    "description": "4-agent panel for early-stage ideation with customer + market grounding. Used pre-PRD when exploring a new problem space.",
+    "phases": [
+      {
+        "phase": "frame",
+        "agents": [
+          "innovation-lead"
+        ],
+        "parallel": false,
+        "purpose": "Frame the problem with multiple lenses; identify generation method"
+      },
+      {
+        "phase": "ground",
+        "agents": [
+          "customer-advocate",
+          "market-analyst"
+        ],
+        "parallel": true,
+        "purpose": "Customer signal interpretation + competitive landscape in parallel"
+      },
+      {
+        "phase": "generate_and_triage",
+        "agents": [
+          "innovation-lead"
+        ],
+        "parallel": false,
+        "purpose": "Generate ideas grounded in customer + market context; triage with weighted criteria"
+      },
+      {
+        "phase": "validate_recommendation",
+        "agents": [
+          "principal-pm"
+        ],
+        "parallel": false,
+        "purpose": "Convert top recommendations into concept briefs ready for stakeholder review"
+      }
+    ],
+    "output_artifact": "validated_idea_brief",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 20,
+    "writes_gap_ledger": false,
+    "use_when": "User is pre-PRD, exploring a problem space, and wants ideas grounded in customer and market reality with structured triage.",
+    "artifacts": [
+      "validated_idea_brief"
+    ],
+    "validators": [
+      "artifact-validate.py"
+    ],
+    "ledger_writes": [],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "mode": "proposal_only",
+    "risk": "low",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only or proposal-only panel. Confirm before applying any generated remediation or runtime action."
+    },
+    "inputs": [
+      "problem area",
+      "customer segment",
+      "market or product constraints",
+      "decision criteria"
+    ],
+    "success_criteria": [
+      "ideas are grounded in user and market evidence",
+      "trade-offs and disconfirming signals are visible",
+      "top options are ranked by explicit criteria"
+    ],
+    "handoff_artifacts": [
+      "validated_idea_brief",
+      "idea shortlist",
+      "triage matrix",
+      "next-step recommendation"
+    ],
+    "phase_contracts": {
+      "frame": {
+        "input": "idea-panel scope plus outputs from prior phases",
+        "output": "frame phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "frame output is specific enough for the next phase to consume without re-discovery"
+      },
+      "ground": {
+        "input": "idea-panel scope plus outputs from prior phases",
+        "output": "ground phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "ground output is specific enough for the next phase to consume without re-discovery"
+      },
+      "generate_and_triage": {
+        "input": "idea-panel scope plus outputs from prior phases",
+        "output": "generate_and_triage phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "generate_and_triage output is specific enough for the next phase to consume without re-discovery"
+      },
+      "validate_recommendation": {
+        "input": "idea-panel scope plus outputs from prior phases",
+        "output": "validate_recommendation phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "validate_recommendation output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use once scope is chosen and the user needs MVP definition, PRD, or implementation.",
+    "pathfinder_tags": [
+      "idea",
+      "innovation",
+      "customer",
+      "market",
+      "triage",
+      "panel"
+    ],
+    "memory_policy": {
+      "read": true,
+      "write_candidates": false,
+      "promote": false,
+      "notes": "May read relevant repository memory; does not write or promote memory entries."
+    },
+    "learning_policy": {
+      "create_candidates": false,
+      "apply": false,
+      "notes": "Does not create or apply learning candidates by default."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May consume existing dream reports when relevant; does not start background dream jobs."
+    }
+  },
+  {
+    "name": "mvp-panel",
+    "title": "MVP Scope Definition with Evaluation Strategy",
+    "description": "3-agent panel for scoping the MVP with hypothesis, validation strategy, and technical feasibility check. Used after concept-stage, pre-engineering kickoff.",
+    "phases": [
+      {
+        "phase": "scope",
+        "agents": [
+          "principal-pm"
+        ],
+        "parallel": false,
+        "purpose": "Define MVP hypothesis, must/should/won't-have, validation criteria"
+      },
+      {
+        "phase": "feasibility_and_evaluation",
+        "agents": [
+          "technical-product-architect",
+          "evaluator"
+        ],
+        "parallel": true,
+        "purpose": "Technical feasibility check + validation strategy design in parallel"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "principal-pm"
+        ],
+        "parallel": false,
+        "purpose": "Final MVP scope with technical confidence + validation plan"
+      }
+    ],
+    "output_artifact": "mvp_definition",
+    "estimated_cost": "medium",
+    "estimated_time_minutes": 15,
+    "writes_gap_ledger": false,
+    "use_when": "User has a chosen concept and needs MVP scope with both technical feasibility and validation strategy.",
+    "artifacts": [
+      "mvp_definition"
+    ],
+    "validators": [
+      "artifact-validate.py"
+    ],
+    "ledger_writes": [],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "mode": "proposal_only",
+    "risk": "medium",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only or proposal-only panel. Confirm before applying any generated remediation or runtime action."
+    },
+    "inputs": [
+      "chosen concept",
+      "target users",
+      "success metric",
+      "technical constraints and timeline"
+    ],
+    "success_criteria": [
+      "MVP hypothesis and must-have behavior are explicit",
+      "should-have and won't-have items prevent scope creep",
+      "validation plan can be run after implementation"
+    ],
+    "handoff_artifacts": [
+      "mvp_definition",
+      "scope boundary",
+      "validation plan",
+      "technical feasibility notes"
+    ],
+    "phase_contracts": {
+      "scope": {
+        "input": "mvp-panel scope plus outputs from prior phases",
+        "output": "scope phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "scope output is specific enough for the next phase to consume without re-discovery"
+      },
+      "feasibility_and_evaluation": {
+        "input": "mvp-panel scope plus outputs from prior phases",
+        "output": "feasibility_and_evaluation phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "feasibility_and_evaluation output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "mvp-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use for broad ideation, full PRD drafting, or implementation once MVP scope is already locked.",
+    "pathfinder_tags": [
+      "mvp",
+      "scope",
+      "validation",
+      "feasibility",
+      "panel"
+    ],
+    "memory_policy": {
+      "read": true,
+      "write_candidates": false,
+      "promote": false,
+      "notes": "May read relevant repository memory; does not write or promote memory entries."
+    },
+    "learning_policy": {
+      "create_candidates": false,
+      "apply": false,
+      "notes": "Does not create or apply learning candidates by default."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May consume existing dream reports when relevant; does not start background dream jobs."
+    }
+  },
+  {
+    "name": "cognitive-governance-panel",
+    "title": "Cognitive Governance and Learning Health Review",
+    "description": "V8 governance panel for memory, learning queue, dream reports, pathfinder routing, dashboard telemetry, and capability graph health.",
+    "mode": "proposal_only",
+    "risk": "medium",
+    "confirmation": {
+      "required": false,
+      "reason": "Reviews and proposes governance actions. Memory promotion, learning application, and dream execution stay explicit."
+    },
+    "inputs": [
+      "plugin root or installed runtime path",
+      "recent dashboard or telemetry symptoms",
+      "known routing or memory concerns",
+      "optional release target"
+    ],
+    "success_criteria": [
+      "cognitive surfaces are checked together",
+      "state writes and approval boundaries are explicit",
+      "telemetry gaps are separated from usage gaps"
+    ],
+    "handoff_artifacts": [
+      "cognitive_governance_report",
+      "memory candidates",
+      "learning candidate recommendations",
+      "dashboard telemetry checklist"
+    ],
+    "phase_contracts": {
+      "inventory": {
+        "input": "cognitive-governance-panel scope plus outputs from prior phases",
+        "output": "inventory phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "inventory output is specific enough for the next phase to consume without re-discovery"
+      },
+      "governance_audit": {
+        "input": "cognitive-governance-panel scope plus outputs from prior phases",
+        "output": "governance_audit phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "governance_audit output is specific enough for the next phase to consume without re-discovery"
+      },
+      "route_and_workflow": {
+        "input": "cognitive-governance-panel scope plus outputs from prior phases",
+        "output": "route_and_workflow phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "route_and_workflow output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "cognitive-governance-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use for ordinary feature work, code review, or runtime bug fixes that do not touch V8 cognitive surfaces.",
+    "pathfinder_tags": [
+      "cognitive",
+      "memory",
+      "learning",
+      "dream",
+      "dashboard",
+      "graph",
+      "governance",
+      "panel"
+    ],
+    "phases": [
+      {
+        "phase": "inventory",
+        "agents": [
+          "catalog-strategist"
+        ],
+        "parallel": false,
+        "purpose": "Map cognitive surfaces, catalog links, dashboard telemetry, and graph contracts"
+      },
+      {
+        "phase": "governance_audit",
+        "agents": [
+          "memory-curator",
+          "learning-auditor",
+          "dream-synthesizer"
+        ],
+        "parallel": true,
+        "purpose": "Audit memory, learning queue, and dream report health in parallel"
+      },
+      {
+        "phase": "route_and_workflow",
+        "agents": [
+          "workflow-planner"
+        ],
+        "parallel": false,
+        "purpose": "Check pathfinder tags, routing affordances, and safe workflow recommendations"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "catalog-strategist"
+        ],
+        "parallel": false,
+        "purpose": "Merge findings into governance recommendations and validation gates"
+      }
+    ],
+    "output_artifact": "cognitive_governance_report",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 18,
+    "writes_gap_ledger": false,
+    "use_when": "V8 governance panel for memory, learning queue, dream reports, pathfinder routing, dashboard telemetry, and capability graph health.",
+    "artifacts": [
+      "cognitive_governance_report"
+    ],
+    "validators": [
+      "audit-catalog-consistency.py",
+      "build-capability-graph.py",
+      "run-cognitive-tests.py"
+    ],
+    "ledger_writes": [],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "memory_policy": {
+      "read": true,
+      "write_candidates": true,
+      "promote": false,
+      "notes": "Audits memory quality and proposes candidates; never promotes memory automatically."
+    },
+    "learning_policy": {
+      "create_candidates": true,
+      "apply": false,
+      "notes": "Audits and queues learning candidates; application is explicitly review-gated."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "Reviews existing dream reports and recommends jobs; running jobs remains explicit."
+    }
+  },
+  {
+    "name": "security-privacy-panel",
+    "title": "Security and Privacy Control Review",
+    "description": "Cross-functional security, privacy, data-flow, and control review for sensitive code, AI surfaces, integrations, or release candidates.",
+    "mode": "read_only",
+    "risk": "high",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only audit. Remediation, credential rotation, or policy changes require explicit approval."
+    },
+    "inputs": [
+      "security or privacy scope",
+      "sensitive data classes",
+      "threat model or compliance concern",
+      "runtime or deployment boundaries"
+    ],
+    "success_criteria": [
+      "data flows and trust boundaries are mapped",
+      "findings are ranked by exploitability and impact",
+      "controls are tied to concrete risks"
+    ],
+    "handoff_artifacts": [
+      "security_privacy_report",
+      "risk register",
+      "control checklist",
+      "gap-ledger entries"
+    ],
+    "phase_contracts": {
+      "map": {
+        "input": "security-privacy-panel scope plus outputs from prior phases",
+        "output": "map phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "map output is specific enough for the next phase to consume without re-discovery"
+      },
+      "audit": {
+        "input": "security-privacy-panel scope plus outputs from prior phases",
+        "output": "audit phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "audit output is specific enough for the next phase to consume without re-discovery"
+      },
+      "architecture_controls": {
+        "input": "security-privacy-panel scope plus outputs from prior phases",
+        "output": "architecture_controls phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "architecture_controls output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "security-privacy-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use for generic dependency audits without security/privacy context or for code review unrelated to sensitive boundaries.",
+    "pathfinder_tags": [
+      "security",
+      "privacy",
+      "data-flow",
+      "controls",
+      "risk",
+      "panel"
+    ],
+    "phases": [
+      {
+        "phase": "map",
+        "agents": [
+          "repo-cartographer"
+        ],
+        "parallel": false,
+        "purpose": "Map sensitive code paths, data flows, and trust boundaries"
+      },
+      {
+        "phase": "audit",
+        "agents": [
+          "security-auditor",
+          "risk-and-controls-reviewer",
+          "auditor"
+        ],
+        "parallel": true,
+        "purpose": "Security, privacy, and operational controls review in parallel"
+      },
+      {
+        "phase": "architecture_controls",
+        "agents": [
+          "technical-product-architect"
+        ],
+        "parallel": false,
+        "purpose": "Translate findings into architecture and control recommendations"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "risk-and-controls-reviewer"
+        ],
+        "parallel": false,
+        "purpose": "Produce ranked report with remediation, owners, and validation gates"
+      }
+    ],
+    "output_artifact": "security_privacy_report",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 22,
+    "writes_gap_ledger": true,
+    "use_when": "Cross-functional security, privacy, data-flow, and control review for sensitive code, AI surfaces, integrations, or release candidates.",
+    "artifacts": [
+      "security_privacy_report"
+    ],
+    "validators": [
+      "catalog-audit.py",
+      "artifact-validate.py"
+    ],
+    "ledger_writes": [
+      "gap-ledger"
+    ],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "memory_policy": {
+      "read": true,
+      "write_candidates": true,
+      "promote": false,
+      "notes": "May propose memory candidates from repeatable findings; promotion remains explicit."
+    },
+    "learning_policy": {
+      "create_candidates": true,
+      "apply": false,
+      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May use existing dream reports as context; does not launch background analysis without user approval."
+    }
+  },
+  {
+    "name": "migration-readiness-panel",
+    "title": "Migration Readiness and Compatibility Review",
+    "description": "Migration planning panel for version upgrades, API swaps, schema migrations, runtime changes, or package moves.",
+    "mode": "read_only",
+    "risk": "high",
+    "confirmation": {
+      "required": false,
+      "reason": "Produces readiness and sequencing guidance. Applying migration changes requires explicit implementation approval."
+    },
+    "inputs": [
+      "source and target state",
+      "compatibility requirements",
+      "affected packages or services",
+      "rollback and deployment constraints"
+    ],
+    "success_criteria": [
+      "current and target contract surfaces are mapped",
+      "breaking changes and data risks are explicit",
+      "test and rollout gates are named"
+    ],
+    "handoff_artifacts": [
+      "migration_readiness_report",
+      "compatibility matrix",
+      "rollout plan",
+      "gap-ledger entries"
+    ],
+    "phase_contracts": {
+      "map": {
+        "input": "migration-readiness-panel scope plus outputs from prior phases",
+        "output": "map phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "map output is specific enough for the next phase to consume without re-discovery"
+      },
+      "audit": {
+        "input": "migration-readiness-panel scope plus outputs from prior phases",
+        "output": "audit phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "audit output is specific enough for the next phase to consume without re-discovery"
+      },
+      "sequence": {
+        "input": "migration-readiness-panel scope plus outputs from prior phases",
+        "output": "sequence phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "sequence output is specific enough for the next phase to consume without re-discovery"
+      },
+      "synthesize": {
+        "input": "migration-readiness-panel scope plus outputs from prior phases",
+        "output": "synthesize phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use for trivial dependency bumps, exploratory architecture reviews, or one-file refactors without migration risk.",
+    "pathfinder_tags": [
+      "migration",
+      "compatibility",
+      "contracts",
+      "rollout",
+      "tests",
+      "panel"
+    ],
+    "phases": [
+      {
+        "phase": "map",
+        "agents": [
+          "repo-cartographer"
+        ],
+        "parallel": false,
+        "purpose": "Map current state, target state, and affected integration surfaces"
+      },
+      {
+        "phase": "audit",
+        "agents": [
+          "integration-contract-reviewer",
+          "test-gap-analyst",
+          "release-readiness-auditor"
+        ],
+        "parallel": true,
+        "purpose": "Compatibility, test, and release readiness review in parallel"
+      },
+      {
+        "phase": "sequence",
+        "agents": [
+          "workflow-planner"
+        ],
+        "parallel": false,
+        "purpose": "Split migration into safe phases with rollback and validation"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "gap-analysis-lead"
+        ],
+        "parallel": false,
+        "purpose": "Merge findings into readiness verdict and migration execution plan"
+      }
+    ],
+    "output_artifact": "migration_readiness_report",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 20,
+    "writes_gap_ledger": true,
+    "use_when": "Migration planning panel for version upgrades, API swaps, schema migrations, runtime changes, or package moves.",
+    "artifacts": [
+      "migration_readiness_report"
+    ],
+    "validators": [
+      "catalog-audit.py",
+      "run-router-bench.py"
+    ],
+    "ledger_writes": [
+      "gap-ledger"
+    ],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "memory_policy": {
+      "read": true,
+      "write_candidates": true,
+      "promote": false,
+      "notes": "May propose memory candidates from repeatable findings; promotion remains explicit."
+    },
+    "learning_policy": {
+      "create_candidates": true,
+      "apply": false,
+      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May use existing dream reports as context; does not launch background analysis without user approval."
+    }
+  },
+  {
+    "name": "incident-response-panel",
+    "title": "Incident Response and Recovery Review",
+    "description": "Fast triage panel for production incidents, broken releases, live regressions, data exposure concerns, or urgent runtime failures.",
+    "mode": "read_only",
+    "risk": "high",
+    "confirmation": {
+      "required": true,
+      "reason": "Can recommend high-impact recovery, rollback, or credential actions. Execution always requires explicit confirmation."
+    },
+    "inputs": [
+      "incident summary",
+      "observed symptoms and timestamps",
+      "affected systems and user impact",
+      "known recent changes and logs"
+    ],
+    "success_criteria": [
+      "likely causes are ranked by evidence",
+      "impact and containment are separated",
+      "recovery actions are sequenced by risk"
+    ],
+    "handoff_artifacts": [
+      "incident_response_report",
+      "containment checklist",
+      "recovery plan",
+      "postmortem outline",
+      "gap-ledger entries"
+    ],
+    "phase_contracts": {
+      "triage": {
+        "input": "incident-response-panel scope plus outputs from prior phases",
+        "output": "triage phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "triage output is specific enough for the next phase to consume without re-discovery"
+      },
+      "impact": {
+        "input": "incident-response-panel scope plus outputs from prior phases",
+        "output": "impact phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "impact output is specific enough for the next phase to consume without re-discovery"
+      },
+      "recovery_plan": {
+        "input": "incident-response-panel scope plus outputs from prior phases",
+        "output": "recovery_plan phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "recovery_plan output is specific enough for the next phase to consume without re-discovery"
+      },
+      "writeup": {
+        "input": "incident-response-panel scope plus outputs from prior phases",
+        "output": "writeup phase artifact with evidence, assumptions, and open questions",
+        "quality_gate": "writeup output is specific enough for the next phase to consume without re-discovery"
+      }
+    },
+    "do_not_use_when": "Do not use for routine debugging with no operational impact, speculative architecture work, or product planning.",
+    "pathfinder_tags": [
+      "incident",
+      "debug",
+      "recovery",
+      "rollback",
+      "postmortem",
+      "security",
+      "panel"
+    ],
+    "phases": [
+      {
+        "phase": "triage",
+        "agents": [
+          "debugger"
+        ],
+        "parallel": false,
+        "purpose": "Reproduce or bound the failure and rank likely causes by evidence"
+      },
+      {
+        "phase": "impact",
+        "agents": [
+          "security-auditor",
+          "auditor",
+          "release-readiness-auditor"
+        ],
+        "parallel": true,
+        "purpose": "Assess security, operational, and release impact in parallel"
+      },
+      {
+        "phase": "recovery_plan",
+        "agents": [
+          "gap-analysis-lead"
+        ],
+        "parallel": false,
+        "purpose": "Prioritize containment, recovery, validation, and follow-up work"
+      },
+      {
+        "phase": "writeup",
+        "agents": [
+          "writer"
+        ],
+        "parallel": false,
+        "purpose": "Produce concise incident report and postmortem scaffold"
+      }
+    ],
+    "output_artifact": "incident_response_report",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 16,
+    "writes_gap_ledger": true,
+    "use_when": "Fast triage panel for production incidents, broken releases, live regressions, data exposure concerns, or urgent runtime failures.",
+    "artifacts": [
+      "incident_response_report"
+    ],
+    "validators": [
+      "catalog-audit.py",
+      "run-hook-tests.py"
+    ],
+    "ledger_writes": [
+      "gap-ledger"
+    ],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "memory_policy": {
+      "read": true,
+      "write_candidates": true,
+      "promote": false,
+      "notes": "May propose memory candidates from repeatable findings; promotion remains explicit."
+    },
+    "learning_policy": {
+      "create_candidates": true,
+      "apply": false,
+      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May use existing dream reports as context; does not launch background analysis without user approval."
+    }
+  }
+]

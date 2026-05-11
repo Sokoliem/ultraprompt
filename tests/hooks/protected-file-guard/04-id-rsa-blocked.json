@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"file_path": "/home/user/.ssh/id_rsa"}},
+  "expected_exit": 2
+}

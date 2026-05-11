@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "memory.schema.json",
+  "title": "Ultraprompt Memory Record",
+  "type": "object",
+  "required": ["schema", "id", "kind", "scope", "status", "privacy", "text", "confidence", "importance", "evidence"],
+  "properties": {
+    "schema": {"const": "memory.v1"},
+    "id": {"type": "string"},
+    "kind": {"enum": ["episodic", "repo_fact", "repo_pattern", "procedure", "route_outcome", "user_preference", "project_preference", "gap_memory", "ecosystem_observation", "dream_hypothesis"]},
+    "scope": {"enum": ["user", "repo", "project", "plugin", "global"]},
+    "status": {"enum": ["candidate", "active", "stale", "contradicted", "retired", "quarantined", "deleted"]},
+    "privacy": {"enum": ["metadata", "local_only", "contains_pii", "redacted"]},
+    "text": {"type": "string", "minLength": 1},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "importance": {"type": "number", "minimum": 0, "maximum": 1},
+    "evidence": {"type": "array"}
+  }
+}

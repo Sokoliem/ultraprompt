@@ -1,0 +1,33 @@
+{
+  "name": "ultraprompt",
+  "version": "8.0.0",
+  "description": "Ultraprompt V8 cognitive control-plane plugin for Claude Code and Codex: 48 skills, 29 agents, 42 MCP tools, 30 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, and dual-runtime install.",
+  "author": {
+    "name": "Ultraprompt Toolkit"
+  },
+  "license": "MIT",
+  "mcpServers": "./.codex.mcp.json",
+  "runtime": {
+    "codex_version_min": "5.5",
+    "skills_path": "./skills",
+    "mcp_config_path": "./.codex.mcp.json",
+    "hooks_path": "./hooks",
+    "agents_path": "./agents",
+    "subagents_supported": true,
+    "lifecycle_hooks_supported": true
+  },
+  "capabilities": {
+    "skills": true,
+    "mcp": true,
+    "hooks": "feature-detected",
+    "subagents": true,
+    "monitors": false,
+    "output_styles": false
+  },
+  "compatibility_notes": [
+    "V8.0.0 preserves the native Codex manifest. Installer does not copy the Claude manifest over Codex metadata.",
+    "Hooks may require feature detection depending on Codex runtime version.",
+    "Subagents supported via Task tool; agent definitions shared with Claude runtime.",
+    "Cognitive memory, dreams, learning, and pathfinding are local-first and governed by release gates."
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "input": {"tool_input": {"command": "rm -rf /"}},
+  "env": {"ULTRAPROMPT_DISABLE_HOOKS": "1"},
+  "expected_exit": 0
+}

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "ultraprompt-meta": {
+      "command": "py",
+      "args": ["-3", "./mcp/ultraprompt_meta.py"],
+      "cwd": "."
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dream-report.schema.json",
+  "title": "Ultraprompt Dream Report",
+  "type": "object",
+  "required": ["schema", "id", "job", "created_at", "summary"],
+  "properties": {
+    "schema": {"const": "dream_report.v1"},
+    "id": {"type": "string"},
+    "job": {"type": "string"},
+    "created_at": {"type": "string"},
+    "summary": {"type": "string"}
+  }
+}

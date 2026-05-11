@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"file_path": "/keys/server.pem"}},
+  "expected_exit": 2
+}

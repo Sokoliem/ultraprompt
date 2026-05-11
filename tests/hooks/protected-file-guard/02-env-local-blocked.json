@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"file_path": "/repo/.env.local"}},
+  "expected_exit": 2
+}

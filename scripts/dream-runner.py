@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+"""Safe scheduled reflection jobs for Ultraprompt V8."""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+from cognitive_common import FileLock, ROOT, command_result, data_dir, print_json, read_json, read_jsonl, sortable_id, utc_now, write_json
+
+
+def catalog() -> dict[str, Any]:
+    return read_json(ROOT / "source" / "dream-jobs.json", {"jobs": []})
+
+
+def reports_dir() -> Path:
+    return data_dir("dreams") / "reports"
+
+
+def lock_path() -> Path:
+    return data_dir("dreams") / "dream.lock"
+
+
+def report_path(job: str, report_id: str) -> Path:
+    return reports_dir() / f"{report_id}-{job}.json"
+
+
+def emit_event(event_type: str, payload: dict[str, Any]) -> None:
+    script = ROOT / "scripts" / "cognitive-event-log.py"
+    try:
+        subprocess.run(
+            [sys.executable, str(script), "write", event_type, "--json", json.dumps(payload), "--privacy", "metadata"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except Exception:
+        pass
+
+
+def run_script(args: list[str], timeout: int = 60) -> dict[str, Any]:
+    proc = subprocess.run([sys.executable, str(ROOT / "scripts" / args[0]), *args[1:]], cwd=ROOT, capture_output=True, text=True, timeout=timeout)
+    return {"cmd": " ".join(args), "ok": proc.returncode == 0, "exit": proc.returncode, "stdout": proc.stdout[-4000:], "stderr": proc.stderr[-4000:]}
+
+
+def write_memory_candidate(kind: str, scope: str, text: str, *, repo: str = "", evidence_ref: str = "") -> dict[str, Any]:
+    args = [
+        "memory-store.py",
+        "write-candidate",
+        "--kind",
+        kind,
+        "--scope",
+        scope,
+        "--text",
+        text,
+        "--source",
+        "dream",
+        "--confidence",
+        "0.55",
+        "--importance",
+        "0.45",
+    ]
+    if repo:
+        args.extend(["--repo", repo])
+    if evidence_ref:
+        args.extend(["--evidence", f"dream_report:{evidence_ref}"])
+    result = run_script(args)
+    try:
+        return json.loads(result["stdout"])
+    except Exception:
+        return result
+
+
+def add_learning(kind: str, title: str, payload: dict[str, Any]) -> dict[str, Any]:
+    result = run_script(["learning-queue.py", "add", "--kind", kind, "--title", title, "--payload-json", json.dumps(payload)])
+    try:
+        return json.loads(result["stdout"])
+    except Exception:
+        return result
+
+
+def recent_events(limit: int = 500) -> list[dict[str, Any]]:
+    stats = run_script(["cognitive-event-log.py", "path"])
+    path_text = stats["stdout"].strip()
+    if not path_text:
+        return []
+    return read_jsonl(Path(path_text), limit=limit)
+
+
+def job_session_compaction(repo: str, report_id: str) -> dict[str, Any]:
+    events = recent_events(500)
+    by_type: dict[str, int] = {}
+    for ev in events:
+        by_type[ev.get("type", "unknown")] = by_type.get(ev.get("type", "unknown"), 0) + 1
+    insight = f"Recent session activity: {len(events)} cognitive events across {len(by_type)} event types."
+    memory = write_memory_candidate("episodic", "project" if repo else "user", insight, repo=repo, evidence_ref=report_id)
+    return {"summary": insight, "event_counts": by_type, "candidate_memory": memory}
+
+
+def job_repo_reflection(repo: str, report_id: str) -> dict[str, Any]:
+    repo_path = Path(repo or ".").resolve()
+    capsule = run_script(["repo-capsule.py", "snapshot", str(repo_path)], timeout=60) if (ROOT / "scripts" / "repo-capsule.py").exists() else {"ok": False}
+    git_head = ""
+    try:
+        git = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=repo_path, capture_output=True, text=True, timeout=5)
+        git_head = git.stdout.strip()
+    except Exception:
+        pass
+    insight = f"Repo reflection for {repo_path.name}: git_head={git_head or 'unavailable'}, capsule_ok={capsule.get('ok')}."
+    memory = write_memory_candidate("repo_pattern", "repo", insight, repo=str(repo_path), evidence_ref=report_id)
+    return {"summary": insight, "repo": str(repo_path), "git_head": git_head, "capsule": capsule, "candidate_memory": memory}
+
+
+def job_route_learning(repo: str, report_id: str) -> dict[str, Any]:
+    events = [e for e in recent_events(500) if e.get("type") in {"route_outcome", "pathfinder_decision"}]
+    corrections = [e for e in events if (e.get("data") or {}).get("outcome") in {"corrected", "failed"}]
+    learning = None
+    if corrections:
+        sample = corrections[-1].get("data") or {}
+        learning = add_learning(
+            "route_update",
+            "Route correction from dream analysis",
+            {
+                "intent_pattern": sample.get("intent", "")[:80],
+                "skill": sample.get("corrected_skill") or sample.get("skill") or "",
+                "weight_delta": 0.1,
+                "reason": f"Generated by dream report {report_id}",
+            },
+        )
+    return {"summary": f"Route learning inspected {len(events)} route/path events and found {len(corrections)} corrections.", "learning_candidate": learning}
+
+
+def job_ecosystem_reflection(repo: str, report_id: str) -> dict[str, Any]:
+    graph = run_script(["build-capability-graph.py", "--json"], timeout=60)
+    audit = run_script(["audit-catalog-consistency.py", "--json"], timeout=120)
+    learning = None
+    if graph["exit"] != 0 or audit["exit"] != 0:
+        learning = add_learning("catalog_proposal", "Catalog health follow-up from ecosystem dream", {"graph_exit": graph["exit"], "audit_exit": audit["exit"], "report_id": report_id})
+    return {"summary": "Ecosystem reflection checked capability graph and catalog consistency.", "graph": graph, "catalog_audit": audit, "learning_candidate": learning}
+
+
+def job_memory_prune(repo: str, report_id: str) -> dict[str, Any]:
+    stats = run_script(["memory-store.py", "stats"])
+    query = run_script(["memory-store.py", "query", "--status", "candidate", "--include-inactive", "--limit", "1000"])
+    learning = None
+    try:
+        data = json.loads(query["stdout"])
+        stale_candidates = [m for m in data.get("memories", []) if m.get("importance", 1) < 0.2]
+    except Exception:
+        stale_candidates = []
+    if stale_candidates:
+        learning = add_learning("memory_promotion", "Review low-importance memory candidates", {"count": len(stale_candidates), "report_id": report_id})
+    return {"summary": f"Memory prune inspected candidate memories; {len(stale_candidates)} need review.", "stats": stats, "learning_candidate": learning}
+
+
+JOBS = {
+    "session-compaction": job_session_compaction,
+    "repo-reflection": job_repo_reflection,
+    "route-learning": job_route_learning,
+    "ecosystem-reflection": job_ecosystem_reflection,
+    "memory-prune": job_memory_prune,
+}
+
+
+def run_job(args: argparse.Namespace) -> dict[str, Any]:
+    if args.job not in JOBS:
+        raise ValueError(f"unknown dream job: {args.job}")
+    spec = next((j for j in catalog().get("jobs", []) if j.get("name") == args.job), {})
+    report_id = sortable_id("dream")
+    emit_event("dream_started", {"job": args.job, "report_id": report_id})
+    if args.dry_run:
+        report = {
+            "schema": "dream_report.v1",
+            "id": report_id,
+            "job": args.job,
+            "dry_run": True,
+            "spec": spec,
+            "created_at": utc_now(),
+            "summary": "dry-run only; no report or state mutation performed",
+        }
+        return command_result(True, report=report)
+    with FileLock(lock_path(), stale_seconds=3600):
+        body = JOBS[args.job](args.repo, report_id)
+        report = {
+            "schema": "dream_report.v1",
+            "id": report_id,
+            "job": args.job,
+            "repo": args.repo,
+            "created_at": utc_now(),
+            "spec": spec,
+            "repo_mutation": "forbidden",
+            "writes": ["dream_report", "memory_candidate_or_learning_candidate"],
+            **body,
+        }
+        path = report_path(args.job, report_id)
+        write_json(path, report)
+    emit_event("dream_completed", {"job": args.job, "report_id": report_id, "path": str(path)})
+    return command_result(True, report=report, path=str(path))
+
+
+def status() -> dict[str, Any]:
+    reports = []
+    for path in sorted(reports_dir().glob("*.json"))[-25:]:
+        reports.append(read_json(path, {"path": str(path)}))
+    return command_result(True, reports_dir=str(reports_dir()), lock_path=str(lock_path()), report_count=len(list(reports_dir().glob("*.json"))), recent_reports=reports[-10:])
+
+
+def review(limit: int) -> dict[str, Any]:
+    reports = []
+    for path in sorted(reports_dir().glob("*.json"))[-limit:]:
+        reports.append(read_json(path, {"path": str(path)}))
+    return command_result(True, count=len(reports), reports=reports)
+
+
+def validate_catalog() -> dict[str, Any]:
+    jobs = catalog().get("jobs", [])
+    missing = [name for name in JOBS if name not in {j.get("name") for j in jobs}]
+    return command_result(not missing, jobs=len(jobs), implemented=sorted(JOBS), missing_specs=missing)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest="cmd", required=True)
+    run = sub.add_parser("run")
+    run.add_argument("job", choices=sorted(JOBS))
+    run.add_argument("--repo", default="")
+    run.add_argument("--dry-run", action="store_true")
+    sub.add_parser("status")
+    rev = sub.add_parser("review")
+    rev.add_argument("--limit", type=int, default=10)
+    sub.add_parser("validate-catalog")
+    args = parser.parse_args()
+    try:
+        if args.cmd == "run":
+            print_json(run_job(args))
+        elif args.cmd == "status":
+            print_json(status())
+        elif args.cmd == "review":
+            print_json(review(args.limit))
+        elif args.cmd == "validate-catalog":
+            print_json(validate_catalog())
+    except Exception as exc:
+        emit_event("dream_failed", {"error": str(exc), "job": getattr(args, "job", "")})
+        print_json(command_result(False, error=str(exc)))
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "release_track": "v8-cognitive-control-plane",
+  "sources": {
+    "skills": "source/skill-specs.json",
+    "agents": "source/agent-specs.json",
+    "panels": "source/panel-specs.json",
+    "dream_jobs": "source/dream-jobs.json",
+    "memory_schemas": "source/memory-schemas.json",
+    "hooks": "hooks/hooks.json",
+    "artifact_schemas": "scripts/artifact-validate.py",
+    "mcp_tools": "mcp/ultraprompt_meta.py",
+    "commands": "commands/*.md",
+    "output_styles": "output-styles/*.md"
+  },
+  "generated": [
+    "skills/*/SKILL.md",
+    "agents/*.md",
+    "dist/skill-index.json",
+    "dist/catalog-audit-report.json",
+    "dist/catalog-metadata.json",
+    "dist/capability-graph.json",
+    "dist/release-scorecard.json"
+  ]
+}

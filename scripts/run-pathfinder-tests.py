@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""Deterministic pathfinder golden tests."""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+from cognitive_common import ROOT, command_result, print_json
+
+
+def run_case(intent: str) -> dict:
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "pathfinder.py"), "pathfind", "--intent", intent, "--dry-run"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    try:
+        data = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        data = {"ok": False, "error": proc.stdout or proc.stderr}
+    return {"exit": proc.returncode, "data": data}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+    cases = json.loads((ROOT / "tests" / "pathfinder" / "golden-cases.json").read_text(encoding="utf-8"))
+    results = []
+    top1 = 0
+    top3 = 0
+    for case in cases:
+        result = run_case(case["intent"])
+        path = result["data"].get("path", {}) if result["data"].get("ok") else {}
+        got = path.get("recommended_path", {}).get("skill")
+        alternatives = [a.get("skill") for a in path.get("alternatives", [])]
+        ok1 = got == case["expected_skill"]
+        ok3 = ok1 or case["expected_skill"] in alternatives
+        top1 += 1 if ok1 else 0
+        top3 += 1 if ok3 else 0
+        results.append({**case, "got": got, "alternatives": alternatives, "top1": ok1, "top3": ok3, "exit": result["exit"]})
+    ok = top1 / len(cases) >= 0.95 and top3 == len(cases)
+    payload = command_result(ok, total=len(cases), top1=top1, top3=top3, results=results)
+    if args.json:
+        print_json(payload)
+    else:
+        print(f"Pathfinder bench: {len(cases)} cases")
+        print(f"- top-1: {top1}/{len(cases)} ({top1 / len(cases) * 100:.1f}%; target >=95%)")
+        print(f"- top-3: {top3}/{len(cases)} ({top3 / len(cases) * 100:.1f}%; target 100%)")
+        for item in results:
+            if not item["top1"]:
+                print(f"  MISS {item['intent']!r} expected={item['expected_skill']} got={item['got']} alternatives={item['alternatives']}")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

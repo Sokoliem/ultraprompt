@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "ultraprompt",
+  "version": "8.0.0",
+  "description": "Ultraprompt V8 cognitive control-plane plugin for Claude Code and Codex: 48 skills, 29 agents, 42 MCP tools, 30 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, and dual-runtime install.",
+  "author": {
+    "name": "Ultraprompt Toolkit"
+  },
+  "license": "MIT",
+  "hooks": "./hooks/hooks.json",
+  "outputStyles": "./output-styles/",
+  "mcpServers": "./.mcp.json",
+  "keywords": [
+    "claude-code",
+    "codex",
+    "claude-code-plugins",
+    "agentic-ai",
+    "code-review",
+    "debugging",
+    "security",
+    "mcp",
+    "mcp-server",
+    "hooks",
+    "evidence-ledger",
+    "claim-check",
+    "panel-run",
+    "repo-capsule",
+    "router-bench",
+    "worktree",
+    "session-aware",
+    "wip-save",
+    "launchd",
+    "observability"
+  ]
+}

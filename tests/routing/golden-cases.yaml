@@ -1,0 +1,171 @@
+# Ultraprompt V8 router golden cases (positive)
+# Format: each case is a `- intent: ...` followed by `expected: <skill-name>`.
+# Target: ≥90% top-1, 100% top-3.
+
+- intent: "review the auth diff before merging"
+  expected: review
+
+- intent: "review my pull request and tell me if it's safe to merge"
+  expected: review
+
+- intent: "summarize this PR for the changelog"
+  expected: review
+
+- intent: "deep multi-perspective review of a risky cross-cutting change"
+  expected: review
+
+- intent: "the test suite is failing in CI but passes locally"
+  expected: ci-repair
+
+- intent: "this test is flaky, fails 1 in 10 runs"
+  expected: debug
+
+- intent: "debug a NullPointerException in the order processing service"
+  expected: debug
+
+- intent: "the build is broken, fix it"
+  expected: ci-repair
+
+- intent: "implement user-facing dark mode toggle"
+  expected: build
+
+- intent: "build a new feature for tagged search"
+  expected: build
+
+- intent: "refactor this module to be cleaner without changing behavior"
+  expected: refactor
+
+- intent: "strengthen the types in this file"
+  expected: refactor
+
+- intent: "improve test coverage and reduce flakiness in the orders module"
+  expected: test-harden
+
+- intent: "give me a structural map of this repository"
+  expected: repo-map
+
+- intent: "onboard a new contributor to this codebase"
+  expected: repo-map
+
+- intent: "find code that handles webhook signature verification"
+  expected: repo-map
+
+- intent: "review the architecture and module boundaries"
+  expected: architect
+
+- intent: "is the module structure of our monorepo holding up?"
+  expected: architect
+
+- intent: "we want to deprecate the v1 API endpoint, how do we do it safely?"
+  expected: api-contract
+
+- intent: "plan the migration from postgres 14 to postgres 16"
+  expected: migrate
+
+- intent: "upgrade dependencies to latest"
+  expected: migrate
+
+- intent: "is this version ready to release?"
+  expected: release-readiness
+
+- intent: "draft release notes for v2.3.0"
+  expected: release
+
+- intent: "audit auth and secret handling in the user service"
+  expected: security-audit
+
+- intent: "check for SQL injection or auth bypass risks"
+  expected: security-audit
+
+- intent: "map data flow and PII handling for compliance"
+  expected: data-flow-privacy-map
+
+- intent: "audit our dependencies for known CVEs and abandonment risk"
+  expected: dependency-audit
+
+- intent: "harden our supply chain: lockfile, install scripts, container provenance"
+  expected: supply-chain-hardening
+
+- intent: "investigate performance regression in the search hot path"
+  expected: performance-pass
+
+- intent: "audit accessibility of this UI flow"
+  expected: accessibility-review
+
+- intent: "review this database migration for production safety"
+  expected: database-review
+
+- intent: "review our terraform and IAM policies"
+  expected: infra-iac-review
+
+- intent: "improve observability: logs, metrics, traces, alerting"
+  expected: observability-pass
+
+- intent: "review prompt injection risks in our agent loop"
+  expected: ai-agent-safety-review
+
+- intent: "design an eval suite for our LLM classifier"
+  expected: llm-eval-design
+
+- intent: "generate consumer-driven contract tests for the orders API"
+  expected: contract-test-generate
+
+- intent: "review the order workflow state machine for impossible states"
+  expected: state-machine-review
+
+- intent: "design the layout and focus graph for a new TUI screen"
+  expected: tui-design-innovate
+
+- intent: "find stale documentation that no longer matches the code"
+  expected: docs-sync
+
+- intent: "triage technical debt and propose a 30/60/90 plan"
+  expected: technical-debt-triage
+
+- intent: "review my Claude Code plugin for issues"
+  expected: plugin-review
+
+- intent: "help me author a new skill for this plugin"
+  expected: skill-author
+
+- intent: "design a new subagent for parallel review"
+  expected: agent-author
+
+- intent: "design a new pre-tool hook"
+  expected: hooks-design
+
+- intent: "build a new MCP server for our internal tools"
+  expected: mcp-design
+
+- intent: "pr-review on the latest commit"
+  expected: review
+
+- intent: "flake-hunter on test_async_queue"
+  expected: debug
+
+- intent: "tech-debt-triage for the orders service"
+  expected: technical-debt-triage
+
+- intent: "claude-code-plugin-review on /home/me/my-plugin"
+  expected: plugin-review
+
+- intent: "find test gaps in the billing workflow"
+  expected: test-gap-analysis
+
+- intent: "where is this feature incomplete or half-built?"
+  expected: gap-analysis
+
+- intent: "does the export workflow actually work end to end?"
+  expected: feature-completeness
+
+- intent: "write a quick PRD for workspace notifications"
+  expected: prd-lite
+
+- intent: "write a technical PRD for the event ledger storage layer"
+  expected: prd-technical
+
+- intent: "convert this PRD to an engineering plan"
+  expected: prd-to-plan
+
+- intent: "is this ready to ship to production?"
+  expected: release-readiness

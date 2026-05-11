@@ -1,0 +1,39 @@
+# Ultraprompt V8 router adversarial cases (negative)
+# Format: each case is `- intent: ...` followed by `forbidden: <skill-name>`.
+# Target: 100% rejection (top match must NOT be the forbidden skill, or score below confidence threshold).
+
+- intent: "what's the weather today"
+  forbidden: review
+
+- intent: "tell me a joke"
+  forbidden: build
+
+- intent: "what time is it"
+  forbidden: debug
+
+- intent: "explain quantum mechanics"
+  forbidden: refactor
+
+- intent: "review my essay about cats"
+  forbidden: review
+
+- intent: "build me a sandcastle"
+  forbidden: build
+
+- intent: "debug my relationship problems"
+  forbidden: debug
+
+- intent: "release the kraken"
+  forbidden: release
+
+- intent: "migrate the geese from canada"
+  forbidden: migrate
+
+- intent: "audit my closet for ugly sweaters"
+  forbidden: security-audit
+
+- intent: "review the new movie that came out"
+  forbidden: review
+
+- intent: "what is 2+2"
+  forbidden: build

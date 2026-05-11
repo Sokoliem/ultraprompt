@@ -1,0 +1,57 @@
+---
+name: "contract-test-generate"
+description: "When user says 'generate contract tests / write contract tests for API X / consumer-driven contract / Pact test / OpenAPI contract test / event contract test' — dispatches test-strategist + test-harden with contract focus. DEFAULT for contract-test generation."
+when_to_use: "Manual-only. Invoke when a boundary needs contract-test coverage to prevent silent breakage. For API contract design or deprecation, use core `api-contract`."
+argument-hint: "[boundary|consumer|surface]"
+tier: "specialist"
+aliases: ["contract-test-generate"]
+disable-model-invocation: true
+allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
+---
+
+# Contract Test Generate
+
+Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARGUMENTS` handling, evidence, validation, and safety).
+
+## Distinctive judgment
+
+Contract tests pin the surface from the consumer's perspective. They differ from unit tests (which test the producer's internal logic) and integration tests (which test the live integration). A contract test should fail when the producer changes the surface in a way that breaks consumers — even if the producer's own tests still pass.
+
+## First signals to inspect
+
+- Boundary type: REST API, GraphQL, gRPC, message queue, CLI, file format, package export
+- Consumer list: who depends on this surface?
+- Existing contract tests or schema files (OpenAPI, GraphQL SDL, JSON Schema, Protobuf)
+- Consumer expectations not captured in schema (ordering, default values, error formats)
+
+## Failure modes specific to this lane
+
+- Contract test that's actually an integration test (calls live producer; not a contract pin)
+- Schema-only contract that misses behavioral expectations (ordering, error format)
+- Contract test owned by producer (goalpost-moving when producer changes the surface)
+- Contract for one consumer applied as universal (other consumers have different needs)
+
+## Workflow
+
+1. Identify the boundary and its consumers.
+2. Capture consumer expectations as concrete cases (request → expected response shape).
+3. Generate tests using a contract-test framework (Pact, Spring Cloud Contract, custom).
+4. Run tests against the producer to confirm current behavior matches.
+5. Wire into producer's CI so producer-side changes that break consumers fail.
+6. Document the contract for future consumer onboarding.
+
+## Validation
+
+Run the new contract tests against current producer (should pass). Modify producer in a known-breaking way (in a branch); confirm contract test fails. Revert.
+
+## Output contract
+
+Boundary | Consumers Captured | Contract Cases (request → expected response/behavior) | Framework + Test Files | CI Wiring | Documentation
+
+## Subagent delegation
+
+Dispatch `reviewer` with focus=contract for second perspective. See `_shared/playbooks/contract-test-patterns.md`.
+
+## V4 aliases
+
+This skill answers to V4 names: `contract-test-generate`. The router resolves them to `contract-test-generate` and notes the alias in its response.

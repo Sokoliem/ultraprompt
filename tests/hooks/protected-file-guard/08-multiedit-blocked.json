@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"edits": [{"file_path": "/repo/src/a.ts"}, {"file_path": "/repo/.env"}]}},
+  "expected_exit": 2
+}

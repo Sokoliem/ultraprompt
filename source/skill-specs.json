@@ -1,0 +1,3030 @@
+[
+  {
+    "name": "review",
+    "title": "Review",
+    "tier": "core",
+    "description": "When user says 'review this PR / code review / check this diff / look at these changes / review my code / does this look right / before-merge review / review for issues' — produces structured PR/diff review with severity-ranked findings (correctness, design, safety, maintainability, consistency). DEFAULT CHOICE for diff/PR review. Different from /repo-review (whole-repo audit) and /security-audit (security depth only).",
+    "when_to_use": "Use for diff/branch/PR review. Use `--deep` for cross-cutting risk requiring multi-perspective review (invokes panel-run review-fanout). Use `--summarize` for PR summary or release-note blurb only. Do not use for non-diff architecture work (use architect) or for failing tests (use debug).",
+    "argument_hint": "[PR|branch|diff|path|--deep|--summarize]",
+    "editing": true,
+    "aliases": [
+      "pr-review",
+      "pr-summarize",
+      "coverage-impact",
+      "agentic-deep-review"
+    ],
+    "distinctive_judgment": "Diff-correctness and merge readiness. Evaluate the change in the context of what it touches: call sites, tests, docs, generated files, dependency manifests. Classify by severity (Blocker, Major, Minor, Nit) and confidence (High, Medium, Low). Apply autonomous fixes only for high-confidence issues with localized scope.",
+    "first_signals": [
+      "git status, git branch --show-current, git merge-base HEAD origin/main",
+      "git diff --stat --find-renames <base>...HEAD",
+      "git diff --name-status --find-renames <base>...HEAD",
+      "gh pr view --json number,title,body,baseRefName,headRefName,files,commits when GitHub CLI is available",
+      "Tests adjacent to changed files; type-check and lint config",
+      "Coverage of changed lines (--summarize / coverage analysis is part of the default workflow)"
+    ],
+    "failure_modes": [
+      "Approving without checking call sites of changed exports",
+      "Missing breaking-change implications in config, migrations, or wire formats",
+      "Treating green CI as evidence the change is correct (CI may not exercise the affected path)",
+      "Recommending broad refactors during review (out of scope; capture as follow-ups)",
+      "Confusing 'tests pass after my fix' with 'fix is durable' when the test is the same one that exposed the bug"
+    ],
+    "workflow_steps": [
+      "Identify base, head, and intent of the change. Use `$ARGUMENTS` if supplied.",
+      "Inspect changed lines + immediate context: surrounding code, call sites, tests, configs, docs, generated files, manifests/lockfiles.",
+      "Classify findings (severity x confidence). Mark which are autonomously fixable.",
+      "Apply only high-confidence localized fixes per autonomous-fix policy in DISCIPLINE.md.",
+      "Add or update regression tests for fixed behavior when appropriate.",
+      "Run focused validation first, then broader validation when practical.",
+      "If `--deep` was passed, invoke `panel-run review-fanout` for parallel security/perf/architecture/tests perspectives and synthesize findings.",
+      "Re-review the final diff. Produce merge recommendation."
+    ],
+    "validation_strategy": "Targeted tests for affected behavior, then type-check/lint, then broader suite. Cite exact commands and results. If a needed validation cannot be run, name it.",
+    "output_contract": "PR Understanding | Autonomous Fix Summary (table when multiple) | Merge Recommendation (Approve / Approve with minor comments / Request changes / Needs clarification) | Risk Assessment (correctness/compat/security/perf/coverage/ops/maintainability) | Remaining Findings (severity-ordered) | Validation Performed | Final Diff Summary | Questions/Follow-Ups",
+    "subagent_delegation": "For non-trivial diffs, dispatch `reviewer` with focus parameters (code, security, tests, api, performance) as warranted. Use `panel-run review-fanout` when independent parallel perspectives reduce risk.",
+    "dispatch_to": {
+      "agent": "reviewer",
+      "focus_from": "argument"
+    },
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "PR Understanding"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "PR Understanding"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "debug",
+    "title": "Debug",
+    "tier": "core",
+    "description": "When user says 'this is failing / why is X broken / reproduce the error / debug this / what's causing the bug / failing test / runtime error / unexpected output / why does this crash' — runs the debugger discipline of failure-signature capture, smallest reproduction, bisection, confirmed root cause hypothesis with confidence label. DEFAULT for active debugging. Different from /test-gap-analysis (finds missing tests) and /review (PR-scope review).",
+    "when_to_use": "Use for concrete failures with a reproducible symptom or trace. Use `--flaky` for non-deterministic failures (handles flake-specific reasoning). Use `ci-repair` when failure is pipeline-shape (matrix, env, cache). Do not use for broad refactors or speculative cleanup.",
+    "argument_hint": "[failure|error|test name|symptom|--flaky]",
+    "editing": true,
+    "aliases": [
+      "debug-fix",
+      "flake-hunter"
+    ],
+    "distinctive_judgment": "Symptom-to-root-cause traversal. The failing assertion is the symptom, not the cause. Trace through call sites, data flow, recent changes, invariants, and shared state. For non-deterministic failures, the variable is usually time, randomness, order dependence, network, or shared state — not 'bad luck'. Retry-masking is not repair.",
+    "first_signals": [
+      "Exact error message, stack trace, test name, and reproduction command",
+      "git log on touched files since last known-good (last passing CI, last release)",
+      "Recently merged changes near the failure path (git log --oneline --decorate -n 30)",
+      "For flakes: timing assumptions, shared state, parallelism config, network mocks, fixture order",
+      "Adjacent passing tests that exercise nearby behavior"
+    ],
+    "failure_modes": [
+      "Fixing the assertion rather than the cause (changing expected values or adding tolerance)",
+      "Adding retry/sleep/timeout instead of finding the race",
+      "Catching an exception that should propagate",
+      "Fixing one path while leaving the same bug elsewhere (search for the pattern)",
+      "Quarantining a flake without filing a follow-up to investigate the root cause"
+    ],
+    "workflow_steps": [
+      "Reproduce or localize the failure. Capture exact command and output.",
+      "For `--flaky`: characterize the non-determinism (frequency, conditions). Identify the variable.",
+      "Trace from symptom backward: failing assertion → state at failure → input/conditions → root cause.",
+      "Identify the narrowest correct fix. Reject 'works around it' fixes.",
+      "Search for the same bug elsewhere by pattern.",
+      "Apply fix. Add or update a regression test that would have caught it.",
+      "Validate the focused failure first, then adjacent suites.",
+      "Re-review the final diff for unintended behavior changes."
+    ],
+    "validation_strategy": "Run the originally-failing test/command first. Then run the broader suite that contains it. For flakes, run the failing test ≥10× to confirm stabilization (or document why that's not feasible).",
+    "output_contract": "Symptom | Reproduction | Root cause (with evidence) | Same-bug-elsewhere check | Fix Summary (files, why localized) | Regression Test Added | Validation Run (commands + results, including stabilization runs for flakes) | Remaining Risks",
+    "subagent_delegation": "For unfamiliar code paths, dispatch `scout` first. For competing root-cause hypotheses, invoke `panel-run debug-triangulate`. For test design after the fix, dispatch `test-strategist`.",
+    "dispatch_to": {
+      "agent": "debugger"
+    },
+    "primary_agent": "debugger",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Symptom"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "debugger",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Symptom"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "ci-repair",
+    "title": "CI Repair",
+    "tier": "core",
+    "description": "When user says 'CI is failing / fix the build / failing pipeline / GitHub Actions broken / lint errors blocking / type-check failing / build red' — runs debugger discipline scoped to CI/build failure. DEFAULT for CI/build failure investigation. Reads CI logs, reproduces locally, narrows to root cause. Different from /debug (general runtime) — ci-repair specializes in build/CI/pipeline failure patterns.",
+    "when_to_use": "Use when the failure is in the pipeline (matrix, cache, env, dependencies, runner image, workflow file) rather than the code under test. If the same test fails locally, use `debug` instead. If the failure mode is non-determinism, use `debug --flaky`.",
+    "argument_hint": "[workflow|job|step name|error excerpt]",
+    "editing": true,
+    "aliases": [],
+    "distinctive_judgment": "CI failures decompose into: (1) pipeline configuration (workflow YAML, matrix, runner image, env vars, secrets), (2) caching (stale, missing, key drift), (3) dependency state (lockfile mismatch, registry availability, transitive breakage), (4) environment drift (CI runner has different versions or tools than developer machines), (5) actual code bug exposed only in CI. Diagnose the layer before changing code.",
+    "first_signals": [
+      "Failing job name, step name, and the actual error (not just 'CI failed')",
+      "Workflow file under `.github/workflows/`, `.gitlab-ci.yml`, `circleci/config.yml`, etc.",
+      "Last successful run on the same branch or main; what changed between then and now",
+      "Lockfile vs. manifest consistency (npm ci vs npm install; pnpm install --frozen-lockfile)",
+      "Cache hit/miss in the failing run (most CI providers log this)",
+      "Runner image version, tool versions installed, env vars set"
+    ],
+    "failure_modes": [
+      "Adding `|| true` or `continue-on-error` to make the job green without fixing the cause",
+      "Increasing timeouts when the real issue is a hung process",
+      "Bumping a dependency to make it pass in CI when the local lockfile would have caught the issue",
+      "Editing the workflow to skip the failing test rather than fixing the test",
+      "Treating cache misses as the cause when the issue is upstream"
+    ],
+    "workflow_steps": [
+      "Identify the layer: workflow config / cache / deps / env drift / actual code.",
+      "Read the failing run's logs for the actual error.",
+      "Check the last successful run and diff what changed.",
+      "If the failure reproduces locally with CI's exact command, hand off to `debug`.",
+      "If pipeline-specific, fix at the right layer: workflow YAML, lockfile reset, cache key bump, runner image pin, env var.",
+      "Re-run the failing job locally if the runner image is reproducible (act, docker).",
+      "Validate by running the workflow's exact command sequence locally where possible."
+    ],
+    "validation_strategy": "Reproduce the failing step locally with the same command and env. If using GitHub Actions, `act` can run jobs locally. After fixing, watch the CI run end-to-end on a branch before merging.",
+    "output_contract": "Failure Layer (workflow|cache|deps|env|code) | Evidence | Last Successful Run Comparison | Fix (file + lines) | Why Not a Code Bug | Local Reproduction | Remaining Risks (e.g., 'cache key change will force one slow rebuild')",
+    "subagent_delegation": "Dispatch `auditor` with focus=infra for cross-pipeline patterns. For deep CI matrix optimization, see `_shared/playbooks/build-test-optimizer.md`.",
+    "dispatch_to": {
+      "agent": "debugger",
+      "phase": "analysis"
+    },
+    "primary_agent": "debugger",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Failure Layer (workflow"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "debugger",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Failure Layer (workflow"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "build",
+    "title": "Build",
+    "tier": "core",
+    "description": "When user says 'build this / implement X / write the code for / create the feature / make a new component / scaffold this / let's write Y / add a function that does Z' — apply minimum diff implementation with explicit tests + validation. DEFAULT for code-writing tasks. Different from /refactor (changes existing without behavior change) and /migrate (changes with explicit migration plan).",
+    "when_to_use": "Use when the user has specified a feature or user story and wants implementation. Do not use for open-ended module improvement (use refactor or technical-debt-triage). Do not use for bug fixes (use debug).",
+    "argument_hint": "[feature|issue|user story|acceptance criteria]",
+    "editing": true,
+    "aliases": [
+      "feature-build"
+    ],
+    "distinctive_judgment": "Smallest coherent feature slice that satisfies the request. Avoid scope creep. Inspect adjacent UX/API patterns and match them. Public API impact, data flow, state management, and error handling are part of the deliverable, not afterthoughts.",
+    "first_signals": [
+      "Acceptance criteria from `$ARGUMENTS`, linked issue, or product doc",
+      "Existing analogous features (search for similar route/component/handler)",
+      "Public API surface affected (exports, schemas, CLI flags, events, config)",
+      "Test patterns in adjacent code; testing framework conventions",
+      "Documentation surfaces (README, examples, docstrings, generated docs)"
+    ],
+    "failure_modes": [
+      "Inventing a new pattern when an existing one would do",
+      "Skipping tests because 'it's a small feature'",
+      "Updating code without updating docs/examples that referenced the old behavior",
+      "Adding a public API surface without considering deprecation/compatibility",
+      "Implementing more than the requirement (gold-plating)"
+    ],
+    "workflow_steps": [
+      "Infer requirements from `$ARGUMENTS`, issue body, docs, and adjacent code.",
+      "Identify integration points, public API impact, data flow, error handling.",
+      "Sketch the smallest coherent slice. Confirm scope before implementing if ambiguous.",
+      "Implement, matching neighboring conventions.",
+      "Add tests for intended behavior, boundaries, and regression risk.",
+      "Update docs, examples, configs where user-facing behavior changed.",
+      "Validate. Summarize remaining assumptions."
+    ],
+    "validation_strategy": "Test the new behavior. Test the boundary cases (empty, max, error). Run type-check and lint. Run adjacent test suites that exercise the same code paths. Update generated docs if the project has them.",
+    "output_contract": "Feature Understanding | Design Decision (if non-obvious) | Files Changed | Tests Added | Docs Updated | Validation | Remaining Assumptions",
+    "subagent_delegation": "Use `scout` to locate extension points in unfamiliar code. Use `reviewer` with focus=architecture for design-sensitive changes. Use `test-strategist` before finalizing if test design isn't obvious.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Feature Understanding"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Feature Understanding"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "refactor",
+    "title": "Refactor",
+    "tier": "core",
+    "description": "When user says 'refactor X / clean up Y / improve the structure of / extract this / consolidate / simplify / restructure this code / improve readability without changing behavior' — apply behavior-preserving improvements with tests as the safety net. DEFAULT for refactoring tasks. Different from /build (writes new code) and /migrate (intentional behavior change).",
+    "when_to_use": "Use for behavior-preserving cleanup. Use `--types` for type-strengthening focus. Do not use for new features (use build). Do not use for bug fixes (use debug). If behavior change is required to fix a bug, use debug and call out the behavior change.",
+    "argument_hint": "[path|module|function|--types]",
+    "editing": true,
+    "aliases": [
+      "refactor-hardening",
+      "types-strengthen"
+    ],
+    "distinctive_judgment": "Behavior preservation is the core invariant. Tests that pass before must pass after, with the same assertions. If a test would have failed before but the refactor would make it pass, that's a behavior change disguised as a refactor. Strengthen types only when the strengthened type accurately reflects current behavior.",
+    "first_signals": [
+      "Test suite covering the refactor target (the safety net)",
+      "Public API surface (don't break it without explicit deprecation)",
+      "Hot paths or perf-sensitive code (refactor can introduce regression)",
+      "Type definitions: are they accurate or aspirational?",
+      "Generated code or codegen consumers"
+    ],
+    "failure_modes": [
+      "Behavior change disguised as 'cleanup' (changes default values, error messages, side effects)",
+      "Type strengthening that breaks downstream callers (Optional removed when callers pass undefined)",
+      "DRY violation: extracting a helper that loses important context",
+      "Renaming a public export without an alias or deprecation",
+      "Refactoring untested code without first adding characterization tests"
+    ],
+    "workflow_steps": [
+      "Identify the refactor target and its observable behavior contract.",
+      "Confirm test coverage of the target. If thin, add characterization tests first.",
+      "Plan the refactor as a sequence of small steps, each leaving the suite green.",
+      "Apply changes. Run tests after each meaningful step.",
+      "If `--types`: strengthen types only where the new type matches actual behavior. Don't tighten types ahead of behavior.",
+      "Re-review the diff. Confirm no behavior change beyond the stated intent.",
+      "Validate."
+    ],
+    "validation_strategy": "Full test suite (or scoped suite if monorepo). Type-check. If perf-sensitive, run benchmark before and after. Diff observable outputs (snapshot tests, golden files) and confirm equivalence.",
+    "output_contract": "Refactor Target | Behavior Invariants Preserved | Steps Taken | Tests Status | Type-Check Status | Diff Summary | What Changed Observably (should be 'nothing')",
+    "subagent_delegation": "Use `reviewer` with focus=architecture for structural refactors. Use `test-strategist` if the target lacks coverage.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Refactor Target"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Refactor Target"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "test-harden",
+    "title": "Test Harden",
+    "tier": "core",
+    "description": "When user says 'write tests for X / harden test coverage / add tests / improve test suite / implement test plan / write missing tests' — apply test code per a test plan (uses test-strategist output if provided). DEFAULT for actually writing test code. Different from /test-gap-analysis (finds gaps) and /test-strategist (designs plan).",
+    "when_to_use": "Use when confidence is low, coverage is shallow, regressions are likely, or a change needs durable behavioral tests. Do not use when the failure is concrete (use debug); do not use when the change is a feature delivery (use build).",
+    "argument_hint": "[path|module|behavior|changed feature]",
+    "editing": true,
+    "aliases": [
+      "test-harden"
+    ],
+    "distinctive_judgment": "Coverage percentage is a weak signal. Test value comes from: (1) catching regressions in observable behavior, (2) exercising boundaries (empty, max, error, concurrent), (3) pinning contracts that other code relies on. A 95%-covered module with shallow tests is weaker than an 80%-covered module with sharp tests.",
+    "first_signals": [
+      "Existing test suite shape: unit, integration, e2e ratios; framework conventions",
+      "Behavior contracts that are public but untested",
+      "Recent bugs in the area (git log of fixes; test should have caught it)",
+      "Boundaries: what happens at 0, 1, max, with concurrent calls, with errors",
+      "Mocks and fixtures: are they accurate or rotting?"
+    ],
+    "failure_modes": [
+      "Adding tests that mirror the implementation (change-detector tests)",
+      "Mocking the thing under test",
+      "Testing implementation details rather than observable behavior",
+      "Adding 'happy path' tests where boundaries are the actual risk",
+      "Increasing coverage % without increasing confidence"
+    ],
+    "workflow_steps": [
+      "Identify behavior contracts that lack tests (or have shallow tests).",
+      "For each, write the test that would have caught the bug (real or hypothetical).",
+      "Cover boundaries: empty, max, error, concurrent, malformed input.",
+      "Pin contracts that other code relies on (snapshot APIs, golden files).",
+      "Remove or replace change-detector tests that don't add confidence.",
+      "Validate: run the new tests; mutation-test the area if tooling is available."
+    ],
+    "validation_strategy": "Run the new tests. Run the broader suite to confirm nothing else broke. If mutation testing is available (Stryker, mutmut, cargo-mutants), confirm the new tests kill mutants in the changed code.",
+    "output_contract": "Coverage Target | Behavior Contracts Tested | Boundary Cases Added | Removed Change-Detector Tests | Mutation-Test Result (if run) | Remaining Gaps",
+    "subagent_delegation": "Use `test-strategist` to design test plans for unfamiliar areas.",
+    "dispatch_to": {
+      "agent": "test-strategist"
+    },
+    "primary_agent": "test-strategist",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Coverage Target"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "test-strategist",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Coverage Target"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "repo-map",
+    "title": "Repo Map",
+    "tier": "core",
+    "description": "When user says 'map X / explore Y / read Z / understand how W works / show me the structure / what's in package Q / orient me to this codebase / walk me through the architecture / find code that handles X / where is the code that does Y / locate the implementation of Z / where in the codebase does W happen' — fetches the cached read-only repository contract: architecture, packages, workflows, validation commands, conventions, dependencies, ownership, sensitive paths, recent activity. Supports --semantic flag for behavior-based code search. DEFAULT for any repo-discovery or code-location prompt — wins over ad-hoc Bash/Grep tour and over the built-in Explore agent because the result is structured, cached by HEAD, and surfaces the validation commands you'd otherwise hunt for.",
+    "when_to_use": "Use when you need to understand a repository quickly before doing implementation, review, onboarding, migration, or planning work. Use `--onboarding` for new-contributor framing. Use `--semantic <query>` to find code by behavior or natural-language concept.",
+    "argument_hint": "[path|focus area|--onboarding|--semantic <query>]",
+    "editing": false,
+    "aliases": [
+      "repo-map",
+      "onboarding-map",
+      "semantic-search-codebase"
+    ],
+    "distinctive_judgment": "Structural discovery, not architectural judgment. Map what is, not what should be. The output is a working guide for another agent or contributor to act on. Prefer the cached `repo_capsule` MCP tool when available; supplement with grep/glob for the specific question.",
+    "first_signals": [
+      "Top-level layout: src/, packages/, apps/, scripts/, tests/, docs/",
+      "Package manifests and lockfiles (single-package vs monorepo)",
+      "Build/test/lint/typecheck commands (package.json scripts, Makefile, CI workflows)",
+      "Entrypoints (main, bin, exports, app/index)",
+      "Generated files and conventions (often hint at framework choices)",
+      "CLAUDE.md, AGENTS.md, CONTRIBUTING.md, .cursorrules"
+    ],
+    "failure_modes": [
+      "Treating directory names as authoritative (a folder named 'core' may not contain core logic)",
+      "Missing package boundaries in monorepos",
+      "Reading source as ground truth when generated code or schemas drive it",
+      "Producing an unreadably exhaustive map instead of a working guide",
+      "Re-discovering what `repo_capsule` already cached"
+    ],
+    "workflow_steps": [
+      "Call `repo_capsule` MCP tool first if available; check cache.",
+      "Identify repo shape: packages, entrypoints, build/test commands, configs, CI, generated files, docs.",
+      "Map subsystems, dependency directions, public surfaces, common workflows.",
+      "Identify hotspots: brittle areas, undocumented conventions, onboarding blockers.",
+      "If `--semantic <query>`: locate code matching the conceptual query (grep across implementation + adjacent tests/docs).",
+      "If `--onboarding`: frame for a new contributor (where to read first, what to install, how to run things).",
+      "Produce a concise navigable map. Stay read-only."
+    ],
+    "validation_strategy": "Read-only skill. No code changes. Validate the map by running the inferred commands (build, test, lint) — confirm they work.",
+    "output_contract": "Executive Overview | Directory/Package Map | Primary Workflows + Commands | Architecture Sketch | Public APIs | Test/Validation Map | Conventions Inferred | Hotspots/Questions | Best Next Commands",
+    "subagent_delegation": "Use `scout` for a fresh-context structural sweep when the repo is large or unfamiliar. Use `auditor` with focus=infra for IaC/deployment specifics.",
+    "dispatch_to": {
+      "agent": "scout"
+    },
+    "primary_agent": "scout",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Executive Overview"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "scout",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Executive Overview"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "architect",
+    "title": "Architect",
+    "tier": "core",
+    "description": "When user says 'architecture review / system design review / architectural decision / design this system / architecture for X / structural review / module boundary review' — dispatches reviewer with architecture focus. DEFAULT for architecture-scope tasks. Different from /review (diff-scope) and /repo-review (whole-repo audit).",
+    "when_to_use": "Use for module/package boundary questions, coupling concerns, dependency-direction analysis, or abstraction-quality review. Do not use for diff review (use review). Do not use for state-transition lifecycle work (use state-machine-review specialist). For monorepo-specific structure, see `_shared/playbooks/monorepo-architecture-checklist.md`.",
+    "argument_hint": "[module|package|subsystem|architectural question]",
+    "editing": false,
+    "aliases": [
+      "architecture-review",
+      "monorepo-architecture"
+    ],
+    "distinctive_judgment": "Module boundaries, coupling, dependency direction, abstraction quality, long-term design risk. The question is not 'is this clean?' but 'will this hold up under expected change?' Identify cycles, leaky abstractions, and dependency inversions that violate the intended layering. Defer judgment when the team's design intent isn't documented.",
+    "first_signals": [
+      "Top-level package/module structure and intended layering (read CLAUDE.md, ADRs, design docs)",
+      "Import graph: who depends on whom; are there cycles?",
+      "Public API surfaces between modules (clean? minimal? leaky?)",
+      "Cross-cutting concerns: how are logging, auth, tracing handled across boundaries",
+      "Abstractions: do they hide complexity or just shuffle it?",
+      "Pain points in recent changes (commits/PRs that touched many files often indicate boundary problems)"
+    ],
+    "failure_modes": [
+      "Critiquing as 'should be cleaner' without showing the concrete cost of the current shape",
+      "Recommending a refactor without knowing the team's design intent",
+      "Conflating coupling with dependency (some coupling is essential)",
+      "Missing the difference between accidental and essential complexity",
+      "Producing recommendations the team can't act on (rewrite the world)"
+    ],
+    "workflow_steps": [
+      "Identify the architectural question or focus area from `$ARGUMENTS`.",
+      "Map the current shape: packages, modules, dependency graph, public surfaces.",
+      "Read existing design docs/ADRs to understand intended structure.",
+      "Identify gaps between intended and actual: cycles, layer violations, leaky abstractions.",
+      "Assess the cost: which changes have been hard recently? Which boundaries are friction points?",
+      "Produce findings ordered by impact and reversibility.",
+      "Recommend incremental improvements; flag where a larger redesign would be warranted.",
+      "Stay read-only; do not refactor as part of this skill."
+    ],
+    "validation_strategy": "No code changes; this skill is read-only. Validate findings by referring to recent commits/PRs that confirm or contradict the assessment.",
+    "output_contract": "Architectural Question | Current Shape | Intended Shape (from docs/ADRs) | Gaps + Evidence | Cost Assessment | Recommendations (incremental) | Recommendations (larger redesign, flagged) | What Would Confirm/Refute",
+    "subagent_delegation": "Use `reviewer` with focus=architecture for a second perspective. Use `scout` for unfamiliar territory. For deep ADR documentation work, see `_shared/playbooks/adr-template.md`.",
+    "dispatch_to": {
+      "agent": "reviewer",
+      "focus": "architecture"
+    },
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Architectural Question"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Architectural Question"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "api-contract",
+    "title": "API Contract",
+    "tier": "core",
+    "description": "When user says 'API contract review / OpenAPI review / API design review / RESTful contract / GraphQL schema review / API versioning' — dispatches reviewer/integration-contract-reviewer with API contract focus. DEFAULT for API contract design and review.",
+    "when_to_use": "Use for any change that affects a public surface: API endpoints, schemas, CLI flags, config formats, events, package exports, wire formats. Use when planning a deprecation. Do not use for purely internal refactors with no external surface (use refactor).",
+    "argument_hint": "[surface|change description|consumer]",
+    "editing": false,
+    "aliases": [
+      "api-contract",
+      "api-deprecation"
+    ],
+    "distinctive_judgment": "Compatibility is asymmetric: producers can extend (add fields, add methods, add optional flags) more freely than they can change or remove. Identify what consumers depend on — including undocumented behavior — before declaring something safe to change. Deprecation is a process, not an event: announce, warn, sunset.",
+    "first_signals": [
+      "Public surface inventory: exports, endpoints, CLI flags, config keys, event names, message formats",
+      "Versioning scheme: SemVer? CalVer? Internal stability tiers?",
+      "Existing deprecation policy and mechanisms (warnings, deprecation headers, version skew tolerance)",
+      "Consumer signals: who consumes this surface, how, with what expectations",
+      "Tests that pin the contract (contract tests, golden files, snapshot tests)",
+      "Release notes/changelog conventions for breaking changes"
+    ],
+    "failure_modes": [
+      "Treating undocumented behavior as 'not part of the contract' when consumers rely on it (Hyrum's Law)",
+      "Removing a deprecated surface before users have migrated",
+      "Adding a 'compatible' field that breaks consumers using strict schema validation",
+      "Changing default values silently (breaks consumers who didn't set the value explicitly)",
+      "Not bumping major version when behavior changes",
+      "Inventing a deprecation timeline without consulting affected consumers"
+    ],
+    "workflow_steps": [
+      "Identify the public surface affected by the proposed change.",
+      "Classify the change: additive (new field/method/flag), modifying (changes existing behavior), removing.",
+      "Identify consumers and how they use the surface (search for callers; check changelog feedback; ask about telemetry).",
+      "For modifying/removing: design the deprecation path. Announce → warn → sunset.",
+      "Update or add contract tests that pin the new behavior.",
+      "Document the change in changelog/release notes following project conventions.",
+      "If it's a breaking change, confirm version bump and migration guide."
+    ],
+    "validation_strategy": "Contract tests pass on both old and new behavior during deprecation window. Schema validation tools (json-schema, OpenAPI lint, GraphQL diff) confirm compatibility classification. Consumer integration tests where available.",
+    "output_contract": "Surface Affected | Change Classification (additive/modifying/removing) | Consumer Impact Analysis | Deprecation Path (if not additive) | Contract Tests Added/Updated | Changelog/Release Note Entry | Version Bump Recommendation | Migration Guidance for Consumers",
+    "subagent_delegation": "Use `reviewer` with focus=contract for a compatibility second opinion. Use `_shared/playbooks/contract-test-patterns.md` for contract test design.",
+    "dispatch_to": {
+      "agent": "reviewer",
+      "focus": "contract"
+    },
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Surface Affected"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Surface Affected"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "migrate",
+    "title": "Migrate",
+    "tier": "core",
+    "description": "When user says 'migrate from X to Y / breaking change / version upgrade / library swap / framework migration / convert this codebase / move to new API / deprecate old approach' — produces migration plan with phases, compatibility, rollback, validation. DEFAULT for intentional breaking changes. Different from /refactor (behavior-preserving) and /build (new code).",
+    "when_to_use": "Use for migrations that span multiple steps and require rollback planning. Use `--deps` for dependency upgrade migrations specifically. Do not use for one-shot config changes (just edit them). Do not use for API contract changes (use api-contract for the design; use migrate for the rollout).",
+    "argument_hint": "[migration scope|--deps]",
+    "editing": false,
+    "aliases": [
+      "migration-plan",
+      "deps-upgrade"
+    ],
+    "distinctive_judgment": "Migrations must be reversible at each step until the point of no return, which should be explicit. Forward-compatible (new code can read old data) before backward-incompatible (new code only reads new data). For deps: identify breaking changes, then sequence by risk: leaf deps first, framework deps last.",
+    "first_signals": [
+      "Current state: schema, config, API version, dependency lockfile",
+      "Target state: what does 'done' look like?",
+      "Concurrent traffic: is the system live? Multiple replicas?",
+      "Backwards-compat window: how long do old + new coexist?",
+      "Rollback signals: what would tell us to roll back? How fast can we?",
+      "For deps: changelog of upgrade target; breaking changes section"
+    ],
+    "failure_modes": [
+      "Migration that requires downtime when the system can't tolerate it",
+      "Forward-incompatible step deployed before all replicas are upgraded (mixed-version traffic breaks)",
+      "Schema migration that locks tables for hours on production data size",
+      "Dep upgrade that pulls in transitive breakage not visible from the direct upgrade",
+      "No rollback plan past a certain step (and not flagging that step as point of no return)",
+      "Migration plan written for the test environment data scale, not production"
+    ],
+    "workflow_steps": [
+      "Define current state, target state, and 'done' criteria.",
+      "Identify constraints: downtime tolerance, replica count, data scale, rollback SLO.",
+      "Sequence steps: each step is forward-compatible until the explicit point of no return.",
+      "For each step: pre-conditions, action, validation, rollback procedure.",
+      "Identify and flag the point-of-no-return step (e.g., dropping the old column).",
+      "For deps: dry-run the upgrade in CI; check transitive breakage; sequence leaf-first.",
+      "Document the plan as a checklist with expected duration per step."
+    ],
+    "validation_strategy": "Dry-run on a copy of production-scale data where possible. For schema migrations, time the migration on production-scale dataset. For deps, run the full test matrix. After each step, validate observable behavior matches expectations.",
+    "output_contract": "Current State | Target State | Constraints | Sequenced Steps (each with pre/action/validate/rollback) | Point of No Return | Estimated Duration | Validation Plan | Rollback Plan",
+    "subagent_delegation": "Use `auditor` with focus=db for schema migrations. Use `auditor` with focus=infra for cross-environment rollout. Use `panel-run migration-assess` for cross-surface migrations.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Current State"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Current State"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "release",
+    "title": "Release",
+    "tier": "core",
+    "description": "When user says 'release notes / write changelog / draft release announcement / document this release / what to ship in release notes / what changed in version X' — dispatches writer for structured release notes / changelog artifact. DEFAULT for release communication artifacts. Different from /release-readiness (audits shipability — separate skill).",
+    "when_to_use": "Use for go/no-go assessment, release notes, or changelog drafts. Use `--notes-only` to produce just the notes/changelog without readiness assessment. Do not use mid-development for status updates (use review --summarize).",
+    "argument_hint": "[version|tag|range|--notes-only]",
+    "editing": false,
+    "aliases": [
+      "release-readiness",
+      "release-notes-changelog",
+      "pr-summarize"
+    ],
+    "distinctive_judgment": "Release readiness is a checklist + judgment call. The checklist covers tests, breaking changes, migrations, observability, rollback. The judgment call is whether the residual risk is acceptable. Release notes are user-facing: lead with what changed for users, not what changed in code.",
+    "first_signals": [
+      "Tag/version range or commit range to summarize",
+      "git log between last release and HEAD (with --no-merges for cleaner output)",
+      "Changelog file convention (Keep a Changelog, conventional commits, custom)",
+      "Breaking change markers (commits with 'BREAKING' or '!:' or labeled PRs)",
+      "Migration guide or upgrade notes from previous releases (style template)",
+      "CI status, known regressions, open issues tagged for the release"
+    ],
+    "failure_modes": [
+      "Listing every commit in the changelog instead of synthesizing the changes",
+      "Hiding breaking changes in 'Other' section",
+      "Changelog written for developers when the audience is users",
+      "Release readiness 'go' without verifying observability and rollback",
+      "Notes that document broken behavior as intended"
+    ],
+    "workflow_steps": [
+      "Identify version/range. List commits and PRs in scope.",
+      "If `--notes-only`: skip to step 5.",
+      "Readiness check: tests passing? Breaking changes documented? Migrations rehearsed? Observability in place? Rollback path verified?",
+      "Risk assessment: what's the residual risk? Acceptable?",
+      "Group changes by user-facing impact: Breaking, Added, Changed, Deprecated, Removed, Fixed, Security.",
+      "Write user-facing summary first, then detailed changelog.",
+      "Include migration guidance for breaking changes."
+    ],
+    "validation_strategy": "Readiness: confirm CI green, confirm migration tested, confirm observability deployed. Notes: cross-check against actual diff to ensure nothing user-facing is missing.",
+    "output_contract": "If readiness: Readiness Checklist | Risk Assessment | Go/No-Go Recommendation | Conditions on Go (if any). If notes: User-Facing Summary | Changelog (grouped) | Migration Guidance | Known Issues.",
+    "subagent_delegation": "Use `panel-run release-panel` for parallel readiness/notes/supply-chain assessment. Use `writer` for changelog synthesis from raw commit log.",
+    "dispatch_to": {
+      "agent": "writer",
+      "phase": "analysis"
+    },
+    "primary_agent": "writer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "If readiness: Readiness Checklist"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "writer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "If readiness: Readiness Checklist"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "security-audit",
+    "title": "Security Audit",
+    "tier": "core",
+    "description": "When user says 'security audit / check for vulnerabilities / find injection / auth audit / secrets in repo / SQLi/XSS/CSRF check / pen test / sensitive data exposure' — produces ranked vulnerabilities with CWE references, exploit scenarios, remediation. DEFAULT for technical security review. Different from /risk-and-controls-review (compliance/regulatory).",
+    "when_to_use": "Use for security-focused review of auth flows, secret handling, injection surfaces, tenant isolation, dependency security, or sensitive data handling. Kept as a core skill (auto-discoverable) because security work is too important to hide behind a flag.",
+    "argument_hint": "[surface|flow|threat|focus]",
+    "editing": true,
+    "aliases": [
+      "security-audit"
+    ],
+    "distinctive_judgment": "Apply a threat model: who is the adversary, what are they trying to do, what can they reach. Auth (who is this user?) and authorization (what can they do?) are different and both must be checked. Secrets in logs, error messages, and crash dumps are common leaks. Tenant isolation requires every query, cache, and rate-limit to scope by tenant. Trust boundaries are crossings of input from a less-trusted source to a more-trusted one — that's where validation must be explicit.",
+    "first_signals": [
+      "Auth/authorization layer: where is identity established? Where is authorization checked?",
+      "Trust boundaries: HTTP input, deserialization, file paths, SQL, shell, eval, template rendering",
+      "Secret handling: where are secrets read, where are they written (logs? error messages? crash dumps?)",
+      "Tenant isolation: do all queries scope by tenant? Caches? Rate limits?",
+      "Dependency security: known CVEs in transitive deps; install-script trust",
+      "Sensitive log fields: PII, tokens, credentials, internal IDs"
+    ],
+    "failure_modes": [
+      "Auth checked at controller, authorization checked nowhere (or vice versa)",
+      "Secrets in environment-variable error messages ('FOO_API_KEY=sk_xxx is invalid')",
+      "Tenant ID from JWT trusted, but tenant-scoped query missing in some path",
+      "SQL parameterization on the obvious queries; string concatenation in the cron job",
+      "Path traversal: 'sanitization' that doesn't account for absolute paths or symlinks",
+      "Deserializing user-controlled YAML/pickle/marshal as if it were data",
+      "Rate limiting that doesn't bind to identity (DDoS-able, or evadable)"
+    ],
+    "workflow_steps": [
+      "Identify the surface and threat model. Who, what, where.",
+      "Map trust boundaries. Confirm validation/escaping at each.",
+      "Audit auth and authorization separately. Both must succeed.",
+      "Scan for secret handling: env var sources, log statements, error messages, crash dumps, telemetry.",
+      "Scan for tenant scoping in every data access path (queries, caches, files, rate limits).",
+      "Audit dependency surface: known CVEs, install scripts, lockfile drift.",
+      "Apply high-confidence localized fixes (input validation, auth checks, secret redaction).",
+      "Leave policy decisions (acceptable risk, business logic) as findings."
+    ],
+    "validation_strategy": "Add tests for the security control (e.g., 'unauthenticated request returns 401', 'cross-tenant request returns 404'). Run dependency scanner if available (npm audit, pip-audit, cargo audit). Confirm secret-redaction tests cover the new log statements.",
+    "output_contract": "Threat Model | Trust Boundaries Audited | Findings (severity-ordered: Critical/High/Medium/Low + confidence) | Autonomous Fixes Applied | Policy Decisions Surfaced (Not Auto-Fixed) | Validation | Recommendations",
+    "subagent_delegation": "Dispatch `security-auditor` for an independent perspective on threat model and trust boundaries. For privacy-specific concerns, use specialist skill `data-flow-privacy-map`. For prompt-injection in AI systems, use specialist skill `ai-agent-safety-review`.",
+    "dispatch_to": {
+      "agent": "security-auditor"
+    },
+    "primary_agent": "security-auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Threat Model"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "security-auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Threat Model"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "data-flow-privacy-map",
+    "title": "Data Flow + Privacy Map",
+    "tier": "specialist",
+    "description": "When user says 'map the data flow / where does PII go / privacy data flow / data lineage for privacy / track sensitive data / data flow diagram for compliance' — dispatches auditor with privacy + data-flow focus. DEFAULT for privacy data-flow mapping.",
+    "when_to_use": "Manual-only. Invoke when the task is privacy-specific: data lineage, PII flows, retention, deletion/export rights, third-party sharing, or sensitive log redaction. For general security, use core `security-audit`.",
+    "argument_hint": "[surface|data type|flow]",
+    "editing": true,
+    "aliases": [
+      "data-flow-privacy-map",
+      "log-redaction-pass"
+    ],
+    "distinctive_judgment": "PII is a property of data, not a property of variables. Track where it enters, where it flows, where it lands, where it leaves. Retention, deletion, and export rights are jurisdictional and policy-driven; the code is just the implementation. Log redaction must be enforced at the redaction layer, not at every call site (call sites forget).",
+    "first_signals": [
+      "PII inventory: what fields are PII? (names, emails, phones, addresses, IPs, IDs, free-text user content)",
+      "Entry points: where does PII come in? (forms, APIs, third-party imports)",
+      "Storage: databases, caches, files, message queues, logs, backups",
+      "Egress: third-party services, exports, APIs, webhooks, analytics",
+      "Retention configuration: per-table/per-field TTL, archival, backup retention",
+      "Deletion/export endpoints: do they actually find all PII?",
+      "Log statements that include user-controlled fields"
+    ],
+    "failure_modes": [
+      "Redacting in app logs but not in error tracker / crash dumps / metrics labels",
+      "PII in URL query strings (gets logged everywhere)",
+      "Cache that retains PII past the configured retention",
+      "Backup that's outside the deletion process",
+      "Third-party service receiving PII not covered by the privacy notice",
+      "Free-text user content treated as non-PII when it routinely contains PII"
+    ],
+    "workflow_steps": [
+      "Inventory PII fields. Confirm classification with policy if uncertain.",
+      "Map data flow: entry → storage → processing → egress.",
+      "For each storage: retention policy in place? Implementation matches?",
+      "For each egress: documented in privacy notice? DPA in place? Third-party retention bounded?",
+      "Audit logs: scan for log statements with user-controlled fields. Add redaction.",
+      "Validate deletion: trigger deletion in test, confirm absence in all storage layers including backups.",
+      "Validate export: trigger export, confirm completeness against the inventory."
+    ],
+    "validation_strategy": "Test deletion completeness (delete request → search for residual PII). Test export completeness (export request → cross-check with inventory). Run log scanner on test fixtures with PII payloads; confirm redaction.",
+    "output_contract": "PII Inventory | Data Flow Map | Storage Retention Audit | Egress Audit | Logging Audit + Redactions Applied | Deletion Test Result | Export Test Result | Findings + Recommendations",
+    "subagent_delegation": "Dispatch `auditor` with focus=privacy for an independent perspective. See `_shared/playbooks/log-redaction-checklist.md` for redaction patterns.",
+    "dispatch_to": {
+      "agent": "auditor",
+      "focus": "privacy"
+    },
+    "primary_agent": "auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "PII Inventory"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "PII Inventory"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "dependency-audit",
+    "title": "Dependency Audit",
+    "tier": "specialist",
+    "description": "When user says 'audit dependencies / dependency review / supply chain audit / package audit / npm audit / pip audit / outdated dependencies / vulnerable deps' — dispatches auditor with supply-chain focus. DEFAULT for dependency/supply-chain audits.",
+    "when_to_use": "Manual-only. Invoke for dep-focused review: CVE scan, transitive analysis, license audit, abandonment risk. For supply-chain provenance and CI trust, use specialist `supply-chain-hardening`. For upgrade planning, use core `migrate --deps`.",
+    "argument_hint": "[ecosystem|focus]",
+    "editing": false,
+    "aliases": [
+      "dependency-audit"
+    ],
+    "distinctive_judgment": "Direct dependency count is small; transitive count is what matters. Known-CVE scanning is necessary but not sufficient: also check abandonment (last commit, maintainer count), license drift (transitive GPL where MIT was promised), and version drift (multiple versions of the same package in the tree).",
+    "first_signals": [
+      "Lockfile (package-lock.json, pnpm-lock.yaml, yarn.lock, Cargo.lock, go.sum, requirements.lock)",
+      "Direct vs transitive count (npm ls --all | wc -l, pnpm list --depth Infinity)",
+      "Known-CVE scanner output (npm audit, pnpm audit, pip-audit, cargo audit, snyk, OSV)",
+      "Last commit date and contributor count for direct deps",
+      "License of every transitive dep (license-checker, cargo-deny, go-licenses)",
+      "Multiple versions of the same package in the tree (often a sign of conflicting peer requirements)"
+    ],
+    "failure_modes": [
+      "Running scanner once and not gating CI on it",
+      "Treating 'no known CVE' as 'safe' (zero-days exist; abandoned deps don't get CVEs filed)",
+      "Ignoring transitive license risk because direct license is fine",
+      "Multiple versions of a security-sensitive package (auth, crypto, parsing) coexisting",
+      "Auto-updating without testing"
+    ],
+    "workflow_steps": [
+      "Inventory: direct vs transitive count; ecosystem.",
+      "Run known-CVE scanner. Triage by severity and exposure (is the vulnerable code path reachable?).",
+      "Check abandonment risk for direct deps: last commit, contributor count, recent activity.",
+      "License audit: confirm transitive licenses match policy.",
+      "Identify version-drift cases (multiple versions of same package). Assess if they matter.",
+      "Produce a risk-ordered finding list with concrete remediation per item."
+    ],
+    "validation_strategy": "Re-run scanner after remediation. For upgrades: run full test matrix. For removed deps: confirm no remaining usage.",
+    "output_contract": "Dep Inventory (direct + transitive count) | CVE Findings (severity, exposure, remediation) | Abandonment Risk (per direct dep) | License Audit | Version Drift | Risk-Ordered Recommendations",
+    "subagent_delegation": "Dispatch `auditor` with focus=dependencies. For provenance and supply-chain trust, dispatch specialist `supply-chain-hardening`.",
+    "dispatch_to": {
+      "agent": "auditor",
+      "focus": "dependencies"
+    },
+    "primary_agent": "auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Dep Inventory (direct + transitive count)"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Dep Inventory (direct + transitive count)"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "supply-chain-hardening",
+    "title": "Supply Chain Hardening",
+    "tier": "specialist",
+    "description": "When user says 'harden supply chain / supply chain security / dependency pinning / SLSA / SBOM / package integrity / supply chain attack defenses' — dispatches security-auditor + auditor with supply-chain focus. DEFAULT for supply-chain hardening work.",
+    "when_to_use": "Manual-only. Invoke for supply-chain integrity work: lockfile hygiene, install-script trust, CI publishing pipeline, SBOM generation, container image provenance, registry trust. For dep CVEs/abandonment, use specialist `dependency-audit`.",
+    "argument_hint": "[surface|pipeline]",
+    "editing": true,
+    "aliases": [
+      "supply-chain-hardening"
+    ],
+    "distinctive_judgment": "Supply chain attacks happen at install time and publish time, not just at consume time. Untrusted install scripts run with full developer or CI privilege. The CI pipeline that publishes packages is itself a high-value target. Lockfiles bind versions but not contents (without integrity hashes). SBOMs are a record, not a control.",
+    "first_signals": [
+      "Lockfile presence and integrity hashes (sha512 in npm, hash in Cargo.lock, go.sum)",
+      "Install scripts in dependencies (npm postinstall, pip setup.py, gem extconf)",
+      "CI publishing pipeline: who can publish? Where do credentials come from?",
+      "Container base images: pinned by digest (sha256), or by tag (mutable)?",
+      "Registry/repository configuration: which registries does the build pull from?",
+      "SBOM generation in CI",
+      "Signed commits, signed tags, signed releases"
+    ],
+    "failure_modes": [
+      "Install scripts running unreviewed code from transitive deps",
+      "CI uses a long-lived deploy token instead of OIDC short-lived credentials",
+      "Container image pinned by tag (`:latest` or `:v1.0`) — mutable",
+      "Lockfile committed but `npm install` used in CI instead of `npm ci` (lockfile not enforced)",
+      "Publishing pipeline triggered by tag, but tag-creation isn't gated",
+      "SBOM generated but not stored alongside the artifact"
+    ],
+    "workflow_steps": [
+      "Audit lockfile: present, integrity hashes, enforced in CI (npm ci / pnpm install --frozen-lockfile / pip install --require-hashes).",
+      "Audit install scripts: list them, review what they do, consider --ignore-scripts for low-risk deps.",
+      "Audit CI publishing: who, when, with what credentials, gated by what.",
+      "Audit container builds: base image pinned by digest? Builder image trusted? Multi-stage to reduce attack surface?",
+      "Generate SBOM (CycloneDX or SPDX) and store with each release artifact.",
+      "Sign commits/tags/releases if not already.",
+      "Apply concrete hardening: digest-pin images, add `npm ci`, switch CI to OIDC, gate publishing."
+    ],
+    "validation_strategy": "Run the CI pipeline end-to-end after hardening. Verify SBOM is generated and contains expected components. Verify image digests are reproducible.",
+    "output_contract": "Lockfile Audit | Install-Script Audit | CI Publishing Audit | Container Image Audit | SBOM Status | Signing Status | Hardenings Applied | Remaining Risks",
+    "subagent_delegation": "Dispatch `auditor` with focus=supply-chain. For container-specific concerns, dispatch `auditor` with focus=infra.",
+    "dispatch_to": {
+      "agent": "auditor",
+      "focus": "supply-chain"
+    },
+    "primary_agent": "auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Lockfile Audit"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Lockfile Audit"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "performance-pass",
+    "title": "Performance Pass",
+    "tier": "specialist",
+    "description": "When user says 'performance audit / find slow code / hot path review / perf optimization / performance issues / latency review / throughput audit' — dispatches reviewer with performance focus. DEFAULT for performance audits. Different from /debug (active perf bug).",
+    "when_to_use": "Manual-only. Invoke for performance investigation or benchmark design. Do not use for general code review (use review). Do not use for CI build speed (see `_shared/playbooks/build-test-optimizer.md`).",
+    "argument_hint": "[hot path|operation|target metric]",
+    "editing": true,
+    "aliases": [
+      "performance-pass"
+    ],
+    "distinctive_judgment": "Optimize what matters, measured. Profile before optimizing; profile after to confirm. Performance work is dominated by: I/O (network, disk, DB), allocation pressure (GC), repeated work (caching opportunities), and concurrency (lock contention, false sharing). Algorithmic improvements only matter if the hot path actually executes the algorithm.",
+    "first_signals": [
+      "Profile output (CPU profile, allocation profile, flamegraph)",
+      "Slow query logs / APM traces / span timing",
+      "Hot path call frequency (sampling counters, request rate × per-request cost)",
+      "Memory allocation patterns (GC frequency, allocation rate)",
+      "Cache hit rate (where caches exist)",
+      "Lock contention metrics where applicable"
+    ],
+    "failure_modes": [
+      "Optimizing without profiling (you'll optimize the wrong thing)",
+      "Optimizing the algorithm when the hot path is I/O bound",
+      "Adding a cache that doesn't bound size (leaks memory)",
+      "Adding parallelism without measuring lock contention",
+      "Micro-benchmarks that don't reflect production conditions",
+      "Premature optimization in cold paths"
+    ],
+    "workflow_steps": [
+      "Confirm there's a performance problem with concrete evidence (slow query, slow request, high CPU/memory).",
+      "Profile to identify the actual hot path. Don't trust intuition.",
+      "Classify the bottleneck: I/O, CPU, allocation, contention.",
+      "Apply the appropriate optimization. Measure before and after.",
+      "Add a benchmark that exercises the hot path realistically and would catch regression.",
+      "Validate: production-like load, not just unit microbenchmark."
+    ],
+    "validation_strategy": "Benchmark before/after on representative workload. Confirm no regression in adjacent code. Profile after to confirm the hot path moved.",
+    "output_contract": "Performance Goal | Profile Evidence (where the time/allocation actually goes) | Bottleneck Classification | Optimization Applied | Before/After Numbers | Benchmark Added | Remaining Bottlenecks",
+    "subagent_delegation": "Dispatch `reviewer` with focus=performance for second-perspective profile interpretation.",
+    "dispatch_to": {
+      "agent": "reviewer",
+      "focus": "performance"
+    },
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Performance Goal"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Performance Goal"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "accessibility-review",
+    "title": "Accessibility Review",
+    "tier": "specialist",
+    "description": "When user says 'a11y review / accessibility audit / WCAG check / screen reader compatibility / keyboard navigation review / color contrast audit / accessible component review' — dispatches auditor with a11y focus. DEFAULT for accessibility audits.",
+    "when_to_use": "Manual-only. Invoke for a11y-focused review of UI components, flows, or design-system fit. For general frontend review, see `_shared/playbooks/frontend-ux-checklist.md`.",
+    "argument_hint": "[component|flow|page]",
+    "editing": true,
+    "aliases": [
+      "accessibility-review"
+    ],
+    "distinctive_judgment": "WCAG provides the framework but not the answers. Screen reader experience, keyboard navigation, focus management, color contrast, and motion sensitivity are independent axes that all need to work. Automated tools (axe, Lighthouse) catch ~30% of issues; the rest requires manual testing or expert review.",
+    "first_signals": [
+      "Component library or design system; any a11y conventions documented",
+      "Existing automated a11y testing (axe-core, jest-axe, Lighthouse CI)",
+      "Semantic HTML usage (real buttons, real links, headings, landmarks)",
+      "ARIA usage (often misused; semantic HTML usually wins)",
+      "Focus order and visible focus indicators",
+      "Keyboard navigation paths (Tab, Shift+Tab, arrow keys, Escape, Enter)",
+      "Color contrast ratios on text and interactive elements"
+    ],
+    "failure_modes": [
+      "Adding ARIA roles to non-semantic elements when a real button/link would work",
+      "Visible focus indicator removed for aesthetics (`:focus { outline: none }` without replacement)",
+      "Keyboard trap in modals (no Escape, no focus management)",
+      "Form errors announced visually but not to screen readers",
+      "Click handlers on non-interactive elements (div with onclick)",
+      "Color as the only signal (red text without an icon or label)"
+    ],
+    "workflow_steps": [
+      "Inventory the components/flows in scope.",
+      "Run automated tools (axe, Lighthouse) for low-hanging fruit.",
+      "Test keyboard navigation: can every interactive element be reached and activated by keyboard alone?",
+      "Test focus management: where does focus go when modals open/close, errors appear, content updates?",
+      "Test screen reader: does each control announce its role, name, and state?",
+      "Check contrast on text and interactive elements.",
+      "Apply fixes; verify with the same tests."
+    ],
+    "validation_strategy": "Re-run automated tools. Manual keyboard test of changed flows. Manual screen reader test (NVDA, VoiceOver, JAWS) on critical paths.",
+    "output_contract": "Scope | Automated Findings | Keyboard Navigation Findings | Focus Management Findings | Screen Reader Findings | Contrast Findings | Fixes Applied | Remaining Issues",
+    "subagent_delegation": "Dispatch `auditor` with focus=a11y for second perspective. See `_shared/playbooks/frontend-ux-checklist.md` for broader UX review.",
+    "dispatch_to": {
+      "agent": "auditor",
+      "focus": "a11y"
+    },
+    "primary_agent": "auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Scope"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Scope"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "database-review",
+    "title": "Database Review",
+    "tier": "specialist",
+    "description": "When user says 'database review / DB schema review / migration review / query performance / DB design review / check this SQL / look at the schema / data model review' — dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions). DEFAULT for database-focused reviews.",
+    "when_to_use": "Manual-only. Invoke for database-specific work: schema design, migration safety, index strategy, transaction boundaries, query plans, backfill design. For general migration sequencing, use core `migrate`.",
+    "argument_hint": "[table|migration|query|operation]",
+    "editing": true,
+    "aliases": [
+      "database-review"
+    ],
+    "distinctive_judgment": "Database changes are rarely reversible cheaply. Schema, indexes, and data are entangled with application code, replicas, and backups. Migration safety has two dimensions: (1) the migration completes without breaking the live system, (2) the new schema works correctly under production load. Both must be verified before commit.",
+    "first_signals": [
+      "Schema migration tool and convention (Alembic, Flyway, Liquibase, Rails, Prisma migrate)",
+      "Production data scale (rows, GB) of affected tables — migration time is a function of size",
+      "Indexes on affected columns; query plans for affected queries",
+      "Foreign key relationships and cascade behavior",
+      "Replication topology: primary/replica, lag tolerance",
+      "Transaction isolation level and locking patterns",
+      "Backup and restore strategy"
+    ],
+    "failure_modes": [
+      "Adding a column with a default value to a large table (rewrites the whole table; locks for hours)",
+      "Adding an index on a hot table without CONCURRENTLY (in Postgres) or ONLINE (in MySQL)",
+      "Changing column type in a way that requires a rewrite",
+      "Backfill that runs in a single transaction (locks, blows up replication lag)",
+      "Foreign key cascade that surprises during a deletion",
+      "Migration that breaks rolling deploys (mixed-version traffic against new schema)"
+    ],
+    "workflow_steps": [
+      "Identify the change: schema, index, query, transaction boundary, or backfill.",
+      "Estimate impact at production scale (data volume, lock duration, replication impact).",
+      "For schema: forward-compatible step first (add nullable, deploy, populate, deploy, make non-null).",
+      "For index: use online/concurrent index creation; verify with query plan.",
+      "For backfill: chunked, idempotent, with progress tracking and pause/resume.",
+      "Test on production-scale dataset where possible.",
+      "Document rollback for each step (especially the irreversible ones)."
+    ],
+    "validation_strategy": "Run migration on production-scale copy. Time the operation. Verify query plans changed as expected. Test rolling deploy with mixed-version application code.",
+    "output_contract": "Change Type | Production Scale Impact | Sequenced Steps (forward-compat first) | Online Index/Lock Strategy | Backfill Plan (chunked, resumable) | Query Plan Verification | Rollback Per Step | Validation Performed",
+    "subagent_delegation": "Dispatch `auditor` with focus=db for a second perspective on production safety.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Change Type"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Change Type"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "infra-iac-review",
+    "title": "Infra + IaC Review",
+    "tier": "specialist",
+    "description": "When user says 'IaC review / Terraform review / CloudFormation / Pulumi review / infrastructure code review / Helm review / k8s manifest review' — dispatches reviewer with infrastructure-as-code focus. DEFAULT for IaC reviews.",
+    "when_to_use": "Manual-only. Invoke for IaC review (Terraform, Pulumi, CloudFormation), Kubernetes manifests, Docker/compose, IAM policies, secret management, runtime config drift, or scheduled job audit. For supply-chain image provenance, use specialist `supply-chain-hardening`.",
+    "argument_hint": "[surface|module|cluster|policy]",
+    "editing": true,
+    "aliases": [
+      "infra-iac-review",
+      "cron-job-audit"
+    ],
+    "distinctive_judgment": "Infrastructure changes have blast radius. IAM is least-privilege by intent, often broad-privilege in practice. Secrets management has edges: rotation, access logs, blast radius of compromise. Scheduled jobs accumulate over time and silently break; audit them as a class. Drift between IaC source and actual cloud state is the silent killer.",
+    "first_signals": [
+      "IaC tool: Terraform, Pulumi, CloudFormation, Kubernetes manifests (Helm/Kustomize), Docker Compose",
+      "Module structure and reuse (shared modules vs copy-paste)",
+      "IAM policies: scope of permissions, principal of trust",
+      "Secret sources: Vault, AWS SSM/Secrets Manager, Kubernetes Secrets, env files",
+      "Scheduled jobs: cron, Kubernetes CronJob, Cloud Scheduler, GitHub Actions schedule",
+      "State management for IaC: where is state, how is it locked, who can modify",
+      "Drift detection: is `terraform plan` clean? Manual cloud changes?"
+    ],
+    "failure_modes": [
+      "IAM policies with `*` resource or `*` action 'temporarily'",
+      "Secrets in Terraform state files (state isn't encrypted at rest)",
+      "Kubernetes `Secret` objects not actually encrypted (they're base64, not encryption)",
+      "Scheduled job that fails silently for months (no alerting on missed runs or failures)",
+      "Drift: cloud has changes Terraform doesn't know about; next apply will revert them",
+      "Container running as root, or with privileged: true, without need",
+      "ConfigMap/Secret consumed by Pod via env var, but Pod doesn't restart on change"
+    ],
+    "workflow_steps": [
+      "Identify scope: which modules, clusters, policies, jobs.",
+      "Audit IAM: scope each role, identify wildcards, identify cross-account trust.",
+      "Audit secret handling: source, rotation, access logging, blast radius.",
+      "Audit scheduled jobs: catalog them all, confirm alerting on failure, check last successful runs.",
+      "Check IaC vs reality: run `terraform plan` (or equivalent), confirm clean. Investigate drift.",
+      "Apply concrete fixes: tighten IAM, add alerting, fix drift.",
+      "For container/k8s: confirm non-root, dropped capabilities, resource limits."
+    ],
+    "validation_strategy": "Run `terraform plan` (or equivalent) — should be clean after changes. Run any IaC test framework (terratest, kitchen-terraform). Trigger scheduled jobs in a test environment to confirm alerting fires on failure.",
+    "output_contract": "Scope | IAM Audit | Secret Handling Audit | Scheduled Job Audit | Drift Status | Container/K8s Hardening | Fixes Applied | Remaining Risks",
+    "subagent_delegation": "Dispatch `auditor` with focus=infra for cross-cutting review. See `_shared/playbooks/cron-job-audit-checklist.md` for scheduled-job specifics.",
+    "dispatch_to": {
+      "agent": "auditor",
+      "focus": "infra"
+    },
+    "primary_agent": "auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Scope"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Scope"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "observability-pass",
+    "title": "Observability Pass",
+    "tier": "specialist",
+    "description": "When user says 'observability audit / logging review / metrics review / tracing audit / monitoring gaps / SLO design / observability gaps' — dispatches auditor with observability focus. DEFAULT for observability-specific audits.",
+    "when_to_use": "Manual-only. Invoke for observability gaps: insufficient logs, missing metrics, broken traces, ineffective alerting, or SLO design. For incident reconstruction, see `_shared/playbooks/incident-postmortem-template.md`.",
+    "argument_hint": "[surface|operation|signal]",
+    "editing": true,
+    "aliases": [
+      "observability-pass"
+    ],
+    "distinctive_judgment": "Observability is for the unknown unknown: logs, metrics, and traces should help diagnose problems you didn't predict. The signals must be high-cardinality enough to find specific cases but low-cardinality enough to be cheap to query. Alerting should fire on user impact, not on infrastructure proxies (CPU is not a symptom).",
+    "first_signals": [
+      "Logging library and conventions (structured? levels? sampling?)",
+      "Metrics library and conventions (Prometheus, OpenTelemetry, vendor SDK)",
+      "Tracing: enabled? Sampled? Spans cover what?",
+      "Error reporting: Sentry/Bugsnag/Honeybadger integration; what's captured",
+      "Alerts: what fires? What's signal vs noise?",
+      "SLOs: defined? Measured? Reported?",
+      "Dashboards: do they answer 'is the system healthy?' in <30 seconds?"
+    ],
+    "failure_modes": [
+      "Logs without structure (string interpolation; can't filter)",
+      "Metrics with high-cardinality labels (user_id) blowing up cost",
+      "Traces that stop at the service boundary (no propagation)",
+      "Alerts on infrastructure (CPU > 80%) instead of user impact (latency p99 > SLO)",
+      "Error reporting that swallows the stack trace",
+      "SLO measured but not budgeted (no error budget concept)",
+      "Logging PII (see also data-flow-privacy-map for redaction)"
+    ],
+    "workflow_steps": [
+      "Identify the operation/surface and what 'observable' should mean for it.",
+      "Audit log statements: structure, level, fields, sensitive content.",
+      "Audit metrics: relevant, low-cardinality, units, labels.",
+      "Audit traces: span coverage, propagation across services.",
+      "Audit alerts: fire on user impact, not on proxies.",
+      "Audit SLO/error budget if applicable.",
+      "Apply fixes: add structure to logs, add missing metrics, fix span propagation, retune alerts."
+    ],
+    "validation_strategy": "Trigger the operation; confirm logs/metrics/traces appear as expected. Trigger known-failure scenarios; confirm alerts fire. Check dashboard answers 'is it healthy?' in 30s.",
+    "output_contract": "Scope | Logging Audit + Fixes | Metrics Audit + Fixes | Tracing Audit + Fixes | Alerting Audit + Retunes | SLO Status | Dashboard Quality | Remaining Gaps",
+    "subagent_delegation": "Dispatch `auditor` with focus=observability.",
+    "dispatch_to": {
+      "agent": "auditor",
+      "focus": "observability"
+    },
+    "primary_agent": "auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Scope"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Scope"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "ai-agent-safety-review",
+    "title": "AI Agent Safety Review",
+    "tier": "specialist",
+    "description": "When user says 'AI safety review / agent safety / prompt injection check / LLM safety / agent permissions audit / tool use safety / agentic system review' — dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus. DEFAULT for AI agent safety reviews.",
+    "when_to_use": "Manual-only. Invoke for AI/LLM safety review: tool-calling boundaries, prompt injection vectors, retrieval trust, memory/context handling, autonomy controls, or prompt hardening for a specific prompt or skill body.",
+    "argument_hint": "[system|tool|prompt|focus]",
+    "editing": true,
+    "aliases": [
+      "ai-agent-safety-review",
+      "prompt-hardening"
+    ],
+    "distinctive_judgment": "LLM systems have a unique attack surface: prompts and retrieved content are mixed with instructions, and the model treats both as authoritative. Trust boundaries must be explicit (this is data, that is instruction). Tool-calling is privilege escalation: each tool a model can call is an action it can take. Autonomy controls (human-in-loop, confirmation, audit) are part of the design, not afterthoughts.",
+    "first_signals": [
+      "System prompt content: are instructions clearly separated from user data?",
+      "Retrieval pipeline: is retrieved content marked as untrusted? Is it shown verbatim to the model?",
+      "Tool inventory: what can the model call? With what side effects?",
+      "Memory/context: what persists across turns or sessions? Who can poison it?",
+      "Autonomy: where does the model act vs ask?",
+      "Output channels: where does model output go? (UI, logs, downstream systems, other models)",
+      "Prompt injection vectors: any path where attacker-controlled text reaches the model"
+    ],
+    "failure_modes": [
+      "Concatenating user input directly into the system prompt",
+      "Showing retrieved web content to the model without trust boundary marking (classic prompt injection vector)",
+      "Tool that takes a free-text argument and executes it (shell, eval, SQL)",
+      "Memory shared across users (one user can poison another's session)",
+      "Auto-approval of tool calls that should require human confirmation",
+      "Logging the full prompt + completion (often contains secrets, PII)",
+      "Retrieved context that the model trusts as authoritative when it shouldn't"
+    ],
+    "workflow_steps": [
+      "Inventory: prompts, tools, retrieval sources, memory, output channels.",
+      "Map trust boundaries. Confirm separation of instruction vs data.",
+      "Audit each tool: what does it do, what's the side-effect blast radius, what's the confirmation gate.",
+      "Audit retrieval: is content marked, sandboxed, or sanitized before reaching the model?",
+      "Audit memory/context for cross-user contamination.",
+      "Audit autonomy controls: where can the model act, where must it ask?",
+      "Audit output channels for log/audit safety.",
+      "Apply hardening: prompt restructuring, tool argument validation, retrieval marking, confirmation gates."
+    ],
+    "validation_strategy": "Run prompt-injection eval cases (test corpus of known injection strings). Test tool argument validation with adversarial inputs. Test memory isolation across simulated users. For prompts: run before/after eval suite if available.",
+    "output_contract": "Scope | Trust Boundary Map | Tool Audit (per tool: side effect, confirmation gate, hardening) | Retrieval Audit | Memory/Context Audit | Autonomy Audit | Hardenings Applied | Remaining Risks",
+    "subagent_delegation": "Dispatch `auditor` with focus=ai-safety. See `_shared/playbooks/prompt-injection-patterns.md` and `_shared/playbooks/prompt-hardening-checklist.md`.",
+    "dispatch_to": {
+      "agent": "auditor",
+      "focus": "ai-safety"
+    },
+    "primary_agent": "auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Scope"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Scope"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "llm-eval-design",
+    "title": "LLM Eval Design",
+    "tier": "specialist",
+    "description": "When user says 'how do we evaluate this LLM feature / eval plan for AI / measure model quality / offline eval / online eval / LLM benchmarks for our use case / agent evaluation strategy' — dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency). DEFAULT for LLM/agent eval design.",
+    "when_to_use": "Manual-only. Invoke for eval suite design: rubrics, golden cases, graders, thresholds. For runtime safety review of an LLM system, use specialist `ai-agent-safety-review`.",
+    "argument_hint": "[system|capability|prompt under test]",
+    "editing": true,
+    "aliases": [
+      "llm-eval-design"
+    ],
+    "distinctive_judgment": "Evals are tests for stochastic systems. Three-tier structure: (1) golden cases (known-correct, regression signal), (2) adversarial cases (known-bad, robustness signal), (3) free-form rubric grading (capability signal). Graders are themselves models or rules, and graders need their own validation. Thresholds matter: an eval that always passes or always fails is useless.",
+    "first_signals": [
+      "What capability is being evaluated? (Reasoning, retrieval, classification, agentic behavior)",
+      "Existing eval framework (Inspect, Promptfoo, OpenAI evals, custom)",
+      "Existing golden cases / labeled data",
+      "Grader implementation (rule-based, model-based, human)",
+      "Threshold and stability over time"
+    ],
+    "failure_modes": [
+      "Golden cases too easy (always passes) or too narrow (overfit)",
+      "Grader uses the same model being evaluated (selection bias)",
+      "Threshold set without baseline (impossible to know if a regression is real)",
+      "Eval runs nondeterministically and 'flake' is treated as 'failure'",
+      "No adversarial cases (system passes friendly tests, fails in production)",
+      "Grader rubric ambiguous (different runs grade the same output differently)"
+    ],
+    "workflow_steps": [
+      "Identify the capability under test and the failure modes that matter.",
+      "Design the three tiers: golden, adversarial, rubric.",
+      "Build the case set. Diversity matters more than volume initially.",
+      "Implement the grader. If model-based, validate the grader against human labels first.",
+      "Set thresholds with baseline measurement (current performance, target performance, regression threshold).",
+      "Wire into CI or scheduled run.",
+      "Document expected variance and what triggers investigation."
+    ],
+    "validation_strategy": "Run the eval against the current system to establish baseline. Run against a known-broken version to confirm the eval catches it. Validate grader against human labels on a sample.",
+    "output_contract": "Capability Under Test | Failure Modes Targeted | Three-Tier Case Set | Grader Implementation + Validation | Baseline + Thresholds | CI Wiring | Variance Notes",
+    "subagent_delegation": "Dispatch `auditor` with focus=ai-safety for grader robustness review. See `_shared/playbooks/contract-test-patterns.md` for adjacent contract-test design.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Capability Under Test"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Capability Under Test"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "contract-test-generate",
+    "title": "Contract Test Generate",
+    "tier": "specialist",
+    "description": "When user says 'generate contract tests / write contract tests for API X / consumer-driven contract / Pact test / OpenAPI contract test / event contract test' — dispatches test-strategist + test-harden with contract focus. DEFAULT for contract-test generation.",
+    "when_to_use": "Manual-only. Invoke when a boundary needs contract-test coverage to prevent silent breakage. For API contract design or deprecation, use core `api-contract`.",
+    "argument_hint": "[boundary|consumer|surface]",
+    "editing": true,
+    "aliases": [
+      "contract-test-generate"
+    ],
+    "distinctive_judgment": "Contract tests pin the surface from the consumer's perspective. They differ from unit tests (which test the producer's internal logic) and integration tests (which test the live integration). A contract test should fail when the producer changes the surface in a way that breaks consumers — even if the producer's own tests still pass.",
+    "first_signals": [
+      "Boundary type: REST API, GraphQL, gRPC, message queue, CLI, file format, package export",
+      "Consumer list: who depends on this surface?",
+      "Existing contract tests or schema files (OpenAPI, GraphQL SDL, JSON Schema, Protobuf)",
+      "Consumer expectations not captured in schema (ordering, default values, error formats)"
+    ],
+    "failure_modes": [
+      "Contract test that's actually an integration test (calls live producer; not a contract pin)",
+      "Schema-only contract that misses behavioral expectations (ordering, error format)",
+      "Contract test owned by producer (goalpost-moving when producer changes the surface)",
+      "Contract for one consumer applied as universal (other consumers have different needs)"
+    ],
+    "workflow_steps": [
+      "Identify the boundary and its consumers.",
+      "Capture consumer expectations as concrete cases (request → expected response shape).",
+      "Generate tests using a contract-test framework (Pact, Spring Cloud Contract, custom).",
+      "Run tests against the producer to confirm current behavior matches.",
+      "Wire into producer's CI so producer-side changes that break consumers fail.",
+      "Document the contract for future consumer onboarding."
+    ],
+    "validation_strategy": "Run the new contract tests against current producer (should pass). Modify producer in a known-breaking way (in a branch); confirm contract test fails. Revert.",
+    "output_contract": "Boundary | Consumers Captured | Contract Cases (request → expected response/behavior) | Framework + Test Files | CI Wiring | Documentation",
+    "subagent_delegation": "Dispatch `reviewer` with focus=contract for second perspective. See `_shared/playbooks/contract-test-patterns.md`.",
+    "primary_agent": "test-strategist",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Boundary"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "test-strategist",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Boundary"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "state-machine-review",
+    "title": "State Machine Review",
+    "tier": "specialist",
+    "description": "When user says 'state machine review / state transition audit / FSM design review / workflow state review / event-sourced state review' — dispatches reviewer with state-machine focus. DEFAULT for state-machine design and review.",
+    "when_to_use": "Manual-only. Invoke for state-machine, FSM, reducer, or protocol-lifecycle review. Different cognitive model from architecture review (which handles boundaries) and concurrency (which handles timing). For lock/race/async issues, see `_shared/playbooks/concurrency-patterns.md`.",
+    "argument_hint": "[state machine|reducer|protocol]",
+    "editing": true,
+    "aliases": [
+      "state-machine-review"
+    ],
+    "distinctive_judgment": "Explicit state machines are easier to reason about than implicit ones (booleans + flags). The transition table tells you what's possible; the invariants tell you what should be impossible. Impossible states should be unrepresentable (type system) or unreachable (validation). Most state-machine bugs are 'this transition shouldn't have been allowed from this state'.",
+    "first_signals": [
+      "Is the state machine explicit (FSM library, state pattern, reducer) or implicit (mix of booleans)?",
+      "States: enumerated? Documented?",
+      "Transitions: when does each fire? Which states are allowed pre-conditions?",
+      "Invariants: what must always be true regardless of state?",
+      "Persistence: how is state stored? Migration path when state set changes?",
+      "Concurrent transitions: can two transitions race?"
+    ],
+    "failure_modes": [
+      "Implicit state machine: combinations of booleans creating impossible states (`isLoading && isError && !hasData`)",
+      "Transition allowed from a state where it shouldn't be (no guard)",
+      "State set extended without updating persistence migration",
+      "Race between two transitions on the same entity",
+      "State reached but no transition out (stuck state)",
+      "Invariant assumed but not enforced"
+    ],
+    "workflow_steps": [
+      "Identify the state machine. If implicit, make it explicit (enumerate states from code).",
+      "Build the transition table: state × event → new state | rejected.",
+      "Identify invariants and confirm they're enforced (type, validation, or assertion).",
+      "Look for impossible states and unreachable states.",
+      "Look for stuck states (no transition out).",
+      "Identify concurrent transition risks; require atomic transitions where needed.",
+      "Apply fixes: tighten guards, make impossible states unrepresentable, add invariant checks.",
+      "Add tests covering transition table edges and invariants."
+    ],
+    "validation_strategy": "Property-based tests on the transition table where feasible. Tests for each transition's pre-condition and post-condition. Tests for stuck-state detection. For persistence: test migration of stored state across version changes.",
+    "output_contract": "State Machine | Transition Table | Invariants | Impossible States Found | Stuck States Found | Concurrent Transition Risks | Fixes Applied | Tests Added",
+    "subagent_delegation": "Dispatch `reviewer` with focus=architecture for boundary questions. See `_shared/playbooks/concurrency-patterns.md` for concurrent transition concerns.",
+    "dispatch_to": {
+      "agent": "reviewer",
+      "focus": "code"
+    },
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "State Machine"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "State Machine"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "tui-design-innovate",
+    "title": "TUI Design + Innovate",
+    "tier": "specialist",
+    "description": "When user says 'design a TUI / terminal UI design / Bubble Tea component / Ink interface / TUI interaction pattern / CLI command design' — dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state). DEFAULT for terminal-UI design work.",
+    "when_to_use": "Manual-only. Invoke for TUI app or framework work: terminal-native interaction, focus management, layout, rendering, input routing, framework primitives. Do not default to browser/desktop GUI assumptions.",
+    "argument_hint": "[surface|framework|interaction]",
+    "editing": true,
+    "aliases": [
+      "tui-design-innovate"
+    ],
+    "distinctive_judgment": "The terminal is a native interaction medium with its own affordances: keyboard-first, character grid, persistent state, streaming output. TUI design is not 'GUI minus the mouse'. Think in command palettes, multi-key chords, panes, overlays, focus graphs, deterministic snapshots, and reusable framework primitives.",
+    "first_signals": [
+      "TUI framework: Textual, Ratatui, Bubbletea, blessed, Ink, custom (e.g., Celestial)",
+      "Layout primitives: panes, splits, overlays, modals, drawers",
+      "Focus graph: where can focus go, what's the keyboard map",
+      "Input handling: chord support, vim-style modes, escape-from-anywhere",
+      "Rendering: full redraw vs partial; flicker; resize handling",
+      "Unicode + grapheme cluster handling, width calculation, truncation",
+      "Themes, colors, semantic styles, terminal capability detection"
+    ],
+    "failure_modes": [
+      "Designing flows that need the mouse",
+      "Single-pane app where multi-pane would compose better",
+      "No keyboard map cheat sheet (users can't discover what's possible)",
+      "Focus trap with no escape",
+      "Resize breaks layout (layout assumed fixed dimensions)",
+      "Wide-character / emoji breaks width calculation",
+      "Theme that fails on light terminal background",
+      "Streaming output that scrolls past faster than user can read"
+    ],
+    "workflow_steps": [
+      "Identify the surface: full app, framework primitive, specific flow.",
+      "Map the keyboard interaction model: modes, chords, escape paths.",
+      "Design the layout: pane structure, focus graph, overlay strategy.",
+      "Handle terminal realities: resize, Unicode, terminal capability differences.",
+      "Build reusable framework primitives over one-off screens.",
+      "Add deterministic snapshot tests for layout.",
+      "Add state-machine tests for focus and input routing."
+    ],
+    "validation_strategy": "Snapshot tests of rendered layout at various terminal sizes. State-machine tests for focus transitions. Manual test on multiple terminals (kitty, alacritty, iTerm, Windows Terminal). Test with screen reader where applicable.",
+    "output_contract": "Surface | Keyboard Interaction Model | Layout + Focus Graph | Terminal Reality Handling | Framework Primitives | Tests Added | Cross-Terminal Notes",
+    "subagent_delegation": "Dispatch `reviewer` with focus=architecture for framework structure. See `_shared/playbooks/frontend-ux-checklist.md` for general UX overlap.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Surface"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Surface"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "docs-sync",
+    "title": "Docs Sync",
+    "tier": "specialist",
+    "description": "When user says 'docs are out of sync / update documentation / fix the README / docs don't match code / sync docs to recent changes / update docs after refactor' — produces documentation update plan + drafts. DEFAULT for documentation drift correction.",
+    "when_to_use": "Manual-only. Invoke when docs may have drifted from code: stale examples, outdated install instructions, removed flags still documented, screenshots showing old UI. For ADR/design doc creation, see `_shared/playbooks/adr-template.md` and `_shared/playbooks/design-doc-template.md`.",
+    "argument_hint": "[doc|surface|version range]",
+    "editing": true,
+    "aliases": [
+      "docs-sync"
+    ],
+    "distinctive_judgment": "Documentation drift is silent: nothing fails when README says `npm install` but the project moved to pnpm. Find drift by cross-checking docs against code reality: install commands against package manager, examples against current API, flags against current CLI, screenshots against current UI. Fix the docs; do not fix the code to match the docs (unless the code is wrong).",
+    "first_signals": [
+      "README install + quickstart commands vs actual package manager / scripts",
+      "Code examples in docs vs current API",
+      "CLI flag documentation vs current flags (--help output)",
+      "Configuration examples vs current config schema",
+      "Architecture diagrams vs current code structure",
+      "Changelog gaps (releases without notes)",
+      "Doc comments vs current function signatures"
+    ],
+    "failure_modes": [
+      "Documenting broken behavior as intended behavior",
+      "Updating docs without confirming the new behavior actually works",
+      "Adding 'TODO: update' instead of updating",
+      "Removing examples instead of fixing them",
+      "Fixing the code to match wrong docs (docs were aspirational, not specification)"
+    ],
+    "workflow_steps": [
+      "Inventory docs in scope: README, /docs, examples, code comments, changelog.",
+      "Cross-check each against code reality.",
+      "For each drift: classify as (a) docs wrong, fix docs; (b) code wrong, surface as a finding for separate fix; (c) docs aspirational, decide.",
+      "Update docs. Run examples to confirm they work.",
+      "Update changelog if release-relevant.",
+      "Validate by running quickstart + examples end-to-end."
+    ],
+    "validation_strategy": "Run install + quickstart from scratch (clean checkout). Run every code example. Verify CLI help matches documented flags. Verify config schema matches documented config.",
+    "output_contract": "Docs Inventory | Drift Found | Fixes Applied (per file) | Code-Wrong Findings (separate fix) | Validation: Quickstart Run | Validation: Examples Run | Remaining Drift",
+    "subagent_delegation": "Dispatch `writer` for changelog synthesis from raw commit log. See `_shared/playbooks/release-notes-format.md`.",
+    "primary_agent": "writer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Docs Inventory"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "writer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Docs Inventory"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "technical-debt-triage",
+    "title": "Technical Debt Triage",
+    "tier": "specialist",
+    "description": "When user says 'triage tech debt / which debt to pay down / debt prioritization / what should we refactor first / debt impact assessment / tech debt audit' — produces ranked tech debt list with impact + effort + recommended sequencing. DEFAULT for tech debt prioritization.",
+    "when_to_use": "Manual-only. Invoke for maintenance-backlog work: debt inventory, modernization sequencing, 30/60/90-day plans, contributor friction, build/test speed audit. Consolidates V4's tech-debt-triage, codebase-health, developer-experience-audit, build-test-optimizer.",
+    "argument_hint": "[scope|focus: debt|dx|build-speed|health]",
+    "editing": false,
+    "aliases": [
+      "technical-debt-triage",
+      "codebase-health",
+      "developer-experience-audit"
+    ],
+    "distinctive_judgment": "Maintenance backlog is shaped like an inventory + sequencing problem. The inventory is what's broken or rotting; the sequencing is what to fix first given finite engineering time. Risk × leverage × cost. DX friction and build speed are debt with compounding interest: every day of delay costs more time per contributor.",
+    "first_signals": [
+      "Recent pain points: PRs that took unusually long, recent incidents, contributor complaints",
+      "Build/test/lint times locally and in CI",
+      "Test flakiness rate",
+      "Onboarding time for new contributors",
+      "Areas with high churn + high bug rate (correlation often = debt)",
+      "Versions: language, framework, deps — how stale?",
+      "Tooling: linter, formatter, type checker — config drift, ignored rules"
+    ],
+    "failure_modes": [
+      "Listing every imperfection without prioritizing (overwhelming, no action taken)",
+      "Optimizing for what's easy to fix rather than what hurts most",
+      "Recommending modernization for its own sake (latest framework version)",
+      "Ignoring DX/build-speed because it's not 'real' code",
+      "30/60/90 plan with no measurement (can't tell if it worked)"
+    ],
+    "workflow_steps": [
+      "Identify scope and focus (debt / DX / build-speed / health).",
+      "Inventory: enumerate the items. Concrete, file-level when possible.",
+      "Score each: risk (likelihood × impact), leverage (how much friction it removes), cost (engineering time).",
+      "Sequence into 30/60/90 buckets. Highest risk × leverage / cost first.",
+      "For build/test speed: profile the current pipeline. Identify the dominant cost.",
+      "For DX: enumerate friction points concretely (this command takes 3 min, that error is unclear).",
+      "Produce the plan with measurable targets per bucket.",
+      "Stay read-only; this skill produces a plan, not the fixes."
+    ],
+    "validation_strategy": "No code changes. Validate by referring to recent incidents and contributor pain that confirm the items in the inventory.",
+    "output_contract": "Scope + Focus | Inventory (file-level when possible) | Risk × Leverage / Cost Scoring | 30/60/90 Sequenced Plan | Measurement Targets per Bucket | Specific Build/DX Bottlenecks (if applicable)",
+    "subagent_delegation": "Dispatch `auditor` with focus=infra for build pipeline depth. See `_shared/playbooks/codebase-health-signals.md`, `_shared/playbooks/developer-experience-friction-list.md`, `_shared/playbooks/build-test-optimizer-patterns.md`.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Scope + Focus"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Scope + Focus"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "plugin-review",
+    "title": "Plugin Review",
+    "tier": "ecosystem",
+    "description": "When user says 'review my plugin / Claude Code plugin review / Codex plugin review / plugin structure check / plugin best practices / plugin design review' — dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks). DEFAULT for plugin review tasks.",
+    "when_to_use": "Manual-only. Invoke for ecosystem-level review of a Claude Code plugin package. For authoring a new skill or agent, use ecosystem skills `skill-author` or `agent-author`.",
+    "argument_hint": "[plugin path|focus]",
+    "editing": true,
+    "aliases": [
+      "claude-code-plugin-review"
+    ],
+    "distinctive_judgment": "A Claude Code plugin is a structured package: skills (with frontmatter and bodies), agents (with tool permissions), hooks (deterministic), commands, MCP servers, output styles, marketplace metadata. Each surface has its own review criteria. Hooks are the riskiest because they intercept tool calls; MCP servers run as subprocesses; skills are passive but cumulative.",
+    "first_signals": [
+      "Plugin manifest: `.claude-plugin/plugin.json` — schema, version, declared surfaces",
+      "Skills: frontmatter validity, body shape, when_to_use clarity, tier",
+      "Agents: tool permissions, body clarity, intended use",
+      "Hooks: matchers, scripts, fail-open behavior, env-var disable",
+      "Commands: scope, allowed-tools, disable-model-invocation usage",
+      "MCP server: tool surface, side effects, error handling",
+      "Output styles: what they actually change",
+      "Marketplace metadata: keywords, description, source"
+    ],
+    "failure_modes": [
+      "Skills that auto-activate too broadly (description matches everything)",
+      "Agents with unrestricted tool access when read-only would suffice",
+      "Hooks that don't fail-open on parse error (could brick the session)",
+      "MCP server that crashes the plugin if it errors",
+      "Marketplace metadata that misrepresents what the plugin does",
+      "Skill bodies with inlined boilerplate (V4 mistake) instead of single-discipline reference",
+      "Plugin manifest fields that aren't valid Claude Code schema"
+    ],
+    "workflow_steps": [
+      "Validate plugin manifest against Claude Code schema.",
+      "Audit skills: frontmatter, body shape, tier, when_to_use clarity, no inlined boilerplate.",
+      "Audit agents: tool permissions least-privilege, body clarity.",
+      "Audit hooks: matcher precision, fail-open behavior, env-var disable, evidence logging.",
+      "Audit commands: appropriate scope, allowed-tools restrictions where possible.",
+      "Audit MCP server: read-only by default, error handling, resource limits.",
+      "Audit marketplace metadata: accuracy.",
+      "Apply concrete fixes for clear violations; flag policy questions."
+    ],
+    "validation_strategy": "Run the plugin's bundled validator and doctor commands if present. Smoke test: load the plugin in a test repo, exercise each surface, confirm hooks block expected destructive commands, confirm MCP server self-test passes.",
+    "output_contract": "Plugin Manifest Status | Skills Audit (per skill) | Agents Audit | Hooks Audit | Commands Audit | MCP Server Audit | Marketplace Metadata Audit | Fixes Applied | Recommendations",
+    "subagent_delegation": "Dispatch `auditor` with focus=plugin for second perspective.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Plugin Manifest Status"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Plugin Manifest Status"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "skill-author",
+    "title": "Skill Author",
+    "tier": "ecosystem",
+    "description": "When user says 'author a new skill / write a skill / design a skill / new skill for X / skill description / skill spec' — produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation). DEFAULT for skill authoring.",
+    "when_to_use": "Manual-only. Invoke for new skill authoring or refining an existing skill body. Also handles CLAUDE.md / AGENTS.md / repo guidance file optimization.",
+    "argument_hint": "[skill name|target]",
+    "editing": true,
+    "aliases": [
+      "skill-authoring",
+      "claude-md-optimize"
+    ],
+    "distinctive_judgment": "A good skill is mostly unique specialty content with a single discipline reference. Frontmatter is concise. when_to_use is sharp: when this skill is correct, when adjacent skills are better. Body has consistent shape (Distinctive Judgment | First Signals | Failure Modes | Workflow | Validation | Output Contract | See Also). No inlined boilerplate. Tier assignment matches actual auto-activation desirability.",
+    "first_signals": [
+      "Existing skills in the plugin (for shape reference)",
+      "_shared/DISCIPLINE.md (the discipline that skills reference)",
+      "Existing CLAUDE.md or AGENTS.md (for context the skill operates within)",
+      "Adjacent skills that overlap with the new one (for differentiation)",
+      "Aliases needed for backwards compatibility"
+    ],
+    "failure_modes": [
+      "Inlining shared discipline (V4 mistake)",
+      "when_to_use that's vague (matches too many intents)",
+      "Description that doesn't differentiate from adjacent skills",
+      "Body without consistent shape (missing Failure Modes, missing Validation)",
+      "Tier assigned too aggressively (auto-discoverable when manual would be better)",
+      "No alias when renaming (breaks existing users)",
+      "Examples in skill body that are obvious (waste tokens)"
+    ],
+    "workflow_steps": [
+      "Confirm the skill is needed (no existing skill covers the lane; not a playbook).",
+      "Draft frontmatter: name, description, when_to_use, tier, argument-hint.",
+      "Confirm differentiation from adjacent skills.",
+      "Draft body with the consistent shape: Distinctive Judgment | First Signals | Failure Modes | Workflow | Validation | Output Contract | See Also.",
+      "Reference DISCIPLINE.md once; do not inline its contents.",
+      "Add aliases for any V4 names that should route here.",
+      "If this is a CLAUDE.md / AGENTS.md update, focus on what makes routing sharper, not on adding more rules.",
+      "Validate via plugin validator + duplication audit."
+    ],
+    "validation_strategy": "Run validate-plugin.py and audit-duplication.py. Confirm the skill activates on its target intents (router bench positive case). Confirm it doesn't activate on adjacent intents (router bench negative case).",
+    "output_contract": "Skill Frontmatter | Body Sections (with rationale per section) | Aliases Mapped | Tier Justification | Validator + Duplication Audit Result | Router Bench Cases Added (positive + negative)",
+    "subagent_delegation": "Dispatch `writer` for body prose synthesis. See `_shared/playbooks/claude-md-template.md` for CLAUDE.md guidance.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Skill Frontmatter"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Skill Frontmatter"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "agent-author",
+    "title": "Agent Author",
+    "tier": "ecosystem",
+    "description": "When user says 'author a new agent / write an agent / design an agent / new subagent / create an agent for X / agent description' — produces a new agent definition (.md with frontmatter + body) following the V8 quality bar (USE WHEN/DEFAULT/DO NOT triggers + required output contract + lane boundaries + anti-patterns). DEFAULT for agent authoring.",
+    "when_to_use": "Manual-only. Invoke for new agent authoring or refining an existing agent. Also covers agent orchestration patterns and team-style invocation design.",
+    "argument_hint": "[agent name|target]",
+    "editing": true,
+    "aliases": [
+      "agent-authoring",
+      "agent-orchestration-plan",
+      "agent-team-playbook"
+    ],
+    "distinctive_judgment": "A good agent has tight tool permissions (least-privilege), a sharp body that explains what it does and what it returns, and a clear use case. Parameterized agents (reviewer, auditor with focus arg) collapse many would-be-distinct agents into one. Agent value comes from context isolation, not from prose specialization.",
+    "first_signals": [
+      "Agent fleet in this plugin (29 agents in V8; for shape reference)",
+      "Tool permission patterns (Read/Grep/Glob for read-only; +Bash for discovery; Write only for narrow scratch use)",
+      "Existing parameterized agents (reviewer, auditor) — could the new agent be a focus arg instead?",
+      "Orchestration: when is this agent dispatched? By which skills?"
+    ],
+    "failure_modes": [
+      "Adding a new agent when an existing parameterized one would do",
+      "Tool permissions too broad (Write+Edit when read-only suffices)",
+      "Body that duplicates DISCIPLINE.md content",
+      "No clear return contract (caller doesn't know what to expect)",
+      "Orchestration unclear: which skill spawns this agent?"
+    ],
+    "workflow_steps": [
+      "Confirm the agent is needed: existing agent (parameterized or not) doesn't cover the role.",
+      "Draft frontmatter: name, description, max_turns, tools, disallowed_tools, color.",
+      "Apply least-privilege to tools.",
+      "Draft body: what this agent does, what it returns, behavior with discipline reference.",
+      "Update orchestration: which skills dispatch this agent and when.",
+      "Validate via plugin validator."
+    ],
+    "validation_strategy": "Run validate-plugin.py. Smoke-test: dispatch the agent from a parent skill in a test scenario; confirm it returns the expected structured output.",
+    "output_contract": "Agent Frontmatter | Tool Permission Justification | Body Sections | Return Contract | Orchestration Update | Validator Result",
+    "subagent_delegation": "Dispatch `writer` for body prose. See `_shared/playbooks/agent-team-orchestration-patterns.md`.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Agent Frontmatter"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Agent Frontmatter"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "hooks-design",
+    "title": "Hooks Design",
+    "tier": "ecosystem",
+    "description": "When user says 'design hooks / hook architecture / PreToolUse hook / SessionStart hook / Stop hook / how should I structure plugin hooks / hook design' — dispatches reviewer/architect with plugin hooks focus. DEFAULT for plugin hook design.",
+    "when_to_use": "Manual-only. Invoke for hook design, hook auditing, or settings/permissions audit. Hooks are the riskiest plugin surface because they intercept tool calls.",
+    "argument_hint": "[hook|surface]",
+    "editing": true,
+    "aliases": [
+      "hooks-automation-design",
+      "settings-permissions-audit"
+    ],
+    "distinctive_judgment": "Hooks are deterministic guards on tool calls. Three rules: (1) fail open on parse error (a broken hook should not brick the session), (2) provide an env-var disable for emergencies, (3) keep matchers precise (broad matchers create surprises). The evidence ledger is a hook-driven side-effect; the claim gate is an opt-in stop-time check.",
+    "first_signals": [
+      "Existing hooks: SessionStart, PreToolUse, PostToolUse, SubagentStart, SubagentStop, Stop, PostToolUseFailure",
+      "Matcher precision (Bash vs Bash|Edit|Write)",
+      "Env var disable mechanism (every hook should respect ULTRAPROMPT_DISABLE_HOOKS=1)",
+      "Fail-open behavior on JSON parse failure",
+      "Evidence ledger integration",
+      "Settings/permissions: who can run what; tool restriction lists"
+    ],
+    "failure_modes": [
+      "Hook crashes on malformed JSON, blocking subsequent tool calls",
+      "Matcher too broad: PostToolUse on `*` instead of `Bash|Edit|Write`",
+      "No env-var disable: user can't override in emergency",
+      "Hook side effects on Stop that confuse the user (extra output)",
+      "Permissions audit that doesn't check defaults (Claude Code's defaults may be permissive)",
+      "Hook script not idempotent (runs twice on retry, breaks state)"
+    ],
+    "workflow_steps": [
+      "Identify the hook need: deterministic guard, evidence collection, claim gate.",
+      "Choose the hook event (PreToolUse, PostToolUse, Stop, etc.) and matcher.",
+      "Draft the script: parse JSON input safely, fail open on errors, respect disable env var.",
+      "Wire into hooks.json with timeout.",
+      "Add fixture test cases (positive, negative, malformed, env-var disabled).",
+      "For settings/permissions: audit current state, recommend least-privilege defaults.",
+      "Validate via run-hook-tests.py."
+    ],
+    "validation_strategy": "Run run-hook-tests.py with the new fixtures. Smoke-test: trigger the hook with intended input (should block/allow as expected). Trigger with malformed input (should not crash session). Set disable env var (should bypass).",
+    "output_contract": "Hook Purpose | Event + Matcher | Script (with fail-open + disable handling) | Fixture Tests Added | Hooks.json Entry | Settings/Permissions Recommendations (if applicable)",
+    "subagent_delegation": "Dispatch `auditor` with focus=infra for hook script review. See `_shared/playbooks/settings-permissions-checklist.md`.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Hook Purpose"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Hook Purpose"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "mcp-design",
+    "title": "MCP Design",
+    "tier": "ecosystem",
+    "description": "When user says 'design an MCP server / MCP tool design / MCP architecture / how should I expose this as MCP / MCP capability design' — dispatches reviewer/architect with MCP focus. DEFAULT for MCP design tasks.",
+    "when_to_use": "Manual-only. Invoke for MCP server design, audit, or tool-boundary review. Combines V4's mcp-integration-design and mcp-server-audit.",
+    "argument_hint": "[server|tool|surface]",
+    "editing": true,
+    "aliases": [
+      "mcp-integration-design",
+      "mcp-server-audit"
+    ],
+    "distinctive_judgment": "MCP tools are model-callable functions with structured I/O. The interface is the contract: input schema, output shape, error mode. Tools should be read-only by default; write/destructive tools require explicit naming and ideally a confirmation gate at the consumer. Server should be dependency-free if possible (no pip install at plugin load) and should self-test via --self-test flag.",
+    "first_signals": [
+      "MCP protocol version (2025-06-18 at time of writing)",
+      "Tool inventory: what's exposed",
+      "Per-tool: input schema, output shape, side effects (read-only? state-modifying? external network call?)",
+      "Error handling: tool errors vs server errors vs protocol errors",
+      "Server lifecycle: stdio? Self-test mode? Plugin root resolution",
+      "Dependencies: dependency-free Python is ideal; pip-installed deps require care",
+      "Performance: how fast does each tool return? Resource limits?"
+    ],
+    "failure_modes": [
+      "Tool with side effect not named like a side effect (`get_status` that resets state)",
+      "Schema that says required field but server doesn't validate",
+      "Server crashes on invalid input instead of returning structured error",
+      "Long-running tool with no timeout",
+      "Tool that pulls in heavy deps (slow plugin load)",
+      "No self-test mode (can't smoke-test without Claude Code)",
+      "Missing protocol-level methods (initialize, tools/list, ping)"
+    ],
+    "workflow_steps": [
+      "Identify the integration goal: what should the model be able to do?",
+      "Design the tool surface: minimal, read-only by default, named clearly.",
+      "Define input schema (JSON Schema) and output shape per tool.",
+      "Implement the server: protocol methods, error handling, self-test mode.",
+      "Add tool-level tests (input → expected output).",
+      "Smoke-test JSON-RPC end-to-end without Claude Code.",
+      "Wire into plugin via .mcp.json."
+    ],
+    "validation_strategy": "Run --self-test (returns tools/list JSON). Run JSON-RPC smoke test (initialize + tools/list + tools/call for each tool). Test error cases (missing required fields, invalid types).",
+    "output_contract": "Server Purpose | Tool Inventory (per tool: side effect class, schema, output) | Self-Test Result | JSON-RPC Smoke Test Result | Plugin Integration | Recommendations",
+    "subagent_delegation": "Dispatch `auditor` with focus=infra for server resource handling. Dispatch `auditor` with focus=ai-safety for tool-boundary review when the server enables agent autonomy.",
+    "primary_agent": "reviewer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Server Purpose"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "reviewer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Server Purpose"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation"
+    }
+  },
+  {
+    "name": "repo-review",
+    "title": "Repo Review",
+    "tier": "core",
+    "description": "When user says 'review this whole repo / what's incomplete / audit the codebase end-to-end / what gaps exist / find what's missing / is this ready to ship' — produces a structured repo review covering map (entrypoints, routes, data, jobs), confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence. DEFAULT for any whole-repo audit prompt. V8 panel-ready skill.",
+    "dispatch_to": {
+      "agent": "repo-cartographer",
+      "phase": "analysis"
+    },
+    "family": "repo-completeness",
+    "artifact_type": "repo_review_report",
+    "when_to_use": "When the user wants a structured whole-repo audit covering map, gaps, contracts, test coverage, drift, and release readiness. Triggers on 'review this repo / what's incomplete / audit the codebase / find what's missing / is this ready to ship / repo health check'.",
+    "argument_hint": "[optional: feature or area to focus on]",
+    "editing": false,
+    "aliases": [
+      "repo-audit",
+      "codebase-review",
+      "repo-health"
+    ],
+    "distinctive_judgment": "Repo review is whole-repo audit; review is diff/PR scope; gap-analysis is one feature deep. Use repo-review when the user wants a top-down structured map first, then specialist passes.",
+    "first_signals": [
+      "User asks 'is this repo ready' / 'what's missing' / 'audit the codebase'.",
+      "User has just inherited a codebase or is onboarding to one.",
+      "User is preparing for release, security review, or technical due diligence."
+    ],
+    "failure_modes": [
+      "Producing prose narrative instead of structured artifact.",
+      "Claiming gaps without file-level evidence.",
+      "Overlapping with /review (PR scope) or /architect (architecture scope).",
+      "Running the full specialist panel without user opt-in (cost balloon)."
+    ],
+    "workflow_steps": [
+      "Dispatch repo-cartographer first via Task; receive the structured repo map.",
+      "Identify the 3-5 highest-leverage specialist passes for this repo (offer to dispatch them; do not chain automatically).",
+      "Synthesize findings into the repo_review_report contract with file-level evidence.",
+      "Label every gap with confidence (confirmed/likely/possible).",
+      "End with recommended implementation sequence ordered by risk × effort."
+    ],
+    "validation_strategy": "Every claim in 'confirmed_gaps' must cite a file path. Every claim in 'probable_gaps' must explain the verification step needed. 'release_readiness' status (ready/risky/blocked) must be backed by at least 3 evidence entries. No generic best-practice findings.",
+    "output_contract": "Executive summary | Repo map summary | Confirmed gaps (with file evidence) | Probable gaps (with verification steps) | Test gaps (risk-weighted) | Contract gaps | Stale or dead code | Release readiness (ready/risky/blocked) | Top risks | Quick wins | Recommended implementation sequence | Validation plan",
+    "subagent_delegation": "Default: dispatch ultraprompt:repo-cartographer for the analysis phase. For deep follow-up specialist passes, recommend (do not auto-chain) the relevant ultraprompt:* agents per gap type. V8 panels: repo-completeness-panel is available for deeper review.",
+    "primary_agent": "repo-cartographer",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Executive summary"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "repo-cartographer",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Executive summary"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "gap-analysis",
+    "title": "Repo Gap Analysis",
+    "tier": "core",
+    "description": "When user says 'find what's missing / gap analysis on X / what's incomplete / where are the wiring gaps / find half-built features / synthesize repo audit findings' — orchestrates feature-completeness-auditor + wiring-gap-inspector and synthesizes via gap-analysis-lead. Produces structured gap_ledger with confirmed/probable/low-confidence findings, top risks, quick wins, ordered implementation sequence, and recommended fix-skills per gap. DEFAULT for any gap-finding prompt at repo or workflow scope.",
+    "dispatch_to": {
+      "agent": "gap-analysis-lead"
+    },
+    "family": "repo-completeness",
+    "artifact_type": "gap_ledger",
+    "when_to_use": "When the user wants a synthesized gap report across multiple specialists. Triggers on 'gap analysis', 'what's missing', 'find incomplete features', 'where are the wiring gaps', 'merge audit findings into one prioritized list'.",
+    "argument_hint": "[optional: feature, workflow, or area to scope the analysis]",
+    "editing": false,
+    "aliases": [
+      "repo-gaps",
+      "find-gaps",
+      "incomplete-audit"
+    ],
+    "distinctive_judgment": "Gap-analysis is multi-agent synthesis across the repo; repo-review is the full audit with map + gaps + readiness; feature-completeness is single-feature deep dive. Use gap-analysis when you have prior auditor findings to merge, OR when starting a focused gap search.",
+    "first_signals": [
+      "User has a long list of issues from multiple sources and wants a prioritized merge.",
+      "User asks 'what's incomplete in this repo' without specifying a single feature.",
+      "User wants implementation sequence not just findings."
+    ],
+    "failure_modes": [
+      "Producing prose narrative instead of structured gap_ledger entries.",
+      "Inventing gaps without upstream auditor evidence.",
+      "Overlapping with /repo-review (which already runs the full panel).",
+      "Failing to assign followup fix-skills to gaps."
+    ],
+    "workflow_steps": [
+      "If no upstream auditor output is in context, dispatch feature-completeness-auditor and wiring-gap-inspector first.",
+      "Then dispatch gap-analysis-lead with all upstream findings.",
+      "Synthesis output goes to .ultraprompt/gaps/gap-ledger.jsonl when --write specified.",
+      "Final report cites evidence per gap; no gap claimed without file:line citation.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "Recommend follow-up fix-skills per gap (build, refactor, migrate, test-harden, etc.)."
+    ],
+    "validation_strategy": "Every gap in confirmed_gaps must have evidence with file:line. Every gap in probable_gaps must have an explicit verification_step. Implementation sequence must order phases by dependency, not by severity alone.",
+    "output_contract": "Executive summary | Confirmed gaps (with evidence) | Probable gaps (with verification) | False positives | Top 10 risks | Quick wins | Implementation sequence by phase | Validation plan | Recommended fix-skills per gap",
+    "subagent_delegation": "Default: dispatch gap-analysis-lead for synthesis. If no upstream findings exist, first dispatch feature-completeness-auditor + wiring-gap-inspector (parallel via panel-run if requested) and pipe their output.",
+    "primary_agent": "gap-analysis-lead",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Executive summary"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "gap-analysis-lead",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Executive summary"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "feature-completeness",
+    "title": "Feature Completeness Audit",
+    "tier": "core",
+    "description": "When user says 'is feature X complete / audit this feature end-to-end / does this workflow actually work / find missing pieces of feature W / is the UI wired to the backend / does feature Y persist correctly' — runs end-to-end completeness audit on ONE named feature. Dispatches feature-completeness-auditor with the feature scope. Produces structured incomplete_features findings with file-level evidence, missing parts list, confidence labels, validation plan. DEFAULT for single-feature audits — wins over repo-review (whole repo) and over manual investigation because the auditor knows the layer-by-layer gap patterns.",
+    "dispatch_to": {
+      "agent": "feature-completeness-auditor",
+      "focus_from": "argument"
+    },
+    "family": "repo-completeness",
+    "artifact_type": "feature_completeness_report",
+    "when_to_use": "When the user names ONE feature, workflow, or user journey and wants end-to-end completeness verified. Triggers on 'is X complete', 'audit feature Y', 'does workflow Z work end-to-end', 'find missing pieces of W'.",
+    "argument_hint": "<feature name or workflow description>",
+    "editing": false,
+    "aliases": [
+      "feature-audit",
+      "is-this-complete",
+      "e2e-audit"
+    ],
+    "distinctive_judgment": "Feature-completeness is single-feature scope (UI → API → backend → DB). Repo-review is whole-repo scope. Gap-analysis is synthesis across multiple sources. Architect is design review, not implementation completeness.",
+    "first_signals": [
+      "User names a specific feature/workflow.",
+      "User says 'does it actually work' or 'is it wired'.",
+      "User suspects partial implementation but doesn't know where the gap is."
+    ],
+    "failure_modes": [
+      "Auditing the whole repo when one feature was named.",
+      "Claiming the feature is complete without verifying all layers.",
+      "Missing the database layer or the auth layer.",
+      "Not producing structured incomplete_features entries."
+    ],
+    "workflow_steps": [
+      "Verify the user named a specific feature; if not, ask before dispatching.",
+      "Dispatch feature-completeness-auditor with the feature name as focus.",
+      "If repo-cartographer output is available in context, pass it; otherwise the auditor builds a mini-map for the feature.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "On completion, synthesize findings; if 3+ gaps found, recommend dispatching gap-analysis-lead for prioritization."
+    ],
+    "validation_strategy": "Auditor must trace at least: UI entry, API client call, backend route, handler, service, data persistence, response render. Every layer's presence/absence/wiring must have file:line evidence. confidence labels mandatory.",
+    "output_contract": "Feature surface map | Confirmed gaps (with file:line evidence) | Likely gaps (with verification) | Missing tests for the feature | Likely user impact | Recommended next steps ordered by dependency | Validation commands",
+    "subagent_delegation": "Default: dispatch feature-completeness-auditor with focus from $ARGUMENTS. For 3+ gaps found, recommend dispatching gap-analysis-lead next. For test-coverage gaps specifically, recommend dispatching test-strategist.",
+    "primary_agent": "feature-completeness-auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Feature surface map"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "feature-completeness-auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Feature surface map"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "test-gap-analysis",
+    "title": "Test Gap Analysis",
+    "tier": "core",
+    "description": "When user says 'find test gaps / where's the missing coverage / risk-weighted test plan / what should we test / find untested paths / regression coverage review / what edge cases am I missing' — finds critical behavior with weak/missing validation. Risk-weights findings (critical for auth/payment/data-deletion lanes; medium for UI rendering; low for admin). DEFAULT for test-gap detection. Different from test-harden (designs new tests) — test-gap-analysis specifically finds the gaps.",
+    "dispatch_to": {
+      "agent": "test-gap-analyst"
+    },
+    "family": "repo-completeness",
+    "artifact_type": "test_gap_report",
+    "when_to_use": "When the user wants risk-weighted analysis of where existing tests are missing, weak, or only happy-path. Triggers on test-coverage prep, pre-release confidence checks, post-feature hardening passes, audit asks like 'where are we under-tested', or stress tests against the test suite itself.",
+    "argument_hint": "[optional: specific feature, lane, or risk area]",
+    "editing": false,
+    "aliases": [
+      "test-coverage-audit",
+      "find-test-gaps",
+      "untested-paths"
+    ],
+    "distinctive_judgment": "Test-gap-analysis finds risky behavior with weak coverage; test-harden designs the missing tests; review evaluates existing tests; debugger investigates failing tests. Use this when you want a prioritized list of what to test next.",
+    "first_signals": [
+      "User asks 'where are we under-tested'.",
+      "User is preparing for release and wants confidence check.",
+      "User just shipped a feature and wants to harden coverage."
+    ],
+    "failure_modes": [
+      "Producing generic '100% coverage' recommendations.",
+      "Flagging admin pages as critical when auth flows are uncovered.",
+      "Missing error paths and edge cases.",
+      "Listing existing tests without identifying gaps."
+    ],
+    "workflow_steps": [
+      "Dispatch test-gap-analyst with the focus area from $ARGUMENTS.",
+      "Auditor produces risk-weighted test_gaps entries.",
+      "Synthesize: top 5 critical, top 5 high, summary of medium/low.",
+      "For each critical/high gap, recommend specific test type (unit/integration/e2e/contract).",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "End with 'next dispatch' suggestion: test-harden to design the tests."
+    ],
+    "validation_strategy": "Every gap must cite specific file:line for both the behavior and the absence-of-test evidence. Risk weighting must use the lane-based heuristic, not be uniform across findings.",
+    "output_contract": "Risk-weighted test gaps | Critical lanes uncovered | Existing test summary | Missing test types per gap | Suggested test cases | Validation commands",
+    "subagent_delegation": "Default: dispatch test-gap-analyst. Followup: test-harden to design and write the missing tests.",
+    "primary_agent": "test-gap-analyst",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Risk-weighted test gaps"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "test-gap-analyst",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Risk-weighted test gaps"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "dead-code-drift",
+    "title": "Dead Code & Drift Audit",
+    "tier": "core",
+    "description": "When user says 'find dead code / what's stale / unused exports / clean up the repo / find drift / what's deprecated / what's safe to delete / orphaned utilities / find duplicates' — produces a structured drift_findings list with safe-to-remove labels (yes/likely/needs_review/no) and migration plans. DEFAULT for cleanup audits. Different from refactor (applies changes) — dead-code-drift produces the report; user/refactor applies.",
+    "dispatch_to": {
+      "agent": "dead-code-and-drift-hunter"
+    },
+    "family": "repo-completeness",
+    "artifact_type": "drift_report",
+    "when_to_use": "When the user wants stale/dead/duplicate code identified with safe-to-remove labels.",
+    "argument_hint": "[optional: subdirectory or module to scope the audit]",
+    "editing": false,
+    "aliases": [
+      "cleanup-audit",
+      "find-stale",
+      "drift-hunt"
+    ],
+    "distinctive_judgment": "Dead-code-drift finds and labels stale code; refactor applies cleanup; reviewer evaluates code quality. Use this when planning cleanup before applying it.",
+    "first_signals": [
+      "User asks 'what can I delete'.",
+      "User suspects the repo has accumulated cruft.",
+      "User is preparing for major refactor and wants drift baseline."
+    ],
+    "failure_modes": [
+      "Recommending deletion of dynamically loaded code.",
+      "Missing generated files committed in error.",
+      "Flagging plugin extension points as orphans.",
+      "Producing recommendations without safe-to-remove confidence."
+    ],
+    "workflow_steps": [
+      "Dispatch dead-code-and-drift-hunter with optional scope from $ARGUMENTS.",
+      "Auditor produces drift_findings with safe-to-remove labels.",
+      "Synthesize: summary by safe-to-remove distribution.",
+      "Highlight quick wins (label=yes, low risk).",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "Flag needs_review items for human decision."
+    ],
+    "validation_strategy": "Every drift finding must show evidence (grep results or file:line). Safe-to-remove label must have explicit justification. needs_review items must explain the uncertainty.",
+    "output_contract": "Drift findings by type | Safe-to-remove distribution | Quick wins (label=yes) | Needs-review items requiring human decision | Cleanup migration plans | Validation commands",
+    "subagent_delegation": "Default: dispatch dead-code-and-drift-hunter. Followup: /ultraprompt:refactor to apply cleanups.",
+    "primary_agent": "dead-code-and-drift-hunter",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Drift findings by type"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "dead-code-and-drift-hunter",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Drift findings by type"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "release-readiness",
+    "title": "Release Readiness Audit",
+    "tier": "core",
+    "description": "When user says 'is this ready to ship / release readiness / ship/no-ship / can we deploy / pre-release audit / production-ready check / what's blocking release' — produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence. DEFAULT for shipability assessment. Different from release (writes notes/changelog) — release-readiness audits whether the codebase is shippable.",
+    "dispatch_to": {
+      "agent": "release-readiness-auditor"
+    },
+    "family": "repo-completeness",
+    "artifact_type": "release_readiness_report",
+    "when_to_use": "When the user wants a ship/no-ship verdict with blockers and remediation sequence.",
+    "argument_hint": "[optional: target environment or release version]",
+    "editing": false,
+    "aliases": [
+      "ship-readiness",
+      "release-check",
+      "production-audit"
+    ],
+    "distinctive_judgment": "Release-readiness assesses shipability; release writes release notes; release-scorecard (MCP tool) checks plugin itself. Use release-readiness for product code release gating.",
+    "first_signals": [
+      "User is approaching a release milestone.",
+      "User asks 'are we good to ship'.",
+      "User wants gating criteria before deploy."
+    ],
+    "failure_modes": [
+      "Requiring enterprise controls for alpha projects.",
+      "Missing critical migration safety checks.",
+      "Producing generic best-practice warnings without evidence.",
+      "Conflating warnings with blockers."
+    ],
+    "workflow_steps": [
+      "Dispatch release-readiness-auditor.",
+      "Auditor produces ready/risky/blocked verdict + structured findings.",
+      "Synthesize for the user: clear ship-or-not call with justification.",
+      "Order remediation: blockers first, then critical warnings, then warnings.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "End with: gate criteria for each phase + validation commands."
+    ],
+    "validation_strategy": "Every blocker and warning must cite file:line evidence (or absence-of-file). Verdict follows verdict rules: 0 blockers + acceptable warnings = ready; 0 blockers + many warnings = risky; ≥1 blocker = blocked.",
+    "output_contract": "Verdict (ready/risky/blocked) | Blockers with evidence | Warnings ranked | Missing operational controls | Required validation commands | Rollback concerns | Phased release sequence with gate criteria",
+    "subagent_delegation": "Default: dispatch release-readiness-auditor. For deep follow-up: dispatch security-auditor (if secrets handling flagged) + test-strategist (if test gaps flagged).",
+    "primary_agent": "release-readiness-auditor",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Verdict (ready/risky/blocked)"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "release-readiness-auditor",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Verdict (ready/risky/blocked)"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "prd-lite",
+    "title": "PRD Lite",
+    "tier": "core",
+    "description": "When user says 'quick PRD for X / one-pager for feature Y / lightweight spec / draft a fast PRD / opportunity brief / problem-solution memo' — produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria. DEFAULT for early-stage thinking that doesn't yet warrant a full PRD. Less rigor than prd-standard; more rigor than freeform notes.",
+    "dispatch_to": {
+      "agent": "principal-pm"
+    },
+    "family": "product-prd",
+    "artifact_type": "prd_lite",
+    "when_to_use": "When the user wants a fast, structured product brief — typically for early ideas, feature triage, or single-engineer-team scope. Not appropriate for cross-team or regulated changes.",
+    "argument_hint": "<feature or problem name>",
+    "editing": false,
+    "aliases": [
+      "one-pager",
+      "opportunity-brief",
+      "quick-prd"
+    ],
+    "distinctive_judgment": "PRD-lite is for early thinking; prd-standard for cross-team work; prd-technical for engineering-heavy implementations; prd-ai-feature for ML/agent features; prd-to-plan converts PRD to implementation plan.",
+    "first_signals": [
+      "User has an idea but no formal product process yet.",
+      "Single-team scope, no compliance/regulatory exposure.",
+      "User says 'quick' or 'lightweight' or 'one-pager'."
+    ],
+    "failure_modes": [
+      "Using PRD-lite for cross-team or regulated work (use prd-standard or prd-technical instead).",
+      "Producing freeform prose without the structured sections.",
+      "Skipping non-goals to keep the doc short."
+    ],
+    "workflow_steps": [
+      "Dispatch principal-pm with focus from $ARGUMENTS.",
+      "Agent produces structured PRD-lite (problem, users, goals, non-goals, must-haves, scope, success criteria, risks, open questions).",
+      "Length target: 1-2 pages worth of YAML.",
+      "If user has compliance concerns or cross-team scope, recommend escalating to prd-standard.",
+      "End with 3-5 open questions ordered by blocking-priority."
+    ],
+    "validation_strategy": "Every problem statement cites evidence. Non-goals explicit. Success criteria with baseline + target. Acceptance criteria in given/when/then. Skip the deeper PRD sections (technical_considerations, rollout_plan) — those go to prd-standard.",
+    "output_contract": "Problem statement (with evidence) | Users + jobs-to-be-done | Goals + non-goals | Must-have requirements | Scope boundaries | Success criteria (baseline+target) | Top risks | Open questions",
+    "subagent_delegation": "Default: dispatch principal-pm. For deeper analysis: recommend prd-standard or prd-technical.",
+    "primary_agent": "principal-pm",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Problem statement (with evidence)"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "principal-pm",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Problem statement (with evidence)"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "prd-standard",
+    "title": "PRD Standard",
+    "tier": "core",
+    "description": "When user says 'full PRD for X / product requirements doc / write the PRD / comprehensive product spec / standard PRD' — produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions. DEFAULT for any product change crossing teams or with meaningful complexity. Use prd-lite for early-stage; prd-technical for heavily technical features.",
+    "dispatch_to": {
+      "agent": "principal-pm"
+    },
+    "family": "product-prd",
+    "artifact_type": "prd_standard",
+    "when_to_use": "When the user wants a complete PRD for a meaningful product change — cross-team scope, non-trivial complexity, or pre-engineering-kickoff documentation.",
+    "argument_hint": "<feature or product change name>",
+    "editing": false,
+    "aliases": [
+      "prd",
+      "full-prd",
+      "product-spec"
+    ],
+    "distinctive_judgment": "PRD-standard is the default PRD; prd-lite for fast/lightweight; prd-technical for engineering-heavy; prd-ai-feature for ML/agent; prd-to-plan converts to implementation plan.",
+    "first_signals": [
+      "User explicitly asks for 'a PRD' or 'product requirements doc'.",
+      "Cross-team work, meaningful complexity, or pre-engineering kickoff.",
+      "Feature has user-facing impact and warrants formal documentation."
+    ],
+    "failure_modes": [
+      "Producing marketing prose instead of structured artifact.",
+      "Skipping non-goals (the most common failure).",
+      "Metrics without baselines.",
+      "Acceptance criteria without given/when/then format."
+    ],
+    "workflow_steps": [
+      "Dispatch principal-pm with focus from $ARGUMENTS.",
+      "Agent produces the full PRD per its output contract.",
+      "Verify all required sections present: problem, users_and_jobs, goals, non_goals, requirements, scope, technical_considerations, risks, metrics, acceptance_criteria, rollout_plan, validation_plan, open_questions.",
+      "If technical depth warrants, recommend chaining to technical-product-architect.",
+      "If compliance/regulatory exposure, recommend chaining to risk-and-controls-reviewer.",
+      "End with prioritized open_questions."
+    ],
+    "validation_strategy": "Every problem claim cites evidence. Non-goals explicit (3-5). All metrics have baseline + target + measurement method. Acceptance criteria in given/when/then. Rollout plan with phase gate criteria. Risks ranked by severity × likelihood with mitigations.",
+    "output_contract": "Problem statement with evidence | Users + jobs-to-be-done | Goals + non-goals (3-5) | Requirements (must/should/won't-have) | Scope (in/out) | Technical considerations | Risks (severity × likelihood + mitigations) | Metrics (leading/lagging/guardrails with baselines+targets) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open questions ranked by blocking-priority",
+    "subagent_delegation": "Default: dispatch principal-pm. Follow-up: technical-product-architect for technical design; risk-and-controls-reviewer for compliance/privacy; evaluator for measurement design.",
+    "primary_agent": "principal-pm",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Problem statement with evidence"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "principal-pm",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Problem statement with evidence"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "prd-technical",
+    "title": "Technical PRD",
+    "tier": "core",
+    "description": "When user says 'technical PRD for X / engineering spec / technical product doc / infrastructure PRD / platform feature spec / heavy-tech feature requirements' — produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry. DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk. Combines principal-pm and technical-product-architect outputs.",
+    "dispatch_to": {
+      "agent": "principal-pm"
+    },
+    "family": "product-prd",
+    "artifact_type": "prd_technical",
+    "when_to_use": "When the product change is technical-heavy — infrastructure, platform, dev tools, APIs, data pipelines. Less time on customer journey; more time on system shape.",
+    "argument_hint": "<technical feature or platform name>",
+    "editing": false,
+    "aliases": [
+      "tech-prd",
+      "engineering-spec",
+      "infra-prd"
+    ],
+    "distinctive_judgment": "PRD-technical is for engineering-heavy features; prd-standard is general product; prd-ai-feature is for ML/agent; prd-lite is early-stage. Use prd-technical when the technical risk dwarfs the product risk.",
+    "first_signals": [
+      "User is building infrastructure, platform, or developer tools.",
+      "Technical shape (data model, APIs, integrations) is the primary risk.",
+      "User says 'engineering' or 'technical' or 'infrastructure' in the request."
+    ],
+    "failure_modes": [
+      "Skipping the user-facing problem statement.",
+      "Producing technical design without product requirements traceability.",
+      "Missing failure modes and telemetry.",
+      "No rollout strategy."
+    ],
+    "workflow_steps": [
+      "Dispatch principal-pm first for problem + users + goals + non-goals.",
+      "Then dispatch technical-product-architect for data model + API + integrations + failure modes + telemetry + rollout.",
+      "Combine into single PRD-technical artifact with explicit traceability between sections.",
+      "Recommend chaining to risk-and-controls-reviewer for any change touching auth, payment, PII, or third-party services.",
+      "End with prioritized open_technical_questions + open_product_questions."
+    ],
+    "validation_strategy": "Product requirements traceable to technical decisions. Every technical change has a product driver OR is flagged as technical-only. At least 5 failure modes. Telemetry for product validation included. Rollback strategy explicit.",
+    "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design: data model (entities, fields, indexes, migrations) | Technical design: API surface (endpoints, request/response shapes, deprecations) | Technical design: integration points (upstream, downstream, third-party) | Technical design: sequence flows + failure modes (≥5) | Technical design: feature flags + telemetry events + metrics | Performance considerations + security_and_privacy + rollout_technical_plan | Risks (severity × likelihood) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open product questions + open technical questions",
+    "subagent_delegation": "Default: chain principal-pm → technical-product-architect. Follow-up: risk-and-controls-reviewer + security-auditor for sensitive surfaces.",
+    "primary_agent": "principal-pm",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Problem statement + evidence"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "principal-pm",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Problem statement + evidence"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "prd-ai-feature",
+    "title": "AI Feature PRD",
+    "tier": "core",
+    "description": "When user says 'PRD for an AI feature / LLM-based feature spec / agent feature PRD / ML product requirements / generative AI feature / RAG feature spec / AI-powered X' — produces a PRD with AI-specific sections (model selection rationale, eval methodology, groundedness/hallucination guardrails, safety filters, human-in-the-loop fallback, cost model, latency targets, prompt versioning strategy, data privacy posture). DEFAULT for any feature whose core capability comes from an LLM, ML model, or AI/agent system. Different from prd-technical (general engineering): prd-ai-feature specifically handles AI-product risks (eval, safety, cost, hallucination, drift).",
+    "dispatch_to": {
+      "agent": "principal-pm"
+    },
+    "family": "product-prd",
+    "artifact_type": "prd_ai_feature",
+    "when_to_use": "When the feature's core capability comes from an LLM, ML model, or AI agent. The risks (eval, hallucination, cost, safety) are categorically different from non-AI features.",
+    "argument_hint": "<AI feature name or capability>",
+    "editing": false,
+    "aliases": [
+      "ai-prd",
+      "llm-feature-prd",
+      "agent-prd"
+    ],
+    "distinctive_judgment": "PRD-ai-feature is for AI/LLM/agent features specifically; prd-technical is general engineering; prd-standard is general product. The AI-specific sections (eval, groundedness, cost, safety) require dedicated handling.",
+    "first_signals": [
+      "Feature relies on LLM, ML model, or agent.",
+      "User mentions 'AI', 'GPT', 'Claude', 'agent', 'RAG', 'embedding', 'fine-tune', or model names.",
+      "Output quality is probabilistic, not deterministic."
+    ],
+    "failure_modes": [
+      "Treating AI feature like deterministic software — missing eval/safety/hallucination handling.",
+      "No cost model (AI features have non-trivial unit costs).",
+      "No human-in-the-loop fallback for low-confidence outputs.",
+      "Missing prompt/model versioning strategy (untracked drift)."
+    ],
+    "workflow_steps": [
+      "Dispatch principal-pm for problem + users + goals + non-goals.",
+      "Dispatch technical-product-architect for system design with AI-specific sections.",
+      "Dispatch evaluator for eval methodology (offline eval, human eval, online metrics).",
+      "Dispatch risk-and-controls-reviewer for safety/bias/privacy/data-handling.",
+      "Combine into single PRD-ai-feature artifact with explicit AI sections.",
+      "End with open questions ordered by blocking-priority."
+    ],
+    "validation_strategy": "Every AI feature PRD must explicitly address: model selection rationale, eval methodology (both offline and online), groundedness/hallucination guardrails, safety filters, human-in-the-loop fallback path, cost model (per-call + scaled), latency budget, prompt versioning, and data privacy posture (training data, retention, opt-out).",
+    "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design with AI sections | AI: model selection rationale + alternative models considered | AI: eval methodology (offline benchmarks, online metrics, human eval if applicable) | AI: groundedness + hallucination guardrails | AI: safety filters + content policy | AI: human-in-the-loop fallback path + low-confidence handling | AI: cost model (per-call + scaled to expected QPS) | AI: latency targets + budget | AI: prompt versioning + model versioning strategy | AI: data privacy posture (training data, retention, opt-out, residency) | AI: drift monitoring + retraining trigger criteria | Risks + acceptance criteria + rollout plan + validation plan + open questions",
+    "subagent_delegation": "Default: chain principal-pm → technical-product-architect → evaluator → risk-and-controls-reviewer. This is intentionally a 4-agent chain because AI features have multiple risk surfaces.",
+    "primary_agent": "principal-pm",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Problem statement + evidence"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "principal-pm",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Problem statement + evidence"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "prd-to-plan",
+    "title": "PRD to Implementation Plan",
+    "tier": "core",
+    "description": "When user says 'convert this PRD to engineering plan / break down PRD for implementation / make a project plan from this PRD / split this PRD into milestones / what work is needed to ship this PRD / phase plan for PRD X' — converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase. DEFAULT for PRD → engineering handoff. Different from prd-technical (which produces the technical design): prd-to-plan takes a finished PRD and produces the build sequence.",
+    "dispatch_to": {
+      "agent": "principal-pm"
+    },
+    "family": "product-prd",
+    "artifact_type": "implementation_plan",
+    "when_to_use": "When a PRD is approved and needs to be broken into engineering work with sequencing and dependencies. Not for drafting the PRD itself; that's prd-standard/technical/etc.",
+    "argument_hint": "<path to PRD or PRD topic>",
+    "editing": false,
+    "aliases": [
+      "prd-breakdown",
+      "implementation-plan",
+      "engineering-plan"
+    ],
+    "distinctive_judgment": "PRD-to-plan converts approved PRD to implementation plan; prd-standard creates the PRD; prd-technical adds technical design. Use in sequence: prd-standard → (optional prd-technical) → prd-to-plan.",
+    "first_signals": [
+      "User has an approved PRD and wants to start engineering.",
+      "User asks for milestones, phases, or build sequence.",
+      "User wants to identify parallel vs sequential work."
+    ],
+    "failure_modes": [
+      "Producing implementation plan without reading the source PRD.",
+      "Missing dependencies (work that must happen before other work).",
+      "No validation gates between phases.",
+      "Generic 'sprint 1 / sprint 2' breakdown without dependency analysis."
+    ],
+    "workflow_steps": [
+      "Read the source PRD (file path from $ARGUMENTS, or assume in context).",
+      "Dispatch principal-pm for the implementation plan with explicit phase gating.",
+      "Recommend chaining to technical-product-architect if technical design isn't already in the PRD.",
+      "Plan must include: phases, milestones per phase, dependencies, parallel-vs-sequential work, owner suggestions, validation gates per phase, rollback strategy per phase.",
+      "End with risk items that could derail the plan."
+    ],
+    "validation_strategy": "Every phase has explicit entry + exit criteria. Dependencies named explicitly (not 'depends on infra' but 'depends on database schema migration in phase 1'). Validation gates per phase before moving to next. Rollback strategy per phase.",
+    "output_contract": "Phases (numbered, named) | Milestones per phase | Dependencies map | Parallel vs sequential work | Owner suggestions | Validation gates per phase | Rollback strategy per phase | Risk items | Open questions",
+    "subagent_delegation": "Default: dispatch principal-pm. Follow-up: technical-product-architect if PRD lacks technical design; evaluator if measurement plan needs design.",
+    "primary_agent": "principal-pm",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Phases (numbered, named)"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "principal-pm",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Phases (numbered, named)"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "opportunity-map",
+    "title": "Opportunity Map",
+    "tier": "core",
+    "description": "When user says 'opportunity map / what opportunities exist / market opportunity analysis / where are the openings / strategic opportunity assessment / opportunity space / what should we explore' — produces structured opportunity map with market/competitive/customer/internal axes, sized opportunities, evidence per zone, and recommended focus. DEFAULT for opportunity space exploration. Different from /idea-triage (ranks existing ideas) and /concept-brief (drafts one chosen concept).",
+    "dispatch_to": {
+      "agent": "market-analyst"
+    },
+    "family": "product-innovation",
+    "artifact_type": "opportunity_map",
+    "when_to_use": "When the user wants a structured view of where opportunities exist across market, competitive, customer, and internal strategic axes. Triggers on opportunity space exploration, strategic planning, white-space identification, and pre-roadmap thinking.",
+    "argument_hint": "[optional: domain or market area to focus on]",
+    "editing": false,
+    "aliases": [
+      "white-space-analysis",
+      "opportunity-space",
+      "market-opportunities"
+    ],
+    "distinctive_judgment": "Opportunity-map explores the opportunity space (broad); concept-brief drafts one chosen concept (narrow); idea-triage ranks existing ideas; problem-framing reframes a known problem; mvp-scope scopes a chosen direction.",
+    "first_signals": [
+      "User is exploring strategic direction without a fixed product idea yet.",
+      "User asks 'where should we focus' or 'what opportunities are there'.",
+      "User is pre-roadmap planning."
+    ],
+    "failure_modes": [
+      "Producing market analysis without identifying specific opportunities.",
+      "Claiming white space without evidence.",
+      "Skipping the recommended-focus step (opportunity map without a recommendation is just survey).",
+      "Equal-weighting all opportunities without ranking."
+    ],
+    "workflow_steps": [
+      "Dispatch market-analyst for competitive analysis + white space map.",
+      "If customer signal data available, chain customer-advocate to validate opportunity zones.",
+      "Synthesize into opportunity_map artifact with axes, occupied zones, underserved zones, sized opportunities.",
+      "Rank opportunities by impact × feasibility × evidence strength.",
+      "End with recommended_focus (top 2-3 opportunities) and validation_plan for each."
+    ],
+    "validation_strategy": "Every opportunity zone has evidence (customer signal, market gap, competitive weakness). Every recommendation has reasoning. No 'pursue everything' outputs.",
+    "output_contract": "Market axes | Occupied zones (who serves which) | Underserved zones with evidence | Sized opportunities (where data available) | Barriers to entry per zone | Our fit per zone | Recommended focus (2-3) with rationale | Validation plan per recommended zone",
+    "subagent_delegation": "Default: dispatch market-analyst. Chain customer-advocate if user signal data provided. Followup: concept-brief or prd-lite for chosen direction.",
+    "primary_agent": "market-analyst",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Market axes"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "market-analyst",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Market axes"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "idea-triage",
+    "title": "Idea Triage",
+    "tier": "core",
+    "description": "When user says 'triage ideas / which ideas to pursue / rank these features / prioritize backlog / decide which ideas to build / idea evaluation / sort the idea list / must-kill / should we build X or Y' — runs structured triage of existing ideas with weighted criteria (customer impact, strategic fit, effort, evidence strength, risk). Produces ranked list with pursue/validate/defer/reject recommendations. DEFAULT for deciding what to build from a known set of options.",
+    "dispatch_to": {
+      "agent": "innovation-lead"
+    },
+    "family": "product-innovation",
+    "artifact_type": "idea_triage",
+    "when_to_use": "When the user has a list of ideas/features/options and needs ranked recommendations. Triggers on backlog prioritization, post-brainstorm triage, options narrowing, must-kill decisions.",
+    "argument_hint": "[idea list path or topic]",
+    "editing": false,
+    "aliases": [
+      "prioritize-ideas",
+      "backlog-triage",
+      "feature-prioritization"
+    ],
+    "distinctive_judgment": "Idea-triage ranks existing ideas; opportunity-map explores the space; problem-framing reframes one known problem; concept-brief drafts one chosen idea; mvp-scope scopes a chosen direction.",
+    "first_signals": [
+      "User has 5+ ideas/features and wants ranked recommendations.",
+      "User asks 'which should I build first' or 'prioritize these'.",
+      "User is closing on a roadmap and needs cuts."
+    ],
+    "failure_modes": [
+      "Recommending 'pursue' for everything.",
+      "Equal-weighting criteria.",
+      "Skipping the must-kill recommendations.",
+      "Producing rank order without per-criterion breakdown.",
+      "Inventing customer impact data not in source."
+    ],
+    "workflow_steps": [
+      "Read the idea list from $ARGUMENTS or context.",
+      "Dispatch innovation-lead for triage with weighted criteria.",
+      "If customer signal data available, chain customer-advocate to validate impact claims.",
+      "Output ranked ideas with per-criterion scores, recommendation, validation step (where applicable).",
+      "Explicitly call out must-kill and must-pursue items."
+    ],
+    "validation_strategy": "Triage criteria weighted (not uniform). Every idea has per-criterion breakdown. Must-kill recommendations have specific reason. Pursue recommendations capped at ~30% of total or have explicit justification for higher rates.",
+    "output_contract": "Triage criteria with weights | Ranked ideas with scores | Per-criterion breakdown per idea | Recommendations (pursue/validate/defer/reject) | Must-kill list with reasons | Must-pursue list with reasons | Validation steps for 'validate-first' items",
+    "subagent_delegation": "Default: dispatch innovation-lead. Chain customer-advocate if customer signals available. Followup: prd-lite or concept-brief for top-ranked items.",
+    "primary_agent": "innovation-lead",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Triage criteria with weights"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "innovation-lead",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Triage criteria with weights"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "concept-brief",
+    "title": "Concept Brief",
+    "tier": "core",
+    "description": "When user says 'concept brief for X / one-pager for this concept / quick concept doc / concept summary / explain this idea in a page / concept-stage spec / pre-PRD concept' — produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required). DEFAULT for concept-stage thinking. Lighter than prd-lite; richer than a freeform notes.",
+    "dispatch_to": {
+      "agent": "principal-pm"
+    },
+    "family": "product-innovation",
+    "artifact_type": "concept_brief",
+    "when_to_use": "When the user has chosen one concept and wants a structured one-page brief that captures the concept clearly enough for stakeholder review or pre-PRD validation.",
+    "argument_hint": "<concept name or topic>",
+    "editing": false,
+    "aliases": [
+      "concept-doc",
+      "concept-one-pager"
+    ],
+    "distinctive_judgment": "Concept-brief is concept-stage (one chosen idea, not yet PRD); prd-lite is fast PRD; opportunity-map explores broadly; idea-triage ranks; problem-framing reframes. Use concept-brief before prd-lite when stakeholder approval of the concept is needed first.",
+    "first_signals": [
+      "User has chosen a concept but isn't ready for full PRD.",
+      "User needs to socialize the concept with stakeholders before deeper specification.",
+      "Pre-PRD stage with decision-required framing."
+    ],
+    "failure_modes": [
+      "Skipping the differentiator (concept brief without clear 'why this approach' is incomplete).",
+      "Missing the decision-required statement (concept briefs need an explicit ask).",
+      "Producing a full PRD when the user wanted a one-pager.",
+      "Marketing prose instead of structured artifact."
+    ],
+    "workflow_steps": [
+      "Dispatch principal-pm for concept brief.",
+      "Brief includes: problem, target users + jobs, proposed approach summary, key differentiator, success criteria sketch, top 3-5 risks, validation plan, decision required from stakeholders.",
+      "Length target: ~1 page worth of YAML.",
+      "End with decision_required (specific ask: 'approve concept' / 'validate first' / 'kill')."
+    ],
+    "validation_strategy": "Differentiator explicit (what makes this approach different). Top risks named (3-5). Validation plan present. Decision-required statement explicit.",
+    "output_contract": "Problem statement | Target users + jobs | Proposed approach summary | Key differentiator | Success criteria sketch | Top risks (3-5) | Validation plan | Decision required from stakeholders",
+    "subagent_delegation": "Default: dispatch principal-pm. Followup if concept approved: prd-standard for full PRD.",
+    "primary_agent": "principal-pm",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Problem statement"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "principal-pm",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Problem statement"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "mvp-scope",
+    "title": "MVP Scope",
+    "tier": "core",
+    "description": "When user says 'scope the MVP / minimum viable scope / what's the MVP / cut this to MVP / MVP definition / smallest shippable version / phase 1 scope / what to include in MVP' — produces structured MVP scope with must/should/won't-have per phase, scope cuts with reasoning, validation plan for what we keep, and what we'd add post-MVP. DEFAULT for MVP scoping decisions. Different from prd-to-plan (sequences the whole PRD) and prd-lite (drafts the PRD itself).",
+    "dispatch_to": {
+      "agent": "principal-pm"
+    },
+    "family": "product-innovation",
+    "artifact_type": "mvp_scope",
+    "when_to_use": "When the user is scoping the minimum viable version of a product or feature. Triggers on MVP discussions, scope cuts, phase-1 definitions, and 'what's the smallest we can ship that proves the hypothesis'.",
+    "argument_hint": "<product or feature to scope>",
+    "editing": false,
+    "aliases": [
+      "minimum-viable-scope",
+      "phase-1-scope",
+      "mvp-definition"
+    ],
+    "distinctive_judgment": "MVP-scope decides what's in the smallest shippable version; prd-to-plan sequences the whole PRD into phases; concept-brief drafts the concept; prd-lite drafts the PRD. Use MVP-scope when scope-cutting decisions are the primary need.",
+    "first_signals": [
+      "User says 'MVP' or 'minimum viable' or 'smallest shippable'.",
+      "User has a larger feature/PRD and needs to cut scope.",
+      "User wants to validate a hypothesis before building the full version."
+    ],
+    "failure_modes": [
+      "Including too much in 'must-have' (MVP becomes the full product).",
+      "Skipping the hypothesis the MVP is supposed to validate.",
+      "Missing post-MVP roadmap (what would be added after).",
+      "Generic 'launch fast' framing without specific scope cuts.",
+      "Failing to name what's explicitly cut and why."
+    ],
+    "workflow_steps": [
+      "Dispatch principal-pm for MVP scope.",
+      "Output names the hypothesis the MVP validates ('users will X if we ship Y').",
+      "Must-have: minimum to validate hypothesis (typically 3-7 items).",
+      "Should-have: improves validation but not required.",
+      "Won't-have-this-MVP: explicit cuts with reasoning.",
+      "Validation plan: how we know the MVP succeeded.",
+      "Post-MVP roadmap: what we'd add in phase 2/3 if validation succeeds.",
+      "End with explicit cut-list and ship-criteria."
+    ],
+    "validation_strategy": "Hypothesis-driven (MVP validates a specific hypothesis). Must-have list capped (typically ≤7 items). Cuts have explicit reasoning. Validation criteria measurable. Post-MVP roadmap present.",
+    "output_contract": "Hypothesis MVP validates | Must-have (3-7 items, with reason) | Should-have | Won't-have-this-MVP with cut reasons | Validation plan | Success criteria | Failure criteria (when to abandon hypothesis) | Post-MVP roadmap sketch",
+    "subagent_delegation": "Default: dispatch principal-pm. Followup: evaluator for validation plan design; prd-to-plan to break the chosen MVP into engineering work.",
+    "primary_agent": "principal-pm",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Hypothesis MVP validates"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "principal-pm",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Hypothesis MVP validates"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  },
+  {
+    "name": "problem-framing",
+    "title": "Problem Framing",
+    "tier": "core",
+    "description": "When user says 'reframe this problem / what's the real problem / problem statement / different ways to think about this / am I framing this right / what are we actually solving / job-to-be-done framing' — produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications. DEFAULT for problem-framing decisions. Helps avoid solving the wrong problem.",
+    "dispatch_to": {
+      "agent": "innovation-lead"
+    },
+    "family": "product-innovation",
+    "artifact_type": "problem_framing",
+    "when_to_use": "When the user has a problem statement but suspects it might be framed wrong, or wants to explore alternative framings before locking in a direction. Critical pre-PRD step if problem framing affects what to build.",
+    "argument_hint": "<problem statement or topic>",
+    "editing": false,
+    "aliases": [
+      "reframe-problem",
+      "problem-statement",
+      "job-framing"
+    ],
+    "distinctive_judgment": "Problem-framing reframes a known problem; opportunity-map explores opportunity space; idea-triage ranks existing ideas; concept-brief drafts a chosen concept. Use problem-framing when you suspect you're about to solve the wrong problem.",
+    "first_signals": [
+      "User has a problem statement but isn't confident it's right.",
+      "User says 'the real problem is...' or 'we're framing this as...'.",
+      "Pre-PRD stage where framing decisions are still open."
+    ],
+    "failure_modes": [
+      "Producing only one reframing (the value is in alternatives).",
+      "Skipping the implications per reframing.",
+      "Missing 'what this framing excludes' (every framing has scope it rules out).",
+      "Endless reframings without a recommended framing.",
+      "Ignoring customer signals that already constrain the framing."
+    ],
+    "workflow_steps": [
+      "Dispatch innovation-lead for problem framing with multiple lenses.",
+      "Produce 3-5 alternative framings using different lenses (jobs-to-be-done, constraints, customer segment, substitutes, time horizon).",
+      "For each framing: state the rephrased problem + implications for what we'd build.",
+      "Recommended framing with reasoning.",
+      "Each framing names what it excludes (scope it rules out).",
+      "End with the recommended framing + open questions about it."
+    ],
+    "validation_strategy": "Minimum 3 reframings produced. Each names its lens. Each has explicit implications. Each names what it excludes. Recommended framing has reasoning.",
+    "output_contract": "Original problem statement | 3-5 reframings (with lens + rephrased problem + implications + what-it-excludes) | Recommended framing with reasoning | Key assumptions in recommended framing | Open questions",
+    "subagent_delegation": "Default: dispatch innovation-lead. Chain customer-advocate if customer signals available. Followup: concept-brief or prd-lite for the chosen framing.",
+    "primary_agent": "innovation-lead",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Original problem statement"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "innovation-lead",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Original problem statement"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only"
+    }
+  }
+]

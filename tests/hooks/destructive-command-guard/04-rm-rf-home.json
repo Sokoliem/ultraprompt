@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"command": "rm -rf $HOME/projects"}},
+  "expected_exit": 2
+}

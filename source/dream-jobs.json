@@ -1,0 +1,50 @@
+{
+  "schema": "dream_jobs.v1",
+  "jobs": [
+    {
+      "name": "session-compaction",
+      "cadence": "hourly",
+      "inputs": ["cognitive-events", "ledger-v2"],
+      "outputs": ["dream_report", "memory_candidate"],
+      "budget": {"seconds": 30, "max_events": 500},
+      "permissions": {"repo_read_only": true, "writes": ["dream_reports", "memory_candidates"]},
+      "approval_required": false
+    },
+    {
+      "name": "repo-reflection",
+      "cadence": "daily",
+      "inputs": ["repo-capsule", "gap-ledger", "memory"],
+      "outputs": ["dream_report", "memory_candidate"],
+      "budget": {"seconds": 60, "max_files": 200},
+      "permissions": {"repo_read_only": true, "writes": ["dream_reports", "memory_candidates"]},
+      "approval_required": false
+    },
+    {
+      "name": "route-learning",
+      "cadence": "daily",
+      "inputs": ["route_outcome_events", "pathfinder_decisions"],
+      "outputs": ["dream_report", "learning_candidate"],
+      "budget": {"seconds": 45, "max_events": 500},
+      "permissions": {"repo_read_only": true, "writes": ["dream_reports", "learning_candidates"]},
+      "approval_required": true
+    },
+    {
+      "name": "ecosystem-reflection",
+      "cadence": "weekly",
+      "inputs": ["capability_graph", "catalog_audit", "router_bench"],
+      "outputs": ["dream_report", "learning_candidate"],
+      "budget": {"seconds": 90, "max_files": 250},
+      "permissions": {"repo_read_only": true, "writes": ["dream_reports", "learning_candidates"]},
+      "approval_required": true
+    },
+    {
+      "name": "memory-prune",
+      "cadence": "weekly",
+      "inputs": ["memory_stats", "candidate_memory"],
+      "outputs": ["dream_report", "learning_candidate"],
+      "budget": {"seconds": 30, "max_memories": 1000},
+      "permissions": {"repo_read_only": true, "writes": ["dream_reports", "learning_candidates"]},
+      "approval_required": true
+    }
+  ]
+}

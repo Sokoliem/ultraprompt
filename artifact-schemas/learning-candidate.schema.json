@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "learning-candidate.schema.json",
+  "title": "Ultraprompt Learning Candidate",
+  "type": "object",
+  "required": ["schema", "id", "kind", "status", "title", "risk", "payload"],
+  "properties": {
+    "schema": {"const": "learning_candidate.v1"},
+    "id": {"type": "string"},
+    "kind": {"enum": ["route_update", "benchmark_candidate", "memory_promotion", "catalog_proposal", "panel_proposal", "retrieval_hint"]},
+    "status": {"enum": ["pending", "approved", "rejected", "applied", "reverted", "expired", "needs_evidence"]},
+    "title": {"type": "string"},
+    "risk": {"enum": ["low", "medium", "high"]},
+    "payload": {"type": "object"}
+  }
+}

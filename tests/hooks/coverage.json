@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "entries": {
+    "session-bootstrap.py": {
+      "event": "SessionStart",
+      "coverage": "integration",
+      "evidence": "Covered by catalog and dashboard smoke checks; no fixture harness yet."
+    },
+    "session-start-context.sh": {
+      "event": "SessionStart",
+      "coverage": "fixture",
+      "evidence": "tests/hooks/session-start-context"
+    },
+    "session-start-context.py": {
+      "event": "SessionStart",
+      "coverage": "fixture",
+      "evidence": "tests/hooks/session-start-context"
+    },
+    "skill-agent-telemetry.py": {
+      "event": "PreToolUse",
+      "coverage": "integration",
+      "evidence": "Validated through ledger-v2 and dashboard live activity smoke checks."
+    },
+    "destructive-command-guard.py": {
+      "event": "PreToolUse",
+      "coverage": "fixture",
+      "evidence": "tests/hooks/destructive-command-guard"
+    },
+    "protected-file-guard.py": {
+      "event": "PreToolUse",
+      "coverage": "fixture",
+      "evidence": "tests/hooks/protected-file-guard"
+    },
+    "subagent-scaffold.sh": {
+      "event": "SubagentStart",
+      "coverage": "fixture",
+      "evidence": "tests/hooks/subagent-scaffold"
+    },
+    "subagent-scaffold.py": {
+      "event": "SubagentStart",
+      "coverage": "fixture",
+      "evidence": "tests/hooks/subagent-scaffold"
+    },
+    "auto-wip-save.py": {
+      "event": "Stop",
+      "coverage": "integration",
+      "evidence": "Covered by stop hook dry-run and wip-save smoke checks; no fixture harness yet."
+    },
+    "stop-validation-check.py": {
+      "event": "Stop",
+      "coverage": "fixture",
+      "evidence": "tests/hooks/stop-validation-check"
+    },
+    "session-finalize.py": {
+      "event": "SessionEnd",
+      "coverage": "integration",
+      "evidence": "Covered by ledger finalization smoke checks; no fixture harness yet."
+    }
+  }
+}

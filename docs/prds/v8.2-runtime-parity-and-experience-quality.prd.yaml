@@ -1,0 +1,858 @@
+schema: prd_technical.v1
+title: Ultraprompt V8.2 Runtime Parity and Experience Quality Closure
+date: "2026-05-12"
+status: draft
+source_repo: /Users/sokoliem/development/ultraprompt
+source_branch: codex/v8.2-experience-invocation
+source_commit_observed: afb8187
+requested_scope: "Address the whole-plugin gap-analysis findings for V8.2 with an execution-ready technical PRD."
+
+problem: |
+  Ultraprompt V8.2 has added the right product lanes for experience quality, visual QA, pathfinding and invocation review, and Codex-compatible goal contracts. The source tree currently validates as internally consistent, but the product is not yet closed from an operator perspective because release-readiness proof is weaker than the catalog suggests.
+
+  The core problem is not catalog size. It is runtime trust. The source manifest reports V8.2.0 with 54 skills, 31 agents, 42 MCP tools, and 31 commands, while the active Codex cache observed during the audit is still V8.1.0 with 49 skills, 29 agents, and 30 commands. Invocation telemetry now passes its release gate, but only because the gate requires at least one current skill invocation and one real pathfinder decision; it does not yet prove strong live runtime adoption. The new V8.2 artifact types are present in source specs but do not have first-class artifact schemas or panel validators. The goal bridge is explicitly a transcript-visible contract rather than Claude Code built-in `/goal` parity. Finally, the persisted release scorecard can be stale because `--check` mode does not write `dist/release-scorecard.json`.
+
+  If these gaps remain, operators will see a plugin that appears release-ready in source validation while Codex and Claude Code may still run stale plugin copies, weak routing signals may be treated as healthy adoption, new experience-quality outputs may be unvalidated prose, and goal behavior may be misunderstood as a runtime evaluator loop that Codex does not actually provide.
+
+evidence:
+  current_source_validation:
+    - command: "python3 scripts/audit-catalog-consistency.py --json"
+      observed_result: "exit 0; catalog consistency passed for source."
+    - command: "python3 scripts/validate-plugin.py --target-runtime source --strict-runtime-files"
+      observed_result: "exit 0; strict source plugin validation passed."
+    - command: "python3 scripts/audit-invocation-telemetry.py --json --enforce"
+      observed_result: "exit 0; telemetry gate passed with 1 current skill invocation and 1 real pathfinder decision."
+    - command: "python3 scripts/release-scorecard.py --check --json"
+      observed_result: "exit 0; current source scorecard conclusion was ready."
+  confirmed_findings:
+    - id: F-001
+      title: Active runtime cache is stale relative to source.
+      severity: critical
+      confidence: confirmed
+      evidence:
+        - ".codex-plugin/plugin.json reports version 8.2.0 and the V8.2 catalog counts."
+        - "~/.codex/plugins/cache/local-marketplace/ultraprompt/8.1.0/.codex-plugin/plugin.json reports version 8.1.0 and older counts."
+        - "The requested skill body for this PRD came from the 8.1.0 installed cache path, proving active-runtime staleness in this session."
+    - id: F-002
+      title: Invocation telemetry gate proves non-zero usage, not strong runtime adoption.
+      severity: high
+      confidence: confirmed
+      evidence:
+        - "audit-invocation-telemetry.py defaults require min_skill_invocations=1 and min_real_pathfinder_decisions=1."
+        - "The audit reported 397 pathfinder decisions, but only 1 real and 396 bench or synthetic decisions."
+        - "The audit reports activation gaps but does not require new V8.2 skill or agent activation."
+    - id: F-003
+      title: New V8.2 artifact types lack first-class schemas and validators.
+      severity: high
+      confidence: confirmed
+      evidence:
+        - "source/skill-specs.json declares design_review, visual_qa_report, design_system_review, invocation_telemetry_audit, and goal_contract artifact types."
+        - "scripts/artifact-validate.py does not define schemas for those artifact types."
+        - "source/panel-specs.json declares experience_quality_report, visual_qa_report, and design_system_review outputs while validators only cover pathfinder and graph freshness."
+    - id: F-004
+      title: Goal support is a Codex bridge, not Claude Code `/goal` runtime parity.
+      severity: high
+      confidence: confirmed
+      evidence:
+        - "source/skill-specs.json says the Codex bridge cannot install a session-scoped evaluator loop by itself."
+        - "The goal skill intentionally keeps state and proof in the transcript, not in a plugin-owned runtime evaluator."
+    - id: F-005
+      title: Persisted release scorecard can be stale or contradictory.
+      severity: medium
+      confidence: confirmed
+      evidence:
+        - "scripts/release-scorecard.py only writes dist/release-scorecard.json when --write-report is passed or --check is absent."
+        - "A live --check run concluded ready while dist/release-scorecard.json still contained an older blocked telemetry result."
+    - id: F-006
+      title: Panel lifecycle proof is structural, not end-to-end.
+      severity: medium
+      confidence: confirmed
+      evidence:
+        - "release-scorecard cognitive gate calls scripts/panel-runs.py stats."
+        - "panel-runs stats reported ok with total_runs: 0, which proves no panel failures but not that the new experience-quality panel has run successfully."
+
+users_and_jobs:
+  - user: "Ultraprompt maintainer"
+    jobs:
+      - "Ship V8.2 only when source, package, Codex cache, and Claude Code cache agree on version and capability counts."
+      - "Get a release scorecard that distinguishes source-ready, package-ready, installed-cache-ready, and fresh-session-ready states."
+      - "Close V8.2 gaps with file-level implementation tasks and validation gates rather than generic backlog notes."
+  - user: "Codex operator"
+    jobs:
+      - "Invoke `$ultraprompt:*` skills and receive behavior from the current release, not a stale installed cache."
+      - "Use `$ultraprompt:goal` with clear expectations about proof, persistence, and runtime limitations."
+      - "Trust that pathfinding and invocation telemetry reflect live behavior rather than mostly benchmark output."
+  - user: "Claude Code operator"
+    jobs:
+      - "Use `/ultraprompt:*` commands with the same V8.2 catalog and command semantics available to Codex where runtime differences allow."
+      - "Understand whether built-in `/goal` behavior is being used or whether Ultraprompt is providing a plugin-level goal contract."
+  - user: "Release owner"
+    jobs:
+      - "Run one release-readiness workflow that validates source, package, install simulation, active caches, artifacts, telemetry, and panel smoke evidence."
+      - "See stale report state and active runtime mismatch as explicit blockers or warnings."
+  - user: "Specialist skill or panel author"
+    jobs:
+      - "Declare new artifact outputs and know which schema, validator, and panel run prove they are usable."
+      - "Add a new skill or agent without weakening routing, activation, telemetry, or release gates."
+
+goals:
+  - id: G-001
+    goal: "Close runtime parity for V8.2 across source, package, Codex cache, and Claude Code cache."
+    target: "Release scorecard target=all fails if any active runtime reports a stale version or mismatched core counts."
+  - id: G-002
+    goal: "Make invocation telemetry a meaningful runtime-adoption gate."
+    target: "Telemetry gate separates real from bench events, requires configurable real-event coverage, and reports activation gaps for newly added V8.2 skills and agents."
+  - id: G-003
+    goal: "Make V8.2 experience-quality and goal artifacts contract-validated."
+    target: "artifact-validate.py and run-artifact-tests.py cover design_review, visual_qa_report, design_system_review, experience_quality_report, invocation_telemetry_audit, and goal_contract."
+  - id: G-004
+    goal: "Clarify and optionally strengthen goal behavior without overstating Codex runtime capabilities."
+    target: "Goal documentation, command output, and optional persistence make the bridge-vs-native distinction explicit."
+  - id: G-005
+    goal: "Prevent stale release evidence from being mistaken for current release state."
+    target: "Release scorecard output includes report mode, generated_at, source commit, dirty state, target scope, and stale-report warnings."
+  - id: G-006
+    goal: "Exercise the experience-quality panel end to end before treating it as a shipped V8.2 primitive."
+    target: "A read-only smoke run produces or validates an experience_quality_report fixture and records panel lifecycle proof."
+
+non_goals:
+  - "Do not build a fully autonomous Codex session evaluator loop unless Codex exposes runtime support for plugin-owned stop hooks or equivalent session control."
+  - "Do not require every skill in the catalog to be invoked before release; require activation evidence for newly introduced or release-critical lanes only."
+  - "Do not send telemetry to a hosted service. All evidence remains local-first."
+  - "Do not make benchmark pathfinder events count as live runtime adoption."
+  - "Do not redesign the dashboard as a separate product track beyond the status surfaces needed to make this closure visible."
+  - "Do not silently mutate user installs during validation. Runtime cache checks should report state unless an explicit install/update command is invoked."
+
+requirements:
+  must_have:
+    - id: R-001
+      title: Runtime parity gate
+      product_driver: "Operators need the active runtime to match the source release they are validating."
+      technical_decision: "Extend release scorecard target=all and/or a dedicated runtime parity check to compare source manifests, package manifest, active Codex cache, and Claude Code install metadata."
+      addresses: ["F-001"]
+      validation:
+        - "python3 scripts/release-scorecard.py --check --target all --json"
+        - "fresh Codex session sees V8.2 skill count and can explain `$ultraprompt:goal`."
+        - "fresh Claude Code session sees V8.2 command and skill catalog."
+    - id: R-002
+      title: Install/update workflow for active runtime caches
+      product_driver: "A clean source clone is not enough if active installs continue loading V8.1."
+      technical_decision: "Provide or harden explicit update commands for Codex and Claude Code that install the current source release and verify cache shape without touching unrelated local marketplace state."
+      addresses: ["F-001"]
+      validation:
+        - "install simulation passes for both runtimes."
+        - "active cache manifests report 8.2.0 after explicit update."
+    - id: R-003
+      title: Strong invocation telemetry thresholds
+      product_driver: "Release readiness must prove live usage signals, not just non-zero counters."
+      technical_decision: "Add configurable thresholds for real pathfinder count, real-vs-bench ratio, plugin agent share, Explore share, new-skill activation, new-agent activation, and legacy-prefix warnings."
+      addresses: ["F-002"]
+      validation:
+        - "python3 scripts/audit-invocation-telemetry.py --json --enforce exits non-zero when real events are below configured release thresholds."
+        - "run-pathfinder-tests.py --no-telemetry does not pollute runtime adoption events."
+    - id: R-004
+      title: Artifact schemas for V8.2 outputs
+      product_driver: "Experience-quality and goal outputs should be structured enough to execute and validate."
+      technical_decision: "Add schemas and tests for design_review, visual_qa_report, design_system_review, experience_quality_report, invocation_telemetry_audit, and goal_contract."
+      addresses: ["F-003"]
+      validation:
+        - "python3 scripts/artifact-validate.py schemas includes all new V8.2 artifact types."
+        - "python3 scripts/run-artifact-tests.py passes with positive and negative fixtures."
+    - id: R-005
+      title: Experience-quality panel validator coverage
+      product_driver: "The new frontend/design/taste lane must prove concrete evidence quality, not only routing graph freshness."
+      technical_decision: "Add panel validators or smoke fixtures that check required report sections, visual evidence inventory, ranked findings, and validation plan for experience-quality-panel."
+      addresses: ["F-003", "F-006"]
+      validation:
+        - "experience-quality-panel smoke fixture validates against experience_quality_report schema."
+        - "release scorecard includes panel smoke status distinct from panel stats."
+    - id: R-006
+      title: Goal bridge clarity
+      product_driver: "Operators need clear expectations for `$ultraprompt:goal` in Codex versus Claude Code built-in `/goal`."
+      technical_decision: "Update goal skill, command, docs, and dashboard text to state bridge semantics; optionally persist goal_contract artifacts as local state if enabled."
+      addresses: ["F-004"]
+      validation:
+        - "Goal output includes condition, proof method, status, and bridge/native runtime distinction."
+        - "No doc or command claims Codex has plugin-owned evaluator-loop parity."
+    - id: R-007
+      title: Release scorecard freshness contract
+      product_driver: "Release owners need persisted scorecards to indicate whether they are current or stale."
+      technical_decision: "Add generated_at, generated_from_commit, report_mode, target, dirty_state, and stale-report detection; make --check print when dist/release-scorecard.json differs from current results."
+      addresses: ["F-005"]
+      validation:
+        - "python3 scripts/release-scorecard.py --check --json reports stale_persisted_report when dist output is older or contradictory."
+        - "python3 scripts/release-scorecard.py --write-report --json refreshes dist output."
+    - id: R-008
+      title: Release target decomposition
+      product_driver: "A single ready/blocked verdict hides where the gap lives."
+      technical_decision: "Scorecard output must separate source, package, install simulation, active Codex cache, active Claude Code install, telemetry, artifact, and panel gates."
+      addresses: ["F-001", "F-002", "F-003", "F-005", "F-006"]
+      validation:
+        - "Scorecard JSON has per-target checks and a top-level conclusion derived from the requested target scope."
+  should_have:
+    - id: R-009
+      title: Dashboard visibility for runtime parity and telemetry quality
+      product_driver: "Operators should see stale cache, weak live signal, and stale reports without reading JSON."
+      technical_decision: "Expose runtime parity status, real-vs-bench pathfinder ratio, active cache version, and scorecard freshness in Mission Control."
+      addresses: ["F-001", "F-002", "F-005"]
+    - id: R-010
+      title: Backfill live smoke fixtures for new V8.2 skills
+      product_driver: "New skills should have at least one representative invocation path proven in a local ledger."
+      technical_decision: "Add a deterministic smoke harness that records synthetic-but-labeled skill_invocation events separately from real user events."
+      addresses: ["F-002", "F-006"]
+    - id: R-011
+      title: Explicit install remediation suggestions
+      product_driver: "When a runtime is stale, the user should see the exact safe command to update it."
+      technical_decision: "Runtime parity checks return next_action fields without automatically mutating installs."
+      addresses: ["F-001"]
+  wont_have_this_release:
+    - id: W-001
+      title: Hosted telemetry or remote analytics
+      reason: "The plugin is local-first and the identified gaps can be closed with local files, ledgers, and runtime checks."
+    - id: W-002
+      title: Guaranteed Codex evaluator-loop parity with Claude Code `/goal`"
+      reason: "Current Codex plugin routing does not provide a plugin-owned session stop-hook evaluator loop."
+    - id: W-003
+      title: Full browser visual regression platform"
+      reason: "The immediate need is artifact and panel contract validation. Browser screenshots remain a consuming-repo validation mechanism, not a plugin-internal SaaS feature."
+
+scope:
+  in:
+    - "Runtime parity checks for source, package, Codex active cache, and Claude Code active install."
+    - "Release scorecard freshness and target decomposition."
+    - "Invocation telemetry threshold hardening and real-vs-bench separation."
+    - "Artifact schemas and tests for all V8.2 experience-quality, invocation, and goal outputs."
+    - "Experience-quality panel smoke validation."
+    - "Goal bridge documentation and optional local goal_contract persistence."
+    - "Documentation updates for README, CLAUDE.md, command files, and generated skill bodies where source specs require regeneration."
+  out:
+    - "Cloud telemetry ingestion."
+    - "Runtime changes inside Codex or Claude Code themselves."
+    - "Large dashboard redesign beyond status visibility for the new gates."
+    - "Mandatory mutation of installed runtimes during read-only release checks."
+  release_target:
+    version: "8.2.x closure release"
+    runtime_targets:
+      - source
+      - packaged zip
+      - Codex local marketplace cache
+      - Claude Code plugin install/cache
+  dependencies:
+    - "Existing source specs: source/skill-specs.json, source/panel-specs.json, source/agent-specs.json."
+    - "Existing validation scripts: validate-plugin.py, audit-catalog-consistency.py, release-scorecard.py, audit-invocation-telemetry.py, artifact-validate.py, run-artifact-tests.py."
+    - "Existing runtime event stores under ~/.ultraprompt and Claude/Codex project logs."
+
+technical_design:
+  data_model:
+    storage_model: "Local JSON and JSONL files only; no database migration."
+    entities:
+      - name: runtime_target_status
+        purpose: "Represents one runtime target in release and parity checks."
+        fields:
+          - "target: source | package | codex_cache | claude_code_install"
+          - "path: absolute path or package path"
+          - "version: manifest version"
+          - "skill_count: integer"
+          - "agent_count: integer"
+          - "command_count: integer"
+          - "mcp_tool_count: integer when available"
+          - "ok: boolean"
+          - "findings: list of mismatches or missing files"
+          - "next_action: optional safe remediation command"
+      - name: release_scorecard_snapshot_v2
+        purpose: "Persisted release evidence with freshness metadata."
+        fields:
+          - "schema_version: 2"
+          - "generated_at: unix timestamp"
+          - "generated_from_commit: git SHA"
+          - "dirty_state: clean | dirty"
+          - "report_mode: check | write"
+          - "target: source | all"
+          - "runtime_targets: map runtime_target_status"
+          - "trust_gates: existing gate results"
+          - "cognitive_gates: existing gate results"
+          - "freshness: current | stale_persisted_report | missing_persisted_report"
+      - name: invocation_telemetry_audit_v2
+        purpose: "Separates live runtime adoption from benchmark and synthetic routing evidence."
+        fields:
+          - "window_days"
+          - "skill_invocations_total"
+          - "live_skill_invocations_total"
+          - "new_release_skill_invocations: map skill to count"
+          - "agent_dispatches_total"
+          - "plugin_agent_share_pct"
+          - "explore_share_pct"
+          - "legacy_prefix_total"
+          - "pathfinder_real_decisions"
+          - "pathfinder_bench_decisions"
+          - "pathfinder_synthetic_decisions"
+          - "real_pathfinder_ratio_pct"
+          - "activation_gaps"
+          - "thresholds"
+          - "ok"
+      - name: artifact_contract_schema
+        purpose: "Contract for generated or reported artifact outputs."
+        fields:
+          - "artifact_type"
+          - "required sections"
+          - "required nested fields"
+          - "enum fields where applicable"
+          - "positive fixture path"
+          - "negative fixture path"
+      - name: panel_smoke_result
+        purpose: "Evidence that a panel can produce or validate its expected artifact shape."
+        fields:
+          - "panel"
+          - "fixture_or_run_id"
+          - "artifact_type"
+          - "validator"
+          - "status"
+          - "findings"
+          - "recorded_at"
+      - name: goal_contract
+        purpose: "Optional persisted representation of a Codex goal bridge; transcript remains authoritative."
+        fields:
+          - "condition"
+          - "acceptance_criteria"
+          - "proof_method"
+          - "bounds"
+          - "status: active | met | blocked | cleared"
+          - "runtime: codex | claude-code"
+          - "native_goal_available: boolean"
+          - "evidence_refs"
+    migrations:
+      - "No destructive migration required."
+      - "If release_scorecard_snapshot_v2 is introduced, keep reading existing schema_version 1 reports and mark them legacy."
+      - "If goal_contract persistence is enabled, store new records in a local plugin state directory and leave transcript output unchanged."
+  api_surface:
+    scripts:
+      - script: "scripts/release-scorecard.py"
+        changes:
+          - "Add stale persisted report detection in --check mode."
+          - "Emit generated_at, generated_from_commit, dirty_state, report_mode, target, and freshness metadata."
+          - "Make --target all validate active Codex and Claude Code runtime targets when discoverable."
+          - "Keep --check read-only; --write-report is the explicit mutation path."
+      - script: "scripts/audit-invocation-telemetry.py"
+        changes:
+          - "Add --min-real-pathfinder-ratio or equivalent threshold."
+          - "Add --max-bench-pathfinder-ratio or equivalent threshold."
+          - "Add --required-live-skill for release-critical skills."
+          - "Add --required-live-agent for release-critical agents."
+          - "Keep benchmark events labeled and excluded from live-adoption thresholds."
+      - script: "scripts/artifact-validate.py"
+        changes:
+          - "Add schemas for design_review, visual_qa_report, design_system_review, experience_quality_report, invocation_telemetry_audit, and goal_contract."
+      - script: "scripts/run-artifact-tests.py"
+        changes:
+          - "Add positive and negative fixtures for each new artifact schema."
+      - script: "scripts/panel-runs.py"
+        changes:
+          - "Add or expose a read-only smoke validation path for experience-quality-panel artifacts."
+          - "Keep stats as lifecycle telemetry, not proof of panel capability."
+      - script: "scripts/install-simulate.py"
+        changes:
+          - "Ensure simulated installs preserve the manifest files referenced by each runtime."
+          - "Report version and catalog count mismatches."
+    mcp_tools:
+      - tool: "validate_plugin"
+        compatibility: "No breaking change required; may include richer runtime target metadata if available."
+      - tool: "release_scorecard"
+        compatibility: "Return freshness and runtime target decomposition if tool wraps scripts/release-scorecard.py."
+      - tool: "pathfind_workflow"
+        compatibility: "Ensure emitted telemetry labels source=runtime, source=bench, or source=synthetic explicitly."
+      - tool: "mission_state"
+        compatibility: "May surface goal_contract state if optional persistence is enabled."
+    commands_and_skills:
+      - "Update source/skill-specs.json for goal, frontend-visual-qa, design-review, design-system-review, and pathfinding-invocation-review output contracts if schemas introduce required section names."
+      - "Regenerate skills after source spec edits."
+      - "Update command docs only from source if commands are generated; otherwise edit command files directly."
+  integration_points:
+    source_catalog:
+      - "source/skill-specs.json"
+      - "source/panel-specs.json"
+      - "source/agent-specs.json"
+      - "dist/skill-index.json"
+      - "dist/catalog-metadata.json"
+      - "dist/capability-graph.json"
+    runtime_installation:
+      - ".codex-plugin/plugin.json"
+      - ".claude-plugin/plugin.json"
+      - "scripts/install-codex.sh"
+      - "scripts/install-claude-code.sh"
+      - "scripts/package-plugin.py"
+      - "scripts/install-simulate.py"
+      - "~/.codex/plugins/cache/local-marketplace/ultraprompt/*"
+      - "Claude Code plugin marketplace/cache locations as configured on this machine"
+    telemetry:
+      - "~/.ultraprompt/events/events.jsonl"
+      - "ledger-v2 events read by scripts/audit-invocation-telemetry.py"
+      - "Claude project JSONL Task/Agent dispatch records"
+    dashboard:
+      - "Mission Control runtime status cards should consume release scorecard and telemetry JSON rather than duplicating logic."
+    validation:
+      - "artifact fixtures for new artifact types"
+      - "panel smoke result fixtures"
+      - "fresh-session manual smoke checklist for Codex and Claude Code"
+  sequence_flows:
+    - id: SF-001
+      name: "Release owner runs full source and runtime scorecard"
+      steps:
+        - "Run release-scorecard.py --check --target all --json."
+        - "Scorecard validates source gates."
+        - "Scorecard discovers active Codex and Claude Code runtimes."
+        - "Scorecard compares active runtime versions and catalog counts to source manifests."
+        - "Scorecard checks persisted report freshness."
+        - "Scorecard returns ready, risky, or blocked with per-target findings."
+    - id: SF-002
+      name: "Telemetry gate evaluates live adoption"
+      steps:
+        - "Read runtime events for the configured window."
+        - "Normalize plugin prefixes."
+        - "Classify pathfinder events as runtime, bench, or synthetic."
+        - "Apply live-adoption thresholds separately from benchmark correctness thresholds."
+        - "Report activation gaps for release-critical V8.2 skills and agents."
+    - id: SF-003
+      name: "New artifact output is validated"
+      steps:
+        - "Skill or panel declares artifact_type in source specs."
+        - "artifact-validate.py provides a schema for that type."
+        - "run-artifact-tests.py exercises positive and negative fixtures."
+        - "Panel validators include schema validation for emitted artifact types."
+    - id: SF-004
+      name: "Codex goal bridge is invoked"
+      steps:
+        - "User invokes `$ultraprompt:goal` or natural language goal."
+        - "Skill rewrites the condition into acceptance criteria and proof method."
+        - "Output explicitly states Codex bridge semantics and whether native runtime evaluator support is available."
+        - "If optional persistence is enabled, local goal_contract state is written without replacing transcript proof."
+        - "Final answer reports met, blocked, active, or cleared with evidence."
+  failure_modes:
+    - id: FM-001
+      failure: "Source release validates, but active Codex cache still runs V8.1."
+      mitigation: "Runtime parity gate blocks target=all and prints a safe update command."
+      detection: "release-scorecard runtime_targets.codex_cache.version != source version."
+    - id: FM-002
+      failure: "Telemetry gate passes on benchmark events or one-off accidental invocation."
+      mitigation: "Separate real, bench, and synthetic events; require configurable real-event thresholds."
+      detection: "real_pathfinder_ratio_pct below threshold or required_live_skill missing."
+    - id: FM-003
+      failure: "Experience-quality panel emits plausible prose with no required evidence inventory."
+      mitigation: "experience_quality_report schema requires surface map, evidence inventory, ranked findings, and validation plan."
+      detection: "artifact-validate fails panel smoke fixture or generated artifact."
+    - id: FM-004
+      failure: "User believes `$ultraprompt:goal` gives Codex Claude Code built-in `/goal` parity."
+      mitigation: "Goal output and docs state bridge semantics and transcript-proof requirement."
+      detection: "Goal contract schema requires runtime and native_goal_available fields."
+    - id: FM-005
+      failure: "dist/release-scorecard.json shows blocked while live scorecard is ready, or the reverse."
+      mitigation: "Scorecard reports stale_persisted_report in --check mode and writes only with --write-report."
+      detection: "Persisted report generated_from_commit or result hash differs from current run."
+    - id: FM-006
+      failure: "Panel stats report ok with zero runs and are mistaken for panel capability proof."
+      mitigation: "Separate lifecycle stats from panel smoke validation in cognitive gates."
+      detection: "panel_smoke_result missing for release-critical panel."
+    - id: FM-007
+      failure: "Runtime parity check mutates user installs during a read-only audit."
+      mitigation: "All scorecard and parity checks are read-only; install/update commands require explicit invocation."
+      detection: "No file writes in --check mode except ledger events explicitly permitted by existing runtime."
+    - id: FM-008
+      failure: "New schemas are added but source specs still describe incompatible output contracts."
+      mitigation: "Trace artifact schema additions back to source specs and regenerate skill bodies."
+      detection: "artifact tests pass but catalog consistency or generated skill check fails."
+    - id: FM-009
+      failure: "Claude Code and Codex need different invocation forms and docs collapse them into one path."
+      mitigation: "Command and skill docs state `/ultraprompt:*` for Claude Code and `$ultraprompt:*` or MCP/natural language for Codex."
+      detection: "Fresh-session smoke checks both runtimes separately."
+    - id: FM-010
+      failure: "Release scorecard becomes too strict for normal development and blocks source-only validation."
+      mitigation: "Target scopes stay explicit: source for source-only gates, all for release gates."
+      detection: "source target passes while all target reports runtime-only blockers."
+  telemetry:
+    events:
+      - name: "runtime_target_check"
+        fields: ["target", "path", "version", "expected_version", "ok", "findings"]
+      - name: "release_scorecard_run"
+        fields: ["target", "conclusion", "generated_from_commit", "dirty_state", "stale_persisted_report"]
+      - name: "invocation_telemetry_audit"
+        fields: ["window_days", "real_pathfinder_ratio_pct", "plugin_agent_share_pct", "explore_share_pct", "activation_gaps_count", "ok"]
+      - name: "artifact_schema_validation"
+        fields: ["artifact_type", "fixture", "ok", "finding_count"]
+      - name: "panel_smoke_validation"
+        fields: ["panel", "artifact_type", "ok", "run_id_or_fixture"]
+      - name: "goal_contract_status"
+        fields: ["runtime", "status", "native_goal_available", "proof_method_present"]
+    metrics:
+      - name: "runtime_parity_ok"
+        target: "true for target=all before release"
+      - name: "active_runtime_version_mismatch_count"
+        target: "0"
+      - name: "real_pathfinder_ratio_pct"
+        target: "configurable; release gate should fail on near-zero live signal"
+      - name: "new_v8_2_artifact_schema_coverage_pct"
+        target: "100"
+      - name: "experience_quality_panel_smoke_ok"
+        target: "true"
+      - name: "stale_persisted_scorecard"
+        target: "false during release packaging"
+  rollout_technical_plan:
+    phases:
+      - id: P0
+        name: "PRD and baseline"
+        exit_gate: "This PRD validates as prd_technical and is committed or otherwise accepted as the execution plan."
+      - id: P1
+        name: "Artifact and scorecard freshness foundation"
+        work:
+          - "Add V8.2 artifact schemas and fixtures."
+          - "Add scorecard freshness metadata and stale persisted report warnings."
+        exit_gate: "run-artifact-tests and release-scorecard --check pass for source target."
+      - id: P2
+        name: "Telemetry hardening"
+        work:
+          - "Add real-vs-bench thresholds."
+          - "Add required live activation controls for release-critical skills and agents."
+          - "Ensure benchmark commands can run without telemetry pollution."
+        exit_gate: "audit-invocation-telemetry can fail intentionally on strict thresholds and pass on documented release thresholds after smoke evidence."
+      - id: P3
+        name: "Runtime parity"
+        work:
+          - "Validate and harden install/update scripts."
+          - "Add active Codex and Claude Code runtime target checks."
+          - "Run fresh-session smoke tests after explicit install/update."
+        exit_gate: "release-scorecard --check --target all passes or reports only accepted non-release warnings."
+      - id: P4
+        name: "Goal and panel closure"
+        work:
+          - "Update goal docs and optional local contract behavior."
+          - "Add experience-quality panel smoke validation."
+          - "Surface panel smoke and goal bridge status in release scorecard and dashboard if practical."
+        exit_gate: "Goal smoke and panel smoke both produce schema-valid artifacts."
+      - id: P5
+        name: "Docs, package, and release"
+        work:
+          - "Regenerate skills, agents, catalog metadata, and capability graph."
+          - "Update README, CLAUDE.md, commands, and changelog as needed."
+          - "Package and verify both runtime manifests."
+        exit_gate: "Full validation plan passes and active fresh sessions confirm V8.2 behavior."
+
+performance_considerations:
+  - "Runtime parity checks should avoid scanning all project logs unless telemetry gates are explicitly requested."
+  - "Release scorecard target=source should remain fast for development; target=all can perform slower active-cache and package checks."
+  - "Telemetry audit should stream or bound JSONL reads by time window to avoid unbounded scans of long-lived project logs."
+  - "Artifact validation should remain in-process and fixture-based; no browser or dashboard server should be required."
+
+security_and_privacy:
+  - "All new telemetry remains local-first and should not include prompt bodies beyond existing event summaries."
+  - "Runtime target checks must not print secrets from config files or environment variables."
+  - "Fresh-session smoke reports should cite capability presence and command output summaries, not full private transcripts."
+  - "Read-only validation must not mutate active installs, ledger state, or user project files except where an existing command already documents telemetry writes."
+  - "If goal_contract persistence is added, it must support clearing and should avoid storing sensitive acceptance criteria unless explicitly local-only."
+
+implementation_plan:
+  epics:
+    - id: E-001
+      name: "Runtime parity and install freshness"
+      likely_files:
+        - "scripts/release-scorecard.py"
+        - "scripts/install-simulate.py"
+        - "scripts/install-codex.sh"
+        - "scripts/install-claude-code.sh"
+        - "scripts/package-plugin.py"
+        - ".codex-plugin/plugin.json"
+        - ".claude-plugin/plugin.json"
+      tasks:
+        - "Add runtime_target_status collection for Codex cache and Claude Code install."
+        - "Compare runtime manifest version and catalog counts to source."
+        - "Emit next_action commands for stale runtimes."
+        - "Add tests or fixtures for missing cache, stale cache, and matching cache."
+    - id: E-002
+      name: "Telemetry gate hardening"
+      likely_files:
+        - "scripts/audit-invocation-telemetry.py"
+        - "scripts/pathfinder.py"
+        - "scripts/run-pathfinder-tests.py"
+        - "mcp/ultraprompt_meta.py"
+      tasks:
+        - "Introduce explicit event source classification."
+        - "Add release threshold flags and defaults."
+        - "Exclude bench/synthetic events from live adoption metrics."
+        - "Add activation requirements for V8.2 critical skills."
+    - id: E-003
+      name: "Artifact and panel contract coverage"
+      likely_files:
+        - "scripts/artifact-validate.py"
+        - "scripts/run-artifact-tests.py"
+        - "source/skill-specs.json"
+        - "source/panel-specs.json"
+        - "tests or fixtures under the existing artifact test location"
+      tasks:
+        - "Add schemas for new V8.2 artifacts."
+        - "Add positive and negative fixtures."
+        - "Update panel validators to include schema validation."
+        - "Regenerate catalog outputs after source spec changes."
+    - id: E-004
+      name: "Goal bridge closure"
+      likely_files:
+        - "source/skill-specs.json"
+        - "skills/goal/SKILL.md"
+        - "commands/goal.md"
+        - "mcp/ultraprompt_meta.py"
+        - "README.md"
+        - "CLAUDE.md"
+      tasks:
+        - "Ensure all goal docs say bridge, not native Codex evaluator loop."
+        - "Add or validate goal_contract artifact schema."
+        - "Optionally add local goal_contract status to mission state."
+        - "Add smoke fixture for met, blocked, and cleared goal states."
+    - id: E-005
+      name: "Release evidence UX"
+      likely_files:
+        - "scripts/release-scorecard.py"
+        - "dashboard files if present in the repo"
+        - "README.md"
+        - "CLAUDE.md"
+      tasks:
+        - "Expose freshness and runtime target status in machine-readable scorecard."
+        - "Surface stale report and runtime mismatch in human-readable output."
+        - "Document target=source versus target=all."
+
+risks:
+  - id: K-001
+    title: "Target=all release gate blocks developers who only want source validation."
+    severity: medium
+    likelihood: medium
+    mitigation: "Keep source and all targets separate; default existing developer commands to source where appropriate."
+  - id: K-002
+    title: "Fresh-session runtime checks are difficult to automate across Codex and Claude Code."
+    severity: high
+    likelihood: medium
+    mitigation: "Automate manifest/cache checks first; keep manual fresh-session smoke checklist as a release phase gate until runtime APIs exist."
+  - id: K-003
+    title: "Telemetry thresholds become brittle because local usage volume varies."
+    severity: medium
+    likelihood: high
+    mitigation: "Use configurable thresholds and release-critical required skills rather than requiring broad catalog activation."
+  - id: K-004
+    title: "Goal persistence creates privacy or stale-state confusion."
+    severity: medium
+    likelihood: medium
+    mitigation: "Make persistence optional, local-only, clearable, and subordinate to transcript-visible proof."
+  - id: K-005
+    title: "Artifact schemas over-constrain design critique outputs."
+    severity: medium
+    likelihood: medium
+    mitigation: "Require evidence and structure, not stylistic conclusions; keep narrative fields flexible."
+  - id: K-006
+    title: "Release scorecard freshness detection creates noisy diffs."
+    severity: low
+    likelihood: medium
+    mitigation: "Only write dist report with --write-report or packaging; --check reports drift without mutating files."
+  - id: K-007
+    title: "Cache discovery picks the wrong installed runtime when multiple versions exist."
+    severity: high
+    likelihood: medium
+    mitigation: "Report all discovered candidates and mark the active/default one separately where runtime config exposes it."
+
+metrics:
+  product_success:
+    - metric: "Release owner can identify whether a failure is source, package, active runtime, telemetry, artifact, or panel related."
+      target: "Scorecard JSON and human output show per-target status."
+    - metric: "Stale installed runtime is detected before release."
+      target: "100 percent of target=all runs report version mismatch when cache is stale."
+    - metric: "New V8.2 artifacts are schema-covered."
+      target: "6 of 6 new artifact types have schemas and tests."
+  operational_success:
+    - metric: "Current source validation remains green."
+      target: "audit-catalog-consistency and validate-plugin stay exit 0."
+    - metric: "Telemetry proof quality is visible."
+      target: "real pathfinder ratio, bench count, synthetic count, plugin share, Explore share, and activation gaps appear in audit JSON."
+    - metric: "Experience-quality panel is smoke-proven."
+      target: "At least one schema-valid smoke artifact or fixture recorded for experience-quality-panel."
+  guardrail_metrics:
+    - metric: "Read-only commands mutate runtime installs."
+      target: "0 occurrences."
+    - metric: "Docs overstate Codex goal parity."
+      target: "0 occurrences found by targeted search for unsupported claims."
+
+acceptance_criteria:
+  - id: AC-001
+    requirement: "R-001"
+    given: "The source repo is V8.2.0 and the active Codex cache is V8.1.0."
+    when: "A release owner runs `python3 scripts/release-scorecard.py --check --target all --json`."
+    then: "The scorecard reports a codex_cache runtime mismatch and does not conclude ready for target=all."
+  - id: AC-002
+    requirement: "R-001"
+    given: "Codex and Claude Code active runtimes have been explicitly updated to V8.2.0."
+    when: "The same target=all scorecard runs."
+    then: "Runtime target versions and core counts match source or produce only accepted warnings."
+  - id: AC-003
+    requirement: "R-003"
+    given: "Pathfinder telemetry contains 396 bench decisions and 1 real decision."
+    when: "Strict release telemetry thresholds require meaningful live signal."
+    then: "audit-invocation-telemetry exits non-zero and reports the real-vs-bench mismatch."
+  - id: AC-004
+    requirement: "R-003"
+    given: "Pathfinder tests are run with `--no-telemetry`."
+    when: "The telemetry audit is rerun."
+    then: "Benchmark runs do not increase live pathfinder adoption counts."
+  - id: AC-005
+    requirement: "R-004"
+    given: "A valid visual_qa_report fixture is present."
+    when: "artifact-validate validates it as visual_qa_report."
+    then: "The validator exits 0."
+  - id: AC-006
+    requirement: "R-004"
+    given: "A visual_qa_report fixture lacks screenshot/browser evidence or remaining visual risks."
+    when: "artifact-validate validates it."
+    then: "The validator reports a schema finding."
+  - id: AC-007
+    requirement: "R-005"
+    given: "experience-quality-panel has no successful smoke fixture or run."
+    when: "The release scorecard runs for target=all."
+    then: "The panel smoke gate is warning or blocked according to release policy, distinct from panel lifecycle stats."
+  - id: AC-008
+    requirement: "R-006"
+    given: "A Codex user invokes `$ultraprompt:goal tests pass`."
+    when: "The goal skill produces its output."
+    then: "The output includes condition, proof method, bounds/status, and a statement that Codex goal support is a bridge rather than native evaluator-loop parity."
+  - id: AC-009
+    requirement: "R-007"
+    given: "dist/release-scorecard.json contains an older blocked result but a live --check result is ready."
+    when: "release-scorecard.py --check --json runs."
+    then: "The output reports stale_persisted_report instead of silently ignoring the contradiction."
+  - id: AC-010
+    requirement: "R-008"
+    given: "Source checks pass but active runtime checks fail."
+    when: "The release owner inspects scorecard output."
+    then: "The top-level conclusion and per-target statuses make the runtime-only blocker explicit."
+
+rollout_plan:
+  - phase: "Phase 0: PRD acceptance"
+    owner: "Maintainer"
+    gate:
+      - "PRD artifact validates as prd_technical."
+      - "Maintainer accepts target scope and non-goals."
+    rollback: "Delete or revise the PRD before implementation starts."
+  - phase: "Phase 1: Schema and scorecard foundation"
+    owner: "Implementation agent"
+    gate:
+      - "New artifact schemas and fixtures pass."
+      - "Scorecard freshness fields appear in JSON output."
+      - "Existing source validation remains green."
+    rollback: "Revert schema additions and scorecard metadata changes if source validation regresses."
+  - phase: "Phase 2: Telemetry and routing proof"
+    owner: "Implementation agent"
+    gate:
+      - "Telemetry audit distinguishes live, bench, and synthetic events."
+      - "Strict threshold fixture fails as expected."
+      - "Documented release threshold passes only after smoke evidence exists."
+    rollback: "Relax new thresholds behind explicit flags while retaining source classification fields."
+  - phase: "Phase 3: Runtime parity"
+    owner: "Maintainer plus implementation agent"
+    gate:
+      - "install-simulate passes for both runtimes."
+      - "target=all scorecard reports active runtime parity after explicit update."
+      - "Fresh Codex and Claude Code sessions expose V8.2 skill/command behavior."
+    rollback: "Restore previous install scripts and keep target=all as warning-only until active-runtime discovery is reliable."
+  - phase: "Phase 4: Goal and panel proof"
+    owner: "Implementation agent"
+    gate:
+      - "Goal bridge smoke produces schema-valid goal_contract output."
+      - "Experience-quality panel smoke validates schema."
+      - "Docs describe runtime differences accurately."
+    rollback: "Keep goal as transcript-only documentation and remove optional persistence if it introduces state confusion."
+  - phase: "Phase 5: Release packaging"
+    owner: "Release owner"
+    gate:
+      - "Full validation plan passes."
+      - "dist/release-scorecard.json refreshed with --write-report during package preparation."
+      - "Package verification and install simulation pass."
+    rollback: "Do not publish package; keep branch as release-candidate until blockers are closed."
+
+validation_plan:
+  prd_validation:
+    - command: "python3 scripts/artifact-validate.py validate prd_technical docs/prds/v8.2-runtime-parity-and-experience-quality.prd.yaml"
+      expected: "exit 0"
+  source_validation:
+    - command: "python3 scripts/audit-catalog-consistency.py --json"
+      expected: "exit 0"
+    - command: "python3 scripts/validate-plugin.py --target-runtime source --strict-runtime-files"
+      expected: "exit 0"
+    - command: "python3 scripts/run-artifact-tests.py"
+      expected: "exit 0 after new fixtures are added"
+    - command: "python3 scripts/run-pathfinder-tests.py --no-telemetry"
+      expected: "exit 0 without writing live pathfinder adoption events"
+  telemetry_validation:
+    - command: "python3 scripts/audit-invocation-telemetry.py --json --enforce"
+      expected: "exit 0 for the configured release threshold after live smoke; exits non-zero under intentionally strict fixture thresholds when live signal is absent"
+  release_validation:
+    - command: "python3 scripts/release-scorecard.py --check --json"
+      expected: "exit 0 for source target"
+    - command: "python3 scripts/release-scorecard.py --check --target all --json"
+      expected: "exit 0 only when active runtime targets match source or accepted warnings are documented"
+    - command: "python3 scripts/release-scorecard.py --write-report --json"
+      expected: "writes current dist/release-scorecard.json during packaging"
+  package_and_install_validation:
+    - command: "python3 scripts/package-plugin.py --verify-only"
+      expected: "exit 0"
+    - command: "python3 scripts/install-simulate.py --runtime both"
+      expected: "exit 0"
+    - command: "fresh Codex session smoke"
+      expected: "V8.2 catalog visible; `$ultraprompt:goal` and `$ultraprompt:frontend-visual-qa` route to current skills"
+    - command: "fresh Claude Code session smoke"
+      expected: "V8.2 command catalog visible; `/ultraprompt:goal` documentation does not conflict with native `/goal` semantics"
+  regression_checks:
+    - command: "git status -sb"
+      expected: "Only intentional files changed."
+    - command: "targeted search for stale V8.1 counts and unsupported goal parity claims"
+      expected: "No stale release-facing docs remain except historical changelog entries."
+
+traceability:
+  - finding: "F-001"
+    requirements: ["R-001", "R-002", "R-008"]
+    epics: ["E-001"]
+    acceptance_criteria: ["AC-001", "AC-002", "AC-010"]
+  - finding: "F-002"
+    requirements: ["R-003", "R-008", "R-010"]
+    epics: ["E-002"]
+    acceptance_criteria: ["AC-003", "AC-004"]
+  - finding: "F-003"
+    requirements: ["R-004", "R-005"]
+    epics: ["E-003"]
+    acceptance_criteria: ["AC-005", "AC-006", "AC-007"]
+  - finding: "F-004"
+    requirements: ["R-006"]
+    epics: ["E-004"]
+    acceptance_criteria: ["AC-008"]
+  - finding: "F-005"
+    requirements: ["R-007", "R-008"]
+    epics: ["E-001", "E-005"]
+    acceptance_criteria: ["AC-009", "AC-010"]
+  - finding: "F-006"
+    requirements: ["R-005", "R-008"]
+    epics: ["E-003", "E-005"]
+    acceptance_criteria: ["AC-007"]
+
+open_questions:
+  product:
+    - id: OP-001
+      question: "Should target=all be the default release command, or should source remain the default with release docs requiring target=all?"
+      recommendation: "Keep source as default for fast development; require target=all in release workflow."
+    - id: OP-002
+      question: "Should V8.2 block release on live activation of all new experience skills, or only release-critical skills?"
+      recommendation: "Block only on release-critical skills: goal, frontend-visual-qa, pathfinding-invocation-review, and the experience-quality panel smoke."
+    - id: OP-003
+      question: "Should goal_contract persistence ship in V8.2 or remain documented as future work?"
+      recommendation: "Ship schema and transcript bridge now; add persistence only if it stays local-only and clearable."
+  technical:
+    - id: OT-001
+      question: "Where is the authoritative Claude Code active plugin install path on this machine?"
+      recommendation: "Implement discovery as best-effort with explicit path reporting; do not fail source target if unavailable."
+    - id: OT-002
+      question: "What exact threshold should define meaningful live pathfinder adoption?"
+      recommendation: "Start with a release-critical minimum count plus ratio warning, then tune after several fresh sessions."
+    - id: OT-003
+      question: "Should release-scorecard.py compute a result hash for persisted report freshness?"
+      recommendation: "Yes; compare commit, target, and normalized gate result hash."
+    - id: OT-004
+      question: "Should panel smoke validation run a real panel lifecycle or validate fixtures only?"
+      recommendation: "Start with fixtures for deterministic CI, then add optional real panel smoke for release candidates."

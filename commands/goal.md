@@ -20,3 +20,5 @@ Codex does not route plugin command markdown through its native `/` slash parser
 One active goal condition should be visible in the transcript. The assistant must surface proof after meaningful work: command exit codes, screenshot evidence, file counts, checklist status, or artifact validation. If the condition cannot be proven, report `blocked` rather than `met`.
 
 Claude Code's built-in `/goal` uses a session-scoped Stop-hook evaluator. This plugin command does not claim that Codex has that loop; it gives Codex a main-thread goal discipline that is inspectable and compatible with `$ultraprompt:goal`.
+
+Goal output must include the condition, acceptance criteria, proof method, bounds, status, evidence references, and the runtime distinction: Codex receives a transcript-backed bridge, while Claude Code may also have native built-in `/goal` evaluator behavior outside the plugin.

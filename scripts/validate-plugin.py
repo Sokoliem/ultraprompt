@@ -276,6 +276,11 @@ def validate_manifest_referenced_files(path: Path, manifest: dict[str, Any], err
     hooks_ref = manifest.get("hooks")
     if isinstance(hooks_ref, str):
         rel = hooks_ref[2:] if hooks_ref.startswith("./") else hooks_ref
+        if rel == "hooks/hooks.json" and ".claude-plugin" in path.parts:
+            errors.append(
+                f"{path.relative_to(ROOT)}: must not reference {hooks_ref}; "
+                "Claude Code auto-loads hooks/hooks.json and treats the manifest reference as duplicate"
+            )
         target = ROOT / rel
         if not target.exists():
             errors.append(

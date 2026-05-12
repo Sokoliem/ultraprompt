@@ -9,6 +9,7 @@ Latest record per run_id is the current state; append-only history is retained.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import subprocess
 import time
@@ -18,6 +19,12 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 VALID_STATUSES = {"planned", "running", "completed", "cancelled", "failed"}
+PANEL_SMOKE_FIXTURES = {
+    "experience-quality-panel": {
+        "artifact_type": "experience_quality_report",
+        "fixture": ROOT / "tests" / "artifacts" / "experience_quality_report.valid.json",
+    }
+}
 
 
 def now_iso() -> str:
@@ -168,6 +175,54 @@ def stats() -> dict[str, Any]:
     return {"total_runs": len(runs), "by_status": by_status, "by_panel": by_panel}
 
 
+def load_artifact_validator():
+    path = ROOT / "scripts" / "artifact-validate.py"
+    spec = importlib.util.spec_from_file_location("artifact_validate", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"could not load {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def smoke(panel_name: str, fixture: str | None = None) -> dict[str, Any]:
+    config = PANEL_SMOKE_FIXTURES.get(panel_name)
+    if not config:
+        return {
+            "ok": False,
+            "panel": panel_name,
+            "error": "no_smoke_fixture_configured",
+            "available": sorted(PANEL_SMOKE_FIXTURES),
+        }
+    fixture_path = Path(fixture).expanduser() if fixture else config["fixture"]
+    if not fixture_path.is_absolute():
+        fixture_path = ROOT / fixture_path
+    validator = load_artifact_validator()
+    data, err = validator.load_artifact(fixture_path)
+    if err:
+        return {
+            "ok": False,
+            "panel": panel_name,
+            "fixture_or_run_id": str(fixture_path),
+            "artifact_type": config["artifact_type"],
+            "validator": "artifact-validate.py",
+            "status": "failed",
+            "findings": [{"severity": "high", "issue": err}],
+            "recorded_at": now_iso(),
+        }
+    result = validator.validate(str(config["artifact_type"]), data)
+    return {
+        "ok": bool(result.get("ok")),
+        "panel": panel_name,
+        "fixture_or_run_id": str(fixture_path.relative_to(ROOT) if fixture_path.is_relative_to(ROOT) else fixture_path),
+        "artifact_type": config["artifact_type"],
+        "validator": "artifact-validate.py",
+        "status": "passed" if result.get("ok") else "failed",
+        "findings": result.get("high", []) + result.get("medium", []),
+        "recorded_at": now_iso(),
+    }
+
+
 def parse_json_arg(value: str | None, default: Any) -> Any:
     if not value:
         return default
@@ -204,6 +259,9 @@ def main() -> int:
     s_list.add_argument("--limit", type=int, default=20)
 
     sub.add_parser("stats")
+    s_smoke = sub.add_parser("smoke")
+    s_smoke.add_argument("--panel", required=True)
+    s_smoke.add_argument("--fixture")
 
     args = parser.parse_args()
     if args.cmd == "start":
@@ -237,6 +295,10 @@ def main() -> int:
     if args.cmd == "stats":
         print(json.dumps({"ok": True, **stats()}, indent=2))
         return 0
+    if args.cmd == "smoke":
+        result = smoke(args.panel, args.fixture)
+        print(json.dumps(result, indent=2, default=str))
+        return 0 if result.get("ok") else 1
     return 1
 
 

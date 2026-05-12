@@ -598,7 +598,7 @@
     "commands": 31,
     "skills": 54
   },
-  "generated_at": "2026-05-12T06:40:43+00:00",
+  "generated_at": "2026-05-12T15:08:44+00:00",
   "plugin": {
     "description": "Ultraprompt V8.2 cognitive control-plane plugin for Claude Code and Codex: 54 skills, 31 agents, 42 MCP tools, 31 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, experience-quality panels, invocation telemetry gates, goal contracts, live Mission Control dashboard, fingerprinted gap ledger, and dual-runtime install.",
     "name": "ultraprompt",
@@ -2358,9 +2358,9 @@
       "manual_only": false,
       "mode": "write_capable",
       "name": "goal",
-      "output_contract": "Goal condition | Acceptance criteria | Proof method | Constraints/bounds | Current status (active/met/blocked/cleared) | Evidence surfaced | Work completed | Next action if not met",
+      "output_contract": "Goal condition | Acceptance criteria | Proof method | Constraints/bounds | Runtime distinction (Codex bridge vs Claude Code native evaluator availability) | Current status (active/met/blocked/cleared) | Evidence surfaced | Work completed | Next action if not met",
       "outputs": [
-        "Goal status"
+        "Goal contract"
       ],
       "paired_panels": [],
       "path": "skills/goal/SKILL.md",

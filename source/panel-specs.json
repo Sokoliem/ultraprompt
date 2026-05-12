@@ -1554,7 +1554,8 @@
     ],
     "validators": [
       "run-pathfinder-tests.py",
-      "build-capability-graph.py"
+      "build-capability-graph.py",
+      "panel-runs.py smoke --panel experience-quality-panel"
     ],
     "ledger_writes": [],
     "resume_behavior": "resume_from_last_completed_phase",

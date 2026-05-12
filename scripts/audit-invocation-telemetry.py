@@ -18,6 +18,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN_PREFIXES = ("ultraprompt:", "ultra-prompt:")
+RELEASE_CRITICAL_V8_2_SKILLS = ("goal", "frontend-visual-qa", "pathfinding-invocation-review")
 
 
 def load_json(path: Path, default: Any) -> Any:
@@ -44,6 +45,14 @@ def normalize_ref(value: object) -> tuple[str, bool, bool]:
             suffix = value.split(":", 1)[1]
             return f"ultraprompt:{suffix}", True, prefix == "ultra-prompt:"
     return value, False, False
+
+
+def canonical_plugin_name(value: str) -> str:
+    text = value.strip()
+    for prefix in PLUGIN_PREFIXES:
+        if text.startswith(prefix):
+            return text.split(":", 1)[1]
+    return text
 
 
 def catalog_names() -> tuple[set[str], set[str]]:
@@ -184,36 +193,50 @@ def summarize(days: int) -> dict[str, Any]:
 
     pathfinder_by_skill = Counter()
     pathfinder_by_source = Counter()
+    bench = 0
     synthetic = 0
     real = 0
     for event in pathfinder_events:
         data = event.get("data") or {}
         intent = str(data.get("intent", ""))
-        if intent in bench_intents or data.get("source") == "bench":
-            synthetic += 1
+        event_source = str(data.get("source") or "").strip().lower()
+        if event_source in {"bench", "golden", "test"} or intent in bench_intents:
+            bench += 1
             source = "bench"
+        elif event_source == "synthetic":
+            synthetic += 1
+            source = "synthetic"
         else:
             real += 1
-            source = str(data.get("source") or "runtime")
+            source = event_source or "runtime"
         pathfinder_by_source[source] += 1
         pathfinder_by_skill[str(data.get("skill", "?"))] += 1
 
     plugin_share = (100.0 * len(plugin_dispatches) / total_dispatches) if total_dispatches else 0.0
     explore_share = (100.0 * len(explore_dispatches) / total_dispatches) if total_dispatches else 0.0
+    pathfinder_total = len(pathfinder_events)
+    real_ratio = (100.0 * real / pathfinder_total) if pathfinder_total else 0.0
+    bench_ratio = (100.0 * bench / pathfinder_total) if pathfinder_total else 0.0
     fired_skills = {name.split(":", 1)[1] for name in skill_invocations if name.startswith("ultraprompt:")}
     fired_agents = {str(item.get("agent", "")).split(":", 1)[1] for item in plugin_dispatches if str(item.get("agent", "")).startswith("ultraprompt:")}
+    release_critical_skills = {
+        name: skill_invocations.get(f"ultraprompt:{name}", 0)
+        for name in RELEASE_CRITICAL_V8_2_SKILLS
+    }
 
     return {
-        "schema": "invocation_telemetry_audit.v1",
+        "schema": "invocation_telemetry_audit.v2",
         "generated_at": int(time.time()),
         "window_days": days,
         "runtime_events": {
             "total": len(runtime_events),
             "skill_invocations": sum(skill_invocations.values()),
+            "live_skill_invocations_total": sum(skill_invocations.values()),
             "legacy_skill_invocations": sum(legacy_skill_invocations.values()),
             "mcp_tool_calls": sum(mcp_calls.values()),
             "top_skills": dict(skill_invocations.most_common(20)),
             "top_mcp_tools": dict(mcp_calls.most_common(20)),
+            "new_release_skill_invocations": release_critical_skills,
         },
         "agent_dispatches": {
             "total": total_dispatches,
@@ -227,7 +250,11 @@ def summarize(days: int) -> dict[str, Any]:
         "pathfinder": {
             "decisions": len(pathfinder_events),
             "real_decisions": real,
-            "synthetic_or_bench_decisions": synthetic,
+            "bench_decisions": bench,
+            "synthetic_decisions": synthetic,
+            "synthetic_or_bench_decisions": synthetic + bench,
+            "real_pathfinder_ratio_pct": round(real_ratio, 1),
+            "bench_pathfinder_ratio_pct": round(bench_ratio, 1),
             "by_source": dict(pathfinder_by_source.most_common()),
             "by_skill": dict(pathfinder_by_skill.most_common(30)),
         },
@@ -260,6 +287,29 @@ def evaluate(report: dict[str, Any], args: argparse.Namespace) -> list[str]:
         failures.append(
             f"real pathfinder decisions {pathfinder['real_decisions']} < {args.min_real_pathfinder_decisions}"
         )
+    if pathfinder["real_pathfinder_ratio_pct"] < args.min_real_pathfinder_ratio:
+        failures.append(
+            f"real pathfinder ratio {pathfinder['real_pathfinder_ratio_pct']}% < {args.min_real_pathfinder_ratio}%"
+        )
+    if pathfinder["bench_pathfinder_ratio_pct"] > args.max_bench_pathfinder_ratio:
+        failures.append(
+            f"bench pathfinder ratio {pathfinder['bench_pathfinder_ratio_pct']}% > {args.max_bench_pathfinder_ratio}%"
+        )
+    required_skills = list(args.required_live_skill or [])
+    if args.release_critical_v8_2:
+        required_skills.extend(RELEASE_CRITICAL_V8_2_SKILLS)
+    top_skills = runtime.get("top_skills", {})
+    for skill in sorted(set(required_skills), key=canonical_plugin_name):
+        name = canonical_plugin_name(skill)
+        count = top_skills.get(f"ultraprompt:{name}", 0)
+        if count < 1:
+            failures.append(f"required live skill {name} has no current invocation")
+    by_agent = dispatch.get("by_agent", {})
+    for agent in sorted(set(args.required_live_agent or []), key=canonical_plugin_name):
+        name = canonical_plugin_name(agent)
+        count = by_agent.get(f"ultraprompt:{name}", 0)
+        if count < 1:
+            failures.append(f"required live agent {name} has no current dispatch")
     return failures
 
 
@@ -273,6 +323,12 @@ def main() -> int:
     parser.add_argument("--max-explore-share", type=float, default=50.0)
     parser.add_argument("--min-skill-invocations", type=int, default=1)
     parser.add_argument("--min-real-pathfinder-decisions", type=int, default=1)
+    parser.add_argument("--min-real-pathfinder-ratio", type=float, default=0.0)
+    parser.add_argument("--max-bench-pathfinder-ratio", type=float, default=100.0)
+    parser.add_argument("--required-live-skill", action="append", default=[])
+    parser.add_argument("--required-live-agent", action="append", default=[])
+    parser.add_argument("--release-critical-v8-2", action="store_true",
+                        help="Require live invocation for V8.2 release-critical skills")
     args = parser.parse_args()
 
     report = summarize(args.days)
@@ -285,6 +341,10 @@ def main() -> int:
         "max_explore_share": args.max_explore_share,
         "min_skill_invocations": args.min_skill_invocations,
         "min_real_pathfinder_decisions": args.min_real_pathfinder_decisions,
+        "min_real_pathfinder_ratio": args.min_real_pathfinder_ratio,
+        "max_bench_pathfinder_ratio": args.max_bench_pathfinder_ratio,
+        "required_live_skills": sorted(set((args.required_live_skill or []) + (list(RELEASE_CRITICAL_V8_2_SKILLS) if args.release_critical_v8_2 else [])), key=canonical_plugin_name),
+        "required_live_agents": sorted(set(args.required_live_agent or []), key=canonical_plugin_name),
     }
 
     if args.json:
@@ -296,7 +356,7 @@ def main() -> int:
         print(f"Invocation telemetry audit (last {args.days} days)")
         print(f"- agent dispatches: {dispatch['total']} total, {dispatch['plugin_total']} plugin ({dispatch['plugin_share_pct']}%), {dispatch['explore_total']} Explore ({dispatch['explore_share_pct']}%)")
         print(f"- skill invocations: {runtime['skill_invocations']} current plugin, {runtime['legacy_skill_invocations']} legacy-prefix")
-        print(f"- pathfinder: {pathfinder['decisions']} decisions, {pathfinder['real_decisions']} real, {pathfinder['synthetic_or_bench_decisions']} bench/synthetic")
+        print(f"- pathfinder: {pathfinder['decisions']} decisions, {pathfinder['real_decisions']} real ({pathfinder['real_pathfinder_ratio_pct']}%), {pathfinder['bench_decisions']} bench, {pathfinder['synthetic_decisions']} synthetic")
         if failures:
             print("Failures:")
             for failure in failures:

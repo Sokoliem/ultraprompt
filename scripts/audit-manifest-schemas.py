@@ -32,6 +32,16 @@ def check_plugin_json(path, errors, warnings, *, strict_references=True):
     if strict_references:
         for field in ("mcpServers", "hooks", "outputStyles"):
             ref = data.get(field)
+            if (
+                field == "hooks"
+                and isinstance(ref, str)
+                and ref.removeprefix("./") == "hooks/hooks.json"
+                and ".claude-plugin" in path.parts
+            ):
+                errors.append(
+                    f"{path}: hooks references {ref}; Claude Code auto-loads hooks/hooks.json, "
+                    "so this duplicate manifest reference prevents plugin load"
+                )
             if isinstance(ref, str) and not rel_target(plugin_root, ref).exists():
                 errors.append(f"{path}: {field} references missing path {ref}")
 

@@ -2,7 +2,8 @@
 # V8 Claude Code installer: backup, copy, validate.
 set -euo pipefail
 SOURCE="$(cd "$(dirname "$0")/.." && pwd)"
-TARGET="$HOME/.claude/plugins/marketplaces/local-marketplace/ultraprompt"
+MARKETPLACE_ROOT="$HOME/.claude/plugins/marketplaces/local-marketplace"
+TARGET="$MARKETPLACE_ROOT/ultraprompt"
 BACKUP_DIR="$HOME/.claude/backups/ultraprompt-pre-v8-$(date +%Y%m%d-%H%M%S)"
 
 echo "Ultraprompt V8 - Claude Code installer"
@@ -21,11 +22,33 @@ mkdir -p "$(dirname "$TARGET")"
 rm -rf "$TARGET"
 python3 "$SOURCE/scripts/package-plugin.py" --copy-to "$TARGET" >/dev/null
 
+python3 - "$TARGET" "$MARKETPLACE_ROOT/.claude-plugin/marketplace.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+target = Path(sys.argv[1])
+marketplace = Path(sys.argv[2])
+plugin = json.loads((target / ".claude-plugin" / "plugin.json").read_text())
+marketplace.parent.mkdir(parents=True, exist_ok=True)
+marketplace.write_text(json.dumps({
+    "name": "local-marketplace",
+    "owner": {"name": "Local"},
+    "plugins": [{
+        "name": plugin["name"],
+        "description": plugin["description"],
+        "source": "./ultraprompt",
+        "version": plugin["version"],
+    }],
+}, indent=2) + "\n")
+PY
+
 # Make scripts executable
 chmod +x "$TARGET/scripts/"*.py "$TARGET/scripts/"*.sh "$TARGET/hooks/recipes/"*.py "$TARGET/hooks/recipes/"*.sh "$TARGET/mcp/"*.py 2>/dev/null || true
 
-# Remove the codex-only manifest variant (Claude Code doesn't need it)
-rm -f "$TARGET/.codex.mcp.json"
+# Keep runtime-specific MCP variants in the installed tree. Claude Code reads
+# ./.mcp.json, but validators and dual-runtime parity checks also expect the
+# Codex manifest reference to remain satisfiable.
 
 # V8: Rebuild generated indexes (Windows installer does this; Mac install also needs to)
 echo
@@ -45,6 +68,20 @@ echo
 # V8: Write install manifest for atomic rollback (PRD §8.6)
 PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$TARGET/.claude-plugin/plugin.json'))['version'])" 2>/dev/null || echo "unknown")
 python3 "$TARGET/scripts/install-manifest.py" write "$TARGET" --backup-root "$BACKUP_DIR" --plugin-version "$PLUGIN_VERSION" >/dev/null 2>&1     && echo "✓ Install manifest written"     || echo "  (manifest write skipped — non-blocking)"
+
+if command -v claude >/dev/null 2>&1; then
+  echo
+  echo "=== Refresh Claude Code plugin cache ==="
+  if claude plugins update ultraprompt@local-marketplace >/tmp/ultraprompt-claude-plugin-update.log 2>&1; then
+    cat /tmp/ultraprompt-claude-plugin-update.log
+    echo "✓ Claude Code plugin cache updated"
+  elif claude plugins install ultraprompt@local-marketplace >/tmp/ultraprompt-claude-plugin-install.log 2>&1; then
+    cat /tmp/ultraprompt-claude-plugin-install.log
+    echo "✓ Claude Code plugin cache installed"
+  else
+    echo "WARN: Claude Code plugin cache refresh failed; inspect /tmp/ultraprompt-claude-plugin-update.log and /tmp/ultraprompt-claude-plugin-install.log"
+  fi
+fi
 
 echo "✓ Installed at: $TARGET"
 echo "✓ Backup at:    $BACKUP_DIR"

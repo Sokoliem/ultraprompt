@@ -24,6 +24,8 @@ def run_case(intent: str, *, budget: str = "standard", no_telemetry: bool = Fals
     ]
     if no_telemetry:
         cmd.append("--no-telemetry")
+    else:
+        cmd.extend(["--telemetry-source", "bench"])
     proc = subprocess.run(
         cmd,
         cwd=ROOT,

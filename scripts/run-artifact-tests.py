@@ -19,6 +19,10 @@ def load_validator():
     return module
 
 
+def load_fixture(name: str) -> dict:
+    return json.loads((ROOT / "tests" / "artifacts" / name).read_text(encoding="utf-8"))
+
+
 def base_gap() -> dict:
     return {
         "repo": "example",
@@ -120,6 +124,28 @@ def main() -> int:
         "source_hash": "abc",
     }
     cases.append(("valid_capability_graph", validator.validate("capability_graph", graph).get("ok") is True))
+
+    v82_fixture_types = {
+        "design_review": "design_review.valid.json",
+        "visual_qa_report": "visual_qa_report.valid.json",
+        "design_system_review": "design_system_review.valid.json",
+        "experience_quality_report": "experience_quality_report.valid.json",
+        "invocation_telemetry_audit": "invocation_telemetry_audit.valid.json",
+        "goal_contract": "goal_contract.valid.json",
+    }
+    for artifact_type, fixture_name in v82_fixture_types.items():
+        fixture = load_fixture(fixture_name)
+        cases.append((f"valid_{artifact_type}", validator.validate(artifact_type, fixture).get("ok") is True))
+        schema = validator.SCHEMAS[artifact_type]
+        first_required = schema["required"][0]
+        invalid = dict(fixture)
+        invalid.pop(first_required, None)
+        cases.append((f"invalid_{artifact_type}_missing_{first_required}", validator.validate(artifact_type, invalid).get("ok") is False))
+
+    weak_visual = load_fixture("visual_qa_report.valid.json")
+    weak_visual["screenshot_evidence"] = []
+    weak_visual["remaining_visual_risks"] = []
+    cases.append(("invalid_visual_qa_missing_evidence_and_risks", validator.validate("visual_qa_report", weak_visual).get("ok") is False))
 
     failures = [name for name, ok in cases if not ok]
     result = {"ok": not failures, "checked": [name for name, _ in cases], "failures": failures}

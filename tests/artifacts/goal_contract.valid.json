@@ -1,0 +1,23 @@
+{
+  "condition": "Targeted tests pass",
+  "acceptance_criteria": [
+    "python3 scripts/run-artifact-tests.py exits 0"
+  ],
+  "proof_method": {
+    "type": "command",
+    "command": "python3 scripts/run-artifact-tests.py"
+  },
+  "bounds": {
+    "max_turns": 1,
+    "stop_when": "tests pass or blocker found"
+  },
+  "status": "met",
+  "runtime": "codex",
+  "native_goal_available": false,
+  "evidence_refs": [
+    {
+      "kind": "command",
+      "ref": "python3 scripts/run-artifact-tests.py"
+    }
+  ]
+}

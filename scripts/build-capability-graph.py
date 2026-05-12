@@ -134,7 +134,8 @@ def build_graph() -> dict[str, Any]:
         for artifact in panel.get("handoff_artifacts", []):
             add_edge(edges, f"panel:{panel['name']}", f"artifact:{artifact}", "hands_off")
         for validator in panel.get("validators", []):
-            add_edge(edges, f"panel:{panel['name']}", f"validator:{validator}", "validated_by")
+            validator_script = str(validator).split()[0]
+            add_edge(edges, f"panel:{panel['name']}", f"validator:{validator_script}", "validated_by", invocation=str(validator))
         for ledger in panel.get("ledger_writes", []):
             add_edge(edges, f"panel:{panel['name']}", f"ledger:{ledger}", "writes")
         policy_ledgers = {

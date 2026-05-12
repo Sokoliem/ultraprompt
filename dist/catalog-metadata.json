@@ -35,7 +35,7 @@
   "counts": {
     "agent_specs": 31,
     "agents": 31,
-    "artifact_schemas": 18,
+    "artifact_schemas": 24,
     "commands": 31,
     "mcp_tools": 42,
     "output_styles": 2,
@@ -121,7 +121,7 @@
     "pathfinding-invocation-review",
     "goal"
   ],
-  "source_hash": "1b94e0d556fae962fca3247727650b8d2ee9fe1011d597ae9bdce945a05d3e26",
+  "source_hash": "960a1b678f7bfa94f0f1db7214724cc69135827495a358d57fcb4fd9a33c4afe",
   "tiers": {
     "core": 33,
     "ecosystem": 5,

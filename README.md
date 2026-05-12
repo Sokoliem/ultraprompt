@@ -49,7 +49,7 @@ $ultraprompt:dream status
 - `/ultraprompt:memory` queries and governs typed local memory.
 - `/ultraprompt:dream` runs or inspects safe dream jobs.
 - `/ultraprompt:dream-review` reviews dream reports and generated proposals.
-- `/ultraprompt:goal` applies a transcript-backed goal contract for Codex-compatible completion conditions.
+- `/ultraprompt:goal` applies a transcript-backed goal contract for Codex-compatible completion conditions; Codex gets bridge semantics, not a plugin-owned native evaluator loop.
 - `/ultraprompt:learn-review` approves, applies, rejects, or reverts learning candidates.
 - `/ultraprompt:graph` checks capability graph freshness and health.
 - `/ultraprompt:mission-control` opens the cognitive dashboard.
@@ -67,7 +67,10 @@ python3 scripts/run-cognitive-tests.py
 python3 scripts/audit-catalog-consistency.py
 python3 scripts/validate-plugin.py
 python3 scripts/release-scorecard.py
+python3 scripts/release-scorecard.py --check --target all --json
 ```
+
+Use `--target all` for release decisions. It separates source, package, install simulation, active Codex cache, active Claude Code install, telemetry, artifact, and panel gates, and reports stale persisted scorecards without mutating active installs.
 
 ## Local Data
 

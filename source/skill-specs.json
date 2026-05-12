@@ -3999,13 +3999,13 @@
       "In Claude Code, note that `/goal` is built in; in Codex, use `$ultraprompt:goal ...` or natural language because plugin slash commands are not native-routed."
     ],
     "validation_strategy": "A goal is valid only when the final response includes transcript-visible proof: commands run and exit results, screenshots/artifacts inspected, file/diff checks, or explicit checklist evidence. If proof cannot be gathered, mark the goal blocked rather than met. For long goals, include the current condition, elapsed work, turns/checks performed, and latest reason.",
-    "output_contract": "Goal condition | Acceptance criteria | Proof method | Constraints/bounds | Current status (active/met/blocked/cleared) | Evidence surfaced | Work completed | Next action if not met",
+    "output_contract": "Goal condition | Acceptance criteria | Proof method | Constraints/bounds | Runtime distinction (Codex bridge vs Claude Code native evaluator availability) | Current status (active/met/blocked/cleared) | Evidence surfaced | Work completed | Next action if not met",
     "subagent_delegation": "Do not dispatch by default. Goal management is a main-thread control contract; use subagents only for bounded sidecar discovery or critique when the immediate goal path is not blocked by their result.",
     "primary_agent": "",
     "secondary_agents": [],
     "preferred_panel": "",
     "outputs": [
-      "Goal status"
+      "Goal contract"
     ],
     "mode": "write_capable",
     "risk": "medium",
@@ -4015,7 +4015,7 @@
       "secondary_agents": [],
       "preferred_panel": "",
       "outputs": [
-        "Goal status"
+        "Goal contract"
       ],
       "mode": "write_capable",
       "risk": "medium",

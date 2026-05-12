@@ -347,7 +347,22 @@
     },
     {
       "relation": "validated_by",
+      "source": "artifact:design_review",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:design_system_review",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
       "source": "artifact:dream_report",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:experience_quality_report",
       "target": "validator:artifact-validate.py"
     },
     {
@@ -357,7 +372,17 @@
     },
     {
       "relation": "validated_by",
+      "source": "artifact:goal_contract",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
       "source": "artifact:idea_triage",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:invocation_telemetry_audit",
       "target": "validator:artifact-validate.py"
     },
     {
@@ -418,6 +443,11 @@
     {
       "relation": "validated_by",
       "source": "artifact:repo_review_report",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:visual_qa_report",
       "target": "validator:artifact-validate.py"
     },
     {
@@ -733,6 +763,7 @@
       "target": "panel_phase:ai-feature-panel:synthesize"
     },
     {
+      "invocation": "artifact-validate.py",
       "relation": "validated_by",
       "source": "panel:ai-feature-panel",
       "target": "validator:artifact-validate.py"
@@ -801,16 +832,19 @@
       "target": "panel_phase:cognitive-governance-panel:synthesize"
     },
     {
+      "invocation": "audit-catalog-consistency.py",
       "relation": "validated_by",
       "source": "panel:cognitive-governance-panel",
       "target": "validator:audit-catalog-consistency.py"
     },
     {
+      "invocation": "build-capability-graph.py",
       "relation": "validated_by",
       "source": "panel:cognitive-governance-panel",
       "target": "validator:build-capability-graph.py"
     },
     {
+      "invocation": "run-cognitive-tests.py",
       "relation": "validated_by",
       "source": "panel:cognitive-governance-panel",
       "target": "validator:run-cognitive-tests.py"
@@ -879,6 +913,7 @@
       "target": "panel_phase:contract-drift-panel:synthesize"
     },
     {
+      "invocation": "artifact-validate.py",
       "relation": "validated_by",
       "source": "panel:contract-drift-panel",
       "target": "validator:artifact-validate.py"
@@ -957,11 +992,19 @@
       "target": "panel_phase:experience-quality-panel:validation_strategy"
     },
     {
+      "invocation": "build-capability-graph.py",
       "relation": "validated_by",
       "source": "panel:experience-quality-panel",
       "target": "validator:build-capability-graph.py"
     },
     {
+      "invocation": "panel-runs.py smoke --panel experience-quality-panel",
+      "relation": "validated_by",
+      "source": "panel:experience-quality-panel",
+      "target": "validator:panel-runs.py"
+    },
+    {
+      "invocation": "run-pathfinder-tests.py",
       "relation": "validated_by",
       "source": "panel:experience-quality-panel",
       "target": "validator:run-pathfinder-tests.py"
@@ -1030,6 +1073,7 @@
       "target": "panel_phase:feature-gap-panel:synthesize"
     },
     {
+      "invocation": "artifact-validate.py",
       "relation": "validated_by",
       "source": "panel:feature-gap-panel",
       "target": "validator:artifact-validate.py"
@@ -1092,6 +1136,7 @@
       "target": "panel_phase:idea-panel:validate_recommendation"
     },
     {
+      "invocation": "artifact-validate.py",
       "relation": "validated_by",
       "source": "panel:idea-panel",
       "target": "validator:artifact-validate.py"
@@ -1170,11 +1215,13 @@
       "target": "panel_phase:incident-response-panel:writeup"
     },
     {
+      "invocation": "catalog-audit.py",
       "relation": "validated_by",
       "source": "panel:incident-response-panel",
       "target": "validator:catalog-audit.py"
     },
     {
+      "invocation": "run-hook-tests.py",
       "relation": "validated_by",
       "source": "panel:incident-response-panel",
       "target": "validator:run-hook-tests.py"
@@ -1248,11 +1295,13 @@
       "target": "panel_phase:migration-readiness-panel:synthesize"
     },
     {
+      "invocation": "catalog-audit.py",
       "relation": "validated_by",
       "source": "panel:migration-readiness-panel",
       "target": "validator:catalog-audit.py"
     },
     {
+      "invocation": "run-router-bench.py",
       "relation": "validated_by",
       "source": "panel:migration-readiness-panel",
       "target": "validator:run-router-bench.py"
@@ -1310,6 +1359,7 @@
       "target": "panel_phase:mvp-panel:synthesize"
     },
     {
+      "invocation": "artifact-validate.py",
       "relation": "validated_by",
       "source": "panel:mvp-panel",
       "target": "validator:artifact-validate.py"
@@ -1372,6 +1422,7 @@
       "target": "panel_phase:prd-panel:synthesize"
     },
     {
+      "invocation": "artifact-validate.py",
       "relation": "validated_by",
       "source": "panel:prd-panel",
       "target": "validator:artifact-validate.py"
@@ -1440,6 +1491,7 @@
       "target": "panel_phase:release-gate-panel:synthesize"
     },
     {
+      "invocation": "artifact-validate.py",
       "relation": "validated_by",
       "source": "panel:release-gate-panel",
       "target": "validator:artifact-validate.py"
@@ -1508,6 +1560,7 @@
       "target": "panel_phase:repo-completeness-panel:synthesize"
     },
     {
+      "invocation": "artifact-validate.py",
       "relation": "validated_by",
       "source": "panel:repo-completeness-panel",
       "target": "validator:artifact-validate.py"
@@ -1581,11 +1634,13 @@
       "target": "panel_phase:security-privacy-panel:synthesize"
     },
     {
+      "invocation": "artifact-validate.py",
       "relation": "validated_by",
       "source": "panel:security-privacy-panel",
       "target": "validator:artifact-validate.py"
     },
     {
+      "invocation": "catalog-audit.py",
       "relation": "validated_by",
       "source": "panel:security-privacy-panel",
       "target": "validator:catalog-audit.py"
@@ -3166,8 +3221,13 @@
       "label": "dashboard telemetry checklist"
     },
     {
+      "id": "artifact:design_review",
+      "kind": "artifact_schema",
+      "label": "design_review"
+    },
+    {
       "id": "artifact:design_system_review",
-      "kind": "artifact",
+      "kind": "artifact_schema",
       "label": "design_system_review"
     },
     {
@@ -3182,7 +3242,7 @@
     },
     {
       "id": "artifact:experience_quality_report",
-      "kind": "artifact",
+      "kind": "artifact_schema",
       "label": "experience_quality_report"
     },
     {
@@ -3206,6 +3266,11 @@
       "label": "gap_ledger_entry"
     },
     {
+      "id": "artifact:goal_contract",
+      "kind": "artifact_schema",
+      "label": "goal_contract"
+    },
+    {
       "id": "artifact:idea shortlist",
       "kind": "artifact",
       "label": "idea shortlist"
@@ -3219,6 +3284,11 @@
       "id": "artifact:incident_response_report",
       "kind": "artifact",
       "label": "incident_response_report"
+    },
+    {
+      "id": "artifact:invocation_telemetry_audit",
+      "kind": "artifact_schema",
+      "label": "invocation_telemetry_audit"
     },
     {
       "id": "artifact:learning candidate recommendations",
@@ -3417,7 +3487,7 @@
     },
     {
       "id": "artifact:visual_qa_report",
-      "kind": "artifact",
+      "kind": "artifact_schema",
       "label": "visual_qa_report"
     },
     {
@@ -5290,5 +5360,5 @@
   ],
   "plugin_version": "8.2.0",
   "schema": "capability_graph.v1",
-  "source_hash": "b5b2e1f8820c65144af9b33a2b3c7fd97d43c1a4eb10c0a9c3b20fd076bcfefc"
+  "source_hash": "d1aaa96b31b1686df5e5cd950d8ad41fe001e8bca8fc8b97a984b8b1955c8e1a"
 }

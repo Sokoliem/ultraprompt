@@ -33,7 +33,7 @@ const api = {
   async missionState() { return (await fetch("/api/mission-state")).json(); },
   async gaps(limit = 20) { return (await fetch(`/api/gaps?limit=${limit}`)).json(); },
   async panelRuns(limit = 10) { return (await fetch(`/api/panel-runs?limit=${limit}`)).json(); },
-  async releaseScorecard() { return (await fetch("/api/release-scorecard?target=source")).json(); },
+  async releaseScorecard() { return (await fetch("/api/release-scorecard?target=all")).json(); },
 };
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -59,6 +59,15 @@ function fmtTime(ts) {
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return d.toLocaleDateString();
+}
+
+function parseJsonMaybe(value) {
+  if (!value || typeof value !== "string") return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
 }
 
 function el(tag, attrs = {}, ...children) {
@@ -560,11 +569,33 @@ class DetailPane extends HTMLElement {
       const conclusion = scorecard.conclusion || readiness.conclusion || "unknown";
       const blockers = scorecard.blockers || readiness.blockers || [];
       const runtimeTargets = scorecard.runtime_targets || readiness.runtime_targets || {};
+      const codexCache = runtimeTargets.codex_cache || {};
+      const claudeInstall = runtimeTargets.claude_code_install || {};
+      const telemetryReport = parseJsonMaybe(scorecard.cognitive_gates?.invocation_telemetry?.stdout) || {};
+      const pathfinder = telemetryReport.pathfinder || {};
+      const freshness = scorecard.freshness || "unknown";
       missionBox.appendChild(el("div", { class: "mission-grid" },
         el("div", { class: "mission-card" },
           el("span", {}, "Runtime readiness"),
           el("strong", { "data-state": conclusion }, conclusion),
           el("small", {}, `${Object.keys(runtimeTargets).length} target${Object.keys(runtimeTargets).length === 1 ? "" : "s"} · ${blockers.length} blocker${blockers.length === 1 ? "" : "s"}`)
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Scorecard freshness"),
+          el("strong", { "data-state": freshness === "current" ? "ready" : "risky" }, freshness),
+          el("small", {}, `${scorecard.report_mode || "check"} · ${scorecard.dirty_state || "unknown"} tree`)
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Pathfinder live"),
+          el("strong", { "data-state": (pathfinder.real_pathfinder_ratio_pct || 0) > 0 ? "ready" : "risky" },
+            `${pathfinder.real_pathfinder_ratio_pct ?? 0}%`),
+          el("small", {}, `${pathfinder.real_decisions ?? 0} real · ${pathfinder.bench_decisions ?? 0} bench`)
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Active cache"),
+          el("strong", { "data-state": codexCache.ok && claudeInstall.ok ? "ready" : "blocked" },
+            `Codex ${codexCache.version || "?"}`),
+          el("small", {}, `Claude ${claudeInstall.version || "?"}`)
         ),
         el("div", { class: "mission-card" },
           el("span", {}, "Open gaps"),

@@ -53,7 +53,7 @@ A goal is valid only when the final response includes transcript-visible proof: 
 
 ## Output contract
 
-Goal condition | Acceptance criteria | Proof method | Constraints/bounds | Current status (active/met/blocked/cleared) | Evidence surfaced | Work completed | Next action if not met
+Goal condition | Acceptance criteria | Proof method | Constraints/bounds | Runtime distinction (Codex bridge vs Claude Code native evaluator availability) | Current status (active/met/blocked/cleared) | Evidence surfaced | Work completed | Next action if not met
 
 ## Subagent delegation
 

@@ -1,8 +1,12 @@
 {
   "release_scorecard": {
-    "schema_version": 1,
+    "schema_version": 2,
+    "generated_at": 1778601158,
+    "generated_from_commit": "afb8187c7994fc704710827351794505e6341468",
+    "dirty_state": "dirty",
+    "report_mode": "write",
     "plugin_version": "8.2.0",
-    "target": "source",
+    "target": "all",
     "manifest": {
       "claude_valid": true,
       "codex_valid": true,
@@ -11,14 +15,16 @@
         "valid": true,
         "present": true,
         "missing_fields": [],
-        "missing_references": []
+        "missing_references": [],
+        "invalid_references": []
       },
       "codex": {
         "path": ".codex-plugin/plugin.json",
         "valid": true,
         "present": true,
         "missing_fields": [],
-        "missing_references": []
+        "missing_references": [],
+        "invalid_references": []
       }
     },
     "discovery": {
@@ -70,17 +76,17 @@
       },
       "catalog_consistency": {
         "ok": true,
-        "stdout": "{\n  \"ok\": true,\n  \"checks\": [\n    {\n      \"cmd\": \"build-skill-index.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Index OK: dist/skill-index.json\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-catalog-metadata.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/catalog-metadata.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-capability-graph.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/capability-graph.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-skills.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 54 skills match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-agents.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 31 agents match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-hook-coverage.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Ultraprompt hook coverage audit\\n- Registered hooks: 9\\n- Coverage entries: 9/9\\n- Fixture-covered: 5\\n- Integration-covered: 4\\n- Manual/none: 0\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-config-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"auto_wip_save.enabled\\\",\\n    \\\"notification.quiet_hours_start\\\",\\n    \\\"worktree.dirty_warn_count\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-artifact-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"valid_gap\\\",\\n    \\\"valid_gap_status\\\",\\n    \\\"invalid_gap_severity\\\",\\n    \\\"invalid_gap_confidence\\\",\\n    \\\"invalid_gap_category\\\",\\n    \\\"invalid_release_status\\\",\\n    \\\"valid_repo_completeness_report\\\",\\n    \\\"invalid_contract_gap_severity\\\",\\n    \\\"valid_memory_record\\\",\\n    \\\"invalid_memory_scope\\\",\\n    \\\"valid_dream_report\\\",\\n    \\\"valid_learning_candidate\\\",\\n    \\\"invalid_learning_status\\\",\\n    \\\"valid_capability_graph\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-pathfinder-tests.py --no-telemetry\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Pathfinder bench: 72 cases (18 hand-authored, 54 generated skill-name coverage)\\n- top-1: 72/72 (100.0%; target >=95%)\\n- top-3: 72/72 (100.0%; target 100%)\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-cognitive-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"failures\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.2.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\",\\n  \\\"tests\\\": [\\n    \\\"memory schema/privacy/query/status/export\\\",\\n    \\\"cognitive event write/query/stats\\\",\\n    \\\"capability graph freshness\\\",\\n    \\\"pathfinder golden cases\\\",\\n    \\\"dream no-repo-mutation\\\",\\n    \\\"learning approve/apply/revert\\\"\\n  ]\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"dream-runner.py validate-catalog\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"implemented\\\": [\\n    \\\"ecosystem-reflection\\\",\\n    \\\"memory-prune\\\",\\n    \\\"repo-reflection\\\",\\n    \\\"route-learning\\\",\\n    \\\"session-compaction\\\"\\n  ],\\n  \\\"jobs\\\": 5,\\n  \\\"missing_specs\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.2.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\"\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-doc-metadata.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"version\\\": \\\"8.2.0\\\",\\n  \\\"findings\\\": []\\n}\",\n      \"stderr\": \"\"\n    }\n  ],\n  \"source_checks\": [\n    {\n      \"name\": \"skills_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    },\n    {\n      \"name\": \"agents_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    }\n  ]\n}",
+        "stdout": "{\n  \"ok\": true,\n  \"checks\": [\n    {\n      \"cmd\": \"build-skill-index.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Index OK: dist/skill-index.json\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-catalog-metadata.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/catalog-metadata.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-capability-graph.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/capability-graph.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-skills.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 54 skills match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-agents.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 31 agents match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-hook-coverage.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Ultraprompt hook coverage audit\\n- Registered hooks: 9\\n- Coverage entries: 9/9\\n- Fixture-covered: 5\\n- Integration-covered: 4\\n- Manual/none: 0\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-config-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"auto_wip_save.enabled\\\",\\n    \\\"notification.quiet_hours_start\\\",\\n    \\\"worktree.dirty_warn_count\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-artifact-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"valid_gap\\\",\\n    \\\"valid_gap_status\\\",\\n    \\\"invalid_gap_severity\\\",\\n    \\\"invalid_gap_confidence\\\",\\n    \\\"invalid_gap_category\\\",\\n    \\\"invalid_release_status\\\",\\n    \\\"valid_repo_completeness_report\\\",\\n    \\\"invalid_contract_gap_severity\\\",\\n    \\\"valid_memory_record\\\",\\n    \\\"invalid_memory_scope\\\",\\n    \\\"valid_dream_report\\\",\\n    \\\"valid_learning_candidate\\\",\\n    \\\"invalid_learning_status\\\",\\n    \\\"valid_capability_graph\\\",\\n    \\\"valid_design_review\\\",\\n    \\\"invalid_design_review_missing_scope\\\",\\n    \\\"valid_visual_qa_report\\\",\\n    \\\"invalid_visual_qa_report_missing_surface\\\",\\n    \\\"valid_design_system_review\\\",\\n    \\\"invalid_design_system_review_missing_design_system_map\\\",\\n    \\\"valid_experience_quality_report\\\",\\n    \\\"invalid_experience_quality_report_missing_surface_map\\\",\\n    \\\"valid_invocation_telemetry_audit\\\",\\n    \\\"invalid_invocation_telemetry_audit_missing_schema\\\",\\n    \\\"valid_goal_contract\\\",\\n    \\\"invalid_goal_contract_missing_condition\\\",\\n    \\\"invalid_visual_qa_missing_evidence_and_risks\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-pathfinder-tests.py --no-telemetry\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Pathfinder bench: 72 cases (18 hand-authored, 54 generated skill-name coverage)\\n- top-1: 72/72 (100.0%; target >=95%)\\n- top-3: 72/72 (100.0%; target 100%)\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-cognitive-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"failures\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.2.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\",\\n  \\\"tests\\\": [\\n    \\\"memory schema/privacy/query/status/export\\\",\\n    \\\"cognitive event write/query/stats\\\",\\n    \\\"capability graph freshness\\\",\\n    \\\"pathfinder golden cases\\\",\\n    \\\"dream no-repo-mutation\\\",\\n    \\\"learning approve/apply/revert\\\"\\n  ]\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"dream-runner.py validate-catalog\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"implemented\\\": [\\n    \\\"ecosystem-reflection\\\",\\n    \\\"memory-prune\\\",\\n    \\\"repo-reflection\\\",\\n    \\\"route-learning\\\",\\n    \\\"session-compaction\\\"\\n  ],\\n  \\\"jobs\\\": 5,\\n  \\\"missing_specs\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.2.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\"\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-doc-metadata.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"version\\\": \\\"8.2.0\\\",\\n  \\\"findings\\\": []\\n}\",\n      \"stderr\": \"\"\n    }\n  ],\n  \"source_checks\": [\n    {\n      \"name\": \"skills_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    },\n    {\n      \"name\": \"agents_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    }\n  ]\n}",
         "stderr": ""
       },
       "package_verify": {
         "ok": true,
-        "stdout": "{\n  \"ok\": true,\n  \"files\": 279,\n  \"errors\": [],\n  \"warnings\": []\n}",
+        "stdout": "{\n  \"ok\": true,\n  \"files\": 287,\n  \"errors\": [],\n  \"warnings\": []\n}",
         "stderr": ""
       },
       "install_simulation": {
         "ok": true,
-        "stdout": "{\n  \"ok\": true,\n  \"temp_root\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-d_dmewyl\",\n  \"results\": {\n    \"claude\": {\n      \"ok\": true,\n      \"target\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-d_dmewyl/claude/ultraprompt\",\n      \"checks\": {\n        \"copy\": {\n          \"ok\": true,\n          \"stdout\": \"Copied 279 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-d_dmewyl/claude/ultraprompt\",\n          \"stderr\": \"\"\n        },\n        \"validate_plugin\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8.2 plugin validation\\n- Target runtime: claude\\n- Plugin: ultraprompt v8.2.0\\n- Skills: 54 (core: 33, specialist: 16, ecosystem: 5)\\n- Commands: 31\\n- Agents: 31\\n- Output styles: 2\\n- Registered hooks: 9\\n- Marketplace: yes\\n- MCP servers: 1\\n- Skill index: yes\\n- Warnings: 0\\n- Errors: 0\",\n          \"stderr\": \"\"\n        },\n        \"manifest_schema\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8 manifest + MCP schema audit (runtime: claude-code)\\n==================================================\\nOK: 0 errors, 0 warning(s)\",\n          \"stderr\": \"\"\n        },\n        \"claude_mcp_present\": {\n          \"ok\": true\n        }\n      }\n    },\n    \"codex\": {\n      \"ok\": true,\n      \"target\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-d_dmewyl/codex/ultraprompt\",\n      \"checks\": {\n        \"copy\": {\n          \"ok\": true,\n          \"stdout\": \"Copied 279 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-d_dmewyl/codex/ultraprompt\",\n          \"stderr\": \"\"\n        },\n        \"validate_plugin\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8.2 plugin validation\\n- Target runtime: codex\\n- Plugin: ultraprompt v8.2.0\\n- Skills: 54 (core: 33, specialist: 16, ecosystem: 5)\\n- Commands: 31\\n- Agents: 31\\n- Output styles: 2\\n- Registered hooks: 9\\n- Marketplace: yes\\n- MCP servers: 1\\n- Skill index: yes\\n- Warnings: 0\\n- Errors: 0\",\n          \"stderr\": \"\"\n        },\n        \"manifest_schema\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8 manifest + MCP schema audit (runtime: codex)\\n==================================================\\nOK: 0 errors, 0 warning(s)\",\n          \"stderr\": \"\"\n        },\n        \"codex_mcp_present\": {\n          \"ok\": true\n        }\n      }\n    }\n  }\n}",
+        "stdout": "{\n  \"ok\": true,\n  \"temp_root\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-my8hbrer\",\n  \"results\": {\n    \"claude\": {\n      \"ok\": true,\n      \"target\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-my8hbrer/claude/ultraprompt\",\n      \"runtime_target_status\": {\n        \"ok\": true,\n        \"runtime\": \"claude\",\n        \"path\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-my8hbrer/claude/ultraprompt\",\n        \"version\": \"8.2.0\",\n        \"skill_count\": 54,\n        \"agent_count\": 31,\n        \"command_count\": 31,\n        \"expected\": {\n          \"version\": \"8.2.0\",\n          \"skill_count\": 54,\n          \"agent_count\": 31,\n          \"command_count\": 31\n        },\n        \"findings\": []\n      },\n      \"checks\": {\n        \"copy\": {\n          \"ok\": true,\n          \"stdout\": \"Copied 287 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-my8hbrer/claude/ultraprompt\",\n          \"stderr\": \"\"\n        },\n        \"validate_plugin\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8.2 plugin validation\\n- Target runtime: claude\\n- Plugin: ultraprompt v8.2.0\\n- Skills: 54 (core: 33, specialist: 16, ecosystem: 5)\\n- Commands: 31\\n- Agents: 31\\n- Output styles: 2\\n- Registered hooks: 9\\n- Marketplace: yes\\n- MCP servers: 1\\n- Skill index: yes\\n- Warnings: 0\\n- Errors: 0\",\n          \"stderr\": \"\"\n        },\n        \"manifest_schema\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8 manifest + MCP schema audit (runtime: claude-code)\\n==================================================\\nOK: 0 errors, 0 warning(s)\",\n          \"stderr\": \"\"\n        },\n        \"claude_mcp_present\": {\n          \"ok\": true\n        },\n        \"runtime_parity\": {\n          \"ok\": true,\n          \"findings\": []\n        }\n      }\n    },\n    \"codex\": {\n      \"ok\": true,\n      \"target\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-my8hbrer/codex/ultraprompt\",\n      \"runtime_target_status\": {\n        \"ok\": true,\n        \"runtime\": \"codex\",\n        \"path\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-my8hbrer/codex/ultraprompt\",\n        \"version\": \"8.2.0\",\n        \"skill_count\": 54,\n        \"agent_count\": 31,\n        \"command_count\": 31,\n        \"expected\": {\n          \"version\": \"8.2.0\",\n          \"skill_count\": 54,\n          \"agent_count\": 31,\n          \"command_count\": 31\n        },\n        \"findings\": []\n      },\n      \"checks\": {\n        \"copy\": {\n          \"ok\": true,\n          \"stdout\": \"Copied 287 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-my8hbrer/codex/ultraprompt\",\n          \"stderr\": \"\"\n        },\n        \"validate_plugin\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8.2 plugin validation\\n- Target runtime: codex\\n- Plugin: ultraprompt v8.2.0\\n- Skills: 54 (core: 33, specialist: 16, ecosystem: 5)\\n- Commands: 31\\n- Agents: 31\\n- Output styles: 2\\n- Registered hooks: 9\\n- Marketplace: yes\\n- MCP servers: 1\\n- Skill index: yes\\n- Warnings: 0\\n- Errors: 0\",\n          \"stderr\": \"\"\n        },\n        \"manifest_schema\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8 manifest + MCP schema audit (runtime: codex)\\n==================================================\\nOK: 0 errors, 0 warning(s)\",\n          \"stderr\": \"\"\n        },\n        \"codex_mcp_present\": {\n          \"ok\": true\n        },\n        \"runtime_parity\": {\n          \"ok\": true,\n          \"findings\": []\n        }\n      }\n    }\n  }\n}",
         "stderr": ""
       },
       "config_env_overrides": {
@@ -90,7 +96,7 @@
       },
       "artifact_enums": {
         "ok": true,
-        "stdout": "{\n  \"ok\": true,\n  \"checked\": [\n    \"valid_gap\",\n    \"valid_gap_status\",\n    \"invalid_gap_severity\",\n    \"invalid_gap_confidence\",\n    \"invalid_gap_category\",\n    \"invalid_release_status\",\n    \"valid_repo_completeness_report\",\n    \"invalid_contract_gap_severity\",\n    \"valid_memory_record\",\n    \"invalid_memory_scope\",\n    \"valid_dream_report\",\n    \"valid_learning_candidate\",\n    \"invalid_learning_status\",\n    \"valid_capability_graph\"\n  ],\n  \"failures\": []\n}",
+        "stdout": "{\n  \"ok\": true,\n  \"checked\": [\n    \"valid_gap\",\n    \"valid_gap_status\",\n    \"invalid_gap_severity\",\n    \"invalid_gap_confidence\",\n    \"invalid_gap_category\",\n    \"invalid_release_status\",\n    \"valid_repo_completeness_report\",\n    \"invalid_contract_gap_severity\",\n    \"valid_memory_record\",\n    \"invalid_memory_scope\",\n    \"valid_dream_report\",\n    \"valid_learning_candidate\",\n    \"invalid_learning_status\",\n    \"valid_capability_graph\",\n    \"valid_design_review\",\n    \"invalid_design_review_missing_scope\",\n    \"valid_visual_qa_report\",\n    \"invalid_visual_qa_report_missing_surface\",\n    \"valid_design_system_review\",\n    \"invalid_design_system_review_missing_design_system_map\",\n    \"valid_experience_quality_report\",\n    \"invalid_experience_quality_report_missing_surface_map\",\n    \"valid_invocation_telemetry_audit\",\n    \"invalid_invocation_telemetry_audit_missing_schema\",\n    \"valid_goal_contract\",\n    \"invalid_goal_contract_missing_condition\",\n    \"invalid_visual_qa_missing_evidence_and_risks\"\n  ],\n  \"failures\": []\n}",
         "stderr": ""
       }
     },
@@ -106,8 +112,8 @@
         "stderr": ""
       },
       "invocation_telemetry": {
-        "ok": false,
-        "stdout": "{\n  \"activation_gaps\": {\n    \"agents_never_dispatched\": [\n      \"adversarial\",\n      \"auditor\",\n      \"catalog-strategist\",\n      \"customer-advocate\",\n      \"dead-code-and-drift-hunter\",\n      \"design-critic\",\n      \"dream-synthesizer\",\n      \"evaluator\",\n      \"innovation-lead\",\n      \"integration-contract-reviewer\",\n      \"invocation-reliability-auditor\",\n      \"learning-auditor\",\n      \"market-analyst\",\n      \"memory-curator\",\n      \"principal-pm\",\n      \"release-readiness-auditor\",\n      \"repo-cartographer\",\n      \"risk-and-controls-reviewer\",\n      \"router\",\n      \"technical-product-architect\",\n      \"test-gap-analyst\",\n      \"test-strategist\",\n      \"workflow-planner\"\n    ],\n    \"skills_never_invoked\": [\n      \"accessibility-review\",\n      \"agent-author\",\n      \"ai-agent-safety-review\",\n      \"api-contract\",\n      \"architect\",\n      \"build\",\n      \"ci-repair\",\n      \"concept-brief\",\n      \"contract-test-generate\",\n      \"data-flow-privacy-map\",\n      \"database-review\",\n      \"dead-code-drift\",\n      \"debug\",\n      \"dependency-audit\",\n      \"design-review\",\n      \"design-system-review\",\n      \"docs-sync\",\n      \"dream\",\n      \"feature-completeness\",\n      \"frontend-visual-qa\",\n      \"gap-analysis\",\n      \"goal\",\n      \"hooks-design\",\n      \"idea-triage\",\n      \"infra-iac-review\",\n      \"llm-eval-design\",\n      \"mcp-design\",\n      \"migrate\",\n      \"mvp-scope\",\n      \"observability-pass\",\n      \"opportunity-map\",\n      \"pathfinding-invocation-review\",\n      \"performance-pass\",\n      \"plugin-review\",\n      \"prd-ai-feature\",\n      \"prd-lite\",\n      \"prd-standard\",\n      \"prd-technical\",\n      \"prd-to-plan\",\n      \"problem-framing\",\n      \"refactor\",\n      \"release\",\n      \"release-readiness\",\n      \"repo-map\",\n      \"repo-review\",\n      \"review\",\n      \"security-audit\",\n      \"skill-author\",\n      \"state-machine-review\",\n      \"supply-chain-hardening\",\n      \"technical-debt-triage\",\n      \"test-gap-analysis\",\n      \"test-harden\",\n      \"tui-design-innovate\"\n    ]\n  },\n  \"agent_dispatches\": {\n    \"by_agent\": {\n      \"Explore\": 67,\n      \"Plan\": 10,\n      \"general-purpose\": 10,\n      \"ultraprompt:debugger\": 7,\n      \"ultraprompt:feature-completeness-auditor\": 8,\n      \"ultraprompt:gap-analysis-lead\": 4,\n      \"ultraprompt:reviewer\": 5,\n      \"ultraprompt:scout\": 5,\n      \"ultraprompt:security-auditor\": 2,\n      \"ultraprompt:wiring-gap-inspector\": 6,\n      \"ultraprompt:writer\": 2\n    },\n    \"explore_share_pct\": 53.2,\n    \"explore_total\": 67,\n    \"legacy_prefix_total\": 15,\n    \"plugin_share_pct\": 31.0,\n    \"plugin_total\": 39,\n    \"total\": 126\n  },\n  \"failures\": [\n    \"Explore dispatch share 53.2% > 50.0%\",\n    \"current plugin skill invocations 0 < 1\"\n  ],\n  \"generated_at\": 1778568482,\n  \"ok\": false,\n  \"pathfinder\": {\n    \"by_skill\": {\n      \"debug\": 40,\n      \"migrate\": 40,\n      \"plugin-review\": 40,\n      \"prd-ai-feature\": 40,\n      \"prd-technical\": 1,\n      \"release-readiness\": 40,\n      \"repo-map\": 40,\n      \"repo-review\": 40,\n      \"security-audit\": 40,\n      \"test-gap-analysis\": 40\n    },\n    \"by_source\": {\n      \"bench\": 360,\n      \"runtime\": 1\n    },\n    \"decisions\": 361,\n    \"real_decisions\": 1,\n    \"synthetic_or_bench_decisions\": 360\n  },\n  \"runtime_events\": {\n    \"legacy_skill_invocations\": 0,\n    \"mcp_tool_calls\": 71,\n    \"skill_invocations\": 0,\n    \"top_mcp_tools\": {\n      \"claim_check\": 36,\n      \"dashboard_launch\": 1,\n      \"dashboard_status\": 3,\n      \"dispatch_advise\": 2,\n      \"dream_run\": 2,\n      \"dream_status\": 1,\n      \"list_agents\": 1,\n      \"mission_state\": 1,\n      \"panel_plan\": 1,\n      \"pathfind_workflow\": 1,\n      \"release_scorecard\": 1,\n      \"repo_capsule\": 10,\n      \"route_intent\": 1,\n      \"team_plan\": 3,\n      \"validate_plugin\": 5,\n      \"validation_status\": 2\n    },\n    \"top_skills\": {},\n    \"total\": 907\n  },\n  \"schema\": \"invocation_telemetry_audit.v1\",\n  \"thresholds\": {\n    \"max_explore_share\": 50.0,\n    \"min_dispatches\": 20,\n    \"min_plugin_agent_share\": 25.0,\n    \"min_real_pathfinder_decisions\": 1,\n    \"min_skill_invocations\": 1\n  },\n  \"window_days\": 7\n}",
+        "ok": true,
+        "stdout": "{\n  \"activation_gaps\": {\n    \"agents_never_dispatched\": [\n      \"catalog-strategist\",\n      \"customer-advocate\",\n      \"dead-code-and-drift-hunter\",\n      \"design-critic\",\n      \"dream-synthesizer\",\n      \"evaluator\",\n      \"innovation-lead\",\n      \"invocation-reliability-auditor\",\n      \"learning-auditor\",\n      \"market-analyst\",\n      \"memory-curator\",\n      \"release-readiness-auditor\",\n      \"repo-cartographer\",\n      \"risk-and-controls-reviewer\",\n      \"router\",\n      \"test-gap-analyst\",\n      \"test-strategist\",\n      \"workflow-planner\"\n    ],\n    \"skills_never_invoked\": [\n      \"accessibility-review\",\n      \"agent-author\",\n      \"ai-agent-safety-review\",\n      \"api-contract\",\n      \"architect\",\n      \"build\",\n      \"ci-repair\",\n      \"concept-brief\",\n      \"contract-test-generate\",\n      \"data-flow-privacy-map\",\n      \"database-review\",\n      \"dead-code-drift\",\n      \"debug\",\n      \"dependency-audit\",\n      \"design-review\",\n      \"design-system-review\",\n      \"docs-sync\",\n      \"dream\",\n      \"feature-completeness\",\n      \"frontend-visual-qa\",\n      \"gap-analysis\",\n      \"goal\",\n      \"hooks-design\",\n      \"idea-triage\",\n      \"infra-iac-review\",\n      \"llm-eval-design\",\n      \"mcp-design\",\n      \"migrate\",\n      \"mvp-scope\",\n      \"observability-pass\",\n      \"opportunity-map\",\n      \"pathfinding-invocation-review\",\n      \"performance-pass\",\n      \"plugin-review\",\n      \"prd-ai-feature\",\n      \"prd-lite\",\n      \"prd-standard\",\n      \"prd-technical\",\n      \"prd-to-plan\",\n      \"problem-framing\",\n      \"refactor\",\n      \"release\",\n      \"release-readiness\",\n      \"repo-map\",\n      \"repo-review\",\n      \"security-audit\",\n      \"skill-author\",\n      \"state-machine-review\",\n      \"supply-chain-hardening\",\n      \"technical-debt-triage\",\n      \"test-gap-analysis\",\n      \"test-harden\",\n      \"tui-design-innovate\"\n    ]\n  },\n  \"agent_dispatches\": {\n    \"by_agent\": {\n      \"Explore\": 66,\n      \"Plan\": 10,\n      \"general-purpose\": 10,\n      \"ultraprompt:adversarial\": 2,\n      \"ultraprompt:auditor\": 2,\n      \"ultraprompt:debugger\": 9,\n      \"ultraprompt:feature-completeness-auditor\": 12,\n      \"ultraprompt:gap-analysis-lead\": 4,\n      \"ultraprompt:integration-contract-reviewer\": 2,\n      \"ultraprompt:principal-pm\": 4,\n      \"ultraprompt:reviewer\": 13,\n      \"ultraprompt:scout\": 7,\n      \"ultraprompt:security-auditor\": 2,\n      \"ultraprompt:technical-product-architect\": 4,\n      \"ultraprompt:wiring-gap-inspector\": 10,\n      \"ultraprompt:writer\": 2\n    },\n    \"explore_share_pct\": 41.5,\n    \"explore_total\": 66,\n    \"legacy_prefix_total\": 15,\n    \"plugin_share_pct\": 45.9,\n    \"plugin_total\": 73,\n    \"total\": 159\n  },\n  \"failures\": [],\n  \"generated_at\": 1778601254,\n  \"ok\": true,\n  \"pathfinder\": {\n    \"bench_decisions\": 405,\n    \"bench_pathfinder_ratio_pct\": 99.8,\n    \"by_skill\": {\n      \"debug\": 45,\n      \"migrate\": 45,\n      \"plugin-review\": 45,\n      \"prd-ai-feature\": 45,\n      \"prd-technical\": 1,\n      \"release-readiness\": 45,\n      \"repo-map\": 45,\n      \"repo-review\": 45,\n      \"security-audit\": 45,\n      \"test-gap-analysis\": 45\n    },\n    \"by_source\": {\n      \"bench\": 405,\n      \"runtime\": 1\n    },\n    \"decisions\": 406,\n    \"real_decisions\": 1,\n    \"real_pathfinder_ratio_pct\": 0.2,\n    \"synthetic_decisions\": 0,\n    \"synthetic_or_bench_decisions\": 405\n  },\n  \"runtime_events\": {\n    \"legacy_skill_invocations\": 0,\n    \"live_skill_invocations_total\": 1,\n    \"mcp_tool_calls\": 80,\n    \"new_release_skill_invocations\": {\n      \"frontend-visual-qa\": 0,\n      \"goal\": 0,\n      \"pathfinding-invocation-review\": 0\n    },\n    \"skill_invocations\": 1,\n    \"top_mcp_tools\": {\n      \"claim_check\": 43,\n      \"dashboard_launch\": 1,\n      \"dashboard_status\": 3,\n      \"dispatch_advise\": 2,\n      \"dream_run\": 2,\n      \"dream_status\": 1,\n      \"list_agents\": 1,\n      \"mission_state\": 1,\n      \"panel_plan\": 1,\n      \"pathfind_workflow\": 1,\n      \"release_scorecard\": 1,\n      \"repo_capsule\": 12,\n      \"route_intent\": 1,\n      \"team_plan\": 3,\n      \"validate_plugin\": 5,\n      \"validation_status\": 2\n    },\n    \"top_skills\": {\n      \"ultraprompt:review\": 1\n    },\n    \"total\": 1461\n  },\n  \"schema\": \"invocation_telemetry_audit.v2\",\n  \"thresholds\": {\n    \"max_bench_pathfinder_ratio\": 100.0,\n    \"max_explore_share\": 50.0,\n    \"min_dispatches\": 20,\n    \"min_plugin_agent_share\": 25.0,\n    \"min_real_pathfinder_decisions\": 1,\n    \"min_real_pathfinder_ratio\": 0.0,\n    \"min_skill_invocations\": 1,\n    \"required_live_agents\": [],\n    \"required_live_skills\": []\n  },\n  \"window_days\": 7\n}",
         "stderr": ""
       },
       "cognitive_integration": {
@@ -124,12 +130,26 @@
         "ok": true,
         "stdout": "{\n  \"ok\": true,\n  \"total_runs\": 0,\n  \"by_status\": {},\n  \"by_panel\": {}\n}",
         "stderr": ""
+      },
+      "experience_quality_panel_smoke": {
+        "ok": true,
+        "stdout": "{\n  \"ok\": true,\n  \"panel\": \"experience-quality-panel\",\n  \"fixture_or_run_id\": \"tests/artifacts/experience_quality_report.valid.json\",\n  \"artifact_type\": \"experience_quality_report\",\n  \"validator\": \"artifact-validate.py\",\n  \"status\": \"passed\",\n  \"findings\": [],\n  \"recorded_at\": \"2026-05-12T15:54:31+00:00\"\n}",
+        "stderr": ""
       }
     },
     "runtime_targets": {
       "source": {
-        "path": "/Users/sokoliem/.codex/local-marketplace/plugins/ultraprompt",
+        "target": "source",
+        "path": "/Users/sokoliem/development/ultraprompt",
+        "runtime": "claude-code",
+        "version": "8.2.0",
+        "skill_count": 54,
+        "agent_count": 31,
+        "command_count": 31,
+        "mcp_tool_count": 42,
         "ok": true,
+        "findings": [],
+        "next_action": null,
         "checks": {
           "validate_plugin": {
             "ok": true,
@@ -137,11 +157,123 @@
             "stderr": ""
           }
         }
+      },
+      "package": {
+        "target": "package",
+        "path": "/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-scorecard-package-t8qyfs21/ultraprompt",
+        "runtime": "claude-code",
+        "version": "8.2.0",
+        "skill_count": 54,
+        "agent_count": 31,
+        "command_count": 31,
+        "mcp_tool_count": 42,
+        "ok": true,
+        "findings": [],
+        "next_action": "python3 scripts/package-plugin.py --verify-only",
+        "checks": {
+          "copy": {
+            "ok": true,
+            "stdout": "Copied 287 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-scorecard-package-t8qyfs21/ultraprompt",
+            "stderr": ""
+          }
+        }
+      },
+      "codex_cache": {
+        "target": "codex_cache",
+        "path": "/Users/sokoliem/.codex/plugins/cache/local-marketplace/ultraprompt/8.2.0",
+        "runtime": "codex",
+        "version": "8.2.0",
+        "skill_count": 54,
+        "agent_count": 31,
+        "command_count": 31,
+        "mcp_tool_count": 42,
+        "ok": true,
+        "findings": [],
+        "next_action": "bash scripts/install.sh codex",
+        "checks": {
+          "validate_plugin": {
+            "ok": true,
+            "stdout": "Ultraprompt V8.2 plugin validation\n- Target runtime: source\n- Plugin: ultraprompt v8.2.0\n- Skills: 54 (core: 33, specialist: 16, ecosystem: 5)\n- Commands: 31\n- Agents: 31\n- Output styles: 2\n- Registered hooks: 9\n- Marketplace: yes\n- MCP servers: 2\n- Skill index: yes\n- Warnings: 0\n- Errors: 0",
+            "stderr": ""
+          },
+          "discovered_candidates": {
+            "ok": true,
+            "versions": [
+              "/Users/sokoliem/.codex/plugins/cache/local-marketplace/ultraprompt/8.2.0"
+            ]
+          }
+        }
+      },
+      "claude_code_install": {
+        "target": "claude_code_install",
+        "path": "/Users/sokoliem/.claude/plugins/cache/local-marketplace/ultraprompt/8.2.0",
+        "runtime": "claude-code",
+        "version": "8.2.0",
+        "skill_count": 54,
+        "agent_count": 31,
+        "command_count": 31,
+        "mcp_tool_count": 42,
+        "ok": true,
+        "findings": [],
+        "next_action": "bash scripts/install.sh claude-code",
+        "checks": {
+          "installed_plugins": {
+            "ok": true,
+            "installed_plugins_path": "/Users/sokoliem/.claude/plugins/installed_plugins.json",
+            "configured_paths": [
+              "/Users/sokoliem/.claude/plugins/cache/local-marketplace/ultraprompt/8.2.0"
+            ]
+          },
+          "validate_plugin": {
+            "ok": true,
+            "stdout": "Ultraprompt V8.2 plugin validation\n- Target runtime: claude\n- Plugin: ultraprompt v8.2.0\n- Skills: 54 (core: 33, specialist: 16, ecosystem: 5)\n- Commands: 31\n- Agents: 31\n- Output styles: 2\n- Registered hooks: 9\n- Marketplace: yes\n- MCP servers: 1\n- Skill index: yes\n- Warnings: 0\n- Errors: 0",
+            "stderr": ""
+          },
+          "claude_plugins_list": {
+            "ok": true,
+            "stdout": "Installed plugins:\n\n  \u276f ultraprompt@local-marketplace\n    Version: 8.2.0\n    Scope: user\n    Status: \u2714 enabled",
+            "stderr": ""
+          }
+        }
       }
     },
-    "conclusion": "blocked",
-    "blockers": [
-      "invocation_telemetry failed"
-    ]
+    "conclusion": "ready",
+    "target_decomposition": {
+      "source": {
+        "ok": true
+      },
+      "package": {
+        "ok": true
+      },
+      "install_simulation": {
+        "ok": true
+      },
+      "active_codex_cache": {
+        "ok": true
+      },
+      "active_claude_code_install": {
+        "ok": true
+      },
+      "telemetry": {
+        "ok": true
+      },
+      "artifact": {
+        "ok": true
+      },
+      "panel": {
+        "ok": true
+      }
+    },
+    "result_hash": "9cb4f6ff68ad88efdfc56e6c32f37f615ca0eac1137c925ff5043b68faf7cf53",
+    "freshness": "current",
+    "persisted_report": {
+      "path": "dist/release-scorecard.json",
+      "schema_version": 2,
+      "generated_at": 1778601158,
+      "generated_from_commit": "afb8187c7994fc704710827351794505e6341468",
+      "target": "all",
+      "conclusion": "ready",
+      "result_hash": "9cb4f6ff68ad88efdfc56e6c32f37f615ca0eac1137c925ff5043b68faf7cf53"
+    }
   }
 }

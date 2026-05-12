@@ -1,0 +1,41 @@
+{
+  "design_system_map": [
+    {
+      "surface": "dashboard",
+      "source": "dashboard/styles.css"
+    }
+  ],
+  "token_semantics_findings": [
+    {
+      "severity": "low",
+      "finding": "Status coloring is centralized through existing dashboard CSS selectors."
+    }
+  ],
+  "component_api_findings": [
+    {
+      "severity": "low",
+      "finding": "Mission cards can accept additional small status text without a new component."
+    }
+  ],
+  "state_accessibility_coverage_findings": [
+    {
+      "severity": "low",
+      "finding": "Status text uses data-state attributes for styling."
+    }
+  ],
+  "drift_duplication_findings": [
+    {
+      "severity": "low",
+      "finding": "No duplicate runtime readiness component is needed."
+    }
+  ],
+  "migration_sequence": [
+    "Keep runtime status in existing mission-card rows."
+  ],
+  "governance_checks": [
+    "Search for unsupported one-off status colors before release."
+  ],
+  "validation_commands": [
+    "python3 scripts/audit-catalog-consistency.py --json"
+  ]
+}

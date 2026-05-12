@@ -145,6 +145,7 @@ def pathfind(
     budget: str = "standard",
     dry_run: bool = True,
     no_telemetry: bool = False,
+    telemetry_source: str = "runtime",
 ) -> dict[str, Any]:
     index = load_index(ROOT)
     graph = load_graph()
@@ -187,6 +188,7 @@ def pathfind(
         "repo": repo,
         "dry_run": dry_run,
         "telemetry_enabled": not no_telemetry,
+        "telemetry_source": telemetry_source,
         "budget": budget,
         "recommended_path": {
             "type": path_type,
@@ -233,6 +235,7 @@ def emit_event(result: dict[str, Any]) -> None:
             "agents": result["recommended_path"].get("agents", []),
             "panel": result["recommended_path"].get("panel"),
             "budget": result.get("budget"),
+            "source": result.get("telemetry_source") or "runtime",
             "alternatives": [
                 {
                     "skill": alt.get("skill"),
@@ -264,6 +267,7 @@ def main() -> int:
     p.add_argument("--budget", choices=["low", "standard", "deep"], default="standard")
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--no-telemetry", action="store_true", help="do not write pathfinder_decision events")
+    p.add_argument("--telemetry-source", choices=["runtime", "bench", "synthetic"], default="runtime")
     b = sub.add_parser("bench")
     b.add_argument("--json", action="store_true")
     b.add_argument("--no-telemetry", action="store_true", help="run golden tests without telemetry writes")
@@ -272,11 +276,19 @@ def main() -> int:
     e.add_argument("--repo", default="")
     e.add_argument("--budget", choices=["low", "standard", "deep"], default="standard")
     e.add_argument("--no-telemetry", action="store_true", help="do not write pathfinder_decision events")
+    e.add_argument("--telemetry-source", choices=["runtime", "bench", "synthetic"], default="runtime")
 
     args = parser.parse_args()
     if args.cmd in {"pathfind", "explain"}:
         intent = args.intent if args.cmd == "explain" else args.intent
-        print_json(pathfind(intent, repo=args.repo, budget=args.budget, dry_run=True, no_telemetry=args.no_telemetry))
+        print_json(pathfind(
+            intent,
+            repo=args.repo,
+            budget=args.budget,
+            dry_run=True,
+            no_telemetry=args.no_telemetry,
+            telemetry_source=args.telemetry_source,
+        ))
         return 0
     if args.cmd == "bench":
         bench_args = [sys.executable, str(ROOT / "scripts" / "run-pathfinder-tests.py"), "--json"]

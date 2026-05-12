@@ -42,6 +42,7 @@ Do not edit generated `skills/*/SKILL.md`, `agents/*.md`, `dist/skill-index.json
 - Full consistency: `python3 scripts/audit-catalog-consistency.py`
 - Package validation: `python3 scripts/validate-plugin.py --target-runtime source --strict-runtime-files`
 - Release scorecard: `python3 scripts/release-scorecard.py`
+- Full runtime release scorecard: `python3 scripts/release-scorecard.py --check --target all --json`
 - Package zip: `python3 scripts/package-plugin.py --verify-only`
 
 ## Invariants
@@ -53,14 +54,16 @@ Do not edit generated `skills/*/SKILL.md`, `agents/*.md`, `dist/skill-index.json
 - Graph freshness is release-blocking.
 - Every MCP mutation returns risk and confirmation metadata.
 - Public docs must distinguish runtime entrypoints: Claude Code uses `/ultraprompt:*` command names; Codex uses `$ultraprompt:<skill>`, natural language, or MCP tools because native `/` commands are not plugin-routed.
+- Goal contracts must distinguish runtime semantics: Codex support is transcript-backed bridge discipline; Claude Code may also expose native built-in `/goal` evaluator behavior outside the plugin.
 
 ## Release Flow
 
 1. Make source or implementation changes.
 2. Regenerate generated skills/agents as needed.
-3. Rebuild skill index, catalog metadata, capability graph, catalog audit, and release scorecard.
+3. Rebuild skill index, catalog metadata, capability graph, catalog audit, and release scorecard. Use `--write-report` only when intentionally refreshing `dist/release-scorecard.json`; `--check` reports stale persisted evidence without mutating it.
 4. Run `python3 scripts/audit-catalog-consistency.py`.
 5. Run `python3 scripts/validate-plugin.py`.
 6. Run `python3 scripts/package-plugin.py`.
-7. Install to Claude Code and Codex with `scripts/install-windows.ps1 both` or `scripts/install.sh both`.
-8. Run dashboard browser smoke against `/api/catalog`, `/api/cognitive/health`, `/api/pathfind`, and `/api/stream`.
+7. Run `python3 scripts/release-scorecard.py --check --target all --json` to verify source, package, install simulation, active Codex cache, active Claude Code install, telemetry, artifact, and panel gates separately.
+8. Install to Claude Code and Codex with `scripts/install-windows.ps1 both` or `scripts/install.sh both`.
+9. Run dashboard browser smoke against `/api/catalog`, `/api/cognitive/health`, `/api/pathfind`, `/api/release-scorecard?target=all`, and `/api/stream`.

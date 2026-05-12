@@ -75,6 +75,15 @@ def verify_package(files: list[Path]) -> dict:
         manifest = load_json(manifest_path)
         for field in ("mcpServers", "hooks", "outputStyles"):
             ref = manifest.get(field)
+            if (
+                manifest_rel == ".claude-plugin/plugin.json"
+                and field == "hooks"
+                and isinstance(ref, str)
+                and ref.removeprefix("./") == "hooks/hooks.json"
+            ):
+                errors.append(
+                    f"{manifest_rel} must not reference {ref}; Claude Code auto-loads hooks/hooks.json"
+                )
             if isinstance(ref, str):
                 ref_path = resolve_ref(ref)
                 rel = ref_path.relative_to(ROOT).as_posix()

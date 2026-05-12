@@ -18,13 +18,14 @@ if [ -d "$TARGET" ]; then
 fi
 
 if [ -f "$MARKET_DIR/.agents/plugins/marketplace.json" ]; then
-  cp "$MARKET_DIR/.agents/plugins/marketplace.json" "$BACKUP_DIR/marketplace.json.before"
+  mkdir -p "$BACKUP_DIR"
+  cp "$MARKET_DIR/.agents/plugins/marketplace.json" "$BACKUP_DIR/marketplace.json.before" 2>/dev/null || true
 fi
 
 # Copy plugin
 mkdir -p "$(dirname "$TARGET")"
 rm -rf "$TARGET"
-cp -R "$SOURCE" "$TARGET"
+python3 "$SOURCE/scripts/package-plugin.py" --copy-to "$TARGET" >/dev/null
 
 if [ ! -f "$TARGET/.codex-plugin/plugin.json" ]; then
   echo "ERROR: native Codex manifest missing: $TARGET/.codex-plugin/plugin.json" >&2
@@ -35,9 +36,15 @@ if [ ! -f "$TARGET/.claude-plugin/plugin.json" ]; then
   exit 1
 fi
 
-# Swap .mcp.json to Codex variant
-if [ -f "$TARGET/.codex.mcp.json" ]; then
-  mv "$TARGET/.codex.mcp.json" "$TARGET/.mcp.json"
+# Preserve runtime-specific MCP variants. The Codex manifest declares
+# ./.codex.mcp.json, while the Claude manifest declares ./.mcp.json.
+if [ ! -f "$TARGET/.codex.mcp.json" ]; then
+  echo "ERROR: Codex MCP config missing: $TARGET/.codex.mcp.json" >&2
+  exit 1
+fi
+if [ ! -f "$TARGET/.mcp.json" ]; then
+  echo "ERROR: Claude MCP config missing: $TARGET/.mcp.json" >&2
+  exit 1
 fi
 
 # Ensure scripts executable
@@ -77,7 +84,7 @@ fi
 # plugin.json).
 PLUGIN_VERSION=$(python3 -c "import json; print(json.load(open('$TARGET/.codex-plugin/plugin.json'))['version'])" 2>/dev/null || echo "current")
 mkdir -p "$CACHE/$PLUGIN_VERSION"
-cp -R "$TARGET/." "$CACHE/$PLUGIN_VERSION/"
+python3 "$TARGET/scripts/package-plugin.py" --copy-to "$CACHE/$PLUGIN_VERSION" >/dev/null
 echo "✓ Populated Codex cache at $CACHE/$PLUGIN_VERSION"
 
 # V8: Force Codex to re-sync the local-marketplace by setting last_updated to old timestamp.
@@ -105,6 +112,13 @@ if [ -f "$HOME/.codex/config.toml" ]; then
     echo "✓ Added plugin enable to config.toml"
   fi
 fi
+
+# V8: Rebuild generated indexes (Windows installer does this; Mac install also needs to)
+echo
+echo "=== Rebuild generated indexes ==="
+python3 "$TARGET/scripts/build-skill-index.py" 2>&1 | tail -2
+python3 "$TARGET/scripts/build-catalog-metadata.py" 2>&1 | tail -2
+python3 "$TARGET/scripts/build-capability-graph.py" 2>&1 | tail -2
 
 # Validate
 echo

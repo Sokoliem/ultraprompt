@@ -13,6 +13,14 @@ allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 
 Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARGUMENTS` handling, evidence, validation, and safety).
 
+## Dispatch policy (V8)
+
+**Dispatch target:** `ultraprompt:writer`. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
+
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `repo-completeness-panel`. Preferred: `repo-completeness-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Documentation drift is silent: nothing fails when README says `npm install` but the project moved to pnpm. Find drift by cross-checking docs against code reality: install commands against package manager, examples against current API, flags against current CLI, screenshots against current UI. Fix the docs; do not fix the code to match the docs (unless the code is wrong).

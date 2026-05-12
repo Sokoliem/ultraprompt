@@ -165,6 +165,8 @@ JOBS = {
     "memory-prune": job_memory_prune,
 }
 
+DEFAULT_JOB = "session-compaction"
+
 
 def run_job(args: argparse.Namespace) -> dict[str, Any]:
     if args.job not in JOBS:
@@ -226,7 +228,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
     run = sub.add_parser("run")
-    run.add_argument("job", choices=sorted(JOBS))
+    run.add_argument("job", nargs="?", default=DEFAULT_JOB, choices=sorted(JOBS), help=f"default: {DEFAULT_JOB}")
     run.add_argument("--repo", default="")
     run.add_argument("--dry-run", action="store_true")
     sub.add_parser("status")

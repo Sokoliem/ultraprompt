@@ -17,6 +17,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:reviewer` (focus: `performance`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `release-gate-panel`. Preferred: `release-gate-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Optimize what matters, measured. Profile before optimizing; profile after to confirm. Performance work is dominated by: I/O (network, disk, DB), allocation pressure (GC), repeated work (caching opportunities), and concurrency (lock contention, false sharing). Algorithmic improvements only matter if the hot path actually executes the algorithm.

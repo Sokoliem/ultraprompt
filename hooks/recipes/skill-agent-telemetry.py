@@ -16,6 +16,7 @@ import time
 from pathlib import Path
 
 PR = Path(os.environ.get("CLAUDE_PLUGIN_ROOT", Path(__file__).resolve().parents[2]))
+PLUGIN_PREFIXES = ("ultraprompt:", "ultra-prompt:")
 
 
 def _imp(name: str, path: Path):
@@ -26,6 +27,17 @@ def _imp(name: str, path: Path):
         return mod
     except Exception:
         return None
+
+
+def _normalize_plugin_ref(value: object) -> tuple[str, bool, bool]:
+    """Return canonical ref, whether it is plugin-owned, and whether legacy prefix was used."""
+    if not isinstance(value, str):
+        return "?", False, False
+    for prefix in PLUGIN_PREFIXES:
+        if value.startswith(prefix):
+            suffix = value.split(":", 1)[1]
+            return f"ultraprompt:{suffix}", True, prefix == "ultra-prompt:"
+    return value, False, False
 
 
 def main() -> int:
@@ -73,29 +85,35 @@ def main() -> int:
 
     if tool_name == "Skill":
         # Skill tool input has a 'skill' field
-        skill = tool_input.get("skill") or tool_input.get("name") or "?"
-        is_plugin = isinstance(skill, str) and skill.startswith("ultraprompt:")
+        original_skill = tool_input.get("skill") or tool_input.get("name") or "?"
+        skill, is_plugin, legacy_prefix = _normalize_plugin_ref(original_skill)
         led.write_event(
             "skill_invocation",
             skill=skill,
+            original_skill=original_skill,
             is_plugin_skill=is_plugin,
+            legacy_prefix=legacy_prefix,
             repo=repo_n,
             worktree=worktree,
             session_id=sid,
             runtime="claude-code",
+            source="pre_tool_use_hook",
         )
     elif tool_name in ("Task", "Agent"):
         # Task tool input has 'subagent_type', 'description', 'prompt'
-        agent = tool_input.get("subagent_type") or tool_input.get("agent") or "?"
-        is_plugin = isinstance(agent, str) and agent.startswith("ultraprompt:")
+        original_agent = tool_input.get("subagent_type") or tool_input.get("agent") or "?"
+        agent, is_plugin, legacy_prefix = _normalize_plugin_ref(original_agent)
         led.write_event(
             "agent_dispatch",
             agent=agent,
+            original_agent=original_agent,
             is_plugin_agent=is_plugin,
+            legacy_prefix=legacy_prefix,
             repo=repo_n,
             worktree=worktree,
             session_id=sid,
             runtime="claude-code",
+            source="pre_tool_use_hook",
         )
 
     # No output — passive observer

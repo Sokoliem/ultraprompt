@@ -12,6 +12,10 @@ allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 
 Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARGUMENTS` handling, evidence, validation, and safety).
 
+## Inline execution policy (V8)
+
+Prefer main-thread execution for the core workflow because the main thread must preserve local behavior and coordinate edits directly; dispatch only bounded discovery, architecture critique, or test strategy sidecars. Use subagents only for bounded discovery, critique, or test-strategy sidecars when that does not block the immediate implementation path.
+
 ## Distinctive judgment
 
 Behavior preservation is the core invariant. Tests that pass before must pass after, with the same assertions. If a test would have failed before but the refactor would make it pass, that's a behavior change disguised as a refactor. Strengthen types only when the strengthened type accurately reflects current behavior.

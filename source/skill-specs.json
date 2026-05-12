@@ -3,7 +3,7 @@
     "name": "review",
     "title": "Review",
     "tier": "core",
-    "description": "When user says 'review this PR / code review / check this diff / look at these changes / review my code / does this look right / before-merge review / review for issues' — produces structured PR/diff review with severity-ranked findings (correctness, design, safety, maintainability, consistency). DEFAULT CHOICE for diff/PR review. Different from /repo-review (whole-repo audit) and /security-audit (security depth only).",
+    "description": "When user says 'review this PR / code review / check this diff / look at these changes / review my code / does this look right / before-merge review / review for issues' \u2014 produces structured PR/diff review with severity-ranked findings (correctness, design, safety, maintainability, consistency). DEFAULT CHOICE for diff/PR review. Different from /repo-review (whole-repo audit) and /security-audit (security depth only).",
     "when_to_use": "Use for diff/branch/PR review. Use `--deep` for cross-cutting risk requiring multi-perspective review (invokes panel-run review-fanout). Use `--summarize` for PR summary or release-note blurb only. Do not use for non-diff architecture work (use architect) or for failing tests (use debug).",
     "argument_hint": "[PR|branch|diff|path|--deep|--summarize]",
     "editing": true,
@@ -64,14 +64,19 @@
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus_from": "argument"
+      }
+    },
+    "family": "code-quality"
   },
   {
     "name": "debug",
     "title": "Debug",
     "tier": "core",
-    "description": "When user says 'this is failing / why is X broken / reproduce the error / debug this / what's causing the bug / failing test / runtime error / unexpected output / why does this crash' — runs the debugger discipline of failure-signature capture, smallest reproduction, bisection, confirmed root cause hypothesis with confidence label. DEFAULT for active debugging. Different from /test-gap-analysis (finds missing tests) and /review (PR-scope review).",
+    "description": "When user says 'this is failing / why is X broken / reproduce the error / debug this / what's causing the bug / failing test / runtime error / unexpected output / why does this crash' \u2014 runs the debugger discipline of failure-signature capture, smallest reproduction, bisection, confirmed root cause hypothesis with confidence label. DEFAULT for active debugging. Different from /test-gap-analysis (finds missing tests) and /review (PR-scope review).",
     "when_to_use": "Use for concrete failures with a reproducible symptom or trace. Use `--flaky` for non-deterministic failures (handles flake-specific reasoning). Use `ci-repair` when failure is pipeline-shape (matrix, env, cache). Do not use for broad refactors or speculative cleanup.",
     "argument_hint": "[failure|error|test name|symptom|--flaky]",
     "editing": true,
@@ -79,7 +84,7 @@
       "debug-fix",
       "flake-hunter"
     ],
-    "distinctive_judgment": "Symptom-to-root-cause traversal. The failing assertion is the symptom, not the cause. Trace through call sites, data flow, recent changes, invariants, and shared state. For non-deterministic failures, the variable is usually time, randomness, order dependence, network, or shared state — not 'bad luck'. Retry-masking is not repair.",
+    "distinctive_judgment": "Symptom-to-root-cause traversal. The failing assertion is the symptom, not the cause. Trace through call sites, data flow, recent changes, invariants, and shared state. For non-deterministic failures, the variable is usually time, randomness, order dependence, network, or shared state \u2014 not 'bad luck'. Retry-masking is not repair.",
     "first_signals": [
       "Exact error message, stack trace, test name, and reproduction command",
       "git log on touched files since last known-good (last passing CI, last release)",
@@ -97,14 +102,14 @@
     "workflow_steps": [
       "Reproduce or localize the failure. Capture exact command and output.",
       "For `--flaky`: characterize the non-determinism (frequency, conditions). Identify the variable.",
-      "Trace from symptom backward: failing assertion → state at failure → input/conditions → root cause.",
+      "Trace from symptom backward: failing assertion \u2192 state at failure \u2192 input/conditions \u2192 root cause.",
       "Identify the narrowest correct fix. Reject 'works around it' fixes.",
       "Search for the same bug elsewhere by pattern.",
       "Apply fix. Add or update a regression test that would have caught it.",
       "Validate the focused failure first, then adjacent suites.",
       "Re-review the final diff for unintended behavior changes."
     ],
-    "validation_strategy": "Run the originally-failing test/command first. Then run the broader suite that contains it. For flakes, run the failing test ≥10× to confirm stabilization (or document why that's not feasible).",
+    "validation_strategy": "Run the originally-failing test/command first. Then run the broader suite that contains it. For flakes, run the failing test \u226510\u00d7 to confirm stabilization (or document why that's not feasible).",
     "output_contract": "Symptom | Reproduction | Root cause (with evidence) | Same-bug-elsewhere check | Fix Summary (files, why localized) | Regression Test Added | Validation Run (commands + results, including stabilization runs for flakes) | Remaining Risks",
     "subagent_delegation": "For unfamiliar code paths, dispatch `scout` first. For competing root-cause hypotheses, invoke `panel-run debug-triangulate`. For test design after the fix, dispatch `test-strategist`.",
     "dispatch_to": {
@@ -112,7 +117,7 @@
     },
     "primary_agent": "debugger",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "incident-response-panel",
     "outputs": [
       "Symptom"
     ],
@@ -122,20 +127,30 @@
     "cognitive": {
       "primary_agent": "debugger",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "incident-response-panel",
       "outputs": [
         "Symptom"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "debugger"
+      },
+      "paired_panels": [
+        "incident-response-panel"
+      ]
+    },
+    "paired_panels": [
+      "incident-response-panel"
+    ],
+    "family": "code-quality"
   },
   {
     "name": "ci-repair",
     "title": "CI Repair",
     "tier": "core",
-    "description": "When user says 'CI is failing / fix the build / failing pipeline / GitHub Actions broken / lint errors blocking / type-check failing / build red' — runs debugger discipline scoped to CI/build failure. DEFAULT for CI/build failure investigation. Reads CI logs, reproduces locally, narrows to root cause. Different from /debug (general runtime) — ci-repair specializes in build/CI/pipeline failure patterns.",
+    "description": "When user says 'CI is failing / fix the build / failing pipeline / GitHub Actions broken / lint errors blocking / type-check failing / build red' \u2014 runs debugger discipline scoped to CI/build failure. DEFAULT for CI/build failure investigation. Reads CI logs, reproduces locally, narrows to root cause. Different from /debug (general runtime) \u2014 ci-repair specializes in build/CI/pipeline failure patterns.",
     "when_to_use": "Use when the failure is in the pipeline (matrix, cache, env, dependencies, runner image, workflow file) rather than the code under test. If the same test fails locally, use `debug` instead. If the failure mode is non-determinism, use `debug --flaky`.",
     "argument_hint": "[workflow|job|step name|error excerpt]",
     "editing": true,
@@ -174,7 +189,7 @@
     },
     "primary_agent": "debugger",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "incident-response-panel",
     "outputs": [
       "Failure Layer (workflow"
     ],
@@ -184,20 +199,31 @@
     "cognitive": {
       "primary_agent": "debugger",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "incident-response-panel",
       "outputs": [
         "Failure Layer (workflow"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "debugger",
+        "phase": "analysis"
+      },
+      "paired_panels": [
+        "incident-response-panel"
+      ]
+    },
+    "paired_panels": [
+      "incident-response-panel"
+    ],
+    "family": "code-quality"
   },
   {
     "name": "build",
     "title": "Build",
     "tier": "core",
-    "description": "When user says 'build this / implement X / write the code for / create the feature / make a new component / scaffold this / let's write Y / add a function that does Z' — apply minimum diff implementation with explicit tests + validation. DEFAULT for code-writing tasks. Different from /refactor (changes existing without behavior change) and /migrate (changes with explicit migration plan).",
+    "description": "When user says 'build this / implement X / write the code for / create the feature / make a new component / scaffold this / let's write Y / add a function that does Z' \u2014 apply minimum diff implementation with explicit tests + validation. DEFAULT for code-writing tasks. Different from /refactor (changes existing without behavior change) and /migrate (changes with explicit migration plan).",
     "when_to_use": "Use when the user has specified a feature or user story and wants implementation. Do not use for open-ended module improvement (use refactor or technical-debt-triage). Do not use for bug fixes (use debug).",
     "argument_hint": "[feature|issue|user story|acceptance criteria]",
     "editing": true,
@@ -249,14 +275,17 @@
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "inline_only_reason": "the main thread owns the requested code change, edits, integration, and validation; dispatch only bounded sidecars that do not own the critical implementation path"
+    },
+    "inline_only_reason": "the main thread owns the requested code change, edits, integration, and validation; dispatch only bounded sidecars that do not own the critical implementation path",
+    "family": "code-quality"
   },
   {
     "name": "refactor",
     "title": "Refactor",
     "tier": "core",
-    "description": "When user says 'refactor X / clean up Y / improve the structure of / extract this / consolidate / simplify / restructure this code / improve readability without changing behavior' — apply behavior-preserving improvements with tests as the safety net. DEFAULT for refactoring tasks. Different from /build (writes new code) and /migrate (intentional behavior change).",
+    "description": "When user says 'refactor X / clean up Y / improve the structure of / extract this / consolidate / simplify / restructure this code / improve readability without changing behavior' \u2014 apply behavior-preserving improvements with tests as the safety net. DEFAULT for refactoring tasks. Different from /build (writes new code) and /migrate (intentional behavior change).",
     "when_to_use": "Use for behavior-preserving cleanup. Use `--types` for type-strengthening focus. Do not use for new features (use build). Do not use for bug fixes (use debug). If behavior change is required to fix a bug, use debug and call out the behavior change.",
     "argument_hint": "[path|module|function|--types]",
     "editing": true,
@@ -309,14 +338,17 @@
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "inline_only_reason": "the main thread must preserve local behavior and coordinate edits directly; dispatch only bounded discovery, architecture critique, or test strategy sidecars"
+    },
+    "inline_only_reason": "the main thread must preserve local behavior and coordinate edits directly; dispatch only bounded discovery, architecture critique, or test strategy sidecars",
+    "family": "code-quality"
   },
   {
     "name": "test-harden",
     "title": "Test Harden",
     "tier": "core",
-    "description": "When user says 'write tests for X / harden test coverage / add tests / improve test suite / implement test plan / write missing tests' — apply test code per a test plan (uses test-strategist output if provided). DEFAULT for actually writing test code. Different from /test-gap-analysis (finds gaps) and /test-strategist (designs plan).",
+    "description": "When user says 'write tests for X / harden test coverage / add tests / improve test suite / implement test plan / write missing tests' \u2014 apply test code per a test plan (uses test-strategist output if provided). DEFAULT for actually writing test code. Different from /test-gap-analysis (finds gaps) and /test-strategist (designs plan).",
     "when_to_use": "Use when confidence is low, coverage is shallow, regressions are likely, or a change needs durable behavioral tests. Do not use when the failure is concrete (use debug); do not use when the change is a feature delivery (use build).",
     "argument_hint": "[path|module|behavior|changed feature]",
     "editing": true,
@@ -370,14 +402,18 @@
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "test-strategist"
+      }
+    },
+    "family": "test-quality"
   },
   {
     "name": "repo-map",
     "title": "Repo Map",
     "tier": "core",
-    "description": "When user says 'map X / explore Y / read Z / understand how W works / show me the structure / what's in package Q / orient me to this codebase / walk me through the architecture / find code that handles X / where is the code that does Y / locate the implementation of Z / where in the codebase does W happen' — fetches the cached read-only repository contract: architecture, packages, workflows, validation commands, conventions, dependencies, ownership, sensitive paths, recent activity. Supports --semantic flag for behavior-based code search. DEFAULT for any repo-discovery or code-location prompt — wins over ad-hoc Bash/Grep tour and over the built-in Explore agent because the result is structured, cached by HEAD, and surfaces the validation commands you'd otherwise hunt for.",
+    "description": "When user says 'map X / explore Y / read Z / understand how W works / show me the structure / what's in package Q / orient me to this codebase / walk me through the architecture / find code that handles X / where is the code that does Y / locate the implementation of Z / where in the codebase does W happen' \u2014 fetches the cached read-only repository contract: architecture, packages, workflows, validation commands, conventions, dependencies, ownership, sensitive paths, recent activity. Supports --semantic flag for behavior-based code search. DEFAULT for any repo-discovery or code-location prompt \u2014 wins over ad-hoc Bash/Grep tour and over the built-in Explore agent because the result is structured, cached by HEAD, and surfaces the validation commands you'd otherwise hunt for.",
     "when_to_use": "Use when you need to understand a repository quickly before doing implementation, review, onboarding, migration, or planning work. Use `--onboarding` for new-contributor framing. Use `--semantic <query>` to find code by behavior or natural-language concept.",
     "argument_hint": "[path|focus area|--onboarding|--semantic <query>]",
     "editing": false,
@@ -411,7 +447,7 @@
       "If `--onboarding`: frame for a new contributor (where to read first, what to install, how to run things).",
       "Produce a concise navigable map. Stay read-only."
     ],
-    "validation_strategy": "Read-only skill. No code changes. Validate the map by running the inferred commands (build, test, lint) — confirm they work.",
+    "validation_strategy": "Read-only skill. No code changes. Validate the map by running the inferred commands (build, test, lint) \u2014 confirm they work.",
     "output_contract": "Executive Overview | Directory/Package Map | Primary Workflows + Commands | Architecture Sketch | Public APIs | Test/Validation Map | Conventions Inferred | Hotspots/Questions | Best Next Commands",
     "subagent_delegation": "Use `scout` for a fresh-context structural sweep when the repo is large or unfamiliar. Use `auditor` with focus=infra for IaC/deployment specifics.",
     "dispatch_to": {
@@ -419,7 +455,7 @@
     },
     "primary_agent": "scout",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "repo-completeness-panel",
     "outputs": [
       "Executive Overview"
     ],
@@ -429,20 +465,30 @@
     "cognitive": {
       "primary_agent": "scout",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "repo-completeness-panel",
       "outputs": [
         "Executive Overview"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "scout"
+      },
+      "paired_panels": [
+        "repo-completeness-panel"
+      ]
+    },
+    "paired_panels": [
+      "repo-completeness-panel"
+    ],
+    "family": "repo-intelligence"
   },
   {
     "name": "architect",
     "title": "Architect",
     "tier": "core",
-    "description": "When user says 'architecture review / system design review / architectural decision / design this system / architecture for X / structural review / module boundary review' — dispatches reviewer with architecture focus. DEFAULT for architecture-scope tasks. Different from /review (diff-scope) and /repo-review (whole-repo audit).",
+    "description": "When user says 'architecture review / system design review / architectural decision / design this system / architecture for X / structural review / module boundary review' \u2014 dispatches reviewer with architecture focus. DEFAULT for architecture-scope tasks. Different from /review (diff-scope) and /repo-review (whole-repo audit).",
     "when_to_use": "Use for module/package boundary questions, coupling concerns, dependency-direction analysis, or abstraction-quality review. Do not use for diff review (use review). Do not use for state-transition lifecycle work (use state-machine-review specialist). For monorepo-specific structure, see `_shared/playbooks/monorepo-architecture-checklist.md`.",
     "argument_hint": "[module|package|subsystem|architectural question]",
     "editing": false,
@@ -501,14 +547,19 @@
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "architecture"
+      }
+    },
+    "family": "architecture-contracts"
   },
   {
     "name": "api-contract",
     "title": "API Contract",
     "tier": "core",
-    "description": "When user says 'API contract review / OpenAPI review / API design review / RESTful contract / GraphQL schema review / API versioning' — dispatches reviewer/integration-contract-reviewer with API contract focus. DEFAULT for API contract design and review.",
+    "description": "When user says 'API contract review / OpenAPI review / API design review / RESTful contract / GraphQL schema review / API versioning' \u2014 dispatches reviewer/integration-contract-reviewer with API contract focus. DEFAULT for API contract design and review.",
     "when_to_use": "Use for any change that affects a public surface: API endpoints, schemas, CLI flags, config formats, events, package exports, wire formats. Use when planning a deprecation. Do not use for purely internal refactors with no external surface (use refactor).",
     "argument_hint": "[surface|change description|consumer]",
     "editing": false,
@@ -516,7 +567,7 @@
       "api-contract",
       "api-deprecation"
     ],
-    "distinctive_judgment": "Compatibility is asymmetric: producers can extend (add fields, add methods, add optional flags) more freely than they can change or remove. Identify what consumers depend on — including undocumented behavior — before declaring something safe to change. Deprecation is a process, not an event: announce, warn, sunset.",
+    "distinctive_judgment": "Compatibility is asymmetric: producers can extend (add fields, add methods, add optional flags) more freely than they can change or remove. Identify what consumers depend on \u2014 including undocumented behavior \u2014 before declaring something safe to change. Deprecation is a process, not an event: announce, warn, sunset.",
     "first_signals": [
       "Public surface inventory: exports, endpoints, CLI flags, config keys, event names, message formats",
       "Versioning scheme: SemVer? CalVer? Internal stability tiers?",
@@ -537,7 +588,7 @@
       "Identify the public surface affected by the proposed change.",
       "Classify the change: additive (new field/method/flag), modifying (changes existing behavior), removing.",
       "Identify consumers and how they use the surface (search for callers; check changelog feedback; ask about telemetry).",
-      "For modifying/removing: design the deprecation path. Announce → warn → sunset.",
+      "For modifying/removing: design the deprecation path. Announce \u2192 warn \u2192 sunset.",
       "Update or add contract tests that pin the new behavior.",
       "Document the change in changelog/release notes following project conventions.",
       "If it's a breaking change, confirm version bump and migration guide."
@@ -551,7 +602,7 @@
     },
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "contract-drift-panel",
     "outputs": [
       "Surface Affected"
     ],
@@ -561,20 +612,31 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "contract-drift-panel",
       "outputs": [
         "Surface Affected"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "contract"
+      },
+      "paired_panels": [
+        "contract-drift-panel"
+      ]
+    },
+    "paired_panels": [
+      "contract-drift-panel"
+    ],
+    "family": "architecture-contracts"
   },
   {
     "name": "migrate",
     "title": "Migrate",
     "tier": "core",
-    "description": "When user says 'migrate from X to Y / breaking change / version upgrade / library swap / framework migration / convert this codebase / move to new API / deprecate old approach' — produces migration plan with phases, compatibility, rollback, validation. DEFAULT for intentional breaking changes. Different from /refactor (behavior-preserving) and /build (new code).",
+    "description": "When user says 'migrate from X to Y / breaking change / version upgrade / library swap / framework migration / convert this codebase / move to new API / deprecate old approach' \u2014 produces migration plan with phases, compatibility, rollback, validation. DEFAULT for intentional breaking changes. Different from /refactor (behavior-preserving) and /build (new code).",
     "when_to_use": "Use for migrations that span multiple steps and require rollback planning. Use `--deps` for dependency upgrade migrations specifically. Do not use for one-shot config changes (just edit them). Do not use for API contract changes (use api-contract for the design; use migrate for the rollout).",
     "argument_hint": "[migration scope|--deps]",
     "editing": false,
@@ -613,7 +675,7 @@
     "subagent_delegation": "Use `auditor` with focus=db for schema migrations. Use `auditor` with focus=infra for cross-environment rollout. Use `panel-run migration-assess` for cross-surface migrations.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "migration-readiness-panel",
     "outputs": [
       "Current State"
     ],
@@ -623,20 +685,35 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "migration-readiness-panel",
       "outputs": [
         "Current State"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "migration"
+      },
+      "paired_panels": [
+        "migration-readiness-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "reviewer",
+      "focus": "migration"
+    },
+    "paired_panels": [
+      "migration-readiness-panel"
+    ],
+    "family": "architecture-contracts"
   },
   {
     "name": "release",
     "title": "Release",
     "tier": "core",
-    "description": "When user says 'release notes / write changelog / draft release announcement / document this release / what to ship in release notes / what changed in version X' — dispatches writer for structured release notes / changelog artifact. DEFAULT for release communication artifacts. Different from /release-readiness (audits shipability — separate skill).",
+    "description": "When user says 'release notes / write changelog / draft release announcement / document this release / what to ship in release notes / what changed in version X' \u2014 dispatches writer for structured release notes / changelog artifact. DEFAULT for release communication artifacts. Different from /release-readiness (audits shipability \u2014 separate skill).",
     "when_to_use": "Use for go/no-go assessment, release notes, or changelog drafts. Use `--notes-only` to produce just the notes/changelog without readiness assessment. Do not use mid-development for status updates (use review --summarize).",
     "argument_hint": "[version|tag|range|--notes-only]",
     "editing": false,
@@ -679,7 +756,7 @@
     },
     "primary_agent": "writer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "release-gate-panel",
     "outputs": [
       "If readiness: Readiness Checklist"
     ],
@@ -689,27 +766,38 @@
     "cognitive": {
       "primary_agent": "writer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "release-gate-panel",
       "outputs": [
         "If readiness: Readiness Checklist"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "writer",
+        "phase": "analysis"
+      },
+      "paired_panels": [
+        "release-gate-panel"
+      ]
+    },
+    "paired_panels": [
+      "release-gate-panel"
+    ],
+    "family": "release-operations"
   },
   {
     "name": "security-audit",
     "title": "Security Audit",
     "tier": "core",
-    "description": "When user says 'security audit / check for vulnerabilities / find injection / auth audit / secrets in repo / SQLi/XSS/CSRF check / pen test / sensitive data exposure' — produces ranked vulnerabilities with CWE references, exploit scenarios, remediation. DEFAULT for technical security review. Different from /risk-and-controls-review (compliance/regulatory).",
+    "description": "When user says 'security audit / check for vulnerabilities / find injection / auth audit / secrets in repo / SQLi/XSS/CSRF check / pen test / sensitive data exposure' \u2014 produces ranked vulnerabilities with CWE references, exploit scenarios, remediation. DEFAULT for technical security review. Different from /risk-and-controls-review (compliance/regulatory).",
     "when_to_use": "Use for security-focused review of auth flows, secret handling, injection surfaces, tenant isolation, dependency security, or sensitive data handling. Kept as a core skill (auto-discoverable) because security work is too important to hide behind a flag.",
     "argument_hint": "[surface|flow|threat|focus]",
     "editing": true,
     "aliases": [
       "security-audit"
     ],
-    "distinctive_judgment": "Apply a threat model: who is the adversary, what are they trying to do, what can they reach. Auth (who is this user?) and authorization (what can they do?) are different and both must be checked. Secrets in logs, error messages, and crash dumps are common leaks. Tenant isolation requires every query, cache, and rate-limit to scope by tenant. Trust boundaries are crossings of input from a less-trusted source to a more-trusted one — that's where validation must be explicit.",
+    "distinctive_judgment": "Apply a threat model: who is the adversary, what are they trying to do, what can they reach. Auth (who is this user?) and authorization (what can they do?) are different and both must be checked. Secrets in logs, error messages, and crash dumps are common leaks. Tenant isolation requires every query, cache, and rate-limit to scope by tenant. Trust boundaries are crossings of input from a less-trusted source to a more-trusted one \u2014 that's where validation must be explicit.",
     "first_signals": [
       "Auth/authorization layer: where is identity established? Where is authorization checked?",
       "Trust boundaries: HTTP input, deserialization, file paths, SQL, shell, eval, template rendering",
@@ -745,7 +833,7 @@
     },
     "primary_agent": "security-auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "security-privacy-panel",
     "outputs": [
       "Threat Model"
     ],
@@ -755,20 +843,30 @@
     "cognitive": {
       "primary_agent": "security-auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "security-privacy-panel",
       "outputs": [
         "Threat Model"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "security-auditor"
+      },
+      "paired_panels": [
+        "security-privacy-panel"
+      ]
+    },
+    "paired_panels": [
+      "security-privacy-panel"
+    ],
+    "family": "risk-security"
   },
   {
     "name": "data-flow-privacy-map",
     "title": "Data Flow + Privacy Map",
     "tier": "specialist",
-    "description": "When user says 'map the data flow / where does PII go / privacy data flow / data lineage for privacy / track sensitive data / data flow diagram for compliance' — dispatches auditor with privacy + data-flow focus. DEFAULT for privacy data-flow mapping.",
+    "description": "When user says 'map the data flow / where does PII go / privacy data flow / data lineage for privacy / track sensitive data / data flow diagram for compliance' \u2014 dispatches auditor with privacy + data-flow focus. DEFAULT for privacy data-flow mapping.",
     "when_to_use": "Manual-only. Invoke when the task is privacy-specific: data lineage, PII flows, retention, deletion/export rights, third-party sharing, or sensitive log redaction. For general security, use core `security-audit`.",
     "argument_hint": "[surface|data type|flow]",
     "editing": true,
@@ -796,14 +894,14 @@
     ],
     "workflow_steps": [
       "Inventory PII fields. Confirm classification with policy if uncertain.",
-      "Map data flow: entry → storage → processing → egress.",
+      "Map data flow: entry \u2192 storage \u2192 processing \u2192 egress.",
       "For each storage: retention policy in place? Implementation matches?",
       "For each egress: documented in privacy notice? DPA in place? Third-party retention bounded?",
       "Audit logs: scan for log statements with user-controlled fields. Add redaction.",
       "Validate deletion: trigger deletion in test, confirm absence in all storage layers including backups.",
       "Validate export: trigger export, confirm completeness against the inventory."
     ],
-    "validation_strategy": "Test deletion completeness (delete request → search for residual PII). Test export completeness (export request → cross-check with inventory). Run log scanner on test fixtures with PII payloads; confirm redaction.",
+    "validation_strategy": "Test deletion completeness (delete request \u2192 search for residual PII). Test export completeness (export request \u2192 cross-check with inventory). Run log scanner on test fixtures with PII payloads; confirm redaction.",
     "output_contract": "PII Inventory | Data Flow Map | Storage Retention Audit | Egress Audit | Logging Audit + Redactions Applied | Deletion Test Result | Export Test Result | Findings + Recommendations",
     "subagent_delegation": "Dispatch `auditor` with focus=privacy for an independent perspective. See `_shared/playbooks/log-redaction-checklist.md` for redaction patterns.",
     "dispatch_to": {
@@ -812,7 +910,7 @@
     },
     "primary_agent": "auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "security-privacy-panel",
     "outputs": [
       "PII Inventory"
     ],
@@ -822,20 +920,31 @@
     "cognitive": {
       "primary_agent": "auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "security-privacy-panel",
       "outputs": [
         "PII Inventory"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "privacy"
+      },
+      "paired_panels": [
+        "security-privacy-panel"
+      ]
+    },
+    "paired_panels": [
+      "security-privacy-panel"
+    ],
+    "family": "risk-security"
   },
   {
     "name": "dependency-audit",
     "title": "Dependency Audit",
     "tier": "specialist",
-    "description": "When user says 'audit dependencies / dependency review / supply chain audit / package audit / npm audit / pip audit / outdated dependencies / vulnerable deps' — dispatches auditor with supply-chain focus. DEFAULT for dependency/supply-chain audits.",
+    "description": "When user says 'audit dependencies / dependency review / supply chain audit / package audit / npm audit / pip audit / outdated dependencies / vulnerable deps' \u2014 dispatches auditor with supply-chain focus. DEFAULT for dependency/supply-chain audits.",
     "when_to_use": "Manual-only. Invoke for dep-focused review: CVE scan, transitive analysis, license audit, abandonment risk. For supply-chain provenance and CI trust, use specialist `supply-chain-hardening`. For upgrade planning, use core `migrate --deps`.",
     "argument_hint": "[ecosystem|focus]",
     "editing": false,
@@ -875,7 +984,7 @@
     },
     "primary_agent": "auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "release-gate-panel",
     "outputs": [
       "Dep Inventory (direct + transitive count)"
     ],
@@ -885,20 +994,31 @@
     "cognitive": {
       "primary_agent": "auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "release-gate-panel",
       "outputs": [
         "Dep Inventory (direct + transitive count)"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "dependencies"
+      },
+      "paired_panels": [
+        "release-gate-panel"
+      ]
+    },
+    "paired_panels": [
+      "release-gate-panel"
+    ],
+    "family": "supply-chain"
   },
   {
     "name": "supply-chain-hardening",
     "title": "Supply Chain Hardening",
     "tier": "specialist",
-    "description": "When user says 'harden supply chain / supply chain security / dependency pinning / SLSA / SBOM / package integrity / supply chain attack defenses' — dispatches security-auditor + auditor with supply-chain focus. DEFAULT for supply-chain hardening work.",
+    "description": "When user says 'harden supply chain / supply chain security / dependency pinning / SLSA / SBOM / package integrity / supply chain attack defenses' \u2014 dispatches security-auditor + auditor with supply-chain focus. DEFAULT for supply-chain hardening work.",
     "when_to_use": "Manual-only. Invoke for supply-chain integrity work: lockfile hygiene, install-script trust, CI publishing pipeline, SBOM generation, container image provenance, registry trust. For dep CVEs/abandonment, use specialist `dependency-audit`.",
     "argument_hint": "[surface|pipeline]",
     "editing": true,
@@ -918,7 +1038,7 @@
     "failure_modes": [
       "Install scripts running unreviewed code from transitive deps",
       "CI uses a long-lived deploy token instead of OIDC short-lived credentials",
-      "Container image pinned by tag (`:latest` or `:v1.0`) — mutable",
+      "Container image pinned by tag (`:latest` or `:v1.0`) \u2014 mutable",
       "Lockfile committed but `npm install` used in CI instead of `npm ci` (lockfile not enforced)",
       "Publishing pipeline triggered by tag, but tag-creation isn't gated",
       "SBOM generated but not stored alongside the artifact"
@@ -941,7 +1061,7 @@
     },
     "primary_agent": "auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "security-privacy-panel",
     "outputs": [
       "Lockfile Audit"
     ],
@@ -951,20 +1071,33 @@
     "cognitive": {
       "primary_agent": "auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "security-privacy-panel",
       "outputs": [
         "Lockfile Audit"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "supply-chain"
+      },
+      "paired_panels": [
+        "security-privacy-panel",
+        "release-gate-panel"
+      ]
+    },
+    "paired_panels": [
+      "security-privacy-panel",
+      "release-gate-panel"
+    ],
+    "family": "supply-chain"
   },
   {
     "name": "performance-pass",
     "title": "Performance Pass",
     "tier": "specialist",
-    "description": "When user says 'performance audit / find slow code / hot path review / perf optimization / performance issues / latency review / throughput audit' — dispatches reviewer with performance focus. DEFAULT for performance audits. Different from /debug (active perf bug).",
+    "description": "When user says 'performance audit / find slow code / hot path review / perf optimization / performance issues / latency review / throughput audit' \u2014 dispatches reviewer with performance focus. DEFAULT for performance audits. Different from /debug (active perf bug).",
     "when_to_use": "Manual-only. Invoke for performance investigation or benchmark design. Do not use for general code review (use review). Do not use for CI build speed (see `_shared/playbooks/build-test-optimizer.md`).",
     "argument_hint": "[hot path|operation|target metric]",
     "editing": true,
@@ -975,7 +1108,7 @@
     "first_signals": [
       "Profile output (CPU profile, allocation profile, flamegraph)",
       "Slow query logs / APM traces / span timing",
-      "Hot path call frequency (sampling counters, request rate × per-request cost)",
+      "Hot path call frequency (sampling counters, request rate \u00d7 per-request cost)",
       "Memory allocation patterns (GC frequency, allocation rate)",
       "Cache hit rate (where caches exist)",
       "Lock contention metrics where applicable"
@@ -1005,7 +1138,7 @@
     },
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "release-gate-panel",
     "outputs": [
       "Performance Goal"
     ],
@@ -1015,20 +1148,31 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "release-gate-panel",
       "outputs": [
         "Performance Goal"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "performance"
+      },
+      "paired_panels": [
+        "release-gate-panel"
+      ]
+    },
+    "paired_panels": [
+      "release-gate-panel"
+    ],
+    "family": "runtime-quality"
   },
   {
     "name": "accessibility-review",
     "title": "Accessibility Review",
     "tier": "specialist",
-    "description": "When user says 'a11y review / accessibility audit / WCAG check / screen reader compatibility / keyboard navigation review / color contrast audit / accessible component review' — dispatches auditor with a11y focus. DEFAULT for accessibility audits.",
+    "description": "When user says 'a11y review / accessibility audit / WCAG check / screen reader compatibility / keyboard navigation review / color contrast audit / accessible component review' \u2014 dispatches auditor with a11y focus. DEFAULT for accessibility audits.",
     "when_to_use": "Manual-only. Invoke for a11y-focused review of UI components, flows, or design-system fit. For general frontend review, see `_shared/playbooks/frontend-ux-checklist.md`.",
     "argument_hint": "[component|flow|page]",
     "editing": true,
@@ -1071,7 +1215,7 @@
     },
     "primary_agent": "auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "feature-gap-panel",
     "outputs": [
       "Scope"
     ],
@@ -1081,20 +1225,31 @@
     "cognitive": {
       "primary_agent": "auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "feature-gap-panel",
       "outputs": [
         "Scope"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "a11y"
+      },
+      "paired_panels": [
+        "feature-gap-panel"
+      ]
+    },
+    "paired_panels": [
+      "feature-gap-panel"
+    ],
+    "family": "experience-quality"
   },
   {
     "name": "database-review",
     "title": "Database Review",
     "tier": "specialist",
-    "description": "When user says 'database review / DB schema review / migration review / query performance / DB design review / check this SQL / look at the schema / data model review' — dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions). DEFAULT for database-focused reviews.",
+    "description": "When user says 'database review / DB schema review / migration review / query performance / DB design review / check this SQL / look at the schema / data model review' \u2014 dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions). DEFAULT for database-focused reviews.",
     "when_to_use": "Manual-only. Invoke for database-specific work: schema design, migration safety, index strategy, transaction boundaries, query plans, backfill design. For general migration sequencing, use core `migrate`.",
     "argument_hint": "[table|migration|query|operation]",
     "editing": true,
@@ -1104,7 +1259,7 @@
     "distinctive_judgment": "Database changes are rarely reversible cheaply. Schema, indexes, and data are entangled with application code, replicas, and backups. Migration safety has two dimensions: (1) the migration completes without breaking the live system, (2) the new schema works correctly under production load. Both must be verified before commit.",
     "first_signals": [
       "Schema migration tool and convention (Alembic, Flyway, Liquibase, Rails, Prisma migrate)",
-      "Production data scale (rows, GB) of affected tables — migration time is a function of size",
+      "Production data scale (rows, GB) of affected tables \u2014 migration time is a function of size",
       "Indexes on affected columns; query plans for affected queries",
       "Foreign key relationships and cascade behavior",
       "Replication topology: primary/replica, lag tolerance",
@@ -1133,7 +1288,7 @@
     "subagent_delegation": "Dispatch `auditor` with focus=db for a second perspective on production safety.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "migration-readiness-panel",
     "outputs": [
       "Change Type"
     ],
@@ -1143,20 +1298,37 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "migration-readiness-panel",
       "outputs": [
         "Change Type"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "phase": "analysis",
+        "focus": "database"
+      },
+      "paired_panels": [
+        "migration-readiness-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "reviewer",
+      "phase": "analysis",
+      "focus": "database"
+    },
+    "paired_panels": [
+      "migration-readiness-panel"
+    ],
+    "family": "infrastructure-data"
   },
   {
     "name": "infra-iac-review",
     "title": "Infra + IaC Review",
     "tier": "specialist",
-    "description": "When user says 'IaC review / Terraform review / CloudFormation / Pulumi review / infrastructure code review / Helm review / k8s manifest review' — dispatches reviewer with infrastructure-as-code focus. DEFAULT for IaC reviews.",
+    "description": "When user says 'IaC review / Terraform review / CloudFormation / Pulumi review / infrastructure code review / Helm review / k8s manifest review' \u2014 dispatches reviewer with infrastructure-as-code focus. DEFAULT for IaC reviews.",
     "when_to_use": "Manual-only. Invoke for IaC review (Terraform, Pulumi, CloudFormation), Kubernetes manifests, Docker/compose, IAM policies, secret management, runtime config drift, or scheduled job audit. For supply-chain image provenance, use specialist `supply-chain-hardening`.",
     "argument_hint": "[surface|module|cluster|policy]",
     "editing": true,
@@ -1192,7 +1364,7 @@
       "Apply concrete fixes: tighten IAM, add alerting, fix drift.",
       "For container/k8s: confirm non-root, dropped capabilities, resource limits."
     ],
-    "validation_strategy": "Run `terraform plan` (or equivalent) — should be clean after changes. Run any IaC test framework (terratest, kitchen-terraform). Trigger scheduled jobs in a test environment to confirm alerting fires on failure.",
+    "validation_strategy": "Run `terraform plan` (or equivalent) \u2014 should be clean after changes. Run any IaC test framework (terratest, kitchen-terraform). Trigger scheduled jobs in a test environment to confirm alerting fires on failure.",
     "output_contract": "Scope | IAM Audit | Secret Handling Audit | Scheduled Job Audit | Drift Status | Container/K8s Hardening | Fixes Applied | Remaining Risks",
     "subagent_delegation": "Dispatch `auditor` with focus=infra for cross-cutting review. See `_shared/playbooks/cron-job-audit-checklist.md` for scheduled-job specifics.",
     "dispatch_to": {
@@ -1201,7 +1373,7 @@
     },
     "primary_agent": "auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "migration-readiness-panel",
     "outputs": [
       "Scope"
     ],
@@ -1211,20 +1383,31 @@
     "cognitive": {
       "primary_agent": "auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "migration-readiness-panel",
       "outputs": [
         "Scope"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "infra"
+      },
+      "paired_panels": [
+        "migration-readiness-panel"
+      ]
+    },
+    "paired_panels": [
+      "migration-readiness-panel"
+    ],
+    "family": "infrastructure-data"
   },
   {
     "name": "observability-pass",
     "title": "Observability Pass",
     "tier": "specialist",
-    "description": "When user says 'observability audit / logging review / metrics review / tracing audit / monitoring gaps / SLO design / observability gaps' — dispatches auditor with observability focus. DEFAULT for observability-specific audits.",
+    "description": "When user says 'observability audit / logging review / metrics review / tracing audit / monitoring gaps / SLO design / observability gaps' \u2014 dispatches auditor with observability focus. DEFAULT for observability-specific audits.",
     "when_to_use": "Manual-only. Invoke for observability gaps: insufficient logs, missing metrics, broken traces, ineffective alerting, or SLO design. For incident reconstruction, see `_shared/playbooks/incident-postmortem-template.md`.",
     "argument_hint": "[surface|operation|signal]",
     "editing": true,
@@ -1268,7 +1451,7 @@
     },
     "primary_agent": "auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "release-gate-panel",
     "outputs": [
       "Scope"
     ],
@@ -1278,20 +1461,31 @@
     "cognitive": {
       "primary_agent": "auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "release-gate-panel",
       "outputs": [
         "Scope"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "observability"
+      },
+      "paired_panels": [
+        "release-gate-panel"
+      ]
+    },
+    "paired_panels": [
+      "release-gate-panel"
+    ],
+    "family": "runtime-quality"
   },
   {
     "name": "ai-agent-safety-review",
     "title": "AI Agent Safety Review",
     "tier": "specialist",
-    "description": "When user says 'AI safety review / agent safety / prompt injection check / LLM safety / agent permissions audit / tool use safety / agentic system review' — dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus. DEFAULT for AI agent safety reviews.",
+    "description": "When user says 'AI safety review / agent safety / prompt injection check / LLM safety / agent permissions audit / tool use safety / agentic system review' \u2014 dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus. DEFAULT for AI agent safety reviews.",
     "when_to_use": "Manual-only. Invoke for AI/LLM safety review: tool-calling boundaries, prompt injection vectors, retrieval trust, memory/context handling, autonomy controls, or prompt hardening for a specific prompt or skill body.",
     "argument_hint": "[system|tool|prompt|focus]",
     "editing": true,
@@ -1337,7 +1531,7 @@
     },
     "primary_agent": "auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "ai-feature-panel",
     "outputs": [
       "Scope"
     ],
@@ -1347,20 +1541,33 @@
     "cognitive": {
       "primary_agent": "auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "ai-feature-panel",
       "outputs": [
         "Scope"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "ai-safety"
+      },
+      "paired_panels": [
+        "ai-feature-panel",
+        "security-privacy-panel"
+      ]
+    },
+    "paired_panels": [
+      "ai-feature-panel",
+      "security-privacy-panel"
+    ],
+    "family": "ai-safety-evals"
   },
   {
     "name": "llm-eval-design",
     "title": "LLM Eval Design",
     "tier": "specialist",
-    "description": "When user says 'how do we evaluate this LLM feature / eval plan for AI / measure model quality / offline eval / online eval / LLM benchmarks for our use case / agent evaluation strategy' — dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency). DEFAULT for LLM/agent eval design.",
+    "description": "When user says 'how do we evaluate this LLM feature / eval plan for AI / measure model quality / offline eval / online eval / LLM benchmarks for our use case / agent evaluation strategy' \u2014 dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency). DEFAULT for LLM/agent eval design.",
     "when_to_use": "Manual-only. Invoke for eval suite design: rubrics, golden cases, graders, thresholds. For runtime safety review of an LLM system, use specialist `ai-agent-safety-review`.",
     "argument_hint": "[system|capability|prompt under test]",
     "editing": true,
@@ -1395,9 +1602,9 @@
     "validation_strategy": "Run the eval against the current system to establish baseline. Run against a known-broken version to confirm the eval catches it. Validate grader against human labels on a sample.",
     "output_contract": "Capability Under Test | Failure Modes Targeted | Three-Tier Case Set | Grader Implementation + Validation | Baseline + Thresholds | CI Wiring | Variance Notes",
     "subagent_delegation": "Dispatch `auditor` with focus=ai-safety for grader robustness review. See `_shared/playbooks/contract-test-patterns.md` for adjacent contract-test design.",
-    "primary_agent": "reviewer",
+    "primary_agent": "evaluator",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "ai-feature-panel",
     "outputs": [
       "Capability Under Test"
     ],
@@ -1405,29 +1612,44 @@
     "risk": "medium",
     "confirmation": "required_for_repo_mutation",
     "cognitive": {
-      "primary_agent": "reviewer",
+      "primary_agent": "evaluator",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "ai-feature-panel",
       "outputs": [
         "Capability Under Test"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "evaluator",
+        "phase": "analysis"
+      },
+      "paired_panels": [
+        "ai-feature-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "evaluator",
+      "phase": "analysis"
+    },
+    "paired_panels": [
+      "ai-feature-panel"
+    ],
+    "family": "ai-safety-evals"
   },
   {
     "name": "contract-test-generate",
     "title": "Contract Test Generate",
     "tier": "specialist",
-    "description": "When user says 'generate contract tests / write contract tests for API X / consumer-driven contract / Pact test / OpenAPI contract test / event contract test' — dispatches test-strategist + test-harden with contract focus. DEFAULT for contract-test generation.",
+    "description": "When user says 'generate contract tests / write contract tests for API X / consumer-driven contract / Pact test / OpenAPI contract test / event contract test' \u2014 dispatches test-strategist + test-harden with contract focus. DEFAULT for contract-test generation.",
     "when_to_use": "Manual-only. Invoke when a boundary needs contract-test coverage to prevent silent breakage. For API contract design or deprecation, use core `api-contract`.",
     "argument_hint": "[boundary|consumer|surface]",
     "editing": true,
     "aliases": [
       "contract-test-generate"
     ],
-    "distinctive_judgment": "Contract tests pin the surface from the consumer's perspective. They differ from unit tests (which test the producer's internal logic) and integration tests (which test the live integration). A contract test should fail when the producer changes the surface in a way that breaks consumers — even if the producer's own tests still pass.",
+    "distinctive_judgment": "Contract tests pin the surface from the consumer's perspective. They differ from unit tests (which test the producer's internal logic) and integration tests (which test the live integration). A contract test should fail when the producer changes the surface in a way that breaks consumers \u2014 even if the producer's own tests still pass.",
     "first_signals": [
       "Boundary type: REST API, GraphQL, gRPC, message queue, CLI, file format, package export",
       "Consumer list: who depends on this surface?",
@@ -1442,18 +1664,18 @@
     ],
     "workflow_steps": [
       "Identify the boundary and its consumers.",
-      "Capture consumer expectations as concrete cases (request → expected response shape).",
+      "Capture consumer expectations as concrete cases (request \u2192 expected response shape).",
       "Generate tests using a contract-test framework (Pact, Spring Cloud Contract, custom).",
       "Run tests against the producer to confirm current behavior matches.",
       "Wire into producer's CI so producer-side changes that break consumers fail.",
       "Document the contract for future consumer onboarding."
     ],
     "validation_strategy": "Run the new contract tests against current producer (should pass). Modify producer in a known-breaking way (in a branch); confirm contract test fails. Revert.",
-    "output_contract": "Boundary | Consumers Captured | Contract Cases (request → expected response/behavior) | Framework + Test Files | CI Wiring | Documentation",
+    "output_contract": "Boundary | Consumers Captured | Contract Cases (request \u2192 expected response/behavior) | Framework + Test Files | CI Wiring | Documentation",
     "subagent_delegation": "Dispatch `reviewer` with focus=contract for second perspective. See `_shared/playbooks/contract-test-patterns.md`.",
     "primary_agent": "test-strategist",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "contract-drift-panel",
     "outputs": [
       "Boundary"
     ],
@@ -1463,20 +1685,37 @@
     "cognitive": {
       "primary_agent": "test-strategist",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "contract-drift-panel",
       "outputs": [
         "Boundary"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "test-strategist",
+        "phase": "analysis",
+        "focus": "contract"
+      },
+      "paired_panels": [
+        "contract-drift-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "test-strategist",
+      "phase": "analysis",
+      "focus": "contract"
+    },
+    "paired_panels": [
+      "contract-drift-panel"
+    ],
+    "family": "test-quality"
   },
   {
     "name": "state-machine-review",
     "title": "State Machine Review",
     "tier": "specialist",
-    "description": "When user says 'state machine review / state transition audit / FSM design review / workflow state review / event-sourced state review' — dispatches reviewer with state-machine focus. DEFAULT for state-machine design and review.",
+    "description": "When user says 'state machine review / state transition audit / FSM design review / workflow state review / event-sourced state review' \u2014 dispatches reviewer with state-machine focus. DEFAULT for state-machine design and review.",
     "when_to_use": "Manual-only. Invoke for state-machine, FSM, reducer, or protocol-lifecycle review. Different cognitive model from architecture review (which handles boundaries) and concurrency (which handles timing). For lock/race/async issues, see `_shared/playbooks/concurrency-patterns.md`.",
     "argument_hint": "[state machine|reducer|protocol]",
     "editing": true,
@@ -1502,7 +1741,7 @@
     ],
     "workflow_steps": [
       "Identify the state machine. If implicit, make it explicit (enumerate states from code).",
-      "Build the transition table: state × event → new state | rejected.",
+      "Build the transition table: state \u00d7 event \u2192 new state | rejected.",
       "Identify invariants and confirm they're enforced (type, validation, or assertion).",
       "Look for impossible states and unreachable states.",
       "Look for stuck states (no transition out).",
@@ -1519,7 +1758,7 @@
     },
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "contract-drift-panel",
     "outputs": [
       "State Machine"
     ],
@@ -1529,20 +1768,31 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "contract-drift-panel",
       "outputs": [
         "State Machine"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "code"
+      },
+      "paired_panels": [
+        "contract-drift-panel"
+      ]
+    },
+    "paired_panels": [
+      "contract-drift-panel"
+    ],
+    "family": "architecture-contracts"
   },
   {
     "name": "tui-design-innovate",
     "title": "TUI Design + Innovate",
     "tier": "specialist",
-    "description": "When user says 'design a TUI / terminal UI design / Bubble Tea component / Ink interface / TUI interaction pattern / CLI command design' — dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state). DEFAULT for terminal-UI design work.",
+    "description": "When user says 'design a TUI / terminal UI design / Bubble Tea component / Ink interface / TUI interaction pattern / CLI command design' \u2014 dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state). DEFAULT for terminal-UI design work.",
     "when_to_use": "Manual-only. Invoke for TUI app or framework work: terminal-native interaction, focus management, layout, rendering, input routing, framework primitives. Do not default to browser/desktop GUI assumptions.",
     "argument_hint": "[surface|framework|interaction]",
     "editing": true,
@@ -1583,7 +1833,7 @@
     "subagent_delegation": "Dispatch `reviewer` with focus=architecture for framework structure. See `_shared/playbooks/frontend-ux-checklist.md` for general UX overlap.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "feature-gap-panel",
     "outputs": [
       "Surface"
     ],
@@ -1593,20 +1843,37 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "feature-gap-panel",
       "outputs": [
         "Surface"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "phase": "analysis",
+        "focus": "tui"
+      },
+      "paired_panels": [
+        "feature-gap-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "reviewer",
+      "phase": "analysis",
+      "focus": "tui"
+    },
+    "paired_panels": [
+      "feature-gap-panel"
+    ],
+    "family": "experience-quality"
   },
   {
     "name": "docs-sync",
     "title": "Docs Sync",
     "tier": "specialist",
-    "description": "When user says 'docs are out of sync / update documentation / fix the README / docs don't match code / sync docs to recent changes / update docs after refactor' — produces documentation update plan + drafts. DEFAULT for documentation drift correction.",
+    "description": "When user says 'docs are out of sync / update documentation / fix the README / docs don't match code / sync docs to recent changes / update docs after refactor' \u2014 produces documentation update plan + drafts. DEFAULT for documentation drift correction.",
     "when_to_use": "Manual-only. Invoke when docs may have drifted from code: stale examples, outdated install instructions, removed flags still documented, screenshots showing old UI. For ADR/design doc creation, see `_shared/playbooks/adr-template.md` and `_shared/playbooks/design-doc-template.md`.",
     "argument_hint": "[doc|surface|version range]",
     "editing": true,
@@ -1643,7 +1910,7 @@
     "subagent_delegation": "Dispatch `writer` for changelog synthesis from raw commit log. See `_shared/playbooks/release-notes-format.md`.",
     "primary_agent": "writer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "repo-completeness-panel",
     "outputs": [
       "Docs Inventory"
     ],
@@ -1653,20 +1920,33 @@
     "cognitive": {
       "primary_agent": "writer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "repo-completeness-panel",
       "outputs": [
         "Docs Inventory"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "writer"
+      },
+      "paired_panels": [
+        "repo-completeness-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "writer"
+    },
+    "paired_panels": [
+      "repo-completeness-panel"
+    ],
+    "family": "documentation-maintenance"
   },
   {
     "name": "technical-debt-triage",
     "title": "Technical Debt Triage",
     "tier": "specialist",
-    "description": "When user says 'triage tech debt / which debt to pay down / debt prioritization / what should we refactor first / debt impact assessment / tech debt audit' — produces ranked tech debt list with impact + effort + recommended sequencing. DEFAULT for tech debt prioritization.",
+    "description": "When user says 'triage tech debt / which debt to pay down / debt prioritization / what should we refactor first / debt impact assessment / tech debt audit' \u2014 produces ranked tech debt list with impact + effort + recommended sequencing. DEFAULT for tech debt prioritization.",
     "when_to_use": "Manual-only. Invoke for maintenance-backlog work: debt inventory, modernization sequencing, 30/60/90-day plans, contributor friction, build/test speed audit. Consolidates V4's tech-debt-triage, codebase-health, developer-experience-audit, build-test-optimizer.",
     "argument_hint": "[scope|focus: debt|dx|build-speed|health]",
     "editing": false,
@@ -1675,15 +1955,15 @@
       "codebase-health",
       "developer-experience-audit"
     ],
-    "distinctive_judgment": "Maintenance backlog is shaped like an inventory + sequencing problem. The inventory is what's broken or rotting; the sequencing is what to fix first given finite engineering time. Risk × leverage × cost. DX friction and build speed are debt with compounding interest: every day of delay costs more time per contributor.",
+    "distinctive_judgment": "Maintenance backlog is shaped like an inventory + sequencing problem. The inventory is what's broken or rotting; the sequencing is what to fix first given finite engineering time. Risk \u00d7 leverage \u00d7 cost. DX friction and build speed are debt with compounding interest: every day of delay costs more time per contributor.",
     "first_signals": [
       "Recent pain points: PRs that took unusually long, recent incidents, contributor complaints",
       "Build/test/lint times locally and in CI",
       "Test flakiness rate",
       "Onboarding time for new contributors",
       "Areas with high churn + high bug rate (correlation often = debt)",
-      "Versions: language, framework, deps — how stale?",
-      "Tooling: linter, formatter, type checker — config drift, ignored rules"
+      "Versions: language, framework, deps \u2014 how stale?",
+      "Tooling: linter, formatter, type checker \u2014 config drift, ignored rules"
     ],
     "failure_modes": [
       "Listing every imperfection without prioritizing (overwhelming, no action taken)",
@@ -1695,19 +1975,19 @@
     "workflow_steps": [
       "Identify scope and focus (debt / DX / build-speed / health).",
       "Inventory: enumerate the items. Concrete, file-level when possible.",
-      "Score each: risk (likelihood × impact), leverage (how much friction it removes), cost (engineering time).",
-      "Sequence into 30/60/90 buckets. Highest risk × leverage / cost first.",
+      "Score each: risk (likelihood \u00d7 impact), leverage (how much friction it removes), cost (engineering time).",
+      "Sequence into 30/60/90 buckets. Highest risk \u00d7 leverage / cost first.",
       "For build/test speed: profile the current pipeline. Identify the dominant cost.",
       "For DX: enumerate friction points concretely (this command takes 3 min, that error is unclear).",
       "Produce the plan with measurable targets per bucket.",
       "Stay read-only; this skill produces a plan, not the fixes."
     ],
     "validation_strategy": "No code changes. Validate by referring to recent incidents and contributor pain that confirm the items in the inventory.",
-    "output_contract": "Scope + Focus | Inventory (file-level when possible) | Risk × Leverage / Cost Scoring | 30/60/90 Sequenced Plan | Measurement Targets per Bucket | Specific Build/DX Bottlenecks (if applicable)",
+    "output_contract": "Scope + Focus | Inventory (file-level when possible) | Risk \u00d7 Leverage / Cost Scoring | 30/60/90 Sequenced Plan | Measurement Targets per Bucket | Specific Build/DX Bottlenecks (if applicable)",
     "subagent_delegation": "Dispatch `auditor` with focus=infra for build pipeline depth. See `_shared/playbooks/codebase-health-signals.md`, `_shared/playbooks/developer-experience-friction-list.md`, `_shared/playbooks/build-test-optimizer-patterns.md`.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "repo-completeness-panel",
     "outputs": [
       "Scope + Focus"
     ],
@@ -1717,20 +1997,35 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "repo-completeness-panel",
       "outputs": [
         "Scope + Focus"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "technical-debt"
+      },
+      "paired_panels": [
+        "repo-completeness-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "reviewer",
+      "focus": "technical-debt"
+    },
+    "paired_panels": [
+      "repo-completeness-panel"
+    ],
+    "family": "documentation-maintenance"
   },
   {
     "name": "plugin-review",
     "title": "Plugin Review",
     "tier": "ecosystem",
-    "description": "When user says 'review my plugin / Claude Code plugin review / Codex plugin review / plugin structure check / plugin best practices / plugin design review' — dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks). DEFAULT for plugin review tasks.",
+    "description": "When user says 'review my plugin / Claude Code plugin review / Codex plugin review / plugin structure check / plugin best practices / plugin design review' \u2014 dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks). DEFAULT for plugin review tasks.",
     "when_to_use": "Manual-only. Invoke for ecosystem-level review of a Claude Code plugin package. For authoring a new skill or agent, use ecosystem skills `skill-author` or `agent-author`.",
     "argument_hint": "[plugin path|focus]",
     "editing": true,
@@ -1739,7 +2034,7 @@
     ],
     "distinctive_judgment": "A Claude Code plugin is a structured package: skills (with frontmatter and bodies), agents (with tool permissions), hooks (deterministic), commands, MCP servers, output styles, marketplace metadata. Each surface has its own review criteria. Hooks are the riskiest because they intercept tool calls; MCP servers run as subprocesses; skills are passive but cumulative.",
     "first_signals": [
-      "Plugin manifest: `.claude-plugin/plugin.json` — schema, version, declared surfaces",
+      "Plugin manifest: `.claude-plugin/plugin.json` \u2014 schema, version, declared surfaces",
       "Skills: frontmatter validity, body shape, when_to_use clarity, tier",
       "Agents: tool permissions, body clarity, intended use",
       "Hooks: matchers, scripts, fail-open behavior, env-var disable",
@@ -1772,7 +2067,7 @@
     "subagent_delegation": "Dispatch `auditor` with focus=plugin for second perspective.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "cognitive-governance-panel",
     "outputs": [
       "Plugin Manifest Status"
     ],
@@ -1782,20 +2077,37 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "cognitive-governance-panel",
       "outputs": [
         "Plugin Manifest Status"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "phase": "analysis",
+        "focus": "plugin"
+      },
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "reviewer",
+      "phase": "analysis",
+      "focus": "plugin"
+    },
+    "paired_panels": [
+      "cognitive-governance-panel"
+    ],
+    "family": "plugin-ecosystem"
   },
   {
     "name": "skill-author",
     "title": "Skill Author",
     "tier": "ecosystem",
-    "description": "When user says 'author a new skill / write a skill / design a skill / new skill for X / skill description / skill spec' — produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation). DEFAULT for skill authoring.",
+    "description": "When user says 'author a new skill / write a skill / design a skill / new skill for X / skill description / skill spec' \u2014 produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation). DEFAULT for skill authoring.",
     "when_to_use": "Manual-only. Invoke for new skill authoring or refining an existing skill body. Also handles CLAUDE.md / AGENTS.md / repo guidance file optimization.",
     "argument_hint": "[skill name|target]",
     "editing": true,
@@ -1835,7 +2147,7 @@
     "subagent_delegation": "Dispatch `writer` for body prose synthesis. See `_shared/playbooks/claude-md-template.md` for CLAUDE.md guidance.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "cognitive-governance-panel",
     "outputs": [
       "Skill Frontmatter"
     ],
@@ -1845,20 +2157,37 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "cognitive-governance-panel",
       "outputs": [
         "Skill Frontmatter"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "phase": "analysis",
+        "focus": "skill-authoring"
+      },
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "reviewer",
+      "phase": "analysis",
+      "focus": "skill-authoring"
+    },
+    "paired_panels": [
+      "cognitive-governance-panel"
+    ],
+    "family": "plugin-ecosystem"
   },
   {
     "name": "agent-author",
     "title": "Agent Author",
     "tier": "ecosystem",
-    "description": "When user says 'author a new agent / write an agent / design an agent / new subagent / create an agent for X / agent description' — produces a new agent definition (.md with frontmatter + body) following the V8 quality bar (USE WHEN/DEFAULT/DO NOT triggers + required output contract + lane boundaries + anti-patterns). DEFAULT for agent authoring.",
+    "description": "When user says 'author a new agent / write an agent / design an agent / new subagent / create an agent for X / agent description' \u2014 produces a new agent definition (.md with frontmatter + body) following the V8 quality bar (USE WHEN/DEFAULT/DO NOT triggers + required output contract + lane boundaries + anti-patterns). DEFAULT for agent authoring.",
     "when_to_use": "Manual-only. Invoke for new agent authoring or refining an existing agent. Also covers agent orchestration patterns and team-style invocation design.",
     "argument_hint": "[agent name|target]",
     "editing": true,
@@ -1871,7 +2200,7 @@
     "first_signals": [
       "Agent fleet in this plugin (29 agents in V8; for shape reference)",
       "Tool permission patterns (Read/Grep/Glob for read-only; +Bash for discovery; Write only for narrow scratch use)",
-      "Existing parameterized agents (reviewer, auditor) — could the new agent be a focus arg instead?",
+      "Existing parameterized agents (reviewer, auditor) \u2014 could the new agent be a focus arg instead?",
       "Orchestration: when is this agent dispatched? By which skills?"
     ],
     "failure_modes": [
@@ -1894,7 +2223,7 @@
     "subagent_delegation": "Dispatch `writer` for body prose. See `_shared/playbooks/agent-team-orchestration-patterns.md`.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "cognitive-governance-panel",
     "outputs": [
       "Agent Frontmatter"
     ],
@@ -1904,20 +2233,37 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "cognitive-governance-panel",
       "outputs": [
         "Agent Frontmatter"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "phase": "analysis",
+        "focus": "agent-authoring"
+      },
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "reviewer",
+      "phase": "analysis",
+      "focus": "agent-authoring"
+    },
+    "paired_panels": [
+      "cognitive-governance-panel"
+    ],
+    "family": "plugin-ecosystem"
   },
   {
     "name": "hooks-design",
     "title": "Hooks Design",
     "tier": "ecosystem",
-    "description": "When user says 'design hooks / hook architecture / PreToolUse hook / SessionStart hook / Stop hook / how should I structure plugin hooks / hook design' — dispatches reviewer/architect with plugin hooks focus. DEFAULT for plugin hook design.",
+    "description": "When user says 'design hooks / hook architecture / PreToolUse hook / SessionStart hook / Stop hook / how should I structure plugin hooks / hook design' \u2014 dispatches reviewer/architect with plugin hooks focus. DEFAULT for plugin hook design.",
     "when_to_use": "Manual-only. Invoke for hook design, hook auditing, or settings/permissions audit. Hooks are the riskiest plugin surface because they intercept tool calls.",
     "argument_hint": "[hook|surface]",
     "editing": true,
@@ -1956,7 +2302,7 @@
     "subagent_delegation": "Dispatch `auditor` with focus=infra for hook script review. See `_shared/playbooks/settings-permissions-checklist.md`.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "cognitive-governance-panel",
     "outputs": [
       "Hook Purpose"
     ],
@@ -1966,20 +2312,37 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "cognitive-governance-panel",
       "outputs": [
         "Hook Purpose"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "phase": "analysis",
+        "focus": "hooks"
+      },
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "reviewer",
+      "phase": "analysis",
+      "focus": "hooks"
+    },
+    "paired_panels": [
+      "cognitive-governance-panel"
+    ],
+    "family": "plugin-ecosystem"
   },
   {
     "name": "mcp-design",
     "title": "MCP Design",
     "tier": "ecosystem",
-    "description": "When user says 'design an MCP server / MCP tool design / MCP architecture / how should I expose this as MCP / MCP capability design' — dispatches reviewer/architect with MCP focus. DEFAULT for MCP design tasks.",
+    "description": "When user says 'design an MCP server / MCP tool design / MCP architecture / how should I expose this as MCP / MCP capability design' \u2014 dispatches reviewer/architect with MCP focus. DEFAULT for MCP design tasks.",
     "when_to_use": "Manual-only. Invoke for MCP server design, audit, or tool-boundary review. Combines V4's mcp-integration-design and mcp-server-audit.",
     "argument_hint": "[server|tool|surface]",
     "editing": true,
@@ -2011,7 +2374,7 @@
       "Design the tool surface: minimal, read-only by default, named clearly.",
       "Define input schema (JSON Schema) and output shape per tool.",
       "Implement the server: protocol methods, error handling, self-test mode.",
-      "Add tool-level tests (input → expected output).",
+      "Add tool-level tests (input \u2192 expected output).",
       "Smoke-test JSON-RPC end-to-end without Claude Code.",
       "Wire into plugin via .mcp.json."
     ],
@@ -2020,7 +2383,7 @@
     "subagent_delegation": "Dispatch `auditor` with focus=infra for server resource handling. Dispatch `auditor` with focus=ai-safety for tool-boundary review when the server enables agent autonomy.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "cognitive-governance-panel",
     "outputs": [
       "Server Purpose"
     ],
@@ -2030,20 +2393,39 @@
     "cognitive": {
       "primary_agent": "reviewer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "cognitive-governance-panel",
       "outputs": [
         "Server Purpose"
       ],
       "mode": "write_capable",
       "risk": "medium",
-      "confirmation": "required_for_repo_mutation"
-    }
+      "confirmation": "required_for_repo_mutation",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "phase": "analysis",
+        "focus": "mcp"
+      },
+      "paired_panels": [
+        "cognitive-governance-panel",
+        "contract-drift-panel"
+      ]
+    },
+    "dispatch_to": {
+      "agent": "reviewer",
+      "phase": "analysis",
+      "focus": "mcp"
+    },
+    "paired_panels": [
+      "cognitive-governance-panel",
+      "contract-drift-panel"
+    ],
+    "family": "plugin-ecosystem"
   },
   {
     "name": "repo-review",
     "title": "Repo Review",
     "tier": "core",
-    "description": "When user says 'review this whole repo / what's incomplete / audit the codebase end-to-end / what gaps exist / find what's missing / is this ready to ship' — produces a structured repo review covering map (entrypoints, routes, data, jobs), confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence. DEFAULT for any whole-repo audit prompt. V8 panel-ready skill.",
+    "description": "When user says 'review this whole repo / what's incomplete / audit the codebase end-to-end / what gaps exist / find what's missing / is this ready to ship' \u2014 produces a structured repo review covering map (entrypoints, routes, data, jobs), confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence. DEFAULT for any whole-repo audit prompt. V8 panel-ready skill.",
     "dispatch_to": {
       "agent": "repo-cartographer",
       "phase": "analysis"
@@ -2075,14 +2457,14 @@
       "Identify the 3-5 highest-leverage specialist passes for this repo (offer to dispatch them; do not chain automatically).",
       "Synthesize findings into the repo_review_report contract with file-level evidence.",
       "Label every gap with confidence (confirmed/likely/possible).",
-      "End with recommended implementation sequence ordered by risk × effort."
+      "End with recommended implementation sequence ordered by risk \u00d7 effort."
     ],
     "validation_strategy": "Every claim in 'confirmed_gaps' must cite a file path. Every claim in 'probable_gaps' must explain the verification step needed. 'release_readiness' status (ready/risky/blocked) must be backed by at least 3 evidence entries. No generic best-practice findings.",
     "output_contract": "Executive summary | Repo map summary | Confirmed gaps (with file evidence) | Probable gaps (with verification steps) | Test gaps (risk-weighted) | Contract gaps | Stale or dead code | Release readiness (ready/risky/blocked) | Top risks | Quick wins | Recommended implementation sequence | Validation plan",
     "subagent_delegation": "Default: dispatch ultraprompt:repo-cartographer for the analysis phase. For deep follow-up specialist passes, recommend (do not auto-chain) the relevant ultraprompt:* agents per gap type. V8 panels: repo-completeness-panel is available for deeper review.",
     "primary_agent": "repo-cartographer",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "repo-completeness-panel",
     "outputs": [
       "Executive summary"
     ],
@@ -2092,20 +2474,30 @@
     "cognitive": {
       "primary_agent": "repo-cartographer",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "repo-completeness-panel",
       "outputs": [
         "Executive summary"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "repo-cartographer",
+        "phase": "analysis"
+      },
+      "paired_panels": [
+        "repo-completeness-panel"
+      ]
+    },
+    "paired_panels": [
+      "repo-completeness-panel"
+    ]
   },
   {
     "name": "gap-analysis",
     "title": "Repo Gap Analysis",
     "tier": "core",
-    "description": "When user says 'find what's missing / gap analysis on X / what's incomplete / where are the wiring gaps / find half-built features / synthesize repo audit findings' — orchestrates feature-completeness-auditor + wiring-gap-inspector and synthesizes via gap-analysis-lead. Produces structured gap_ledger with confirmed/probable/low-confidence findings, top risks, quick wins, ordered implementation sequence, and recommended fix-skills per gap. DEFAULT for any gap-finding prompt at repo or workflow scope.",
+    "description": "When user says 'find what's missing / gap analysis on X / what's incomplete / where are the wiring gaps / find half-built features / synthesize repo audit findings' \u2014 orchestrates feature-completeness-auditor + wiring-gap-inspector and synthesizes via gap-analysis-lead. Produces structured gap_ledger with confirmed/probable/low-confidence findings, top risks, quick wins, ordered implementation sequence, and recommended fix-skills per gap. DEFAULT for any gap-finding prompt at repo or workflow scope.",
     "dispatch_to": {
       "agent": "gap-analysis-lead"
     },
@@ -2136,7 +2528,7 @@
       "Then dispatch gap-analysis-lead with all upstream findings.",
       "Synthesis output goes to .ultraprompt/gaps/gap-ledger.jsonl when --write specified.",
       "Final report cites evidence per gap; no gap claimed without file:line citation.",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "Recommend follow-up fix-skills per gap (build, refactor, migrate, test-harden, etc.)."
     ],
     "validation_strategy": "Every gap in confirmed_gaps must have evidence with file:line. Every gap in probable_gaps must have an explicit verification_step. Implementation sequence must order phases by dependency, not by severity alone.",
@@ -2144,7 +2536,7 @@
     "subagent_delegation": "Default: dispatch gap-analysis-lead for synthesis. If no upstream findings exist, first dispatch feature-completeness-auditor + wiring-gap-inspector (parallel via panel-run if requested) and pipe their output.",
     "primary_agent": "gap-analysis-lead",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "repo-completeness-panel",
     "outputs": [
       "Executive summary"
     ],
@@ -2154,20 +2546,31 @@
     "cognitive": {
       "primary_agent": "gap-analysis-lead",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "repo-completeness-panel",
       "outputs": [
         "Executive summary"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "gap-analysis-lead"
+      },
+      "paired_panels": [
+        "repo-completeness-panel",
+        "feature-gap-panel"
+      ]
+    },
+    "paired_panels": [
+      "repo-completeness-panel",
+      "feature-gap-panel"
+    ]
   },
   {
     "name": "feature-completeness",
     "title": "Feature Completeness Audit",
     "tier": "core",
-    "description": "When user says 'is feature X complete / audit this feature end-to-end / does this workflow actually work / find missing pieces of feature W / is the UI wired to the backend / does feature Y persist correctly' — runs end-to-end completeness audit on ONE named feature. Dispatches feature-completeness-auditor with the feature scope. Produces structured incomplete_features findings with file-level evidence, missing parts list, confidence labels, validation plan. DEFAULT for single-feature audits — wins over repo-review (whole repo) and over manual investigation because the auditor knows the layer-by-layer gap patterns.",
+    "description": "When user says 'is feature X complete / audit this feature end-to-end / does this workflow actually work / find missing pieces of feature W / is the UI wired to the backend / does feature Y persist correctly' \u2014 runs end-to-end completeness audit on ONE named feature. Dispatches feature-completeness-auditor with the feature scope. Produces structured incomplete_features findings with file-level evidence, missing parts list, confidence labels, validation plan. DEFAULT for single-feature audits \u2014 wins over repo-review (whole repo) and over manual investigation because the auditor knows the layer-by-layer gap patterns.",
     "dispatch_to": {
       "agent": "feature-completeness-auditor",
       "focus_from": "argument"
@@ -2182,7 +2585,7 @@
       "is-this-complete",
       "e2e-audit"
     ],
-    "distinctive_judgment": "Feature-completeness is single-feature scope (UI → API → backend → DB). Repo-review is whole-repo scope. Gap-analysis is synthesis across multiple sources. Architect is design review, not implementation completeness.",
+    "distinctive_judgment": "Feature-completeness is single-feature scope (UI \u2192 API \u2192 backend \u2192 DB). Repo-review is whole-repo scope. Gap-analysis is synthesis across multiple sources. Architect is design review, not implementation completeness.",
     "first_signals": [
       "User names a specific feature/workflow.",
       "User says 'does it actually work' or 'is it wired'.",
@@ -2198,7 +2601,7 @@
       "Verify the user named a specific feature; if not, ask before dispatching.",
       "Dispatch feature-completeness-auditor with the feature name as focus.",
       "If repo-cartographer output is available in context, pass it; otherwise the auditor builds a mini-map for the feature.",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "On completion, synthesize findings; if 3+ gaps found, recommend dispatching gap-analysis-lead for prioritization."
     ],
     "validation_strategy": "Auditor must trace at least: UI entry, API client call, backend route, handler, service, data persistence, response render. Every layer's presence/absence/wiring must have file:line evidence. confidence labels mandatory.",
@@ -2206,7 +2609,7 @@
     "subagent_delegation": "Default: dispatch feature-completeness-auditor with focus from $ARGUMENTS. For 3+ gaps found, recommend dispatching gap-analysis-lead next. For test-coverage gaps specifically, recommend dispatching test-strategist.",
     "primary_agent": "feature-completeness-auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "feature-gap-panel",
     "outputs": [
       "Feature surface map"
     ],
@@ -2216,20 +2619,30 @@
     "cognitive": {
       "primary_agent": "feature-completeness-auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "feature-gap-panel",
       "outputs": [
         "Feature surface map"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "feature-completeness-auditor",
+        "focus_from": "argument"
+      },
+      "paired_panels": [
+        "feature-gap-panel"
+      ]
+    },
+    "paired_panels": [
+      "feature-gap-panel"
+    ]
   },
   {
     "name": "test-gap-analysis",
     "title": "Test Gap Analysis",
     "tier": "core",
-    "description": "When user says 'find test gaps / where's the missing coverage / risk-weighted test plan / what should we test / find untested paths / regression coverage review / what edge cases am I missing' — finds critical behavior with weak/missing validation. Risk-weights findings (critical for auth/payment/data-deletion lanes; medium for UI rendering; low for admin). DEFAULT for test-gap detection. Different from test-harden (designs new tests) — test-gap-analysis specifically finds the gaps.",
+    "description": "When user says 'find test gaps / where's the missing coverage / risk-weighted test plan / what should we test / find untested paths / regression coverage review / what edge cases am I missing' \u2014 finds critical behavior with weak/missing validation. Risk-weights findings (critical for auth/payment/data-deletion lanes; medium for UI rendering; low for admin). DEFAULT for test-gap detection. Different from test-harden (designs new tests) \u2014 test-gap-analysis specifically finds the gaps.",
     "dispatch_to": {
       "agent": "test-gap-analyst"
     },
@@ -2260,7 +2673,7 @@
       "Auditor produces risk-weighted test_gaps entries.",
       "Synthesize: top 5 critical, top 5 high, summary of medium/low.",
       "For each critical/high gap, recommend specific test type (unit/integration/e2e/contract).",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "End with 'next dispatch' suggestion: test-harden to design the tests."
     ],
     "validation_strategy": "Every gap must cite specific file:line for both the behavior and the absence-of-test evidence. Risk weighting must use the lane-based heuristic, not be uniform across findings.",
@@ -2268,7 +2681,7 @@
     "subagent_delegation": "Default: dispatch test-gap-analyst. Followup: test-harden to design and write the missing tests.",
     "primary_agent": "test-gap-analyst",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "feature-gap-panel",
     "outputs": [
       "Risk-weighted test gaps"
     ],
@@ -2278,20 +2691,29 @@
     "cognitive": {
       "primary_agent": "test-gap-analyst",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "feature-gap-panel",
       "outputs": [
         "Risk-weighted test gaps"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "test-gap-analyst"
+      },
+      "paired_panels": [
+        "feature-gap-panel"
+      ]
+    },
+    "paired_panels": [
+      "feature-gap-panel"
+    ]
   },
   {
     "name": "dead-code-drift",
     "title": "Dead Code & Drift Audit",
     "tier": "core",
-    "description": "When user says 'find dead code / what's stale / unused exports / clean up the repo / find drift / what's deprecated / what's safe to delete / orphaned utilities / find duplicates' — produces a structured drift_findings list with safe-to-remove labels (yes/likely/needs_review/no) and migration plans. DEFAULT for cleanup audits. Different from refactor (applies changes) — dead-code-drift produces the report; user/refactor applies.",
+    "description": "When user says 'find dead code / what's stale / unused exports / clean up the repo / find drift / what's deprecated / what's safe to delete / orphaned utilities / find duplicates' \u2014 produces a structured drift_findings list with safe-to-remove labels (yes/likely/needs_review/no) and migration plans. DEFAULT for cleanup audits. Different from refactor (applies changes) \u2014 dead-code-drift produces the report; user/refactor applies.",
     "dispatch_to": {
       "agent": "dead-code-and-drift-hunter"
     },
@@ -2322,7 +2744,7 @@
       "Auditor produces drift_findings with safe-to-remove labels.",
       "Synthesize: summary by safe-to-remove distribution.",
       "Highlight quick wins (label=yes, low risk).",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "Flag needs_review items for human decision."
     ],
     "validation_strategy": "Every drift finding must show evidence (grep results or file:line). Safe-to-remove label must have explicit justification. needs_review items must explain the uncertainty.",
@@ -2330,7 +2752,7 @@
     "subagent_delegation": "Default: dispatch dead-code-and-drift-hunter. Followup: /ultraprompt:refactor to apply cleanups.",
     "primary_agent": "dead-code-and-drift-hunter",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "repo-completeness-panel",
     "outputs": [
       "Drift findings by type"
     ],
@@ -2340,20 +2762,29 @@
     "cognitive": {
       "primary_agent": "dead-code-and-drift-hunter",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "repo-completeness-panel",
       "outputs": [
         "Drift findings by type"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "dead-code-and-drift-hunter"
+      },
+      "paired_panels": [
+        "repo-completeness-panel"
+      ]
+    },
+    "paired_panels": [
+      "repo-completeness-panel"
+    ]
   },
   {
     "name": "release-readiness",
     "title": "Release Readiness Audit",
     "tier": "core",
-    "description": "When user says 'is this ready to ship / release readiness / ship/no-ship / can we deploy / pre-release audit / production-ready check / what's blocking release' — produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence. DEFAULT for shipability assessment. Different from release (writes notes/changelog) — release-readiness audits whether the codebase is shippable.",
+    "description": "When user says 'is this ready to ship / release readiness / ship/no-ship / can we deploy / pre-release audit / production-ready check / what's blocking release' \u2014 produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence. DEFAULT for shipability assessment. Different from release (writes notes/changelog) \u2014 release-readiness audits whether the codebase is shippable.",
     "dispatch_to": {
       "agent": "release-readiness-auditor"
     },
@@ -2384,15 +2815,15 @@
       "Auditor produces ready/risky/blocked verdict + structured findings.",
       "Synthesize for the user: clear ship-or-not call with justification.",
       "Order remediation: blockers first, then critical warnings, then warnings.",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "End with: gate criteria for each phase + validation commands."
     ],
-    "validation_strategy": "Every blocker and warning must cite file:line evidence (or absence-of-file). Verdict follows verdict rules: 0 blockers + acceptable warnings = ready; 0 blockers + many warnings = risky; ≥1 blocker = blocked.",
+    "validation_strategy": "Every blocker and warning must cite file:line evidence (or absence-of-file). Verdict follows verdict rules: 0 blockers + acceptable warnings = ready; 0 blockers + many warnings = risky; \u22651 blocker = blocked.",
     "output_contract": "Verdict (ready/risky/blocked) | Blockers with evidence | Warnings ranked | Missing operational controls | Required validation commands | Rollback concerns | Phased release sequence with gate criteria",
     "subagent_delegation": "Default: dispatch release-readiness-auditor. For deep follow-up: dispatch security-auditor (if secrets handling flagged) + test-strategist (if test gaps flagged).",
     "primary_agent": "release-readiness-auditor",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "release-gate-panel",
     "outputs": [
       "Verdict (ready/risky/blocked)"
     ],
@@ -2402,26 +2833,35 @@
     "cognitive": {
       "primary_agent": "release-readiness-auditor",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "release-gate-panel",
       "outputs": [
         "Verdict (ready/risky/blocked)"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "release-readiness-auditor"
+      },
+      "paired_panels": [
+        "release-gate-panel"
+      ]
+    },
+    "paired_panels": [
+      "release-gate-panel"
+    ]
   },
   {
     "name": "prd-lite",
     "title": "PRD Lite",
     "tier": "core",
-    "description": "When user says 'quick PRD for X / one-pager for feature Y / lightweight spec / draft a fast PRD / opportunity brief / problem-solution memo' — produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria. DEFAULT for early-stage thinking that doesn't yet warrant a full PRD. Less rigor than prd-standard; more rigor than freeform notes.",
+    "description": "When user says 'quick PRD for X / one-pager for feature Y / lightweight spec / draft a fast PRD / opportunity brief / problem-solution memo' \u2014 produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria. DEFAULT for early-stage thinking that doesn't yet warrant a full PRD. Less rigor than prd-standard; more rigor than freeform notes.",
     "dispatch_to": {
       "agent": "principal-pm"
     },
     "family": "product-prd",
     "artifact_type": "prd_lite",
-    "when_to_use": "When the user wants a fast, structured product brief — typically for early ideas, feature triage, or single-engineer-team scope. Not appropriate for cross-team or regulated changes.",
+    "when_to_use": "When the user wants a fast, structured product brief \u2014 typically for early ideas, feature triage, or single-engineer-team scope. Not appropriate for cross-team or regulated changes.",
     "argument_hint": "<feature or problem name>",
     "editing": false,
     "aliases": [
@@ -2447,12 +2887,12 @@
       "If user has compliance concerns or cross-team scope, recommend escalating to prd-standard.",
       "End with 3-5 open questions ordered by blocking-priority."
     ],
-    "validation_strategy": "Every problem statement cites evidence. Non-goals explicit. Success criteria with baseline + target. Acceptance criteria in given/when/then. Skip the deeper PRD sections (technical_considerations, rollout_plan) — those go to prd-standard.",
+    "validation_strategy": "Every problem statement cites evidence. Non-goals explicit. Success criteria with baseline + target. Acceptance criteria in given/when/then. Skip the deeper PRD sections (technical_considerations, rollout_plan) \u2014 those go to prd-standard.",
     "output_contract": "Problem statement (with evidence) | Users + jobs-to-be-done | Goals + non-goals | Must-have requirements | Scope boundaries | Success criteria (baseline+target) | Top risks | Open questions",
     "subagent_delegation": "Default: dispatch principal-pm. For deeper analysis: recommend prd-standard or prd-technical.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "prd-panel",
     "outputs": [
       "Problem statement (with evidence)"
     ],
@@ -2462,26 +2902,37 @@
     "cognitive": {
       "primary_agent": "principal-pm",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "prd-panel",
       "outputs": [
         "Problem statement (with evidence)"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "paired_panels": [
+        "prd-panel",
+        "mvp-panel"
+      ]
+    },
+    "paired_panels": [
+      "prd-panel",
+      "mvp-panel"
+    ]
   },
   {
     "name": "prd-standard",
     "title": "PRD Standard",
     "tier": "core",
-    "description": "When user says 'full PRD for X / product requirements doc / write the PRD / comprehensive product spec / standard PRD' — produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions. DEFAULT for any product change crossing teams or with meaningful complexity. Use prd-lite for early-stage; prd-technical for heavily technical features.",
+    "description": "When user says 'full PRD for X / product requirements doc / write the PRD / comprehensive product spec / standard PRD' \u2014 produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions. DEFAULT for any product change crossing teams or with meaningful complexity. Use prd-lite for early-stage; prd-technical for heavily technical features.",
     "dispatch_to": {
       "agent": "principal-pm"
     },
     "family": "product-prd",
     "artifact_type": "prd_standard",
-    "when_to_use": "When the user wants a complete PRD for a meaningful product change — cross-team scope, non-trivial complexity, or pre-engineering-kickoff documentation.",
+    "when_to_use": "When the user wants a complete PRD for a meaningful product change \u2014 cross-team scope, non-trivial complexity, or pre-engineering-kickoff documentation.",
     "argument_hint": "<feature or product change name>",
     "editing": false,
     "aliases": [
@@ -2509,12 +2960,12 @@
       "If compliance/regulatory exposure, recommend chaining to risk-and-controls-reviewer.",
       "End with prioritized open_questions."
     ],
-    "validation_strategy": "Every problem claim cites evidence. Non-goals explicit (3-5). All metrics have baseline + target + measurement method. Acceptance criteria in given/when/then. Rollout plan with phase gate criteria. Risks ranked by severity × likelihood with mitigations.",
-    "output_contract": "Problem statement with evidence | Users + jobs-to-be-done | Goals + non-goals (3-5) | Requirements (must/should/won't-have) | Scope (in/out) | Technical considerations | Risks (severity × likelihood + mitigations) | Metrics (leading/lagging/guardrails with baselines+targets) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open questions ranked by blocking-priority",
+    "validation_strategy": "Every problem claim cites evidence. Non-goals explicit (3-5). All metrics have baseline + target + measurement method. Acceptance criteria in given/when/then. Rollout plan with phase gate criteria. Risks ranked by severity \u00d7 likelihood with mitigations.",
+    "output_contract": "Problem statement with evidence | Users + jobs-to-be-done | Goals + non-goals (3-5) | Requirements (must/should/won't-have) | Scope (in/out) | Technical considerations | Risks (severity \u00d7 likelihood + mitigations) | Metrics (leading/lagging/guardrails with baselines+targets) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open questions ranked by blocking-priority",
     "subagent_delegation": "Default: dispatch principal-pm. Follow-up: technical-product-architect for technical design; risk-and-controls-reviewer for compliance/privacy; evaluator for measurement design.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "prd-panel",
     "outputs": [
       "Problem statement with evidence"
     ],
@@ -2524,26 +2975,35 @@
     "cognitive": {
       "primary_agent": "principal-pm",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "prd-panel",
       "outputs": [
         "Problem statement with evidence"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "paired_panels": [
+        "prd-panel"
+      ]
+    },
+    "paired_panels": [
+      "prd-panel"
+    ]
   },
   {
     "name": "prd-technical",
     "title": "Technical PRD",
     "tier": "core",
-    "description": "When user says 'technical PRD for X / engineering spec / technical product doc / infrastructure PRD / platform feature spec / heavy-tech feature requirements' — produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry. DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk. Combines principal-pm and technical-product-architect outputs.",
+    "description": "When user says 'technical PRD for X / engineering spec / technical product doc / infrastructure PRD / platform feature spec / heavy-tech feature requirements' \u2014 produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry. DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk. Combines principal-pm and technical-product-architect outputs.",
     "dispatch_to": {
       "agent": "principal-pm"
     },
     "family": "product-prd",
     "artifact_type": "prd_technical",
-    "when_to_use": "When the product change is technical-heavy — infrastructure, platform, dev tools, APIs, data pipelines. Less time on customer journey; more time on system shape.",
+    "when_to_use": "When the product change is technical-heavy \u2014 infrastructure, platform, dev tools, APIs, data pipelines. Less time on customer journey; more time on system shape.",
     "argument_hint": "<technical feature or platform name>",
     "editing": false,
     "aliases": [
@@ -2571,11 +3031,11 @@
       "End with prioritized open_technical_questions + open_product_questions."
     ],
     "validation_strategy": "Product requirements traceable to technical decisions. Every technical change has a product driver OR is flagged as technical-only. At least 5 failure modes. Telemetry for product validation included. Rollback strategy explicit.",
-    "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design: data model (entities, fields, indexes, migrations) | Technical design: API surface (endpoints, request/response shapes, deprecations) | Technical design: integration points (upstream, downstream, third-party) | Technical design: sequence flows + failure modes (≥5) | Technical design: feature flags + telemetry events + metrics | Performance considerations + security_and_privacy + rollout_technical_plan | Risks (severity × likelihood) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open product questions + open technical questions",
-    "subagent_delegation": "Default: chain principal-pm → technical-product-architect. Follow-up: risk-and-controls-reviewer + security-auditor for sensitive surfaces.",
+    "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design: data model (entities, fields, indexes, migrations) | Technical design: API surface (endpoints, request/response shapes, deprecations) | Technical design: integration points (upstream, downstream, third-party) | Technical design: sequence flows + failure modes (\u22655) | Technical design: feature flags + telemetry events + metrics | Performance considerations + security_and_privacy + rollout_technical_plan | Risks (severity \u00d7 likelihood) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open product questions + open technical questions",
+    "subagent_delegation": "Default: chain principal-pm \u2192 technical-product-architect. Follow-up: risk-and-controls-reviewer + security-auditor for sensitive surfaces.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "prd-panel",
     "outputs": [
       "Problem statement + evidence"
     ],
@@ -2585,20 +3045,29 @@
     "cognitive": {
       "primary_agent": "principal-pm",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "prd-panel",
       "outputs": [
         "Problem statement + evidence"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "paired_panels": [
+        "prd-panel"
+      ]
+    },
+    "paired_panels": [
+      "prd-panel"
+    ]
   },
   {
     "name": "prd-ai-feature",
     "title": "AI Feature PRD",
     "tier": "core",
-    "description": "When user says 'PRD for an AI feature / LLM-based feature spec / agent feature PRD / ML product requirements / generative AI feature / RAG feature spec / AI-powered X' — produces a PRD with AI-specific sections (model selection rationale, eval methodology, groundedness/hallucination guardrails, safety filters, human-in-the-loop fallback, cost model, latency targets, prompt versioning strategy, data privacy posture). DEFAULT for any feature whose core capability comes from an LLM, ML model, or AI/agent system. Different from prd-technical (general engineering): prd-ai-feature specifically handles AI-product risks (eval, safety, cost, hallucination, drift).",
+    "description": "When user says 'PRD for an AI feature / LLM-based feature spec / agent feature PRD / ML product requirements / generative AI feature / RAG feature spec / AI-powered X' \u2014 produces a PRD with AI-specific sections (model selection rationale, eval methodology, groundedness/hallucination guardrails, safety filters, human-in-the-loop fallback, cost model, latency targets, prompt versioning strategy, data privacy posture). DEFAULT for any feature whose core capability comes from an LLM, ML model, or AI/agent system. Different from prd-technical (general engineering): prd-ai-feature specifically handles AI-product risks (eval, safety, cost, hallucination, drift).",
     "dispatch_to": {
       "agent": "principal-pm"
     },
@@ -2619,7 +3088,7 @@
       "Output quality is probabilistic, not deterministic."
     ],
     "failure_modes": [
-      "Treating AI feature like deterministic software — missing eval/safety/hallucination handling.",
+      "Treating AI feature like deterministic software \u2014 missing eval/safety/hallucination handling.",
       "No cost model (AI features have non-trivial unit costs).",
       "No human-in-the-loop fallback for low-confidence outputs.",
       "Missing prompt/model versioning strategy (untracked drift)."
@@ -2634,10 +3103,10 @@
     ],
     "validation_strategy": "Every AI feature PRD must explicitly address: model selection rationale, eval methodology (both offline and online), groundedness/hallucination guardrails, safety filters, human-in-the-loop fallback path, cost model (per-call + scaled), latency budget, prompt versioning, and data privacy posture (training data, retention, opt-out).",
     "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design with AI sections | AI: model selection rationale + alternative models considered | AI: eval methodology (offline benchmarks, online metrics, human eval if applicable) | AI: groundedness + hallucination guardrails | AI: safety filters + content policy | AI: human-in-the-loop fallback path + low-confidence handling | AI: cost model (per-call + scaled to expected QPS) | AI: latency targets + budget | AI: prompt versioning + model versioning strategy | AI: data privacy posture (training data, retention, opt-out, residency) | AI: drift monitoring + retraining trigger criteria | Risks + acceptance criteria + rollout plan + validation plan + open questions",
-    "subagent_delegation": "Default: chain principal-pm → technical-product-architect → evaluator → risk-and-controls-reviewer. This is intentionally a 4-agent chain because AI features have multiple risk surfaces.",
+    "subagent_delegation": "Default: chain principal-pm \u2192 technical-product-architect \u2192 evaluator \u2192 risk-and-controls-reviewer. This is intentionally a 4-agent chain because AI features have multiple risk surfaces.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "ai-feature-panel",
     "outputs": [
       "Problem statement + evidence"
     ],
@@ -2647,20 +3116,31 @@
     "cognitive": {
       "primary_agent": "principal-pm",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "ai-feature-panel",
       "outputs": [
         "Problem statement + evidence"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "paired_panels": [
+        "ai-feature-panel",
+        "prd-panel"
+      ]
+    },
+    "paired_panels": [
+      "ai-feature-panel",
+      "prd-panel"
+    ]
   },
   {
     "name": "prd-to-plan",
     "title": "PRD to Implementation Plan",
     "tier": "core",
-    "description": "When user says 'convert this PRD to engineering plan / break down PRD for implementation / make a project plan from this PRD / split this PRD into milestones / what work is needed to ship this PRD / phase plan for PRD X' — converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase. DEFAULT for PRD → engineering handoff. Different from prd-technical (which produces the technical design): prd-to-plan takes a finished PRD and produces the build sequence.",
+    "description": "When user says 'convert this PRD to engineering plan / break down PRD for implementation / make a project plan from this PRD / split this PRD into milestones / what work is needed to ship this PRD / phase plan for PRD X' \u2014 converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase. DEFAULT for PRD \u2192 engineering handoff. Different from prd-technical (which produces the technical design): prd-to-plan takes a finished PRD and produces the build sequence.",
     "dispatch_to": {
       "agent": "principal-pm"
     },
@@ -2674,7 +3154,7 @@
       "implementation-plan",
       "engineering-plan"
     ],
-    "distinctive_judgment": "PRD-to-plan converts approved PRD to implementation plan; prd-standard creates the PRD; prd-technical adds technical design. Use in sequence: prd-standard → (optional prd-technical) → prd-to-plan.",
+    "distinctive_judgment": "PRD-to-plan converts approved PRD to implementation plan; prd-standard creates the PRD; prd-technical adds technical design. Use in sequence: prd-standard \u2192 (optional prd-technical) \u2192 prd-to-plan.",
     "first_signals": [
       "User has an approved PRD and wants to start engineering.",
       "User asks for milestones, phases, or build sequence.",
@@ -2698,7 +3178,7 @@
     "subagent_delegation": "Default: dispatch principal-pm. Follow-up: technical-product-architect if PRD lacks technical design; evaluator if measurement plan needs design.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "prd-panel",
     "outputs": [
       "Phases (numbered, named)"
     ],
@@ -2708,20 +3188,29 @@
     "cognitive": {
       "primary_agent": "principal-pm",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "prd-panel",
       "outputs": [
         "Phases (numbered, named)"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "paired_panels": [
+        "prd-panel"
+      ]
+    },
+    "paired_panels": [
+      "prd-panel"
+    ]
   },
   {
     "name": "opportunity-map",
     "title": "Opportunity Map",
     "tier": "core",
-    "description": "When user says 'opportunity map / what opportunities exist / market opportunity analysis / where are the openings / strategic opportunity assessment / opportunity space / what should we explore' — produces structured opportunity map with market/competitive/customer/internal axes, sized opportunities, evidence per zone, and recommended focus. DEFAULT for opportunity space exploration. Different from /idea-triage (ranks existing ideas) and /concept-brief (drafts one chosen concept).",
+    "description": "When user says 'opportunity map / what opportunities exist / market opportunity analysis / where are the openings / strategic opportunity assessment / opportunity space / what should we explore' \u2014 produces structured opportunity map with market/competitive/customer/internal axes, sized opportunities, evidence per zone, and recommended focus. DEFAULT for opportunity space exploration. Different from /idea-triage (ranks existing ideas) and /concept-brief (drafts one chosen concept).",
     "dispatch_to": {
       "agent": "market-analyst"
     },
@@ -2751,7 +3240,7 @@
       "Dispatch market-analyst for competitive analysis + white space map.",
       "If customer signal data available, chain customer-advocate to validate opportunity zones.",
       "Synthesize into opportunity_map artifact with axes, occupied zones, underserved zones, sized opportunities.",
-      "Rank opportunities by impact × feasibility × evidence strength.",
+      "Rank opportunities by impact \u00d7 feasibility \u00d7 evidence strength.",
       "End with recommended_focus (top 2-3 opportunities) and validation_plan for each."
     ],
     "validation_strategy": "Every opportunity zone has evidence (customer signal, market gap, competitive weakness). Every recommendation has reasoning. No 'pursue everything' outputs.",
@@ -2759,7 +3248,7 @@
     "subagent_delegation": "Default: dispatch market-analyst. Chain customer-advocate if user signal data provided. Followup: concept-brief or prd-lite for chosen direction.",
     "primary_agent": "market-analyst",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "idea-panel",
     "outputs": [
       "Market axes"
     ],
@@ -2769,20 +3258,29 @@
     "cognitive": {
       "primary_agent": "market-analyst",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "idea-panel",
       "outputs": [
         "Market axes"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "market-analyst"
+      },
+      "paired_panels": [
+        "idea-panel"
+      ]
+    },
+    "paired_panels": [
+      "idea-panel"
+    ]
   },
   {
     "name": "idea-triage",
     "title": "Idea Triage",
     "tier": "core",
-    "description": "When user says 'triage ideas / which ideas to pursue / rank these features / prioritize backlog / decide which ideas to build / idea evaluation / sort the idea list / must-kill / should we build X or Y' — runs structured triage of existing ideas with weighted criteria (customer impact, strategic fit, effort, evidence strength, risk). Produces ranked list with pursue/validate/defer/reject recommendations. DEFAULT for deciding what to build from a known set of options.",
+    "description": "When user says 'triage ideas / which ideas to pursue / rank these features / prioritize backlog / decide which ideas to build / idea evaluation / sort the idea list / must-kill / should we build X or Y' \u2014 runs structured triage of existing ideas with weighted criteria (customer impact, strategic fit, effort, evidence strength, risk). Produces ranked list with pursue/validate/defer/reject recommendations. DEFAULT for deciding what to build from a known set of options.",
     "dispatch_to": {
       "agent": "innovation-lead"
     },
@@ -2821,7 +3319,7 @@
     "subagent_delegation": "Default: dispatch innovation-lead. Chain customer-advocate if customer signals available. Followup: prd-lite or concept-brief for top-ranked items.",
     "primary_agent": "innovation-lead",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "idea-panel",
     "outputs": [
       "Triage criteria with weights"
     ],
@@ -2831,20 +3329,29 @@
     "cognitive": {
       "primary_agent": "innovation-lead",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "idea-panel",
       "outputs": [
         "Triage criteria with weights"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "innovation-lead"
+      },
+      "paired_panels": [
+        "idea-panel"
+      ]
+    },
+    "paired_panels": [
+      "idea-panel"
+    ]
   },
   {
     "name": "concept-brief",
     "title": "Concept Brief",
     "tier": "core",
-    "description": "When user says 'concept brief for X / one-pager for this concept / quick concept doc / concept summary / explain this idea in a page / concept-stage spec / pre-PRD concept' — produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required). DEFAULT for concept-stage thinking. Lighter than prd-lite; richer than a freeform notes.",
+    "description": "When user says 'concept brief for X / one-pager for this concept / quick concept doc / concept summary / explain this idea in a page / concept-stage spec / pre-PRD concept' \u2014 produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required). DEFAULT for concept-stage thinking. Lighter than prd-lite; richer than a freeform notes.",
     "dispatch_to": {
       "agent": "principal-pm"
     },
@@ -2880,7 +3387,7 @@
     "subagent_delegation": "Default: dispatch principal-pm. Followup if concept approved: prd-standard for full PRD.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "idea-panel",
     "outputs": [
       "Problem statement"
     ],
@@ -2890,20 +3397,31 @@
     "cognitive": {
       "primary_agent": "principal-pm",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "idea-panel",
       "outputs": [
         "Problem statement"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "paired_panels": [
+        "idea-panel",
+        "prd-panel"
+      ]
+    },
+    "paired_panels": [
+      "idea-panel",
+      "prd-panel"
+    ]
   },
   {
     "name": "mvp-scope",
     "title": "MVP Scope",
     "tier": "core",
-    "description": "When user says 'scope the MVP / minimum viable scope / what's the MVP / cut this to MVP / MVP definition / smallest shippable version / phase 1 scope / what to include in MVP' — produces structured MVP scope with must/should/won't-have per phase, scope cuts with reasoning, validation plan for what we keep, and what we'd add post-MVP. DEFAULT for MVP scoping decisions. Different from prd-to-plan (sequences the whole PRD) and prd-lite (drafts the PRD itself).",
+    "description": "When user says 'scope the MVP / minimum viable scope / what's the MVP / cut this to MVP / MVP definition / smallest shippable version / phase 1 scope / what to include in MVP' \u2014 produces structured MVP scope with must/should/won't-have per phase, scope cuts with reasoning, validation plan for what we keep, and what we'd add post-MVP. DEFAULT for MVP scoping decisions. Different from prd-to-plan (sequences the whole PRD) and prd-lite (drafts the PRD itself).",
     "dispatch_to": {
       "agent": "principal-pm"
     },
@@ -2940,12 +3458,12 @@
       "Post-MVP roadmap: what we'd add in phase 2/3 if validation succeeds.",
       "End with explicit cut-list and ship-criteria."
     ],
-    "validation_strategy": "Hypothesis-driven (MVP validates a specific hypothesis). Must-have list capped (typically ≤7 items). Cuts have explicit reasoning. Validation criteria measurable. Post-MVP roadmap present.",
+    "validation_strategy": "Hypothesis-driven (MVP validates a specific hypothesis). Must-have list capped (typically \u22647 items). Cuts have explicit reasoning. Validation criteria measurable. Post-MVP roadmap present.",
     "output_contract": "Hypothesis MVP validates | Must-have (3-7 items, with reason) | Should-have | Won't-have-this-MVP with cut reasons | Validation plan | Success criteria | Failure criteria (when to abandon hypothesis) | Post-MVP roadmap sketch",
     "subagent_delegation": "Default: dispatch principal-pm. Followup: evaluator for validation plan design; prd-to-plan to break the chosen MVP into engineering work.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "mvp-panel",
     "outputs": [
       "Hypothesis MVP validates"
     ],
@@ -2955,20 +3473,29 @@
     "cognitive": {
       "primary_agent": "principal-pm",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "mvp-panel",
       "outputs": [
         "Hypothesis MVP validates"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "paired_panels": [
+        "mvp-panel"
+      ]
+    },
+    "paired_panels": [
+      "mvp-panel"
+    ]
   },
   {
     "name": "problem-framing",
     "title": "Problem Framing",
     "tier": "core",
-    "description": "When user says 'reframe this problem / what's the real problem / problem statement / different ways to think about this / am I framing this right / what are we actually solving / job-to-be-done framing' — produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications. DEFAULT for problem-framing decisions. Helps avoid solving the wrong problem.",
+    "description": "When user says 'reframe this problem / what's the real problem / problem statement / different ways to think about this / am I framing this right / what are we actually solving / job-to-be-done framing' \u2014 produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications. DEFAULT for problem-framing decisions. Helps avoid solving the wrong problem.",
     "dispatch_to": {
       "agent": "innovation-lead"
     },
@@ -3008,7 +3535,7 @@
     "subagent_delegation": "Default: dispatch innovation-lead. Chain customer-advocate if customer signals available. Followup: concept-brief or prd-lite for the chosen framing.",
     "primary_agent": "innovation-lead",
     "secondary_agents": [],
-    "preferred_panel": null,
+    "preferred_panel": "idea-panel",
     "outputs": [
       "Original problem statement"
     ],
@@ -3018,13 +3545,486 @@
     "cognitive": {
       "primary_agent": "innovation-lead",
       "secondary_agents": [],
-      "preferred_panel": null,
+      "preferred_panel": "idea-panel",
       "outputs": [
         "Original problem statement"
       ],
       "mode": "read_only",
       "risk": "low",
-      "confirmation": "not_required_read_only"
-    }
+      "confirmation": "not_required_read_only",
+      "dispatch_to": {
+        "agent": "innovation-lead"
+      },
+      "paired_panels": [
+        "idea-panel"
+      ]
+    },
+    "paired_panels": [
+      "idea-panel"
+    ]
+  },
+  {
+    "name": "dream",
+    "title": "Dream",
+    "tier": "core",
+    "description": "When user says 'ultraprompt:dream / $ultraprompt:dream / dream run / dream status / dream review / run a dream job' - provides the Codex-compatible entrypoint for safe V8 dream jobs. DEFAULT for Codex users trying to run the Claude `/ultraprompt:dream` command.",
+    "when_to_use": "Use when the user invokes the dream command by name, asks to run or inspect safe dream jobs, or reports that `/ultraprompt:dream` is not recognized in Codex. This is the Codex skill bridge for the Claude Code slash command; Codex native slash parsing does not route plugin command markdown.",
+    "argument_hint": "[run [job]|status|review|validate-catalog] [--repo path] [--dry-run]",
+    "editing": false,
+    "aliases": [
+      "dream-run",
+      "dream-status",
+      "dream-review",
+      "ultraprompt-dream"
+    ],
+    "family": "cognitive-operations",
+    "artifact_type": "dream_report",
+    "distinctive_judgment": "Dream is an operations bridge, not a planning or writing lane. It should run or inspect local dream jobs through MCP tools or the bundled runner, report exact artifacts created, and avoid treating dream output as verified truth. If the user used a slash form in Codex, explain that Codex rejected the slash command before plugin routing and continue via this skill/MCP path.",
+    "first_signals": [
+      "User types `ultraprompt:dream run`, `$ultraprompt:dream run`, or asks why `/ultraprompt:dream` is unrecognized.",
+      "User asks for dream status, dream review, route-learning dreams, repo-reflection dreams, or session-compaction.",
+      "The task is operational: run a safe local job, inspect reports, or validate the dream catalog."
+    ],
+    "failure_modes": [
+      "Claiming Codex supports plugin slash commands when the slash parser rejected the command.",
+      "Stopping at 'job is required' for a bare `run` instead of using the safe default `session-compaction`.",
+      "Presenting dream reports or memory candidates as durable facts before review.",
+      "Mutating repository files from a dream job.",
+      "Ignoring the concrete report path or failure payload from the runner."
+    ],
+    "workflow_steps": [
+      "Parse `$ARGUMENTS` into one operation: status, run, review, or validate-catalog.",
+      "For `run` with no job, default to `session-compaction` and state that default.",
+      "Prefer MCP tools: `dream_status`, `dream_run`, and `dream_review`. Use the bundled `scripts/dream-runner.py` from the plugin root if MCP tools are unavailable.",
+      "For `validate-catalog`, run `python3 scripts/dream-runner.py validate-catalog` from the plugin root.",
+      "Return exact result fields: ok/error, job, report id, report path, candidate ids if present, and whether repo mutation occurred.",
+      "If the user attempted `/ultraprompt:dream` in Codex, make the runtime boundary explicit: use `$ultraprompt:dream ...`, natural language, or the MCP dream tools in Codex; slash command markdown is for Claude Code."
+    ],
+    "validation_strategy": "A successful run reports `ok: true` and either recent dream status, a report path under `~/.ultraprompt/dreams/reports`, recent report ids, or a clean catalog validation result. Bare `run` must resolve to `session-compaction`. Dream jobs must remain repo-read-only and write only dream reports, candidate memories, or learning candidates.",
+    "output_contract": "Runtime note when slash command was attempted | Operation executed | Job/default used | Result status | Report path/id or recent reports | Candidate memory/learning ids if present | Repo mutation statement | Next review action if output created candidates",
+    "subagent_delegation": "Do not dispatch by default. This is a narrow operations bridge; use dream-synthesizer only when the user asks to analyze multiple dream reports after they exist.",
+    "primary_agent": "",
+    "secondary_agents": [],
+    "preferred_panel": "",
+    "outputs": [
+      "Dream operation result"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "",
+      "secondary_agents": [],
+      "preferred_panel": "",
+      "outputs": [
+        "Dream operation result"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only",
+      "paired_panels": []
+    },
+    "paired_panels": []
+  },
+  {
+    "name": "design-review",
+    "title": "Design Review",
+    "tier": "core",
+    "description": "When user says 'design review / taste pass / aesthetic review / make this UI feel better / visual polish review / product design critique / does this look professional' - dispatches design-critic for evidence-backed visual and interaction critique. DEFAULT for broad product-design, taste, and aesthetic review where the expected output is a ranked critique rather than immediate implementation.",
+    "when_to_use": "Use when the user wants judgment on visual quality, product fit, hierarchy, information density, interaction polish, or whether a UI feels professional for its domain. Prefer frontend-visual-qa when the request specifically asks for screenshots, responsive checks, or browser verification; prefer accessibility-review when WCAG/a11y is the named concern.",
+    "argument_hint": "[surface|screenshot|route|component|design brief]",
+    "editing": false,
+    "aliases": [
+      "taste-review",
+      "aesthetic-review",
+      "product-design-review",
+      "visual-design-review"
+    ],
+    "distinctive_judgment": "Good UI judgment is not generic prettiness. Review the surface against the user, domain, task frequency, information density, visual hierarchy, affordances, motion, copy tone, and brand/product signal. Operational tools should usually be dense and calm; editorial or game surfaces can carry more expressive treatment. Evidence must come from code, screenshots, design assets, or rendered behavior, not taste slogans.",
+    "first_signals": [
+      "Actual rendered surface: screenshot, local route, Storybook story, Figma frame, or component markup.",
+      "Product domain and target user: internal operations, SaaS, consumer, developer tool, game, portfolio, marketing, or data workspace.",
+      "Design system constraints: tokens, component library, spacing scale, icon library, theme, density conventions.",
+      "Primary workflow: what users need to scan, compare, decide, edit, or recover from.",
+      "Visual hierarchy: what draws first attention, what should be secondary, and what is competing.",
+      "Interaction affordances: hover, focus, active, loading, empty, error, disabled, and responsive states.",
+      "Content tone: labels, headings, table density, command wording, and whether text helps or clutters."
+    ],
+    "failure_modes": [
+      "Giving generic advice such as \"modernize the UI\" without concrete evidence.",
+      "Optimizing for decorative novelty when the product needs repeated operational use.",
+      "Treating screenshots as final truth without checking responsive states or implementation constraints.",
+      "Ignoring the existing design system and creating one-off visual language.",
+      "Confusing accessibility compliance with overall product taste, or vice versa.",
+      "Recommending large visual rewrites without a prioritized sequence and validation path."
+    ],
+    "workflow_steps": [
+      "Identify the surface, audience, product category, and design-system constraints.",
+      "Collect visual evidence from screenshots, local browser, component stories, or relevant code.",
+      "Assess hierarchy, layout, density, contrast, rhythm, copy, affordances, and state coverage.",
+      "Compare the surface to the domain expectation: operational, editorial, game, marketing, developer tool, or data workspace.",
+      "Rank findings by user impact and implementation leverage, separating must-fix polish from taste preferences.",
+      "Recommend follow-up routes: frontend-visual-qa for rendered verification, design-system-review for systemic drift, accessibility-review for WCAG issues, or build for implementation."
+    ],
+    "validation_strategy": "Read-only review. Validate by tying every finding to a screenshot, route, component, token, or file reference. For implementation follow-up, require visual regression evidence or before/after screenshots across at least desktop and mobile when the surface is responsive.",
+    "output_contract": "Scope + evidence reviewed | Product/domain fit verdict | Visual hierarchy findings | Layout + density findings | Interaction/state findings | Copy/tone findings | Design-system alignment | Ranked recommendations | Follow-up validation plan",
+    "subagent_delegation": "Default: dispatch design-critic for the critique. Escalate to experience-quality-panel when the surface is high-stakes, cross-platform, or needs independent a11y/test/design perspectives.",
+    "primary_agent": "design-critic",
+    "secondary_agents": [],
+    "preferred_panel": "experience-quality-panel",
+    "outputs": [
+      "Design review report"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "not_required_read_only",
+    "cognitive": {
+      "primary_agent": "design-critic",
+      "secondary_agents": [],
+      "preferred_panel": "experience-quality-panel",
+      "outputs": [
+        "Design review report"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "not_required_read_only",
+      "paired_panels": [
+        "experience-quality-panel"
+      ],
+      "dispatch_to": {
+        "agent": "design-critic",
+        "phase": "analysis",
+        "focus": "design-review"
+      }
+    },
+    "paired_panels": [
+      "experience-quality-panel"
+    ],
+    "family": "experience-quality",
+    "dispatch_to": {
+      "agent": "design-critic",
+      "phase": "analysis",
+      "focus": "design-review"
+    },
+    "artifact_type": "design_review"
+  },
+  {
+    "name": "frontend-visual-qa",
+    "title": "Frontend Visual QA",
+    "tier": "core",
+    "description": "When user says 'visual QA / screenshot QA / responsive review / frontend polish pass / inspect this page in browser / verify the UI after changes / pixel check this surface' - dispatches design-critic with rendered-evidence focus and escalates to the experience-quality panel for deep budgets. DEFAULT for frontend quality work that must inspect actual rendered output, screenshots, responsive breakpoints, or interactive states.",
+    "when_to_use": "Use when the work needs browser-visible evidence: local routes, screenshots, responsive breakpoints, canvas/nonblank checks, visual overlap, text clipping, hover/focus/loading/error states, or before/after UI verification. Prefer design-review for pure critique without runtime verification; prefer accessibility-review for WCAG-only work.",
+    "argument_hint": "[route|component|screenshot path|viewport list]",
+    "editing": true,
+    "aliases": [
+      "visual-qa",
+      "screenshot-qa",
+      "frontend-polish",
+      "responsive-qa"
+    ],
+    "distinctive_judgment": "Frontend quality is observable behavior. A passing typecheck does not prove that text fits, controls are discoverable, panels do not overlap, icons render, canvases are nonblank, or responsive layouts preserve hierarchy. Use screenshots and browser probes to separate implementation truth from code-shaped intent.",
+    "first_signals": [
+      "How to run the app or component surface: dev server command, route, Storybook, static HTML, or file URL.",
+      "Target viewports and devices: narrow mobile, tablet, desktop, wide desktop, high-DPI, and reduced-motion if relevant.",
+      "Critical states: empty, loading, error, disabled, selected, hover, focus, modal open, sidebar collapsed, dense data loaded.",
+      "Known design system primitives: button, card, table, tabs, menu, icon library, theme tokens, breakpoints.",
+      "Visual failure patterns: overlapping text, clipping, shifting layout, weak contrast, inconsistent icon sizing, blank media/canvas.",
+      "Existing visual test tools: Playwright screenshots, Storybook test runner, Percy/Chromatic, image snapshots, Lighthouse."
+    ],
+    "failure_modes": [
+      "Claiming a UI is fixed after unit tests without opening or screenshotting the surface.",
+      "Checking only one viewport for a responsive surface.",
+      "Ignoring hover, focus, disabled, loading, and error states that users actually hit.",
+      "Approving visual changes with hidden text clipping or control overlap.",
+      "Treating a screenshot as success when assets, icons, or canvas pixels are blank.",
+      "Applying broad redesigns instead of localized fixes for verified visual defects."
+    ],
+    "workflow_steps": [
+      "Find the actual frontend entrypoint, run command, route, and component ownership.",
+      "Start or reuse the local dev server only when needed, then inspect the real rendered surface.",
+      "Capture screenshots or browser evidence across the relevant desktop and mobile viewports.",
+      "Probe interactive states that screenshots alone miss: hover, focus, open menus, modals, loading, and errors.",
+      "Apply localized fixes for verified defects while preserving the design system and existing product density.",
+      "Re-run screenshots or visual checks and report before/after evidence plus any remaining visual risk."
+    ],
+    "validation_strategy": "Use actual rendered evidence whenever a local surface is available. For web apps, prefer browser or Playwright screenshots at representative viewports, plus targeted assertions for text clipping, overlap, nonblank media/canvas, and expected state visibility. If runtime cannot be launched, state the exact blocker and fall back to code review only.",
+    "output_contract": "Surface + run command | Viewports/states inspected | Screenshot/browser evidence | Visual defects found | Fixes applied or proposed | Before/after verification | Remaining visual risks | Follow-up test coverage",
+    "subagent_delegation": "Default: dispatch design-critic for rendered visual critique. On deep budget, use experience-quality-panel so design, a11y, implementation, and test strategy are reviewed independently.",
+    "primary_agent": "design-critic",
+    "secondary_agents": [
+      "test-strategist"
+    ],
+    "preferred_panel": "experience-quality-panel",
+    "outputs": [
+      "Visual QA report"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "design-critic",
+      "secondary_agents": [
+        "test-strategist"
+      ],
+      "preferred_panel": "experience-quality-panel",
+      "outputs": [
+        "Visual QA report"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation",
+      "paired_panels": [
+        "experience-quality-panel"
+      ],
+      "dispatch_to": {
+        "agent": "design-critic",
+        "phase": "analysis",
+        "focus": "visual-qa"
+      }
+    },
+    "paired_panels": [
+      "experience-quality-panel"
+    ],
+    "family": "experience-quality",
+    "dispatch_to": {
+      "agent": "design-critic",
+      "phase": "analysis",
+      "focus": "visual-qa"
+    },
+    "artifact_type": "visual_qa_report"
+  },
+  {
+    "name": "design-system-review",
+    "title": "Design System Review",
+    "tier": "specialist",
+    "description": "When user says 'design system review / component library audit / token audit / theme consistency / UI consistency audit / component API design / design rules for this repo' - dispatches design-critic with design-system focus. DEFAULT for systematic frontend design-language, component-library, token, theme, and pattern-consistency reviews.",
+    "when_to_use": "Manual-only. Invoke when the concern is systemic UI consistency rather than one page: token usage, spacing and typography scales, component API ergonomics, variant sprawl, theming, density modes, icon usage, documentation drift, and governance for design rules.",
+    "argument_hint": "[design system path|component library|theme|tokens]",
+    "editing": true,
+    "aliases": [
+      "component-library-review",
+      "token-review",
+      "theme-review",
+      "ui-consistency-audit"
+    ],
+    "distinctive_judgment": "A design system is a product-quality constraint system, not a folder of components. Review token semantics, component contracts, variant count, composition boundaries, state coverage, density, theming, documentation, and escape hatches. The goal is fewer one-off decisions and clearer product fit, not a prettier component zoo.",
+    "first_signals": [
+      "Token sources: CSS variables, Tailwind config, theme files, Figma variables, style dictionaries, or constants.",
+      "Component library entrypoints: buttons, inputs, cards, tables, modals, menus, tabs, toasts, layout primitives.",
+      "Variant and size APIs: props, class recipes, CSS modules, slot patterns, compound components.",
+      "Theme behavior: light/dark, brand themes, density modes, high contrast, reduced motion.",
+      "Documentation and examples: Storybook, docs pages, MDX, screenshots, usage snippets.",
+      "Local deviations: ad hoc colors, duplicated components, one-off spacing, manual SVGs, unowned CSS overrides."
+    ],
+    "failure_modes": [
+      "Treating visual consistency as only color matching.",
+      "Adding tokens without semantics or usage rules.",
+      "Letting variants multiply until every screen has a bespoke component.",
+      "Ignoring interaction states and accessibility affordances in component APIs.",
+      "Breaking existing product surfaces by enforcing a design rule without migration path.",
+      "Reviewing generated CSS output without tracing source-of-truth tokens and components."
+    ],
+    "workflow_steps": [
+      "Map the design-system sources: tokens, themes, components, docs, examples, and consuming apps.",
+      "Identify semantic token coverage and ad hoc style escape hatches.",
+      "Review core components for state coverage, accessibility affordances, API clarity, density, and composability.",
+      "Find duplicated or drifted patterns and classify whether to consolidate, document, or intentionally preserve.",
+      "Recommend a migration sequence that avoids breaking active product surfaces.",
+      "Name governance checks: lint rules, visual snapshots, docs examples, story coverage, or design-rule files."
+    ],
+    "validation_strategy": "Validate findings against source-of-truth token/component files and at least two consuming surfaces. For fixes, run component tests or Storybook/visual snapshots where available, plus a targeted search for removed token/component names.",
+    "output_contract": "Design-system map | Token semantics findings | Component API findings | State/a11y coverage findings | Drift/duplication findings | Migration sequence | Governance checks | Validation commands",
+    "subagent_delegation": "Dispatch design-critic by default. Escalate to experience-quality-panel for broad UI systems that need independent a11y, implementation, and test strategy review.",
+    "primary_agent": "design-critic",
+    "secondary_agents": [
+      "test-strategist"
+    ],
+    "preferred_panel": "experience-quality-panel",
+    "outputs": [
+      "Design system review report"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "design-critic",
+      "secondary_agents": [
+        "test-strategist"
+      ],
+      "preferred_panel": "experience-quality-panel",
+      "outputs": [
+        "Design system review report"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation",
+      "paired_panels": [
+        "experience-quality-panel"
+      ],
+      "dispatch_to": {
+        "agent": "design-critic",
+        "phase": "analysis",
+        "focus": "design-system"
+      }
+    },
+    "paired_panels": [
+      "experience-quality-panel"
+    ],
+    "family": "experience-quality",
+    "dispatch_to": {
+      "agent": "design-critic",
+      "phase": "analysis",
+      "focus": "design-system"
+    },
+    "artifact_type": "design_system_review"
+  },
+  {
+    "name": "pathfinding-invocation-review",
+    "title": "Pathfinding + Invocation Review",
+    "tier": "core",
+    "description": "When user says 'pathfinding review / invocation behavior / skill auto-fire / agent dispatch telemetry / routing effectiveness / why did Explore run / strengthen automated skill invocation / audit pathfinder telemetry' - dispatches invocation-reliability-auditor. DEFAULT for Ultraprompt runtime routing, pathfinder, skill activation, agent dispatch, Explore fallback, legacy-prefix, and telemetry effectiveness investigations.",
+    "when_to_use": "Use when the user asks whether Ultraprompt is actually being invoked effectively by Codex or Claude Code, asks to read telemetry, wants to reduce Explore fallback, wants routing/pathfinder behavior hardened, or needs release-gate evidence that catalog richness translates into runtime behavior.",
+    "argument_hint": "[telemetry window|runtime|focus]",
+    "editing": true,
+    "aliases": [
+      "invocation-review",
+      "pathfinder-review",
+      "routing-telemetry-review",
+      "skill-activation-review"
+    ],
+    "distinctive_judgment": "Catalog coverage is not runtime effectiveness. A plugin can have many skills and agents while the actual sessions route to generic Explore, never auto-fire current skill names, or emit only synthetic pathfinder decisions. Review invocation telemetry as a product behavior: current vs legacy prefixes, skill activation, agent dispatch share, pathfinder real-vs-bench usage, and release gates that fail when runtime adoption regresses.",
+    "first_signals": [
+      "Live event ledgers: current `~/.claude/ultraprompt-data`, legacy `~/.claude/ultra-prompt-data`, and `~/.ultraprompt/events`.",
+      "Agent dispatch sources: Claude project JSONL Task/Agent calls, ledger-v2 events, and dashboard feed.",
+      "Prefix normalization: `ultraprompt:` vs `ultra-prompt:` and whether telemetry records both original and canonical names.",
+      "Pathfinder decision sources: real user/API calls vs golden-case bench/synthetic runs.",
+      "Activation gaps: current skills never invoked and plugin agents never dispatched over a meaningful window.",
+      "Release gates: scorecard, doctor scripts, catalog consistency, and thresholds that should block silent routing decay."
+    ],
+    "failure_modes": [
+      "Declaring routing healthy from catalog counts or generated graph alone.",
+      "Counting legacy `ultra-prompt:*` telemetry as current without normalization labels.",
+      "Treating pathfinder benchmark events as evidence of live user behavior.",
+      "Ignoring generic Explore dominance when specialist agents should have been selected.",
+      "Adding new skills without route boosts, golden cases, dispatch policies, and telemetry gates.",
+      "Making the release scorecard pass by lowering thresholds instead of fixing invocation behavior."
+    ],
+    "workflow_steps": [
+      "Run or inspect invocation telemetry audit over the relevant window and separate current, legacy, and synthetic signals.",
+      "Compare skill activation, plugin-agent dispatch share, Explore share, pathfinder real decisions, and activation gaps against release thresholds.",
+      "Trace weak routes to source specs, boost rules, golden cases, capability graph edges, hooks, or runtime plugin/cache mismatch.",
+      "Apply narrow hardening: prefix normalization, route boosts, generated skill-name coverage, telemetry payload fields, or release-gate wiring.",
+      "Regenerate indexes/graphs after source edits and run pathfinder plus invocation telemetry validation.",
+      "Report remaining blockers as runtime behavior, not catalog-health issues."
+    ],
+    "validation_strategy": "Run `python3 scripts/audit-invocation-telemetry.py --json` and, for release gating, `--enforce`. Pair it with `python3 scripts/run-pathfinder-tests.py --no-telemetry`, `python3 scripts/build-capability-graph.py --check`, and scorecard/correctness checks. A failing telemetry gate is a valid result when live usage is still below threshold.",
+    "output_contract": "Telemetry window | Skill invocation summary | Agent dispatch share + Explore share | Legacy-prefix normalization | Pathfinder real-vs-bench summary | Activation gaps | Changes applied or proposed | Release gate result | Remaining blockers",
+    "subagent_delegation": "Dispatch invocation-reliability-auditor for read-only analysis. Use build on the main thread for source/generator fixes after the audit identifies high-confidence changes.",
+    "primary_agent": "invocation-reliability-auditor",
+    "secondary_agents": [],
+    "preferred_panel": "cognitive-governance-panel",
+    "outputs": [
+      "Invocation telemetry audit"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "invocation-reliability-auditor",
+      "secondary_agents": [],
+      "preferred_panel": "cognitive-governance-panel",
+      "outputs": [
+        "Invocation telemetry audit"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation",
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ],
+      "dispatch_to": {
+        "agent": "invocation-reliability-auditor",
+        "phase": "analysis",
+        "focus": "routing-telemetry"
+      }
+    },
+    "paired_panels": [
+      "cognitive-governance-panel"
+    ],
+    "family": "cognitive-operations",
+    "dispatch_to": {
+      "agent": "invocation-reliability-auditor",
+      "phase": "analysis",
+      "focus": "routing-telemetry"
+    },
+    "artifact_type": "invocation_telemetry_audit"
+  },
+  {
+    "name": "goal",
+    "title": "Goal",
+    "tier": "core",
+    "description": "When user says '/goal / set a goal / keep working until X / completion condition / work until tests pass / do not stop until criteria are met' - provides a Codex-compatible goal contract inspired by Claude Code `/goal`. DEFAULT for substantial work with a measurable end state where Codex should keep the current turn focused on acceptance criteria and transcript-backed validation.",
+    "when_to_use": "Use when the user gives a verifiable completion condition and wants Codex to continue within the current session until that condition is met, blocked, or explicitly cleared. This is a Codex bridge for goal-oriented work; unlike Claude Code built-in `/goal`, it cannot install a session-scoped evaluator loop by itself, so it must surface proof in the transcript and stop only with met/blocked/cleared status.",
+    "argument_hint": "[condition|status|clear] [--max-turns N|--until command]",
+    "editing": true,
+    "aliases": [
+      "keep-working",
+      "completion-goal",
+      "goal-mode",
+      "codex-goal"
+    ],
+    "distinctive_judgment": "A useful goal is a measurable completion condition, not a vague aspiration. The evaluator, whether human or model, can only judge evidence surfaced in the transcript. Make the proof explicit: command exit codes, test output, file counts, accepted acceptance criteria, or an empty queue. Bound long goals by time, turn count, or explicit stop condition so autonomy stays inspectable.",
+    "first_signals": [
+      "A completion condition phrased as an observable state: tests pass, build exits 0, checklist is complete, file budget met, issue queue empty.",
+      "A proof method: exact command, screenshot, diff check, status output, or artifact validation result.",
+      "Constraints: forbidden files, no unrelated changes, no destructive commands, max turns/time, runtime budget, or stop-after condition.",
+      "Current goal status request: no arguments, status, clear, stop, off, reset, none, or cancel.",
+      "Runtime distinction: Claude Code built-in `/goal` vs Codex `$ultraprompt:goal` skill/command bridge.",
+      "Need for transcript evidence because no external evaluator can inspect files or run tools independently."
+    ],
+    "failure_modes": [
+      "Accepting a goal like \"make it good\" without rewriting it into measurable acceptance criteria.",
+      "Stopping after a plan when the user asked to keep working until proof exists.",
+      "Claiming the goal is met without surfacing command output or explicit evidence in the transcript.",
+      "Running indefinitely without a turn/time/budget stop condition for broad goals.",
+      "Assuming Codex has Claude Code built-in `/goal` session hooks or status indicator.",
+      "Clearing or replacing a goal without making the active condition visible."
+    ],
+    "workflow_steps": [
+      "Parse the argument as status, clear/cancel, or a new completion condition; aliases clear/stop/off/reset/none/cancel remove the active goal contract.",
+      "If setting a goal, rewrite it into acceptance criteria with proof method, constraints, and an autonomy bound when the user did not provide one.",
+      "Execute the immediate work path in the current turn using the relevant skills/tools while preserving the goal condition as the stop rule.",
+      "After each meaningful implementation or investigation step, surface evidence against the condition and decide met, not met, blocked, or cleared.",
+      "When the goal is met, report the exact evidence and validation. When blocked, report the blocker and the smallest next action.",
+      "In Claude Code, note that `/goal` is built in; in Codex, use `$ultraprompt:goal ...` or natural language because plugin slash commands are not native-routed."
+    ],
+    "validation_strategy": "A goal is valid only when the final response includes transcript-visible proof: commands run and exit results, screenshots/artifacts inspected, file/diff checks, or explicit checklist evidence. If proof cannot be gathered, mark the goal blocked rather than met. For long goals, include the current condition, elapsed work, turns/checks performed, and latest reason.",
+    "output_contract": "Goal condition | Acceptance criteria | Proof method | Constraints/bounds | Current status (active/met/blocked/cleared) | Evidence surfaced | Work completed | Next action if not met",
+    "subagent_delegation": "Do not dispatch by default. Goal management is a main-thread control contract; use subagents only for bounded sidecar discovery or critique when the immediate goal path is not blocked by their result.",
+    "primary_agent": "",
+    "secondary_agents": [],
+    "preferred_panel": "",
+    "outputs": [
+      "Goal status"
+    ],
+    "mode": "write_capable",
+    "risk": "medium",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "",
+      "secondary_agents": [],
+      "preferred_panel": "",
+      "outputs": [
+        "Goal status"
+      ],
+      "mode": "write_capable",
+      "risk": "medium",
+      "confirmation": "required_for_repo_mutation",
+      "paired_panels": []
+    },
+    "paired_panels": [],
+    "family": "cognitive-operations",
+    "artifact_type": "goal_contract",
+    "inline_only_reason": "goal state and completion proof must stay visible in the main conversation transcript and Codex does not provide a plugin-owned Stop-hook evaluator loop"
   }
 ]

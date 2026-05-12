@@ -10,7 +10,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def check_plugin_json(path, errors, warnings):
+def rel_target(root: Path, ref: str) -> Path:
+    rel = ref[2:] if ref.startswith("./") else ref
+    return root / rel
+
+
+def check_plugin_json(path, errors, warnings, *, strict_references=True):
     if not path.exists():
         errors.append(f"{path}: missing"); return
     try:
@@ -24,6 +29,11 @@ def check_plugin_json(path, errors, warnings):
     if (plugin_root / ".mcp.json").exists() and "mcpServers" not in data:
         errors.append(f"{path}: .mcp.json exists but plugin.json missing 'mcpServers' field. "
                       'Add: "mcpServers": "./.mcp.json"')
+    if strict_references:
+        for field in ("mcpServers", "hooks", "outputStyles"):
+            ref = data.get(field)
+            if isinstance(ref, str) and not rel_target(plugin_root, ref).exists():
+                errors.append(f"{path}: {field} references missing path {ref}")
 
 
 def check_mcp_json(path, runtime, errors, warnings):
@@ -65,6 +75,8 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--runtime", default=auto_runtime, choices=["claude-code", "codex"],
                    help=f"Override runtime (auto-detected from path: {auto_runtime})")
+    p.add_argument("--strict-references", action="store_true",
+                   help="Accepted for compatibility; declared manifest references are strict in V8.2.")
     args = p.parse_args()
     errors, warnings = [], []
     print(f"Ultraprompt V8 manifest + MCP schema audit (runtime: {args.runtime})")

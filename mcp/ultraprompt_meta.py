@@ -184,7 +184,7 @@ def tool_list_skills(args: dict[str, Any]) -> dict[str, Any]:
         haystack = " ".join(str(skill.get(k, "")) for k in ("name", "description", "when_to_use", "tier")).lower()
         if query and query not in haystack:
             continue
-        skills.append({k: skill.get(k) for k in ("name", "command", "description", "tier", "manual_only", "paths", "path")})
+        skills.append({k: skill.get(k) for k in ("name", "command", "codex_command", "description", "tier", "manual_only", "paths", "path")})
     return text_result({"count": len(skills[:limit]), "skills": skills[:limit]})
 
 
@@ -660,7 +660,7 @@ def tool_dispatch_advise(args):
 
 
 def tool_release_scorecard(args):
-    """V8.0.0: Generate plugin release scorecard."""
+    """V8.2.0: Generate plugin release scorecard."""
     import subprocess
     try:
         out = subprocess.run(
@@ -679,7 +679,7 @@ def tool_release_scorecard(args):
 
 
 def tool_panel_plan(args):
-    """V8.0.0: Return dispatch plan for a named panel.
+    """V8.2.0: Return dispatch plan for a named panel.
 
     Args:
         panel_name: name of the panel (e.g. 'repo-completeness-panel')
@@ -783,7 +783,7 @@ def tool_panel_plan(args):
 
 
 def tool_mission_state(args):
-    """V8.0.0: Mission Control unified state snapshot.
+    """V8.2.0: Mission Control unified state snapshot.
 
     Reads from repo capsule, worktree state, sessions, evidence ledger v2,
     WIP snapshots, gap ledger. Returns the V8 mission_state schema.
@@ -807,7 +807,7 @@ def tool_mission_state(args):
 
 
 def tool_gap_ledger_query(args):
-    """V8.0.0: Query gap ledger.
+    """V8.2.0: Query gap ledger.
 
     Args:
         repo: filter by repo name
@@ -820,6 +820,8 @@ def tool_gap_ledger_query(args):
     if args.get("repo"): cmd_args += ["--repo", args["repo"]]
     if args.get("status"): cmd_args += ["--status", args["status"]]
     if args.get("severity"): cmd_args += ["--severity", args["severity"]]
+    if args.get("fingerprint"): cmd_args += ["--fingerprint", args["fingerprint"]]
+    if args.get("history"): cmd_args += ["--history"]
     if args.get("limit"): cmd_args += ["--limit", str(args["limit"])]
     try:
         out = subprocess.run(cmd_args, capture_output=True, text=True, timeout=15)
@@ -829,7 +831,7 @@ def tool_gap_ledger_query(args):
 
 
 def tool_gap_ledger_write(args):
-    """V8.0.0: Write gap entry to persistent ledger.
+    """V8.2.0: Write gap entry to persistent ledger.
 
     Required fields: repo, category, severity, confidence, title, evidence
     Optional: affected_area, expected_behavior, actual_behavior, recommended_fix,
@@ -837,8 +839,10 @@ def tool_gap_ledger_write(args):
     """
     import subprocess
     import tempfile
-    if not args.get("repo") or not args.get("title"):
-        return text_result({"error": "repo and title are required"}, is_error=True)
+    required = ["repo", "title", "category", "severity", "confidence", "evidence"]
+    missing = [field for field in required if not args.get(field)]
+    if missing:
+        return text_result({"error": "missing required fields", "missing": missing}, is_error=True)
     try:
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(args, f)
@@ -854,7 +858,7 @@ def tool_gap_ledger_write(args):
 
 
 def tool_gap_ledger_stats(args):
-    """V8.0.0: Gap ledger summary stats."""
+    """V8.2.0: Gap ledger summary stats."""
     import subprocess
     try:
         out = subprocess.run(
@@ -1186,8 +1190,10 @@ def tool_memory_stats(args: dict[str, Any]) -> dict[str, Any]:
 
 def tool_dream_run(args: dict[str, Any]) -> dict[str, Any]:
     job = str(args.get("job", "")).strip()
+    defaulted_job = False
     if not job:
-        return text_result({"ok": False, "error": "job is required"}, is_error=True)
+        job = "session-compaction"
+        defaulted_job = True
     argv = ["run", job]
     if args.get("repo"):
         argv.extend(["--repo", str(args["repo"])])
@@ -1196,6 +1202,7 @@ def tool_dream_run(args: dict[str, Any]) -> dict[str, Any]:
     data = _run_json_script("dream-runner.py", argv, timeout=120)
     data["risk"] = "low"
     data["confirmation_required"] = False
+    data["defaulted_job"] = defaulted_job
     return text_result(data, is_error=not data.get("ok", False))
 
 
@@ -1216,6 +1223,8 @@ def tool_pathfind_workflow(args: dict[str, Any]) -> dict[str, Any]:
         argv.extend(["--repo", str(args["repo"])])
     if args.get("dry_run", True):
         argv.append("--dry-run")
+    if args.get("no_telemetry", False):
+        argv.append("--no-telemetry")
     return text_result(_run_json_script("pathfinder.py", argv, timeout=60))
 
 
@@ -1380,7 +1389,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_evidence_diff,
     ),
     "team_plan": (
-        "V8.0.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
+        "V8.2.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
         {
             "type": "object",
             "properties": {
@@ -1463,7 +1472,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_ledger_query,
     ),
     "release_scorecard": (
-        "V8.0.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, conclusion (ready/risky/blocked).",
+        "V8.2.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, invocation telemetry, conclusion (ready/risky/blocked).",
         {
             "type": "object",
             "properties": {},
@@ -1471,7 +1480,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_release_scorecard,
     ),
     "panel_plan": (
-        "V8.0.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
+        "V8.2.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
         {
             "type": "object",
             "properties": {
@@ -1482,7 +1491,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_panel_plan,
     ),
     "mission_state": (
-        "V8.0.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
+        "V8.2.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
         {
             "type": "object",
             "properties": {
@@ -1493,20 +1502,22 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_mission_state,
     ),
     "gap_ledger_query": (
-        "V8.0.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Filter by repo, status, severity. Returns gap entries from current and prior sessions.",
+        "V8.2.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Defaults to latest-by-fingerprint; pass history=true for append-only lifecycle records.",
         {
             "type": "object",
             "properties": {
                 "repo": {"type": "string"},
-                "status": {"type": "string", "description": "open|accepted|fixed|false_positive|deferred"},
+                "status": {"type": "string", "description": "open|accepted|in_progress|fixed|validated|false_positive|deferred"},
                 "severity": {"type": "string", "description": "critical|high|medium|low"},
+                "fingerprint": {"type": "string"},
+                "history": {"type": "boolean", "default": False},
                 "limit": {"type": "integer"},
             },
         },
         tool_gap_ledger_query,
     ),
     "gap_ledger_write": (
-        "V8.0.0: Persist a gap finding to the gap ledger. Used by repo-completeness audit skills (gap-analysis, feature-completeness, test-gap-analysis, dead-code-drift, release-readiness) to record findings beyond a single session.",
+        "V8.2.0: Persist a schema-valid gap finding to the gap ledger. Writes fingerprinted lifecycle records for repo-completeness audit skills and panel syntheses.",
         {
             "type": "object",
             "properties": {
@@ -1523,19 +1534,22 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
                 "validation_plan": {"type": "string"},
                 "suggested_owner_agent": {"type": "string"},
                 "suggested_skill": {"type": "string"},
+                "owner_agent": {"type": "string"},
+                "fix_skill": {"type": "string"},
+                "panel_run_ids": {"type": "array", "items": {"type": "string"}},
                 "auditor": {"type": "string"},
             },
-            "required": ["repo", "title"],
+            "required": ["repo", "title", "category", "severity", "confidence", "evidence"],
         },
         tool_gap_ledger_write,
     ),
     "gap_ledger_stats": (
-        "V8.0.0: Gap ledger summary stats â€” totals by status/severity/category/repo/auditor.",
+        "V8.2: Gap ledger summary stats â€” totals by status/severity/category/repo/auditor.",
         {"type": "object", "properties": {}},
         tool_gap_ledger_stats,
     ),
     "artifact_validate": (
-        "V8: Validate structured artifact against schema. Catches the 'fluffy artifact' failure mode. Known artifact types: prd_lite, prd_standard, prd_technical, prd_ai_feature, gap_ledger_entry, repo_review_report, release_readiness_report, contract_drift_report, opportunity_map, idea_triage, concept_brief, mvp_scope, problem_framing. Without artifact_type: returns schema list. With type but no artifact: returns schema. With both: validates and returns findings.",
+        "V8: Validate structured artifact against schema. Catches the 'fluffy artifact' failure mode. Known artifact types: prd_lite, prd_standard, prd_technical, prd_ai_feature, gap_ledger_entry, repo_completeness_report, repo_review_report, release_readiness_report, contract_drift_report, opportunity_map, idea_triage, concept_brief, mvp_scope, problem_framing. Without artifact_type: returns schema list. With type but no artifact: returns schema. With both: validates and returns findings.",
         {
             "type": "object",
             "properties": {
@@ -1551,7 +1565,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_catalog_audit,
     ),
     "dashboard_launch": (
-        "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (29 agents, 48 skills, 12 panels, 42 MCP tools, 30 commands, 17 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent â€” if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
+        "V8.2: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (31 agents, 54 skills, 13 panels, 42 MCP tools, 31 commands, 18 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent â€” if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
         {
             "type": "object",
             "properties": {
@@ -1635,12 +1649,11 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_memory_stats,
     ),
     "dream_run": (
-        "V8: Run a safe read-only dream job manually. Jobs write reports, candidate memories, and learning proposals only.",
+        "V8: Run a safe read-only dream job manually. Jobs write reports, candidate memories, and learning proposals only. If job is omitted, defaults to session-compaction.",
         {
             "type": "object",
-            "required": ["job"],
             "properties": {
-                "job": {"type": "string"},
+                "job": {"type": "string", "default": "session-compaction"},
                 "repo": {"type": "string"},
                 "dry_run": {"type": "boolean", "default": False},
             },
@@ -1667,6 +1680,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
                 "repo": {"type": "string"},
                 "budget": {"type": "string", "enum": ["low", "standard", "deep"], "default": "standard"},
                 "dry_run": {"type": "boolean", "default": True},
+                "no_telemetry": {"type": "boolean", "default": False},
             },
         },
         tool_pathfind_workflow,

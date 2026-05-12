@@ -19,13 +19,20 @@ fi
 # Copy
 mkdir -p "$(dirname "$TARGET")"
 rm -rf "$TARGET"
-cp -R "$SOURCE" "$TARGET"
+python3 "$SOURCE/scripts/package-plugin.py" --copy-to "$TARGET" >/dev/null
 
 # Make scripts executable
 chmod +x "$TARGET/scripts/"*.py "$TARGET/scripts/"*.sh "$TARGET/hooks/recipes/"*.py "$TARGET/hooks/recipes/"*.sh "$TARGET/mcp/"*.py 2>/dev/null || true
 
 # Remove the codex-only manifest variant (Claude Code doesn't need it)
 rm -f "$TARGET/.codex.mcp.json"
+
+# V8: Rebuild generated indexes (Windows installer does this; Mac install also needs to)
+echo
+echo "=== Rebuild generated indexes ==="
+python3 "$TARGET/scripts/build-skill-index.py" 2>&1 | tail -2
+python3 "$TARGET/scripts/build-catalog-metadata.py" 2>&1 | tail -2
+python3 "$TARGET/scripts/build-capability-graph.py" 2>&1 | tail -2
 
 # Validate
 echo

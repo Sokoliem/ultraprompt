@@ -16,6 +16,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:principal-pm`. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `idea-panel`, `prd-panel`. Preferred: `idea-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Concept-brief is concept-stage (one chosen idea, not yet PRD); prd-lite is fast PRD; opportunity-map explores broadly; idea-triage ranks; problem-framing reframes. Use concept-brief before prd-lite when stakeholder approval of the concept is needed first.

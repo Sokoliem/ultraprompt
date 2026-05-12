@@ -6,6 +6,11 @@ const STATE = {
   audit: null,
   bench: null,
   cognitive: null,
+  mission: null,
+  gaps: null,
+  panelRuns: null,
+  releaseScorecard: null,
+  activity: null,
   searchQuery: "",
 };
 
@@ -18,10 +23,17 @@ const api = {
   async audit() { return (await fetch("/api/audit")).json(); },
   async bench() { return (await fetch("/api/router-bench")).json(); },
   async cognitiveHealth() { return (await fetch("/api/cognitive/health")).json(); },
-  async invocations(limit = 50) {
-    return (await fetch(`/api/invocations?limit=${limit}`)).json();
+  async invocations(limit = 50, filters = {}) {
+    const params = new URLSearchParams({ limit: String(limit) });
+    for (const [key, value] of Object.entries(filters)) {
+      if (value) params.set(key, value);
+    }
+    return (await fetch(`/api/invocations?${params}`)).json();
   },
   async missionState() { return (await fetch("/api/mission-state")).json(); },
+  async gaps(limit = 20) { return (await fetch(`/api/gaps?limit=${limit}`)).json(); },
+  async panelRuns(limit = 10) { return (await fetch(`/api/panel-runs?limit=${limit}`)).json(); },
+  async releaseScorecard() { return (await fetch("/api/release-scorecard?target=source")).json(); },
 };
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -78,6 +90,15 @@ function highlightMatch(text, query) {
     el("strong", { style: "color: var(--accent)" }, text.slice(idx, idx + q.length)),
     text.slice(idx + q.length),
   ];
+}
+
+function tally(items, key) {
+  const out = {};
+  for (const item of items || []) {
+    const value = item[key] || "unknown";
+    out[value] = (out[value] || 0) + 1;
+  }
+  return out;
 }
 
 // ─── <up-stats-card> ───────────────────────────────────────────────────────
@@ -508,6 +529,90 @@ class DetailPane extends HTMLElement {
       home.appendChild(cogBox);
     }
 
+    if (STATE.activity?.overall_summary || STATE.activity?.summary) {
+      const obsBox = el("div", { class: "home-section" });
+      obsBox.appendChild(el("div", { class: "home-section-title" }, "Observability"));
+      const summary = STATE.activity.overall_summary || STATE.activity.summary || {};
+      const bySignal = summary.by_signal || {};
+      const byRisk = summary.guard_by_risk || {};
+      const topType = Object.entries(summary.by_type || {}).sort((a, b) => b[1] - a[1])[0];
+      const rows = [
+        ["Verdict", summary.verdict || "unknown"],
+        ["Signal/noise", `${bySignal.signal || 0} / ${bySignal.noise || 0}`],
+        ["Destructive guard", Object.entries(byRisk).map(([k, v]) => `${k}:${v}`).join(" · ") || "-"],
+        ["Top event", topType ? `${topType[0]} (${topType[1]})` : "-"],
+      ];
+      for (const [label, value] of rows) {
+        obsBox.appendChild(el("div", { class: "bench-row" },
+          el("span", {}, label),
+          el("span", { class: "bench-pct", "data-pass": String(label !== "Verdict" || value !== "noisy") }, value)
+        ));
+      }
+      home.appendChild(obsBox);
+    }
+
+    if (STATE.mission || STATE.gaps || STATE.panelRuns || STATE.releaseScorecard) {
+      const missionBox = el("div", { class: "home-section" });
+      missionBox.appendChild(el("div", { class: "home-section-title" }, "Mission Control"));
+
+      const scorecard = STATE.releaseScorecard?.release_scorecard || STATE.releaseScorecard || {};
+      const readiness = STATE.mission?.runtime_readiness || {};
+      const conclusion = scorecard.conclusion || readiness.conclusion || "unknown";
+      const blockers = scorecard.blockers || readiness.blockers || [];
+      const runtimeTargets = scorecard.runtime_targets || readiness.runtime_targets || {};
+      missionBox.appendChild(el("div", { class: "mission-grid" },
+        el("div", { class: "mission-card" },
+          el("span", {}, "Runtime readiness"),
+          el("strong", { "data-state": conclusion }, conclusion),
+          el("small", {}, `${Object.keys(runtimeTargets).length} target${Object.keys(runtimeTargets).length === 1 ? "" : "s"} · ${blockers.length} blocker${blockers.length === 1 ? "" : "s"}`)
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Open gaps"),
+          el("strong", {}, String(STATE.mission?.gaps?.open ?? tally(STATE.gaps?.gaps, "status").open ?? 0)),
+          el("small", {}, `${STATE.mission?.gaps?.critical ?? 0} critical · ${STATE.mission?.gaps?.high ?? 0} high`)
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Panel runs"),
+          el("strong", {}, String(STATE.panelRuns?.count ?? STATE.mission?.panel_runs?.recent_count ?? 0)),
+          el("small", {}, "latest lifecycle state")
+        )
+      ));
+
+      const gaps = STATE.gaps?.gaps || [];
+      if (gaps.length) {
+        const gapList = el("div", { class: "gap-list" });
+        for (const gap of gaps.slice(0, 6)) {
+          gapList.appendChild(el("div", { class: "gap-row" },
+            el("span", { class: "sev-dot", "data-sev": gap.severity || "low" }),
+            el("div", { class: "gap-main" },
+              el("strong", {}, gap.title || gap.id || "untitled gap"),
+              el("small", {}, [gap.status, gap.category, gap.affected_area].filter(Boolean).join(" · "))
+            ),
+            el("div", { class: "gap-owner" },
+              el("span", {}, gap.owner_agent || gap.suggested_owner_agent || "unowned"),
+              el("small", {}, gap.fix_skill || gap.suggested_skill || "no fix skill")
+            )
+          ));
+        }
+        missionBox.appendChild(this._section("Latest gaps", gapList));
+      }
+
+      const runs = STATE.panelRuns?.runs || STATE.mission?.panel_runs?.recent || [];
+      if (runs.length) {
+        const runList = el("div", { class: "panel-run-list" });
+        for (const run of runs.slice(0, 4)) {
+          runList.appendChild(el("div", { class: "panel-run-row" },
+            el("strong", {}, run.panel_name || "panel"),
+            el("span", { "data-state": run.status || "unknown" }, run.status || "unknown"),
+            el("small", {}, `${fmtTime(run.updated_at || run.started_at)} · ${run.requested_scope || "no scope"}`)
+          ));
+        }
+        missionBox.appendChild(this._section("Panel run history", runList));
+      }
+
+      home.appendChild(missionBox);
+    }
+
     // Family breakdown
     const famBox = el("div", { class: "home-section" });
     famBox.appendChild(el("div", { class: "home-section-title" }, "Skill families"));
@@ -533,7 +638,40 @@ class DetailPane extends HTMLElement {
 }
 customElements.define("up-detail-pane", DetailPane);
 
+function eventType(rec) {
+  return rec.type || rec.event || rec.kind || "unknown";
+}
+
+function eventPayload(rec) {
+  return rec.data && typeof rec.data === "object" ? rec.data : {};
+}
+
+function eventSignal(ev) {
+  const rec = ev.record || {};
+  const type = eventType(rec);
+  if (type === "destructive_guard_classification" && rec.risk_class === "LOW") return "noise";
+  if (type === "hook-block" && !rec.reason && !rec.tool && !rec.command && !rec.edit_paths) return "noise";
+  return "signal";
+}
+
+function guardCommand(rec) {
+  const command = rec.command_excerpt || rec.command || "";
+  return command.trim().split(/\s+/, 1)[0] || "unknown";
+}
+
 function eventSummary(rec) {
+  const type = eventType(rec);
+  if (type === "destructive_guard_classification") {
+    const reason = rec.matched_pattern || `${guardCommand(rec)} allowed`;
+    return `${rec.risk_class || "unknown"} destructive guard - ${reason}`;
+  }
+  if (type === "hook-block") {
+    return rec.reason ? `hook-block - ${rec.reason}` : "hook-block - legacy record without reason";
+  }
+  if (type === "pathfinder_decision") {
+    const data = eventPayload(rec);
+    return [`pathfinder`, data.skill, data.path_type, data.intent].filter(Boolean).join(" - ");
+  }
   if (rec.type) {
     const subject = rec.skill || rec.tool || rec.agent || rec.command || rec.hook || rec.repo || rec.worktree;
     const detail = rec.decision || rec.outcome || rec.status || rec.phase;
@@ -556,36 +694,181 @@ class ActivityFeed extends HTMLElement {
   constructor() {
     super();
     this.events = [];
-    this.max = 100;
+    this.max = 300;
+    this.filters = { signal: "signal", kind: "", type: "", q: "" };
+    this.summary = null;
   }
   connectedCallback() {
-    this.innerHTML = `
-      <div class="feed-header">
-        <div class="feed-title">Live Activity</div>
-        <div class="feed-subtitle" id="feedSubtitle">no events yet</div>
-      </div>
-      <div class="feed-list" id="feedList">
-        <div class="feed-empty">Run a skill or agent in Claude Code — events stream here in real time.</div>
-      </div>
-    `;
+    this.innerHTML = "";
+    const header = el("div", { class: "feed-header" },
+      el("div", { class: "feed-header-row" },
+        el("div", {},
+          el("div", { class: "feed-title" }, "Live Activity"),
+          el("div", { class: "feed-subtitle", id: "feedSubtitle" }, "loading")
+        ),
+        el("div", { class: "feed-actions" },
+          el("button", { class: "feed-btn", id: "feedExportJson", title: "Export filtered events as JSON" }, "JSON"),
+          el("button", { class: "feed-btn", id: "feedExportJsonl", title: "Export filtered events as JSONL" }, "JSONL")
+        )
+      ),
+      el("div", { class: "feed-controls" },
+        el("select", { id: "feedSignal", title: "Signal filter" },
+          el("option", { value: "signal" }, "signal"),
+          el("option", { value: "all" }, "all"),
+          el("option", { value: "noise" }, "noise")
+        ),
+        el("select", { id: "feedKind", title: "Source filter" }, el("option", { value: "" }, "all sources")),
+        el("select", { id: "feedType", title: "Event filter" }, el("option", { value: "" }, "all events")),
+        el("input", { id: "feedQuery", class: "feed-query", placeholder: "filter", title: "Text filter" })
+      ),
+      el("div", { class: "feed-summary", id: "feedSummary" })
+    );
+    this.appendChild(header);
+    this.appendChild(el("div", { class: "feed-list", id: "feedList" },
+      el("div", { class: "feed-empty" }, "No matching activity")
+    ));
+
+    this.querySelector("#feedSignal").value = this.filters.signal;
+    this.querySelector("#feedSignal").addEventListener("change", (e) => {
+      this.filters.signal = e.target.value;
+      this.render();
+    });
+    this.querySelector("#feedKind").addEventListener("change", (e) => {
+      this.filters.kind = e.target.value;
+      this.render();
+    });
+    this.querySelector("#feedType").addEventListener("change", (e) => {
+      this.filters.type = e.target.value;
+      this.render();
+    });
+    this.querySelector("#feedQuery").addEventListener("input", (e) => {
+      this.filters.q = e.target.value.trim().toLowerCase();
+      this.render();
+    });
+    this.querySelector("#feedExportJson").addEventListener("click", () => this.export("json"));
+    this.querySelector("#feedExportJsonl").addEventListener("click", () => this.export("jsonl"));
+    this.load();
+  }
+  async load() {
+    try {
+      const data = await api.invocations(200, { signal: "all" });
+      this.events = (data.invocations || []).slice().reverse();
+      this.summary = data.overall_summary || data.summary || null;
+      STATE.activity = data;
+      this.updateFilterOptions();
+      this.render();
+    } catch (err) {
+      const sub = this.querySelector("#feedSubtitle");
+      if (sub) sub.textContent = "unavailable";
+    }
   }
   push(event) {
     this.events.unshift(event);
     if (this.events.length > this.max) this.events.pop();
+    this.updateLiveSummary(event);
+    this.updateFilterOptions();
     this.render();
+  }
+  updateLiveSummary(event) {
+    if (!this.summary) return;
+    const rec = event.record || {};
+    const kind = event.kind || "unknown";
+    const type = eventType(rec);
+    const signal = eventSignal(event);
+    this.summary.total = (this.summary.total || 0) + 1;
+    this.summary.by_kind = this.summary.by_kind || {};
+    this.summary.by_type = this.summary.by_type || {};
+    this.summary.by_signal = this.summary.by_signal || {};
+    this.summary.by_kind[kind] = (this.summary.by_kind[kind] || 0) + 1;
+    this.summary.by_type[type] = (this.summary.by_type[type] || 0) + 1;
+    this.summary.by_signal[signal] = (this.summary.by_signal[signal] || 0) + 1;
+  }
+  updateFilterOptions() {
+    const populate = (select, values, current, allLabel) => {
+      if (!select) return;
+      const next = [el("option", { value: "" }, allLabel)];
+      for (const value of values) next.push(el("option", { value }, value));
+      select.innerHTML = "";
+      for (const option of next) select.appendChild(option);
+      select.value = values.includes(current) ? current : "";
+      if (!values.includes(current)) {
+        if (select.id === "feedKind") this.filters.kind = "";
+        if (select.id === "feedType") this.filters.type = "";
+      }
+    };
+    const kinds = [...new Set(this.events.map(ev => ev.kind).filter(Boolean))].sort();
+    const types = [...new Set(this.events.map(ev => eventType(ev.record || {})).filter(Boolean))].sort();
+    populate(this.querySelector("#feedKind"), kinds, this.filters.kind, "all sources");
+    populate(this.querySelector("#feedType"), types, this.filters.type, "all events");
+  }
+  filteredEvents() {
+    return this.events.filter(ev => {
+      const rec = ev.record || {};
+      const type = eventType(rec);
+      const signal = eventSignal(ev);
+      if (this.filters.signal !== "all" && signal !== this.filters.signal) return false;
+      if (this.filters.kind && ev.kind !== this.filters.kind) return false;
+      if (this.filters.type && type !== this.filters.type) return false;
+      if (this.filters.q) {
+        const hay = JSON.stringify(ev).toLowerCase();
+        if (!hay.includes(this.filters.q)) return false;
+      }
+      return true;
+    });
+  }
+  renderSummary(visible) {
+    const node = this.querySelector("#feedSummary");
+    if (!node) return;
+    const summary = this.summary || {};
+    const byType = summary.by_type || {};
+    const dominant = Object.entries(byType).sort((a, b) => b[1] - a[1])[0];
+    node.innerHTML = "";
+    const cards = [
+      ["visible", `${visible.length}/${this.events.length}`],
+      ["noise", `${Math.round((summary.noise_ratio || 0) * 100)}%`],
+      ["guard", `${Math.round((summary.low_guard_ratio || 0) * 100)}% low`],
+      ["top", dominant ? `${dominant[0]} ${dominant[1]}` : "-"],
+    ];
+    for (const [label, value] of cards) {
+      node.appendChild(el("div", { class: "feed-summary-card" },
+        el("span", {}, label),
+        el("strong", {}, value)
+      ));
+    }
+  }
+  export(format) {
+    const params = new URLSearchParams({ limit: "1000" });
+    for (const [key, value] of Object.entries(this.filters)) {
+      if (value && value !== "all") params.set(key, value);
+    }
+    if (format === "jsonl") params.set("format", "jsonl");
+    const url = `/api/invocations?${params}`;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = format === "jsonl" ? "ultraprompt-telemetry.jsonl" : "ultraprompt-telemetry.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
   render() {
     const list = this.querySelector("#feedList");
     const sub = this.querySelector("#feedSubtitle");
     if (!list) return;
-    if (!this.events.length) return;
-    sub.textContent = `${this.events.length} event${this.events.length === 1 ? "" : "s"}`;
+    const visible = this.filteredEvents();
+    sub.textContent = `${visible.length} shown · ${this.events.length} loaded`;
+    this.renderSummary(visible);
+    if (!visible.length) {
+      list.innerHTML = "";
+      list.appendChild(el("div", { class: "feed-empty" }, "No matching activity"));
+      return;
+    }
     list.innerHTML = "";
-    for (const ev of this.events) {
+    for (const ev of visible) {
       const rec = ev.record || {};
       const summary = eventSummary(rec);
       list.appendChild(el("div", {
         class: "feed-event",
+        "data-signal": eventSignal(ev),
         onclick: () => console.log("event:", ev),
       },
         el("div", { class: "feed-event-header" },
@@ -658,6 +941,11 @@ async function boot() {
 
   api.bench().then(d => { STATE.bench = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
   api.cognitiveHealth().then(d => { STATE.cognitive = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
+  api.missionState().then(d => { STATE.mission = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
+  api.gaps().then(d => { STATE.gaps = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
+  api.panelRuns().then(d => { STATE.panelRuns = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
+  api.releaseScorecard().then(d => { STATE.releaseScorecard = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
+  api.invocations(200, { signal: "all" }).then(d => { STATE.activity = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
 
   document.getElementById("stats").render();
   document.getElementById("tree").render();

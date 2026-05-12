@@ -178,6 +178,82 @@ def _get_gap_ledger_summary() -> dict:
         return {"error": str(e)}
 
 
+def _get_panel_runs(repo_name: str | None) -> dict:
+    """Recent panel lifecycle state."""
+    try:
+        cmd = [sys.executable, str(ROOT / "scripts" / "panel-runs.py"), "list", "--limit", "10"]
+        if repo_name:
+            cmd.extend(["--repo", repo_name])
+        proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=10)
+        data = json.loads(proc.stdout)
+        stats_proc = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "panel-runs.py"), "stats"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        stats = json.loads(stats_proc.stdout)
+        return {
+            "recent": data.get("runs", []),
+            "recent_count": data.get("count", 0),
+            "stats": stats,
+        }
+    except Exception as e:
+        return {"recent": [], "recent_count": 0, "error": str(e)}
+
+
+def _read_cached_release_scorecard() -> dict | None:
+    """Read the generated scorecard for dashboard-fast mission snapshots."""
+    scorecard_path = ROOT / "dist" / "release-scorecard.json"
+    if not scorecard_path.exists():
+        return None
+    try:
+        data = json.load(open(scorecard_path))
+        scorecard = data.get("release_scorecard", data)
+        return {
+            "ok": scorecard.get("conclusion") != "blocked",
+            "conclusion": scorecard.get("conclusion"),
+            "blockers": scorecard.get("blockers", []),
+            "warnings": scorecard.get("warnings", []),
+            "runtime_targets": scorecard.get("runtime_targets", {}),
+            "source": "dist/release-scorecard.json",
+            "cached": True,
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "source": "dist/release-scorecard.json", "cached": True}
+
+
+def _get_runtime_readiness(fast: bool = False) -> dict:
+    """Release scorecard target snapshot without writing dist artifacts."""
+    if fast:
+        cached = _read_cached_release_scorecard()
+        if cached is not None:
+            return cached
+
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "release-scorecard.py"), "--check", "--json", "--target", "source"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        data = json.loads(proc.stdout)
+        scorecard = data.get("release_scorecard", data)
+        return {
+            "ok": proc.returncode == 0 and scorecard.get("conclusion") != "blocked",
+            "conclusion": scorecard.get("conclusion"),
+            "blockers": scorecard.get("blockers", []),
+            "warnings": scorecard.get("warnings", []),
+            "runtime_targets": scorecard.get("runtime_targets", {}),
+            "source": "release-scorecard.py --check --json --target source",
+            "cached": False,
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e), "cached": False}
+
+
 def _get_panels() -> dict:
     """Read panel catalog from source/panel-specs.json."""
     panels_path = ROOT / "source" / "panel-specs.json"
@@ -202,7 +278,7 @@ def _get_panels() -> dict:
         return {"available": [], "error": str(e)}
 
 
-def snapshot(worktree: Path | None = None) -> dict:
+def snapshot(worktree: Path | None = None, fast: bool = False) -> dict:
     """Produce a current Mission Control state snapshot."""
     worktree = (worktree or Path.cwd()).resolve()
     runtime_info = _detect_runtime()
@@ -221,6 +297,8 @@ def snapshot(worktree: Path | None = None) -> dict:
             "wip_snapshots": _get_wip_snapshots(repo_name),
         },
         "gaps": _get_gap_ledger_summary(),
+        "panel_runs": _get_panel_runs(repo_name),
+        "runtime_readiness": _get_runtime_readiness(fast=fast),
         "panels": _get_panels(),
     }
     return state
@@ -261,6 +339,7 @@ def main():
     s_snap = sub.add_parser("snapshot")
     s_snap.add_argument("--worktree", default=None)
     s_snap.add_argument("--write", action="store_true", help="Persist to ~/.ultraprompt/state/")
+    s_snap.add_argument("--fast", action="store_true", help="Use generated release-scorecard cache for dashboard latency.")
     sub.add_parser("path")
     s_hist = sub.add_parser("history")
     s_hist.add_argument("--n", type=int, default=5)
@@ -278,7 +357,7 @@ def main():
 
     if args.cmd == "snapshot":
         wt = Path(args.worktree).resolve() if args.worktree else Path.cwd()
-        state = snapshot(wt)
+        state = snapshot(wt, fast=args.fast)
         if args.write:
             p = write_snapshot(state)
             state["_persisted_to"] = str(p)

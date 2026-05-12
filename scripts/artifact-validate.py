@@ -66,10 +66,17 @@ SCHEMAS = {
         "required": ["repo", "category", "severity", "confidence", "title", "evidence"],
         "valid_severities": ["critical", "high", "medium", "low"],
         "valid_confidences": ["confirmed", "likely", "possible"],
+        "valid_status": ["open", "accepted", "in_progress", "fixed", "validated", "false_positive", "deferred"],
         "valid_categories": [
             "incomplete_feature", "wiring_gap", "contract_mismatch", "missing_test",
             "release_blocker", "stale_code", "documentation_drift", "dead_code",
             "observability_gap", "configuration_gap"
+        ],
+    },
+    "repo_completeness_report": {
+        "required": [
+            "repo", "panel_run", "repo_review_report", "gap_ledger_entries",
+            "dedupe_summary", "validation_summary", "next_actions"
         ],
     },
     "repo_review_report": {

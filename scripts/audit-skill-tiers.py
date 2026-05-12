@@ -4,7 +4,7 @@
 Verifies:
 - Every skill has a tier
 - Tier is one of {core, specialist, ecosystem}
-- Tier counts match the V8 spec (28 core, 15 specialist, 5 ecosystem)
+- Tier counts match the V8.2 spec (33 core, 16 specialist, 5 ecosystem)
 - Specialist and ecosystem skills have disable-model-invocation: true
 """
 from __future__ import annotations
@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_COUNTS = {"core": 28, "specialist": 15, "ecosystem": 5}  # V8 release profile
+EXPECTED_COUNTS = {"core": 33, "specialist": 16, "ecosystem": 5}  # V8.2 release profile
 
 
 def parse_frontmatter(path: Path) -> dict[str, str]:

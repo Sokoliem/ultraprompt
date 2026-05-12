@@ -3,10 +3,10 @@
     {
       "color": "red",
       "description": "Red-team a plan, design, decision, code change, or claim. USE WHEN user says 'red team this / devil's advocate / poke holes in / what could go wrong / find the weakness / stress-test this / challenge this / why might this be wrong / adversarial review / critique this / attack this proposal'. DEFAULT CHOICE for structured adversarial review \u2014 wins over Explore (which catalogs without challenging) and reviewer (which finds code issues, not strategic flaws) because adversarial specifically attacks assumptions, surfaces fatal flaws, and produces a ranked threat-to-success list with concrete failure scenarios. Useful pre-launch, pre-merge, pre-commit-to-strategy, or after-a-claim-feels-too-clean. DO NOT use for routine code review (use reviewer), for ongoing debugging (use debugger), or for finding existing bugs (use test-gap-analyst). Read-only.",
-      "disallowed_tools": "Write, Edit, MultiEdit, Bash",
+      "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "16",
       "name": "adversarial",
-      "path": "agents\\adversarial.md",
+      "path": "agents/adversarial.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -15,7 +15,7 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "16",
       "name": "auditor",
-      "path": "agents\\auditor.md",
+      "path": "agents/auditor.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -24,7 +24,7 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "14",
       "name": "catalog-strategist",
-      "path": "agents\\catalog-strategist.md",
+      "path": "agents/catalog-strategist.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -33,7 +33,7 @@
       "disallowed_tools": "",
       "max_turns": "12",
       "name": "customer-advocate",
-      "path": "agents\\customer-advocate.md",
+      "path": "agents/customer-advocate.md",
       "tools": "Read, Grep, Glob"
     },
     {
@@ -42,7 +42,7 @@
       "disallowed_tools": "",
       "max_turns": "16",
       "name": "dead-code-and-drift-hunter",
-      "path": "agents\\dead-code-and-drift-hunter.md",
+      "path": "agents/dead-code-and-drift-hunter.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -51,8 +51,17 @@
       "disallowed_tools": "Edit, MultiEdit",
       "max_turns": "16",
       "name": "debugger",
-      "path": "agents\\debugger.md",
+      "path": "agents/debugger.md",
       "tools": "Read, Grep, Glob, Bash, Write"
+    },
+    {
+      "color": "purple",
+      "description": "Critique frontend/product surfaces for visual quality, taste, hierarchy, domain fit, interaction polish, and design-system alignment using rendered evidence where available. USE WHEN user asks for design review, aesthetic/taste pass, frontend visual QA, responsive screenshot QA, UI polish, or design-system consistency. DEFAULT CHOICE for experience-quality work because it joins product taste with implementation evidence. DO NOT use for WCAG-only audits, generic code review, or marketing copy; use accessibility-review, reviewer, or writer.",
+      "disallowed_tools": "Write, Edit, MultiEdit",
+      "max_turns": "16",
+      "name": "design-critic",
+      "path": "agents/design-critic.md",
+      "tools": "Read, Grep, Glob, Bash"
     },
     {
       "color": "purple",
@@ -60,7 +69,7 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "12",
       "name": "dream-synthesizer",
-      "path": "agents\\dream-synthesizer.md",
+      "path": "agents/dream-synthesizer.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -69,7 +78,7 @@
       "disallowed_tools": "",
       "max_turns": "14",
       "name": "evaluator",
-      "path": "agents\\evaluator.md",
+      "path": "agents/evaluator.md",
       "tools": "Read, Grep, Glob"
     },
     {
@@ -78,7 +87,7 @@
       "disallowed_tools": "",
       "max_turns": "18",
       "name": "feature-completeness-auditor",
-      "path": "agents\\feature-completeness-auditor.md",
+      "path": "agents/feature-completeness-auditor.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -87,7 +96,7 @@
       "disallowed_tools": "",
       "max_turns": "14",
       "name": "gap-analysis-lead",
-      "path": "agents\\gap-analysis-lead.md",
+      "path": "agents/gap-analysis-lead.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -96,7 +105,7 @@
       "disallowed_tools": "",
       "max_turns": "14",
       "name": "innovation-lead",
-      "path": "agents\\innovation-lead.md",
+      "path": "agents/innovation-lead.md",
       "tools": "Read, Grep, Glob"
     },
     {
@@ -105,7 +114,16 @@
       "disallowed_tools": "",
       "max_turns": "16",
       "name": "integration-contract-reviewer",
-      "path": "agents\\integration-contract-reviewer.md",
+      "path": "agents/integration-contract-reviewer.md",
+      "tools": "Read, Grep, Glob, Bash"
+    },
+    {
+      "color": "cyan",
+      "description": "Audit Ultraprompt runtime routing and invocation effectiveness across telemetry, pathfinder decisions, skill activation, agent dispatch, Explore fallback, legacy prefixes, and release gates. USE WHEN user asks to read telemetry, strengthen automated pathfinding, improve skill auto-fire, diagnose why generic agents ran, or prove Codex/Claude Code invocation health. DEFAULT CHOICE for routing telemetry because it distinguishes catalog health from actual runtime adoption. DO NOT use for generic repo maps or code implementation; use repo-map/build after findings are identified.",
+      "disallowed_tools": "Write, Edit, MultiEdit",
+      "max_turns": "14",
+      "name": "invocation-reliability-auditor",
+      "path": "agents/invocation-reliability-auditor.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -114,7 +132,7 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "14",
       "name": "learning-auditor",
-      "path": "agents\\learning-auditor.md",
+      "path": "agents/learning-auditor.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -123,7 +141,7 @@
       "disallowed_tools": "",
       "max_turns": "14",
       "name": "market-analyst",
-      "path": "agents\\market-analyst.md",
+      "path": "agents/market-analyst.md",
       "tools": "Read, Grep, Glob"
     },
     {
@@ -132,7 +150,7 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "12",
       "name": "memory-curator",
-      "path": "agents\\memory-curator.md",
+      "path": "agents/memory-curator.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -141,7 +159,7 @@
       "disallowed_tools": "",
       "max_turns": "16",
       "name": "principal-pm",
-      "path": "agents\\principal-pm.md",
+      "path": "agents/principal-pm.md",
       "tools": "Read, Grep, Glob"
     },
     {
@@ -150,7 +168,7 @@
       "disallowed_tools": "",
       "max_turns": "18",
       "name": "release-readiness-auditor",
-      "path": "agents\\release-readiness-auditor.md",
+      "path": "agents/release-readiness-auditor.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -159,7 +177,7 @@
       "disallowed_tools": "",
       "max_turns": "18",
       "name": "repo-cartographer",
-      "path": "agents\\repo-cartographer.md",
+      "path": "agents/repo-cartographer.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -168,7 +186,7 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "18",
       "name": "reviewer",
-      "path": "agents\\reviewer.md",
+      "path": "agents/reviewer.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -177,16 +195,16 @@
       "disallowed_tools": "",
       "max_turns": "16",
       "name": "risk-and-controls-reviewer",
-      "path": "agents\\risk-and-controls-reviewer.md",
+      "path": "agents/risk-and-controls-reviewer.md",
       "tools": "Read, Grep, Glob"
     },
     {
       "color": "gray",
       "description": "Triage incoming requests when intent is ambiguous and recommend the right downstream skill or agent. USE WHEN main thread is unsure which Ultraprompt skill or specialist fits a request, or when the user's request straddles multiple lanes. Different from `dispatch_advise` MCP tool (which gives an inline recommendation): the router agent runs as a Task subagent for harder routing decisions requiring file inspection or multi-pass reasoning. DEFAULT for ambiguous routing when MCP-level guidance was insufficient. DO NOT use as the first-line router for clear-intent requests (those route directly via skill auto-discovery or `dispatch_advise`), and do not invoke router for actual work \u2014 router only recommends; it doesn't execute the recommended work. Read-only.",
-      "disallowed_tools": "Write, Edit, MultiEdit, Bash",
+      "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "8",
       "name": "router",
-      "path": "agents\\router.md",
+      "path": "agents/router.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -195,7 +213,7 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "12",
       "name": "scout",
-      "path": "agents\\scout.md",
+      "path": "agents/scout.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -204,7 +222,7 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "20",
       "name": "security-auditor",
-      "path": "agents\\security-auditor.md",
+      "path": "agents/security-auditor.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -213,7 +231,7 @@
       "disallowed_tools": "",
       "max_turns": "16",
       "name": "technical-product-architect",
-      "path": "agents\\technical-product-architect.md",
+      "path": "agents/technical-product-architect.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -222,7 +240,7 @@
       "disallowed_tools": "",
       "max_turns": "18",
       "name": "test-gap-analyst",
-      "path": "agents\\test-gap-analyst.md",
+      "path": "agents/test-gap-analyst.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -231,7 +249,7 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "14",
       "name": "test-strategist",
-      "path": "agents\\test-strategist.md",
+      "path": "agents/test-strategist.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -240,7 +258,7 @@
       "disallowed_tools": "",
       "max_turns": "16",
       "name": "wiring-gap-inspector",
-      "path": "agents\\wiring-gap-inspector.md",
+      "path": "agents/wiring-gap-inspector.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
@@ -249,21 +267,22 @@
       "disallowed_tools": "Write, Edit, MultiEdit",
       "max_turns": "12",
       "name": "workflow-planner",
-      "path": "agents\\workflow-planner.md",
+      "path": "agents/workflow-planner.md",
       "tools": "Read, Grep, Glob, Bash"
     },
     {
       "color": "purple",
       "description": "Write release notes, changelogs, ADRs, decision memos, postmortems, design docs, and other internal/external technical communication. USE WHEN user says 'draft release notes / write changelog / write ADR / decision doc / postmortem / write up this design / document this decision / write a memo / draft documentation / release announcement'. DEFAULT CHOICE for technical communication artifacts \u2014 wins over Explore (which surveys without producing the artifact) and principal-pm (which produces PRDs, not retrospective/communication artifacts) because writer produces specific artifact types with structured templates (release notes, ADRs, postmortems each have known formats). DO NOT use for PRDs (use prd-standard/technical/etc.), for code commit messages (those are inline), for code documentation/comments (inline), or for marketing prose. Read-only \u2014 produces the artifact; user applies/publishes.",
-      "disallowed_tools": "Edit, MultiEdit, Bash",
+      "disallowed_tools": "Edit, MultiEdit",
       "max_turns": "12",
       "name": "writer",
-      "path": "agents\\writer.md",
+      "path": "agents/writer.md",
       "tools": "Read, Grep, Glob, Bash"
     }
   ],
   "aliases": {
     "accessibility-review": "accessibility-review",
+    "aesthetic-review": "design-review",
     "agent-authoring": "agent-author",
     "agent-orchestration-plan": "agent-author",
     "agent-prd": "prd-ai-feature",
@@ -280,6 +299,9 @@
     "cleanup-audit": "dead-code-drift",
     "codebase-health": "technical-debt-triage",
     "codebase-review": "repo-review",
+    "codex-goal": "goal",
+    "completion-goal": "goal",
+    "component-library-review": "design-system-review",
     "concept-doc": "concept-brief",
     "concept-one-pager": "concept-brief",
     "contract-test-generate": "contract-test-generate",
@@ -292,6 +314,9 @@
     "deps-upgrade": "migrate",
     "developer-experience-audit": "technical-debt-triage",
     "docs-sync": "docs-sync",
+    "dream-review": "dream",
+    "dream-run": "dream",
+    "dream-status": "dream",
     "drift-hunt": "dead-code-drift",
     "e2e-audit": "feature-completeness",
     "engineering-plan": "prd-to-plan",
@@ -303,14 +328,18 @@
     "find-stale": "dead-code-drift",
     "find-test-gaps": "test-gap-analysis",
     "flake-hunter": "debug",
+    "frontend-polish": "frontend-visual-qa",
     "full-prd": "prd-standard",
+    "goal-mode": "goal",
     "hooks-automation-design": "hooks-design",
     "implementation-plan": "prd-to-plan",
     "incomplete-audit": "gap-analysis",
     "infra-iac-review": "infra-iac-review",
     "infra-prd": "prd-technical",
+    "invocation-review": "pathfinding-invocation-review",
     "is-this-complete": "feature-completeness",
     "job-framing": "problem-framing",
+    "keep-working": "goal",
     "llm-eval-design": "llm-eval-design",
     "llm-feature-prd": "prd-ai-feature",
     "log-redaction-pass": "data-flow-privacy-map",
@@ -326,6 +355,7 @@
     "one-pager": "prd-lite",
     "opportunity-brief": "prd-lite",
     "opportunity-space": "opportunity-map",
+    "pathfinder-review": "pathfinding-invocation-review",
     "performance-pass": "performance-pass",
     "phase-1-scope": "mvp-scope",
     "pr-review": "review",
@@ -334,6 +364,7 @@
     "prd-breakdown": "prd-to-plan",
     "prioritize-ideas": "idea-triage",
     "problem-statement": "problem-framing",
+    "product-design-review": "design-review",
     "product-spec": "prd-standard",
     "production-audit": "release-readiness",
     "prompt-hardening": "ai-agent-safety-review",
@@ -347,20 +378,31 @@
     "repo-gaps": "gap-analysis",
     "repo-health": "repo-review",
     "repo-map": "repo-map",
+    "responsive-qa": "frontend-visual-qa",
+    "routing-telemetry-review": "pathfinding-invocation-review",
+    "screenshot-qa": "frontend-visual-qa",
     "security-audit": "security-audit",
     "semantic-search-codebase": "repo-map",
     "settings-permissions-audit": "hooks-design",
     "ship-readiness": "release-readiness",
+    "skill-activation-review": "pathfinding-invocation-review",
     "skill-authoring": "skill-author",
     "state-machine-review": "state-machine-review",
     "supply-chain-hardening": "supply-chain-hardening",
+    "taste-review": "design-review",
     "tech-prd": "prd-technical",
     "technical-debt-triage": "technical-debt-triage",
     "test-coverage-audit": "test-gap-analysis",
     "test-harden": "test-harden",
+    "theme-review": "design-system-review",
+    "token-review": "design-system-review",
     "tui-design-innovate": "tui-design-innovate",
     "types-strengthen": "refactor",
+    "ui-consistency-audit": "design-system-review",
+    "ultraprompt-dream": "dream",
     "untested-paths": "test-gap-analysis",
+    "visual-design-review": "design-review",
+    "visual-qa": "frontend-visual-qa",
     "white-space-analysis": "opportunity-map"
   },
   "commands": [
@@ -368,205 +410,231 @@
       "description": "Manually snapshot the current worktree state to the ledger. Useful before risky operations.",
       "manual_only": false,
       "name": "checkpoint",
-      "path": "commands\\checkpoint.md"
+      "path": "commands/checkpoint.md"
     },
     {
       "description": "Verify a draft answer against the evidence ledger before output. Flags claims of validation/passing/successful that lack supporting ledger events.",
       "manual_only": true,
       "name": "claim-check",
-      "path": "commands\\claim-check.md"
+      "path": "commands/claim-check.md"
     },
     {
       "description": "Triage assistant for dirty trees. Groups uncommitted changes by path, size, age, and file type. Suggests actions per group.",
       "manual_only": false,
       "name": "cleanup",
-      "path": "commands\\cleanup.md"
+      "path": "commands/cleanup.md"
     },
     {
       "description": "Check for model, effort, long-context, or extra-usage runtime pins in the Ultraprompt plugin.",
       "manual_only": true,
       "name": "cost-audit",
-      "path": "commands\\cost-audit.md"
+      "path": "commands/cost-audit.md"
     },
     {
       "description": "Launch the Ultraprompt live dashboard \u2014 catalog browser + streaming telemetry. Auto-opens browser at localhost:5174 (or next free port). Idempotent \u2014 re-running just opens the existing instance.",
       "manual_only": false,
       "name": "dashboard",
-      "path": "commands\\dashboard.md"
+      "path": "commands/dashboard.md"
     },
     {
       "description": "Validate the Ultraprompt V8 plugin and report generated artifacts, catalog metadata, skill, agent, hook, MCP, evidence, routing, telemetry, and duplication health.",
       "manual_only": true,
       "name": "doctor",
-      "path": "commands\\doctor.md"
+      "path": "commands/doctor.md"
     },
     {
       "description": "Review recent V8 dream reports and their candidate memories or learning proposals.",
       "manual_only": false,
       "name": "dream-review",
-      "path": "commands\\dream-review.md"
+      "path": "commands/dream-review.md"
     },
     {
       "description": "Run or inspect safe V8 dream jobs that compact sessions, reflect on repos, learn routes, inspect catalog health, and prune memory candidates.",
       "manual_only": false,
       "name": "dream",
-      "path": "commands\\dream.md"
+      "path": "commands/dream.md"
     },
     {
       "description": "Show hook-recorded commands, validation events, edit events, hook blocks, and subagent events from the evidence ledger.",
       "manual_only": true,
       "name": "evidence-report",
-      "path": "commands\\evidence-report.md"
+      "path": "commands/evidence-report.md"
+    },
+    {
+      "description": "Set, inspect, or clear a transcript-backed goal contract for substantial work with a verifiable completion condition.",
+      "manual_only": false,
+      "name": "goal",
+      "path": "commands/goal.md"
     },
     {
       "description": "Show V8 capability graph health, node counts, edge counts, and stale/missing references.",
       "manual_only": false,
       "name": "graph",
-      "path": "commands\\graph.md"
+      "path": "commands/graph.md"
     },
     {
       "description": "Install the launchd-driven worktree monitor. Scans every 30 min, daily digest at 9 AM, macOS notifications on urgent state.",
       "manual_only": false,
       "name": "install-monitor",
-      "path": "commands\\install-monitor.md"
+      "path": "commands/install-monitor.md"
     },
     {
       "description": "Review, approve, apply, reject, or revert governed V8 learning candidates.",
       "manual_only": false,
       "name": "learn-review",
-      "path": "commands\\learn-review.md"
+      "path": "commands/learn-review.md"
     },
     {
       "description": "Query and govern Ultraprompt V8 typed memory: candidates, promotion, lifecycle, export, forget, and stats.",
       "manual_only": false,
       "name": "memory",
-      "path": "commands\\memory.md"
+      "path": "commands/memory.md"
     },
     {
       "description": "Show the Ultraprompt V8 menu and recommend the best next routes for the current task.",
       "manual_only": true,
       "name": "menu",
-      "path": "commands\\menu.md"
+      "path": "commands/menu.md"
     },
     {
       "description": "Open the V8 Mission Control dashboard with catalog, live telemetry, memory, dreams, pathfinder, learning, graph, and governance health.",
       "manual_only": false,
       "name": "mission-control",
-      "path": "commands\\mission-control.md"
+      "path": "commands/mission-control.md"
     },
     {
       "description": "V8. Mission Control \u2014 unified state snapshot. Repo + worktree + sessions + evidence + WIP snapshots + gap ledger + available panels in one view.",
       "manual_only": false,
       "name": "mission",
-      "path": "commands\\mission.md"
+      "path": "commands/mission.md"
     },
     {
       "description": "Check status of the launchd worktree monitor.",
       "manual_only": false,
       "name": "monitor-status",
-      "path": "commands\\monitor-status.md"
+      "path": "commands/monitor-status.md"
     },
     {
       "description": "Create a new git worktree with plugin-aware setup. Records intent to ledger.",
       "manual_only": false,
       "name": "new-worktree",
-      "path": "commands\\new-worktree.md"
+      "path": "commands/new-worktree.md"
     },
     {
       "description": "V8. Run a coordinated expert panel with structured phase contracts, cognitive policy metadata, parallel agent dispatch, and synthesis. Available panels include repo, feature, contract, release, product, AI, idea, MVP, governance, security/privacy, migration, and incident-response panels.",
       "manual_only": false,
       "name": "panel-run",
-      "path": "commands\\panel-run.md"
+      "path": "commands/panel-run.md"
     },
     {
       "description": "Explain the recommended Ultraprompt skill, agent, command, panel, or staged workflow for a user goal.",
       "manual_only": false,
       "name": "pathfind",
-      "path": "commands\\pathfind.md"
+      "path": "commands/pathfind.md"
     },
     {
       "description": "When entering an unfamiliar repo or starting cross-cutting work, fetch a cached read-only contract: validation commands, configs, ownership, sensitive paths, recent activity. Faster than manual ls/cat tour. Cached by HEAD.",
       "manual_only": true,
       "name": "repo-capsule",
-      "path": "commands\\repo-capsule.md"
+      "path": "commands/repo-capsule.md"
     },
     {
       "description": "V8. Structured repo review \u2014 map, gaps, contracts, test coverage, drift, release readiness. Dispatches repo-cartographer agent for the analysis phase; main thread synthesizes findings.",
       "manual_only": false,
       "name": "repo-review",
-      "path": "commands\\repo-review.md"
+      "path": "commands/repo-review.md"
     },
     {
       "description": "Resume from previous session. Reads last session transcript + WIP branches + current state and produces \"where was I\" summary.",
       "manual_only": false,
       "name": "resume",
-      "path": "commands\\resume.md"
+      "path": "commands/resume.md"
     },
     {
       "description": "Route a free-form intent to the best Ultraprompt skill or small set of skills using the V8 generated index.",
       "manual_only": true,
       "name": "route",
-      "path": "commands\\route.md"
+      "path": "commands/route.md"
     },
     {
       "description": "Cross-worktree dashboard. Shows every worktree's state in one screen with urgency triage.",
       "manual_only": false,
       "name": "status",
-      "path": "commands\\status.md"
+      "path": "commands/status.md"
     },
     {
       "description": "Uninstall the launchd worktree monitor.",
       "manual_only": false,
       "name": "uninstall-monitor",
-      "path": "commands\\uninstall-monitor.md"
+      "path": "commands/uninstall-monitor.md"
     },
     {
       "description": "Plugin usage analytics from the always-on ledger. Skill heat map, MCP tool calls, WIP save count, claim-check trips.",
       "manual_only": false,
       "name": "usage",
-      "path": "commands\\usage.md"
+      "path": "commands/usage.md"
     },
     {
       "description": "Explain when an Ultraprompt skill is the right fit, when not to use it, and what adjacent alternatives exist.",
       "manual_only": true,
       "name": "why",
-      "path": "commands\\why.md"
+      "path": "commands/why.md"
     },
     {
       "description": "List or delete old wip/* branches. Default retention 90 days.",
       "manual_only": false,
       "name": "wip-prune",
-      "path": "commands\\wip-prune.md"
+      "path": "commands/wip-prune.md"
     },
     {
       "description": "Safely snapshot dirty state to a wip/<repo>/<worktree>/<timestamp> branch without affecting current work. Always recoverable.",
       "manual_only": false,
       "name": "wip-save",
-      "path": "commands\\wip-save.md"
+      "path": "commands/wip-save.md"
     }
   ],
   "counts": {
-    "agents": 29,
-    "commands": 30,
-    "skills": 48
+    "agents": 31,
+    "commands": 31,
+    "skills": 54
   },
-  "generated_at": "2026-05-11T07:30:52+00:00",
+  "generated_at": "2026-05-12T06:40:43+00:00",
   "plugin": {
-    "description": "Ultraprompt V8 cognitive control-plane plugin for Claude Code and Codex: 48 skills, 29 agents, 42 MCP tools, 30 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, and dual-runtime install.",
+    "description": "Ultraprompt V8.2 cognitive control-plane plugin for Claude Code and Codex: 54 skills, 31 agents, 42 MCP tools, 31 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, experience-quality panels, invocation telemetry gates, goal contracts, live Mission Control dashboard, fingerprinted gap ledger, and dual-runtime install.",
     "name": "ultraprompt",
-    "version": "8.0.0"
+    "version": "8.2.0"
   },
   "skills": [
     {
       "aliases": [
         "accessibility-review"
       ],
+      "codex_command": "$ultraprompt:accessibility-review",
       "command": "/ultraprompt:accessibility-review",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'a11y review / accessibility audit / WCAG check / screen reader compatibility / keyboard navigation review / color contrast audit / accessible component review' \u2014 dispatches auditor with a11y focus. DEFAULT for accessibility audits.",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "a11y"
+      },
+      "editing": true,
+      "family": "experience-quality",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "accessibility-review",
-      "path": "skills\\accessibility-review\\SKILL.md",
+      "output_contract": "Scope | Automated Findings | Keyboard Navigation Findings | Focus Management Findings | Screen Reader Findings | Contrast Findings | Fixes Applied | Remaining Issues",
+      "outputs": [
+        "Scope"
+      ],
+      "paired_panels": [
+        "feature-gap-panel"
+      ],
+      "path": "skills/accessibility-review/SKILL.md",
       "paths": "",
+      "preferred_panel": "feature-gap-panel",
+      "primary_agent": "auditor",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "a11y",
@@ -616,12 +684,33 @@
         "agent-orchestration-plan",
         "agent-team-playbook"
       ],
+      "codex_command": "$ultraprompt:agent-author",
       "command": "/ultraprompt:agent-author",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'author a new agent / write an agent / design an agent / new subagent / create an agent for X / agent description' \u2014 produces a new agent definition (.md with frontmatter + body) following the V8 quality bar (USE WHEN/DEFAULT/DO NOT triggers + required output contract + lane boundaries + anti-patterns). DEFAULT for agent authoring.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "agent-authoring",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "plugin-ecosystem",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "agent-author",
-      "path": "skills\\agent-author\\SKILL.md",
+      "output_contract": "Agent Frontmatter | Tool Permission Justification | Body Sections | Return Contract | Orchestration Update | Validator Result",
+      "outputs": [
+        "Agent Frontmatter"
+      ],
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ],
+      "path": "skills/agent-author/SKILL.md",
       "paths": "",
+      "preferred_panel": "cognitive-governance-panel",
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "ecosystem",
       "tokens": [
         "agent",
@@ -672,12 +761,33 @@
         "ai-agent-safety-review",
         "prompt-hardening"
       ],
+      "codex_command": "$ultraprompt:ai-agent-safety-review",
       "command": "/ultraprompt:ai-agent-safety-review",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'AI safety review / agent safety / prompt injection check / LLM safety / agent permissions audit / tool use safety / agentic system review' \u2014 dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus. DEFAULT for AI agent safety reviews.",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "ai-safety"
+      },
+      "editing": true,
+      "family": "ai-safety-evals",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "ai-agent-safety-review",
-      "path": "skills\\ai-agent-safety-review\\SKILL.md",
+      "output_contract": "Scope | Trust Boundary Map | Tool Audit (per tool: side effect, confirmation gate, hardening) | Retrieval Audit | Memory/Context Audit | Autonomy Audit | Hardenings Applied | Remaining Risks",
+      "outputs": [
+        "Scope"
+      ],
+      "paired_panels": [
+        "ai-feature-panel",
+        "security-privacy-panel"
+      ],
+      "path": "skills/ai-agent-safety-review/SKILL.md",
       "paths": "",
+      "preferred_panel": "ai-feature-panel",
+      "primary_agent": "auditor",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "agent",
@@ -726,12 +836,32 @@
         "api-contract",
         "api-deprecation"
       ],
+      "codex_command": "$ultraprompt:api-contract",
       "command": "/ultraprompt:api-contract",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'API contract review / OpenAPI review / API design review / RESTful contract / GraphQL schema review / API versioning' \u2014 dispatches reviewer/integration-contract-reviewer with API contract focus. DEFAULT for API contract design and review.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "contract"
+      },
+      "editing": false,
+      "family": "architecture-contracts",
       "manual_only": false,
+      "mode": "read_only",
       "name": "api-contract",
-      "path": "skills\\api-contract\\SKILL.md",
+      "output_contract": "Surface Affected | Change Classification (additive/modifying/removing) | Consumer Impact Analysis | Deprecation Path (if not additive) | Contract Tests Added/Updated | Changelog/Release Note Entry | Version Bump Recommendation | Migration Guidance for Consumers",
+      "outputs": [
+        "Surface Affected"
+      ],
+      "paired_panels": [
+        "contract-drift-panel"
+      ],
+      "path": "skills/api-contract/SKILL.md",
       "paths": "",
+      "preferred_panel": "contract-drift-panel",
+      "primary_agent": "reviewer",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "affects",
@@ -780,12 +910,29 @@
         "architecture-review",
         "monorepo-architecture"
       ],
+      "codex_command": "$ultraprompt:architect",
       "command": "/ultraprompt:architect",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'architecture review / system design review / architectural decision / design this system / architecture for X / structural review / module boundary review' \u2014 dispatches reviewer with architecture focus. DEFAULT for architecture-scope tasks. Different from /review (diff-scope) and /repo-review (whole-repo audit).",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "architecture"
+      },
+      "editing": false,
+      "family": "architecture-contracts",
       "manual_only": false,
+      "mode": "read_only",
       "name": "architect",
-      "path": "skills\\architect\\SKILL.md",
+      "output_contract": "Architectural Question | Current Shape | Intended Shape (from docs/ADRs) | Gaps + Evidence | Cost Assessment | Recommendations (incremental) | Recommendations (larger redesign, flagged) | What Would Confirm/Refute",
+      "outputs": [
+        "Architectural Question"
+      ],
+      "path": "skills/architect/SKILL.md",
       "paths": "",
+      "preferred_panel": null,
+      "primary_agent": "reviewer",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "abstraction",
@@ -841,12 +988,26 @@
       "aliases": [
         "feature-build"
       ],
+      "codex_command": "$ultraprompt:build",
       "command": "/ultraprompt:build",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'build this / implement X / write the code for / create the feature / make a new component / scaffold this / let's write Y / add a function that does Z' \u2014 apply minimum diff implementation with explicit tests + validation. DEFAULT for code-writing tasks. Different from /refactor (changes existing without behavior change) and /migrate (changes with explicit migration plan).",
+      "editing": true,
+      "family": "code-quality",
+      "inline_only_reason": "the main thread owns the requested code change, edits, integration, and validation; dispatch only bounded sidecars that do not own the critical implementation path",
       "manual_only": false,
+      "mode": "write_capable",
       "name": "build",
-      "path": "skills\\build\\SKILL.md",
+      "output_contract": "Feature Understanding | Design Decision (if non-obvious) | Files Changed | Tests Added | Docs Updated | Validation | Remaining Assumptions",
+      "outputs": [
+        "Feature Understanding"
+      ],
+      "path": "skills/build/SKILL.md",
       "paths": "",
+      "preferred_panel": null,
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "add",
@@ -900,12 +1061,32 @@
     },
     {
       "aliases": [],
+      "codex_command": "$ultraprompt:ci-repair",
       "command": "/ultraprompt:ci-repair",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'CI is failing / fix the build / failing pipeline / GitHub Actions broken / lint errors blocking / type-check failing / build red' \u2014 runs debugger discipline scoped to CI/build failure. DEFAULT for CI/build failure investigation. Reads CI logs, reproduces locally, narrows to root cause. Different from /debug (general runtime) \u2014 ci-repair specializes in build/CI/pipeline failure patterns.",
+      "dispatch_to": {
+        "agent": "debugger",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "code-quality",
       "manual_only": false,
+      "mode": "write_capable",
       "name": "ci-repair",
-      "path": "skills\\ci-repair\\SKILL.md",
+      "output_contract": "Failure Layer (workflow|cache|deps|env|code) | Evidence | Last Successful Run Comparison | Fix (file + lines) | Why Not a Code Bug | Local Reproduction | Remaining Risks (e.g., 'cache key change will force one slow rebuild')",
+      "outputs": [
+        "Failure Layer (workflow"
+      ],
+      "paired_panels": [
+        "incident-response-panel"
+      ],
+      "path": "skills/ci-repair/SKILL.md",
       "paths": "",
+      "preferred_panel": "incident-response-panel",
+      "primary_agent": "debugger",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "actions",
@@ -973,12 +1154,33 @@
         "concept-doc",
         "concept-one-pager"
       ],
+      "artifact_type": "concept_brief",
+      "codex_command": "$ultraprompt:concept-brief",
       "command": "/ultraprompt:concept-brief",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'concept brief for X / one-pager for this concept / quick concept doc / concept summary / explain this idea in a page / concept-stage spec / pre-PRD concept' \u2014 produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required). DEFAULT for concept-stage thinking. Lighter than prd-lite; richer than a freeform notes.",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "editing": false,
+      "family": "product-innovation",
       "manual_only": false,
+      "mode": "read_only",
       "name": "concept-brief",
-      "path": "skills\\concept-brief\\SKILL.md",
+      "output_contract": "Problem statement | Target users + jobs | Proposed approach summary | Key differentiator | Success criteria sketch | Top risks (3-5) | Validation plan | Decision required from stakeholders",
+      "outputs": [
+        "Problem statement"
+      ],
+      "paired_panels": [
+        "idea-panel",
+        "prd-panel"
+      ],
+      "path": "skills/concept-brief/SKILL.md",
       "paths": "",
+      "preferred_panel": "idea-panel",
+      "primary_agent": "principal-pm",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "approach",
@@ -1035,12 +1237,33 @@
       "aliases": [
         "contract-test-generate"
       ],
+      "codex_command": "$ultraprompt:contract-test-generate",
       "command": "/ultraprompt:contract-test-generate",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'generate contract tests / write contract tests for API X / consumer-driven contract / Pact test / OpenAPI contract test / event contract test' \u2014 dispatches test-strategist + test-harden with contract focus. DEFAULT for contract-test generation.",
+      "dispatch_to": {
+        "agent": "test-strategist",
+        "focus": "contract",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "test-quality",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "contract-test-generate",
-      "path": "skills\\contract-test-generate\\SKILL.md",
+      "output_contract": "Boundary | Consumers Captured | Contract Cases (request \u2192 expected response/behavior) | Framework + Test Files | CI Wiring | Documentation",
+      "outputs": [
+        "Boundary"
+      ],
+      "paired_panels": [
+        "contract-drift-panel"
+      ],
+      "path": "skills/contract-test-generate/SKILL.md",
       "paths": "",
+      "preferred_panel": "contract-drift-panel",
+      "primary_agent": "test-strategist",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "api",
@@ -1082,12 +1305,32 @@
         "data-flow-privacy-map",
         "log-redaction-pass"
       ],
+      "codex_command": "$ultraprompt:data-flow-privacy-map",
       "command": "/ultraprompt:data-flow-privacy-map",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'map the data flow / where does PII go / privacy data flow / data lineage for privacy / track sensitive data / data flow diagram for compliance' \u2014 dispatches auditor with privacy + data-flow focus. DEFAULT for privacy data-flow mapping.",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "privacy"
+      },
+      "editing": true,
+      "family": "risk-security",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "data-flow-privacy-map",
-      "path": "skills\\data-flow-privacy-map\\SKILL.md",
+      "output_contract": "PII Inventory | Data Flow Map | Storage Retention Audit | Egress Audit | Logging Audit + Redactions Applied | Deletion Test Result | Export Test Result | Findings + Recommendations",
+      "outputs": [
+        "PII Inventory"
+      ],
+      "paired_panels": [
+        "security-privacy-panel"
+      ],
+      "path": "skills/data-flow-privacy-map/SKILL.md",
       "paths": "",
+      "preferred_panel": "security-privacy-panel",
+      "primary_agent": "auditor",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "audit",
@@ -1137,12 +1380,33 @@
       "aliases": [
         "database-review"
       ],
+      "codex_command": "$ultraprompt:database-review",
       "command": "/ultraprompt:database-review",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'database review / DB schema review / migration review / query performance / DB design review / check this SQL / look at the schema / data model review' \u2014 dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions). DEFAULT for database-focused reviews.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "database",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "infrastructure-data",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "database-review",
-      "path": "skills\\database-review\\SKILL.md",
+      "output_contract": "Change Type | Production Scale Impact | Sequenced Steps (forward-compat first) | Online Index/Lock Strategy | Backfill Plan (chunked, resumable) | Query Plan Verification | Rollback Per Step | Validation Performed",
+      "outputs": [
+        "Change Type"
+      ],
+      "paired_panels": [
+        "migration-readiness-panel"
+      ],
+      "path": "skills/database-review/SKILL.md",
       "paths": "",
+      "preferred_panel": "migration-readiness-panel",
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "backfill",
@@ -1193,12 +1457,32 @@
         "find-stale",
         "drift-hunt"
       ],
+      "artifact_type": "drift_report",
+      "codex_command": "$ultraprompt:dead-code-drift",
       "command": "/ultraprompt:dead-code-drift",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'find dead code / what's stale / unused exports / clean up the repo / find drift / what's deprecated / what's safe to delete / orphaned utilities / find duplicates' \u2014 produces a structured drift_findings list with safe-to-remove labels (yes/likely/needs_review/no) and migration plans. DEFAULT for cleanup audits. Different from refactor (applies changes) \u2014 dead-code-drift produces the report; user/refactor applies.",
+      "dispatch_to": {
+        "agent": "dead-code-and-drift-hunter"
+      },
+      "editing": false,
+      "family": "repo-completeness",
       "manual_only": false,
+      "mode": "read_only",
       "name": "dead-code-drift",
-      "path": "skills\\dead-code-drift\\SKILL.md",
+      "output_contract": "Drift findings by type | Safe-to-remove distribution | Quick wins (label=yes) | Needs-review items requiring human decision | Cleanup migration plans | Validation commands",
+      "outputs": [
+        "Drift findings by type"
+      ],
+      "paired_panels": [
+        "repo-completeness-panel"
+      ],
+      "path": "skills/dead-code-drift/SKILL.md",
       "paths": "",
+      "preferred_panel": "repo-completeness-panel",
+      "primary_agent": "dead-code-and-drift-hunter",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "applies",
@@ -1251,12 +1535,31 @@
         "debug-fix",
         "flake-hunter"
       ],
+      "codex_command": "$ultraprompt:debug",
       "command": "/ultraprompt:debug",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'this is failing / why is X broken / reproduce the error / debug this / what's causing the bug / failing test / runtime error / unexpected output / why does this crash' \u2014 runs the debugger discipline of failure-signature capture, smallest reproduction, bisection, confirmed root cause hypothesis with confidence label. DEFAULT for active debugging. Different from /test-gap-analysis (finds missing tests) and /review (PR-scope review).",
+      "dispatch_to": {
+        "agent": "debugger"
+      },
+      "editing": true,
+      "family": "code-quality",
       "manual_only": false,
+      "mode": "write_capable",
       "name": "debug",
-      "path": "skills\\debug\\SKILL.md",
+      "output_contract": "Symptom | Reproduction | Root cause (with evidence) | Same-bug-elsewhere check | Fix Summary (files, why localized) | Regression Test Added | Validation Run (commands + results, including stabilization runs for flakes) | Remaining Risks",
+      "outputs": [
+        "Symptom"
+      ],
+      "paired_panels": [
+        "incident-response-panel"
+      ],
+      "path": "skills/debug/SKILL.md",
       "paths": "",
+      "preferred_panel": "incident-response-panel",
+      "primary_agent": "debugger",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "active",
@@ -1333,12 +1636,32 @@
       "aliases": [
         "dependency-audit"
       ],
+      "codex_command": "$ultraprompt:dependency-audit",
       "command": "/ultraprompt:dependency-audit",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'audit dependencies / dependency review / supply chain audit / package audit / npm audit / pip audit / outdated dependencies / vulnerable deps' \u2014 dispatches auditor with supply-chain focus. DEFAULT for dependency/supply-chain audits.",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "dependencies"
+      },
+      "editing": false,
+      "family": "supply-chain",
       "manual_only": true,
+      "mode": "read_only",
       "name": "dependency-audit",
-      "path": "skills\\dependency-audit\\SKILL.md",
+      "output_contract": "Dep Inventory (direct + transitive count) | CVE Findings (severity, exposure, remediation) | Abandonment Risk (per direct dep) | License Audit | Version Drift | Risk-Ordered Recommendations",
+      "outputs": [
+        "Dep Inventory (direct + transitive count)"
+      ],
+      "paired_panels": [
+        "release-gate-panel"
+      ],
+      "path": "skills/dependency-audit/SKILL.md",
       "paths": "",
+      "preferred_panel": "release-gate-panel",
+      "primary_agent": "auditor",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "abandonment",
@@ -1386,14 +1709,219 @@
     },
     {
       "aliases": [
+        "taste-review",
+        "aesthetic-review",
+        "product-design-review",
+        "visual-design-review"
+      ],
+      "artifact_type": "design_review",
+      "codex_command": "$ultraprompt:design-review",
+      "command": "/ultraprompt:design-review",
+      "confirmation": "not_required_read_only",
+      "description": "When user says 'design review / taste pass / aesthetic review / make this UI feel better / visual polish review / product design critique / does this look professional' - dispatches design-critic for evidence-backed visual and interaction critique. DEFAULT for broad product-design, taste, and aesthetic review where the expected output is a ranked critique rather than immediate implementation.",
+      "dispatch_to": {
+        "agent": "design-critic",
+        "focus": "design-review",
+        "phase": "analysis"
+      },
+      "editing": false,
+      "family": "experience-quality",
+      "manual_only": false,
+      "mode": "read_only",
+      "name": "design-review",
+      "output_contract": "Scope + evidence reviewed | Product/domain fit verdict | Visual hierarchy findings | Layout + density findings | Interaction/state findings | Copy/tone findings | Design-system alignment | Ranked recommendations | Follow-up validation plan",
+      "outputs": [
+        "Design review report"
+      ],
+      "paired_panels": [
+        "experience-quality-panel"
+      ],
+      "path": "skills/design-review/SKILL.md",
+      "paths": "",
+      "preferred_panel": "experience-quality-panel",
+      "primary_agent": "design-critic",
+      "risk": "low",
+      "secondary_agents": [],
+      "tier": "core",
+      "tokens": [
+        "a11y",
+        "accessibility",
+        "aesthetic",
+        "asks",
+        "backed",
+        "better",
+        "broad",
+        "browser",
+        "checks",
+        "concern",
+        "critic",
+        "critique",
+        "default",
+        "density",
+        "design",
+        "dispatches",
+        "does",
+        "domain",
+        "evidence",
+        "expected",
+        "feel",
+        "feels",
+        "fit",
+        "frontend",
+        "hierarchy",
+        "immediate",
+        "implementation",
+        "information",
+        "interaction",
+        "its",
+        "judgment",
+        "look",
+        "named",
+        "output",
+        "pass",
+        "polish",
+        "prefer",
+        "product",
+        "professional",
+        "qa",
+        "quality",
+        "ranked",
+        "rather",
+        "request",
+        "responsive",
+        "says",
+        "screenshots",
+        "specifically",
+        "taste",
+        "than",
+        "ui",
+        "user",
+        "verification",
+        "visual",
+        "wants",
+        "wcag",
+        "where",
+        "whether"
+      ],
+      "when_to_use": "Use when the user wants judgment on visual quality, product fit, hierarchy, information density, interaction polish, or whether a UI feels professional for its domain. Prefer frontend-visual-qa when the request specifically asks for screenshots, responsive checks, or browser verification; prefer accessibility-review when WCAG/a11y is the named concern."
+    },
+    {
+      "aliases": [
+        "component-library-review",
+        "token-review",
+        "theme-review",
+        "ui-consistency-audit"
+      ],
+      "artifact_type": "design_system_review",
+      "codex_command": "$ultraprompt:design-system-review",
+      "command": "/ultraprompt:design-system-review",
+      "confirmation": "required_for_repo_mutation",
+      "description": "When user says 'design system review / component library audit / token audit / theme consistency / UI consistency audit / component API design / design rules for this repo' - dispatches design-critic with design-system focus. DEFAULT for systematic frontend design-language, component-library, token, theme, and pattern-consistency reviews.",
+      "dispatch_to": {
+        "agent": "design-critic",
+        "focus": "design-system",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "experience-quality",
+      "manual_only": true,
+      "mode": "write_capable",
+      "name": "design-system-review",
+      "output_contract": "Design-system map | Token semantics findings | Component API findings | State/a11y coverage findings | Drift/duplication findings | Migration sequence | Governance checks | Validation commands",
+      "outputs": [
+        "Design system review report"
+      ],
+      "paired_panels": [
+        "experience-quality-panel"
+      ],
+      "path": "skills/design-system-review/SKILL.md",
+      "paths": "",
+      "preferred_panel": "experience-quality-panel",
+      "primary_agent": "design-critic",
+      "risk": "medium",
+      "secondary_agents": [
+        "test-strategist"
+      ],
+      "tier": "specialist",
+      "tokens": [
+        "api",
+        "audit",
+        "component",
+        "concern",
+        "consistency",
+        "critic",
+        "default",
+        "density",
+        "design",
+        "dispatches",
+        "documentation",
+        "drift",
+        "ergonomics",
+        "focus",
+        "frontend",
+        "governance",
+        "icon",
+        "invoke",
+        "language",
+        "library",
+        "manual",
+        "modes",
+        "one",
+        "only",
+        "page",
+        "pattern",
+        "rather",
+        "repo",
+        "reviews",
+        "rules",
+        "says",
+        "scales",
+        "spacing",
+        "sprawl",
+        "system",
+        "systematic",
+        "systemic",
+        "than",
+        "theme",
+        "theming",
+        "token",
+        "typography",
+        "ui",
+        "usage",
+        "user",
+        "variant"
+      ],
+      "when_to_use": "Manual-only. Invoke when the concern is systemic UI consistency rather than one page: token usage, spacing and typography scales, component API ergonomics, variant sprawl, theming, density modes, icon usage, documentation drift, and governance for design rules."
+    },
+    {
+      "aliases": [
         "docs-sync"
       ],
+      "codex_command": "$ultraprompt:docs-sync",
       "command": "/ultraprompt:docs-sync",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'docs are out of sync / update documentation / fix the README / docs don't match code / sync docs to recent changes / update docs after refactor' \u2014 produces documentation update plan + drafts. DEFAULT for documentation drift correction.",
+      "dispatch_to": {
+        "agent": "writer"
+      },
+      "editing": true,
+      "family": "documentation-maintenance",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "docs-sync",
-      "path": "skills\\docs-sync\\SKILL.md",
+      "output_contract": "Docs Inventory | Drift Found | Fixes Applied (per file) | Code-Wrong Findings (separate fix) | Validation: Quickstart Run | Validation: Examples Run | Remaining Drift",
+      "outputs": [
+        "Docs Inventory"
+      ],
+      "paired_panels": [
+        "repo-completeness-panel"
+      ],
+      "path": "skills/docs-sync/SKILL.md",
       "paths": "",
+      "preferred_panel": "repo-completeness-panel",
+      "primary_agent": "writer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "adr",
@@ -1449,16 +1977,105 @@
     },
     {
       "aliases": [
+        "dream-run",
+        "dream-status",
+        "dream-review",
+        "ultraprompt-dream"
+      ],
+      "artifact_type": "dream_report",
+      "codex_command": "$ultraprompt:dream",
+      "command": "/ultraprompt:dream",
+      "confirmation": "not_required_read_only",
+      "description": "When user says 'ultraprompt:dream / $ultraprompt:dream / dream run / dream status / dream review / run a dream job' - provides the Codex-compatible entrypoint for safe V8 dream jobs. DEFAULT for Codex users trying to run the Claude `/ultraprompt:dream` command.",
+      "editing": false,
+      "family": "cognitive-operations",
+      "manual_only": false,
+      "mode": "read_only",
+      "name": "dream",
+      "output_contract": "Runtime note when slash command was attempted | Operation executed | Job/default used | Result status | Report path/id or recent reports | Candidate memory/learning ids if present | Repo mutation statement | Next review action if output created candidates",
+      "outputs": [
+        "Dream operation result"
+      ],
+      "paired_panels": [],
+      "path": "skills/dream/SKILL.md",
+      "paths": "",
+      "preferred_panel": "",
+      "primary_agent": "",
+      "risk": "low",
+      "secondary_agents": [],
+      "tier": "core",
+      "tokens": [
+        "asks",
+        "bridge",
+        "claude",
+        "code",
+        "codex",
+        "command",
+        "compatible",
+        "default",
+        "does",
+        "dream",
+        "entrypoint",
+        "inspect",
+        "invokes",
+        "job",
+        "jobs",
+        "markdown",
+        "name",
+        "native",
+        "not",
+        "parsing",
+        "plugin",
+        "provides",
+        "recognized",
+        "reports",
+        "route",
+        "safe",
+        "says",
+        "skill",
+        "slash",
+        "status",
+        "trying",
+        "ultraprompt",
+        "user",
+        "users",
+        "v8"
+      ],
+      "when_to_use": "Use when the user invokes the dream command by name, asks to run or inspect safe dream jobs, or reports that `/ultraprompt:dream` is not recognized in Codex. This is the Codex skill bridge for the Claude Code slash command; Codex native slash parsing does not route plugin command markdown."
+    },
+    {
+      "aliases": [
         "feature-audit",
         "is-this-complete",
         "e2e-audit"
       ],
+      "artifact_type": "feature_completeness_report",
+      "codex_command": "$ultraprompt:feature-completeness",
       "command": "/ultraprompt:feature-completeness",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'is feature X complete / audit this feature end-to-end / does this workflow actually work / find missing pieces of feature W / is the UI wired to the backend / does feature Y persist correctly' \u2014 runs end-to-end completeness audit on ONE named feature. Dispatches feature-completeness-auditor with the feature scope. Produces structured incomplete_features findings with file-level evidence, missing parts list, confidence labels, validation plan. DEFAULT for single-feature audits \u2014 wins over repo-review (whole repo) and over manual investigation because the auditor knows the layer-by-layer gap patterns.",
+      "dispatch_to": {
+        "agent": "feature-completeness-auditor",
+        "focus_from": "argument"
+      },
+      "editing": false,
+      "family": "repo-completeness",
       "manual_only": false,
+      "mode": "read_only",
       "name": "feature-completeness",
-      "path": "skills\\feature-completeness\\SKILL.md",
+      "output_contract": "Feature surface map | Confirmed gaps (with file:line evidence) | Likely gaps (with verification) | Missing tests for the feature | Likely user impact | Recommended next steps ordered by dependency | Validation commands",
+      "outputs": [
+        "Feature surface map"
+      ],
+      "paired_panels": [
+        "feature-gap-panel"
+      ],
+      "path": "skills/feature-completeness/SKILL.md",
       "paths": "",
+      "preferred_panel": "feature-gap-panel",
+      "primary_agent": "feature-completeness-auditor",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "actually",
@@ -1524,16 +2141,140 @@
     },
     {
       "aliases": [
+        "visual-qa",
+        "screenshot-qa",
+        "frontend-polish",
+        "responsive-qa"
+      ],
+      "artifact_type": "visual_qa_report",
+      "codex_command": "$ultraprompt:frontend-visual-qa",
+      "command": "/ultraprompt:frontend-visual-qa",
+      "confirmation": "required_for_repo_mutation",
+      "description": "When user says 'visual QA / screenshot QA / responsive review / frontend polish pass / inspect this page in browser / verify the UI after changes / pixel check this surface' - dispatches design-critic with rendered-evidence focus and escalates to the experience-quality panel for deep budgets. DEFAULT for frontend quality work that must inspect actual rendered output, screenshots, responsive breakpoints, or interactive states.",
+      "dispatch_to": {
+        "agent": "design-critic",
+        "focus": "visual-qa",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "experience-quality",
+      "manual_only": false,
+      "mode": "write_capable",
+      "name": "frontend-visual-qa",
+      "output_contract": "Surface + run command | Viewports/states inspected | Screenshot/browser evidence | Visual defects found | Fixes applied or proposed | Before/after verification | Remaining visual risks | Follow-up test coverage",
+      "outputs": [
+        "Visual QA report"
+      ],
+      "paired_panels": [
+        "experience-quality-panel"
+      ],
+      "path": "skills/frontend-visual-qa/SKILL.md",
+      "paths": "",
+      "preferred_panel": "experience-quality-panel",
+      "primary_agent": "design-critic",
+      "risk": "medium",
+      "secondary_agents": [
+        "test-strategist"
+      ],
+      "tier": "core",
+      "tokens": [
+        "accessibility",
+        "actual",
+        "after",
+        "before",
+        "breakpoints",
+        "browser",
+        "budgets",
+        "canvas",
+        "changes",
+        "checks",
+        "clipping",
+        "critic",
+        "critique",
+        "deep",
+        "default",
+        "design",
+        "dispatches",
+        "error",
+        "escalates",
+        "evidence",
+        "experience",
+        "focus",
+        "frontend",
+        "hover",
+        "inspect",
+        "interactive",
+        "loading",
+        "local",
+        "must",
+        "needs",
+        "nonblank",
+        "only",
+        "output",
+        "overlap",
+        "page",
+        "panel",
+        "pass",
+        "pixel",
+        "polish",
+        "prefer",
+        "pure",
+        "qa",
+        "quality",
+        "rendered",
+        "responsive",
+        "routes",
+        "runtime",
+        "says",
+        "screenshot",
+        "screenshots",
+        "states",
+        "surface",
+        "text",
+        "ui",
+        "user",
+        "verification",
+        "verify",
+        "visible",
+        "visual",
+        "wcag",
+        "work"
+      ],
+      "when_to_use": "Use when the work needs browser-visible evidence: local routes, screenshots, responsive breakpoints, canvas/nonblank checks, visual overlap, text clipping, hover/focus/loading/error states, or before/after UI verification. Prefer design-review for pure critique without runtime verification; prefer accessibility-review for WCAG-only work."
+    },
+    {
+      "aliases": [
         "repo-gaps",
         "find-gaps",
         "incomplete-audit"
       ],
+      "artifact_type": "gap_ledger",
+      "codex_command": "$ultraprompt:gap-analysis",
       "command": "/ultraprompt:gap-analysis",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'find what's missing / gap analysis on X / what's incomplete / where are the wiring gaps / find half-built features / synthesize repo audit findings' \u2014 orchestrates feature-completeness-auditor + wiring-gap-inspector and synthesizes via gap-analysis-lead. Produces structured gap_ledger with confirmed/probable/low-confidence findings, top risks, quick wins, ordered implementation sequence, and recommended fix-skills per gap. DEFAULT for any gap-finding prompt at repo or workflow scope.",
+      "dispatch_to": {
+        "agent": "gap-analysis-lead"
+      },
+      "editing": false,
+      "family": "repo-completeness",
       "manual_only": false,
+      "mode": "read_only",
       "name": "gap-analysis",
-      "path": "skills\\gap-analysis\\SKILL.md",
+      "output_contract": "Executive summary | Confirmed gaps (with evidence) | Probable gaps (with verification) | False positives | Top 10 risks | Quick wins | Implementation sequence by phase | Validation plan | Recommended fix-skills per gap",
+      "outputs": [
+        "Executive summary"
+      ],
+      "paired_panels": [
+        "repo-completeness-panel",
+        "feature-gap-panel"
+      ],
+      "path": "skills/gap-analysis/SKILL.md",
       "paths": "",
+      "preferred_panel": "repo-completeness-panel",
+      "primary_agent": "gap-analysis-lead",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "across",
@@ -1601,15 +2342,132 @@
     },
     {
       "aliases": [
+        "keep-working",
+        "completion-goal",
+        "goal-mode",
+        "codex-goal"
+      ],
+      "artifact_type": "goal_contract",
+      "codex_command": "$ultraprompt:goal",
+      "command": "/ultraprompt:goal",
+      "confirmation": "required_for_repo_mutation",
+      "description": "When user says '/goal / set a goal / keep working until X / completion condition / work until tests pass / do not stop until criteria are met' - provides a Codex-compatible goal contract inspired by Claude Code `/goal`. DEFAULT for substantial work with a measurable end state where Codex should keep the current turn focused on acceptance criteria and transcript-backed validation.",
+      "editing": true,
+      "family": "cognitive-operations",
+      "inline_only_reason": "goal state and completion proof must stay visible in the main conversation transcript and Codex does not provide a plugin-owned Stop-hook evaluator loop",
+      "manual_only": false,
+      "mode": "write_capable",
+      "name": "goal",
+      "output_contract": "Goal condition | Acceptance criteria | Proof method | Constraints/bounds | Current status (active/met/blocked/cleared) | Evidence surfaced | Work completed | Next action if not met",
+      "outputs": [
+        "Goal status"
+      ],
+      "paired_panels": [],
+      "path": "skills/goal/SKILL.md",
+      "paths": "",
+      "preferred_panel": "",
+      "primary_agent": "",
+      "risk": "medium",
+      "secondary_agents": [],
+      "tier": "core",
+      "tokens": [
+        "acceptance",
+        "backed",
+        "blocked",
+        "bridge",
+        "built",
+        "cannot",
+        "claude",
+        "cleared",
+        "code",
+        "codex",
+        "compatible",
+        "completion",
+        "condition",
+        "continue",
+        "contract",
+        "criteria",
+        "current",
+        "default",
+        "end",
+        "evaluator",
+        "explicitly",
+        "focused",
+        "gives",
+        "goal",
+        "inspired",
+        "install",
+        "itself",
+        "keep",
+        "loop",
+        "measurable",
+        "met",
+        "must",
+        "not",
+        "only",
+        "oriented",
+        "pass",
+        "proof",
+        "provides",
+        "says",
+        "scoped",
+        "session",
+        "set",
+        "should",
+        "so",
+        "state",
+        "status",
+        "stop",
+        "substantial",
+        "surface",
+        "tests",
+        "transcript",
+        "turn",
+        "unlike",
+        "until",
+        "user",
+        "validation",
+        "verifiable",
+        "wants",
+        "where",
+        "within",
+        "work",
+        "working"
+      ],
+      "when_to_use": "Use when the user gives a verifiable completion condition and wants Codex to continue within the current session until that condition is met, blocked, or explicitly cleared. This is a Codex bridge for goal-oriented work; unlike Claude Code built-in `/goal`, it cannot install a session-scoped evaluator loop by itself, so it must surface proof in the transcript and stop only with met/blocked/cleared status."
+    },
+    {
+      "aliases": [
         "hooks-automation-design",
         "settings-permissions-audit"
       ],
+      "codex_command": "$ultraprompt:hooks-design",
       "command": "/ultraprompt:hooks-design",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'design hooks / hook architecture / PreToolUse hook / SessionStart hook / Stop hook / how should I structure plugin hooks / hook design' \u2014 dispatches reviewer/architect with plugin hooks focus. DEFAULT for plugin hook design.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "hooks",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "plugin-ecosystem",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "hooks-design",
-      "path": "skills\\hooks-design\\SKILL.md",
+      "output_contract": "Hook Purpose | Event + Matcher | Script (with fail-open + disable handling) | Fixture Tests Added | Hooks.json Entry | Settings/Permissions Recommendations (if applicable)",
+      "outputs": [
+        "Hook Purpose"
+      ],
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ],
+      "path": "skills/hooks-design/SKILL.md",
       "paths": "",
+      "preferred_panel": "cognitive-governance-panel",
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "ecosystem",
       "tokens": [
         "architect",
@@ -1652,12 +2510,32 @@
         "backlog-triage",
         "feature-prioritization"
       ],
+      "artifact_type": "idea_triage",
+      "codex_command": "$ultraprompt:idea-triage",
       "command": "/ultraprompt:idea-triage",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'triage ideas / which ideas to pursue / rank these features / prioritize backlog / decide which ideas to build / idea evaluation / sort the idea list / must-kill / should we build X or Y' \u2014 runs structured triage of existing ideas with weighted criteria (customer impact, strategic fit, effort, evidence strength, risk). Produces ranked list with pursue/validate/defer/reject recommendations. DEFAULT for deciding what to build from a known set of options.",
+      "dispatch_to": {
+        "agent": "innovation-lead"
+      },
+      "editing": false,
+      "family": "product-innovation",
       "manual_only": false,
+      "mode": "read_only",
       "name": "idea-triage",
-      "path": "skills\\idea-triage\\SKILL.md",
+      "output_contract": "Triage criteria with weights | Ranked ideas with scores | Per-criterion breakdown per idea | Recommendations (pursue/validate/defer/reject) | Must-kill list with reasons | Must-pursue list with reasons | Validation steps for 'validate-first' items",
+      "outputs": [
+        "Triage criteria with weights"
+      ],
+      "paired_panels": [
+        "idea-panel"
+      ],
+      "path": "skills/idea-triage/SKILL.md",
       "paths": "",
+      "preferred_panel": "idea-panel",
+      "primary_agent": "innovation-lead",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "backlog",
@@ -1720,12 +2598,32 @@
         "infra-iac-review",
         "cron-job-audit"
       ],
+      "codex_command": "$ultraprompt:infra-iac-review",
       "command": "/ultraprompt:infra-iac-review",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'IaC review / Terraform review / CloudFormation / Pulumi review / infrastructure code review / Helm review / k8s manifest review' \u2014 dispatches reviewer with infrastructure-as-code focus. DEFAULT for IaC reviews.",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "infra"
+      },
+      "editing": true,
+      "family": "infrastructure-data",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "infra-iac-review",
-      "path": "skills\\infra-iac-review\\SKILL.md",
+      "output_contract": "Scope | IAM Audit | Secret Handling Audit | Scheduled Job Audit | Drift Status | Container/K8s Hardening | Fixes Applied | Remaining Risks",
+      "outputs": [
+        "Scope"
+      ],
+      "paired_panels": [
+        "migration-readiness-panel"
+      ],
+      "path": "skills/infra-iac-review/SKILL.md",
       "paths": "",
+      "preferred_panel": "migration-readiness-panel",
+      "primary_agent": "auditor",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "audit",
@@ -1775,12 +2673,32 @@
       "aliases": [
         "llm-eval-design"
       ],
+      "codex_command": "$ultraprompt:llm-eval-design",
       "command": "/ultraprompt:llm-eval-design",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'how do we evaluate this LLM feature / eval plan for AI / measure model quality / offline eval / online eval / LLM benchmarks for our use case / agent evaluation strategy' \u2014 dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency). DEFAULT for LLM/agent eval design.",
+      "dispatch_to": {
+        "agent": "evaluator",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "ai-safety-evals",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "llm-eval-design",
-      "path": "skills\\llm-eval-design\\SKILL.md",
+      "output_contract": "Capability Under Test | Failure Modes Targeted | Three-Tier Case Set | Grader Implementation + Validation | Baseline + Thresholds | CI Wiring | Variance Notes",
+      "outputs": [
+        "Capability Under Test"
+      ],
+      "paired_panels": [
+        "ai-feature-panel"
+      ],
+      "path": "skills/llm-eval-design/SKILL.md",
       "paths": "",
+      "preferred_panel": "ai-feature-panel",
+      "primary_agent": "evaluator",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "agent",
@@ -1833,12 +2751,34 @@
         "mcp-integration-design",
         "mcp-server-audit"
       ],
+      "codex_command": "$ultraprompt:mcp-design",
       "command": "/ultraprompt:mcp-design",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'design an MCP server / MCP tool design / MCP architecture / how should I expose this as MCP / MCP capability design' \u2014 dispatches reviewer/architect with MCP focus. DEFAULT for MCP design tasks.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "mcp",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "plugin-ecosystem",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "mcp-design",
-      "path": "skills\\mcp-design\\SKILL.md",
+      "output_contract": "Server Purpose | Tool Inventory (per tool: side effect class, schema, output) | Self-Test Result | JSON-RPC Smoke Test Result | Plugin Integration | Recommendations",
+      "outputs": [
+        "Server Purpose"
+      ],
+      "paired_panels": [
+        "cognitive-governance-panel",
+        "contract-drift-panel"
+      ],
+      "path": "skills/mcp-design/SKILL.md",
       "paths": "",
+      "preferred_panel": "cognitive-governance-panel",
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "ecosystem",
       "tokens": [
         "architect",
@@ -1873,12 +2813,32 @@
         "migration-plan",
         "deps-upgrade"
       ],
+      "codex_command": "$ultraprompt:migrate",
       "command": "/ultraprompt:migrate",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'migrate from X to Y / breaking change / version upgrade / library swap / framework migration / convert this codebase / move to new API / deprecate old approach' \u2014 produces migration plan with phases, compatibility, rollback, validation. DEFAULT for intentional breaking changes. Different from /refactor (behavior-preserving) and /build (new code).",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "migration"
+      },
+      "editing": false,
+      "family": "architecture-contracts",
       "manual_only": false,
+      "mode": "read_only",
       "name": "migrate",
-      "path": "skills\\migrate\\SKILL.md",
+      "output_contract": "Current State | Target State | Constraints | Sequenced Steps (each with pre/action/validate/rollback) | Point of No Return | Estimated Duration | Validation Plan | Rollback Plan",
+      "outputs": [
+        "Current State"
+      ],
+      "paired_panels": [
+        "migration-readiness-panel"
+      ],
+      "path": "skills/migrate/SKILL.md",
       "paths": "",
+      "preferred_panel": "migration-readiness-panel",
+      "primary_agent": "reviewer",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "api",
@@ -1942,12 +2902,32 @@
         "phase-1-scope",
         "mvp-definition"
       ],
+      "artifact_type": "mvp_scope",
+      "codex_command": "$ultraprompt:mvp-scope",
       "command": "/ultraprompt:mvp-scope",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'scope the MVP / minimum viable scope / what's the MVP / cut this to MVP / MVP definition / smallest shippable version / phase 1 scope / what to include in MVP' \u2014 produces structured MVP scope with must/should/won't-have per phase, scope cuts with reasoning, validation plan for what we keep, and what we'd add post-MVP. DEFAULT for MVP scoping decisions. Different from prd-to-plan (sequences the whole PRD) and prd-lite (drafts the PRD itself).",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "editing": false,
+      "family": "product-innovation",
       "manual_only": false,
+      "mode": "read_only",
       "name": "mvp-scope",
-      "path": "skills\\mvp-scope\\SKILL.md",
+      "output_contract": "Hypothesis MVP validates | Must-have (3-7 items, with reason) | Should-have | Won't-have-this-MVP with cut reasons | Validation plan | Success criteria | Failure criteria (when to abandon hypothesis) | Post-MVP roadmap sketch",
+      "outputs": [
+        "Hypothesis MVP validates"
+      ],
+      "paired_panels": [
+        "mvp-panel"
+      ],
+      "path": "skills/mvp-scope/SKILL.md",
       "paths": "",
+      "preferred_panel": "mvp-panel",
+      "primary_agent": "principal-pm",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "add",
@@ -2002,12 +2982,32 @@
       "aliases": [
         "observability-pass"
       ],
+      "codex_command": "$ultraprompt:observability-pass",
       "command": "/ultraprompt:observability-pass",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'observability audit / logging review / metrics review / tracing audit / monitoring gaps / SLO design / observability gaps' \u2014 dispatches auditor with observability focus. DEFAULT for observability-specific audits.",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "observability"
+      },
+      "editing": true,
+      "family": "runtime-quality",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "observability-pass",
-      "path": "skills\\observability-pass\\SKILL.md",
+      "output_contract": "Scope | Logging Audit + Fixes | Metrics Audit + Fixes | Tracing Audit + Fixes | Alerting Audit + Retunes | SLO Status | Dashboard Quality | Remaining Gaps",
+      "outputs": [
+        "Scope"
+      ],
+      "paired_panels": [
+        "release-gate-panel"
+      ],
+      "path": "skills/observability-pass/SKILL.md",
       "paths": "",
+      "preferred_panel": "release-gate-panel",
+      "primary_agent": "auditor",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "alerting",
@@ -2055,12 +3055,32 @@
         "opportunity-space",
         "market-opportunities"
       ],
+      "artifact_type": "opportunity_map",
+      "codex_command": "$ultraprompt:opportunity-map",
       "command": "/ultraprompt:opportunity-map",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'opportunity map / what opportunities exist / market opportunity analysis / where are the openings / strategic opportunity assessment / opportunity space / what should we explore' \u2014 produces structured opportunity map with market/competitive/customer/internal axes, sized opportunities, evidence per zone, and recommended focus. DEFAULT for opportunity space exploration. Different from /idea-triage (ranks existing ideas) and /concept-brief (drafts one chosen concept).",
+      "dispatch_to": {
+        "agent": "market-analyst"
+      },
+      "editing": false,
+      "family": "product-innovation",
       "manual_only": false,
+      "mode": "read_only",
       "name": "opportunity-map",
-      "path": "skills\\opportunity-map\\SKILL.md",
+      "output_contract": "Market axes | Occupied zones (who serves which) | Underserved zones with evidence | Sized opportunities (where data available) | Barriers to entry per zone | Our fit per zone | Recommended focus (2-3) with rationale | Validation plan per recommended zone",
+      "outputs": [
+        "Market axes"
+      ],
+      "paired_panels": [
+        "idea-panel"
+      ],
+      "path": "skills/opportunity-map/SKILL.md",
       "paths": "",
+      "preferred_panel": "idea-panel",
+      "primary_agent": "market-analyst",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "across",
@@ -2119,14 +3139,125 @@
     },
     {
       "aliases": [
+        "invocation-review",
+        "pathfinder-review",
+        "routing-telemetry-review",
+        "skill-activation-review"
+      ],
+      "artifact_type": "invocation_telemetry_audit",
+      "codex_command": "$ultraprompt:pathfinding-invocation-review",
+      "command": "/ultraprompt:pathfinding-invocation-review",
+      "confirmation": "required_for_repo_mutation",
+      "description": "When user says 'pathfinding review / invocation behavior / skill auto-fire / agent dispatch telemetry / routing effectiveness / why did Explore run / strengthen automated skill invocation / audit pathfinder telemetry' - dispatches invocation-reliability-auditor. DEFAULT for Ultraprompt runtime routing, pathfinder, skill activation, agent dispatch, Explore fallback, legacy-prefix, and telemetry effectiveness investigations.",
+      "dispatch_to": {
+        "agent": "invocation-reliability-auditor",
+        "focus": "routing-telemetry",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "cognitive-operations",
+      "manual_only": false,
+      "mode": "write_capable",
+      "name": "pathfinding-invocation-review",
+      "output_contract": "Telemetry window | Skill invocation summary | Agent dispatch share + Explore share | Legacy-prefix normalization | Pathfinder real-vs-bench summary | Activation gaps | Changes applied or proposed | Release gate result | Remaining blockers",
+      "outputs": [
+        "Invocation telemetry audit"
+      ],
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ],
+      "path": "skills/pathfinding-invocation-review/SKILL.md",
+      "paths": "",
+      "preferred_panel": "cognitive-governance-panel",
+      "primary_agent": "invocation-reliability-auditor",
+      "risk": "medium",
+      "secondary_agents": [],
+      "tier": "core",
+      "tokens": [
+        "activation",
+        "actually",
+        "agent",
+        "asks",
+        "audit",
+        "auditor",
+        "auto",
+        "automated",
+        "behavior",
+        "being",
+        "catalog",
+        "claude",
+        "code",
+        "codex",
+        "default",
+        "did",
+        "dispatch",
+        "dispatches",
+        "effectively",
+        "effectiveness",
+        "evidence",
+        "explore",
+        "fallback",
+        "fire",
+        "gate",
+        "hardened",
+        "investigations",
+        "invocation",
+        "invoked",
+        "legacy",
+        "needs",
+        "pathfinder",
+        "pathfinding",
+        "prefix",
+        "read",
+        "reduce",
+        "release",
+        "reliability",
+        "richness",
+        "routing",
+        "runtime",
+        "says",
+        "skill",
+        "strengthen",
+        "telemetry",
+        "translates",
+        "ultraprompt",
+        "user",
+        "wants",
+        "whether",
+        "why"
+      ],
+      "when_to_use": "Use when the user asks whether Ultraprompt is actually being invoked effectively by Codex or Claude Code, asks to read telemetry, wants to reduce Explore fallback, wants routing/pathfinder behavior hardened, or needs release-gate evidence that catalog richness translates into runtime behavior."
+    },
+    {
+      "aliases": [
         "performance-pass"
       ],
+      "codex_command": "$ultraprompt:performance-pass",
       "command": "/ultraprompt:performance-pass",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'performance audit / find slow code / hot path review / perf optimization / performance issues / latency review / throughput audit' \u2014 dispatches reviewer with performance focus. DEFAULT for performance audits. Different from /debug (active perf bug).",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "performance"
+      },
+      "editing": true,
+      "family": "runtime-quality",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "performance-pass",
-      "path": "skills\\performance-pass\\SKILL.md",
+      "output_contract": "Performance Goal | Profile Evidence (where the time/allocation actually goes) | Bottleneck Classification | Optimization Applied | Before/After Numbers | Benchmark Added | Remaining Bottlenecks",
+      "outputs": [
+        "Performance Goal"
+      ],
+      "paired_panels": [
+        "release-gate-panel"
+      ],
+      "path": "skills/performance-pass/SKILL.md",
       "paths": "",
+      "preferred_panel": "release-gate-panel",
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "active",
@@ -2177,12 +3308,33 @@
       "aliases": [
         "claude-code-plugin-review"
       ],
+      "codex_command": "$ultraprompt:plugin-review",
       "command": "/ultraprompt:plugin-review",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'review my plugin / Claude Code plugin review / Codex plugin review / plugin structure check / plugin best practices / plugin design review' \u2014 dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks). DEFAULT for plugin review tasks.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "plugin",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "plugin-ecosystem",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "plugin-review",
-      "path": "skills\\plugin-review\\SKILL.md",
+      "output_contract": "Plugin Manifest Status | Skills Audit (per skill) | Agents Audit | Hooks Audit | Commands Audit | MCP Server Audit | Marketplace Metadata Audit | Fixes Applied | Recommendations",
+      "outputs": [
+        "Plugin Manifest Status"
+      ],
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ],
+      "path": "skills/plugin-review/SKILL.md",
       "paths": "",
+      "preferred_panel": "cognitive-governance-panel",
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "ecosystem",
       "tokens": [
         "agent",
@@ -2226,12 +3378,33 @@
         "llm-feature-prd",
         "agent-prd"
       ],
+      "artifact_type": "prd_ai_feature",
+      "codex_command": "$ultraprompt:prd-ai-feature",
       "command": "/ultraprompt:prd-ai-feature",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'PRD for an AI feature / LLM-based feature spec / agent feature PRD / ML product requirements / generative AI feature / RAG feature spec / AI-powered X' \u2014 produces a PRD with AI-specific sections (model selection rationale, eval methodology, groundedness/hallucination guardrails, safety filters, human-in-the-loop fallback, cost model, latency targets, prompt versioning strategy, data privacy posture). DEFAULT for any feature whose core capability comes from an LLM, ML model, or AI/agent system. Different from prd-technical (general engineering): prd-ai-feature specifically handles AI-product risks (eval, safety, cost, hallucination, drift).",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "editing": false,
+      "family": "product-prd",
       "manual_only": false,
+      "mode": "read_only",
       "name": "prd-ai-feature",
-      "path": "skills\\prd-ai-feature\\SKILL.md",
+      "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design with AI sections | AI: model selection rationale + alternative models considered | AI: eval methodology (offline benchmarks, online metrics, human eval if applicable) | AI: groundedness + hallucination guardrails | AI: safety filters + content policy | AI: human-in-the-loop fallback path + low-confidence handling | AI: cost model (per-call + scaled to expected QPS) | AI: latency targets + budget | AI: prompt versioning + model versioning strategy | AI: data privacy posture (training data, retention, opt-out, residency) | AI: drift monitoring + retraining trigger criteria | Risks + acceptance criteria + rollout plan + validation plan + open questions",
+      "outputs": [
+        "Problem statement + evidence"
+      ],
+      "paired_panels": [
+        "ai-feature-panel",
+        "prd-panel"
+      ],
+      "path": "skills/prd-ai-feature/SKILL.md",
       "paths": "",
+      "preferred_panel": "ai-feature-panel",
+      "primary_agent": "principal-pm",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "agent",
@@ -2301,12 +3474,33 @@
         "opportunity-brief",
         "quick-prd"
       ],
+      "artifact_type": "prd_lite",
+      "codex_command": "$ultraprompt:prd-lite",
       "command": "/ultraprompt:prd-lite",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'quick PRD for X / one-pager for feature Y / lightweight spec / draft a fast PRD / opportunity brief / problem-solution memo' \u2014 produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria. DEFAULT for early-stage thinking that doesn't yet warrant a full PRD. Less rigor than prd-standard; more rigor than freeform notes.",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "editing": false,
+      "family": "product-prd",
       "manual_only": false,
+      "mode": "read_only",
       "name": "prd-lite",
-      "path": "skills\\prd-lite\\SKILL.md",
+      "output_contract": "Problem statement (with evidence) | Users + jobs-to-be-done | Goals + non-goals | Must-have requirements | Scope boundaries | Success criteria (baseline+target) | Top risks | Open questions",
+      "outputs": [
+        "Problem statement (with evidence)"
+      ],
+      "paired_panels": [
+        "prd-panel",
+        "mvp-panel"
+      ],
+      "path": "skills/prd-lite/SKILL.md",
       "paths": "",
+      "preferred_panel": "prd-panel",
+      "primary_agent": "principal-pm",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "appropriate",
@@ -2372,12 +3566,32 @@
         "full-prd",
         "product-spec"
       ],
+      "artifact_type": "prd_standard",
+      "codex_command": "$ultraprompt:prd-standard",
       "command": "/ultraprompt:prd-standard",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'full PRD for X / product requirements doc / write the PRD / comprehensive product spec / standard PRD' \u2014 produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions. DEFAULT for any product change crossing teams or with meaningful complexity. Use prd-lite for early-stage; prd-technical for heavily technical features.",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "editing": false,
+      "family": "product-prd",
       "manual_only": false,
+      "mode": "read_only",
       "name": "prd-standard",
-      "path": "skills\\prd-standard\\SKILL.md",
+      "output_contract": "Problem statement with evidence | Users + jobs-to-be-done | Goals + non-goals (3-5) | Requirements (must/should/won't-have) | Scope (in/out) | Technical considerations | Risks (severity \u00d7 likelihood + mitigations) | Metrics (leading/lagging/guardrails with baselines+targets) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open questions ranked by blocking-priority",
+      "outputs": [
+        "Problem statement with evidence"
+      ],
+      "paired_panels": [
+        "prd-panel"
+      ],
+      "path": "skills/prd-standard/SKILL.md",
       "paths": "",
+      "preferred_panel": "prd-panel",
+      "primary_agent": "principal-pm",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "acceptance",
@@ -2441,12 +3655,32 @@
         "engineering-spec",
         "infra-prd"
       ],
+      "artifact_type": "prd_technical",
+      "codex_command": "$ultraprompt:prd-technical",
       "command": "/ultraprompt:prd-technical",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'technical PRD for X / engineering spec / technical product doc / infrastructure PRD / platform feature spec / heavy-tech feature requirements' \u2014 produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry. DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk. Combines principal-pm and technical-product-architect outputs.",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "editing": false,
+      "family": "product-prd",
       "manual_only": false,
+      "mode": "read_only",
       "name": "prd-technical",
-      "path": "skills\\prd-technical\\SKILL.md",
+      "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design: data model (entities, fields, indexes, migrations) | Technical design: API surface (endpoints, request/response shapes, deprecations) | Technical design: integration points (upstream, downstream, third-party) | Technical design: sequence flows + failure modes (\u22655) | Technical design: feature flags + telemetry events + metrics | Performance considerations + security_and_privacy + rollout_technical_plan | Risks (severity \u00d7 likelihood) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open product questions + open technical questions",
+      "outputs": [
+        "Problem statement + evidence"
+      ],
+      "paired_panels": [
+        "prd-panel"
+      ],
+      "path": "skills/prd-technical/SKILL.md",
       "paths": "",
+      "preferred_panel": "prd-panel",
+      "primary_agent": "principal-pm",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "any",
@@ -2511,12 +3745,32 @@
         "implementation-plan",
         "engineering-plan"
       ],
+      "artifact_type": "implementation_plan",
+      "codex_command": "$ultraprompt:prd-to-plan",
       "command": "/ultraprompt:prd-to-plan",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'convert this PRD to engineering plan / break down PRD for implementation / make a project plan from this PRD / split this PRD into milestones / what work is needed to ship this PRD / phase plan for PRD X' \u2014 converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase. DEFAULT for PRD \u2192 engineering handoff. Different from prd-technical (which produces the technical design): prd-to-plan takes a finished PRD and produces the build sequence.",
+      "dispatch_to": {
+        "agent": "principal-pm"
+      },
+      "editing": false,
+      "family": "product-prd",
       "manual_only": false,
+      "mode": "read_only",
       "name": "prd-to-plan",
-      "path": "skills\\prd-to-plan\\SKILL.md",
+      "output_contract": "Phases (numbered, named) | Milestones per phase | Dependencies map | Parallel vs sequential work | Owner suggestions | Validation gates per phase | Rollback strategy per phase | Risk items | Open questions",
+      "outputs": [
+        "Phases (numbered, named)"
+      ],
+      "paired_panels": [
+        "prd-panel"
+      ],
+      "path": "skills/prd-to-plan/SKILL.md",
       "paths": "",
+      "preferred_panel": "prd-panel",
+      "primary_agent": "principal-pm",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "approved",
@@ -2574,12 +3828,32 @@
         "problem-statement",
         "job-framing"
       ],
+      "artifact_type": "problem_framing",
+      "codex_command": "$ultraprompt:problem-framing",
       "command": "/ultraprompt:problem-framing",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'reframe this problem / what's the real problem / problem statement / different ways to think about this / am I framing this right / what are we actually solving / job-to-be-done framing' \u2014 produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications. DEFAULT for problem-framing decisions. Helps avoid solving the wrong problem.",
+      "dispatch_to": {
+        "agent": "innovation-lead"
+      },
+      "editing": false,
+      "family": "product-innovation",
       "manual_only": false,
+      "mode": "read_only",
       "name": "problem-framing",
-      "path": "skills\\problem-framing\\SKILL.md",
+      "output_contract": "Original problem statement | 3-5 reframings (with lens + rephrased problem + implications + what-it-excludes) | Recommended framing with reasoning | Key assumptions in recommended framing | Open questions",
+      "outputs": [
+        "Original problem statement"
+      ],
+      "paired_panels": [
+        "idea-panel"
+      ],
+      "path": "skills/problem-framing/SKILL.md",
       "paths": "",
+      "preferred_panel": "idea-panel",
+      "primary_agent": "innovation-lead",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "about",
@@ -2643,12 +3917,26 @@
         "refactor-hardening",
         "types-strengthen"
       ],
+      "codex_command": "$ultraprompt:refactor",
       "command": "/ultraprompt:refactor",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'refactor X / clean up Y / improve the structure of / extract this / consolidate / simplify / restructure this code / improve readability without changing behavior' \u2014 apply behavior-preserving improvements with tests as the safety net. DEFAULT for refactoring tasks. Different from /build (writes new code) and /migrate (intentional behavior change).",
+      "editing": true,
+      "family": "code-quality",
+      "inline_only_reason": "the main thread must preserve local behavior and coordinate edits directly; dispatch only bounded discovery, architecture critique, or test strategy sidecars",
       "manual_only": false,
+      "mode": "write_capable",
       "name": "refactor",
-      "path": "skills\\refactor\\SKILL.md",
+      "output_contract": "Refactor Target | Behavior Invariants Preserved | Steps Taken | Tests Status | Type-Check Status | Diff Summary | What Changed Observably (should be 'nothing')",
+      "outputs": [
+        "Refactor Target"
+      ],
+      "path": "skills/refactor/SKILL.md",
       "paths": "",
+      "preferred_panel": null,
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "apply",
@@ -2704,12 +3992,32 @@
         "release-notes-changelog",
         "pr-summarize"
       ],
+      "codex_command": "$ultraprompt:release",
       "command": "/ultraprompt:release",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'release notes / write changelog / draft release announcement / document this release / what to ship in release notes / what changed in version X' \u2014 dispatches writer for structured release notes / changelog artifact. DEFAULT for release communication artifacts. Different from /release-readiness (audits shipability \u2014 separate skill).",
+      "dispatch_to": {
+        "agent": "writer",
+        "phase": "analysis"
+      },
+      "editing": false,
+      "family": "release-operations",
       "manual_only": false,
+      "mode": "read_only",
       "name": "release",
-      "path": "skills\\release\\SKILL.md",
+      "output_contract": "If readiness: Readiness Checklist | Risk Assessment | Go/No-Go Recommendation | Conditions on Go (if any). If notes: User-Facing Summary | Changelog (grouped) | Migration Guidance | Known Issues.",
+      "outputs": [
+        "If readiness: Readiness Checklist"
+      ],
+      "paired_panels": [
+        "release-gate-panel"
+      ],
+      "path": "skills/release/SKILL.md",
       "paths": "",
+      "preferred_panel": "release-gate-panel",
+      "primary_agent": "writer",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "announcement",
@@ -2760,12 +4068,32 @@
         "release-check",
         "production-audit"
       ],
+      "artifact_type": "release_readiness_report",
+      "codex_command": "$ultraprompt:release-readiness",
       "command": "/ultraprompt:release-readiness",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'is this ready to ship / release readiness / ship/no-ship / can we deploy / pre-release audit / production-ready check / what's blocking release' \u2014 produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence. DEFAULT for shipability assessment. Different from release (writes notes/changelog) \u2014 release-readiness audits whether the codebase is shippable.",
+      "dispatch_to": {
+        "agent": "release-readiness-auditor"
+      },
+      "editing": false,
+      "family": "repo-completeness",
       "manual_only": false,
+      "mode": "read_only",
       "name": "release-readiness",
-      "path": "skills\\release-readiness\\SKILL.md",
+      "output_contract": "Verdict (ready/risky/blocked) | Blockers with evidence | Warnings ranked | Missing operational controls | Required validation commands | Rollback concerns | Phased release sequence with gate criteria",
+      "outputs": [
+        "Verdict (ready/risky/blocked)"
+      ],
+      "paired_panels": [
+        "release-gate-panel"
+      ],
+      "path": "skills/release-readiness/SKILL.md",
       "paths": "",
+      "preferred_panel": "release-gate-panel",
+      "primary_agent": "release-readiness-auditor",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "assessment",
@@ -2813,12 +4141,31 @@
         "onboarding-map",
         "semantic-search-codebase"
       ],
+      "codex_command": "$ultraprompt:repo-map",
       "command": "/ultraprompt:repo-map",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'map X / explore Y / read Z / understand how W works / show me the structure / what's in package Q / orient me to this codebase / walk me through the architecture / find code that handles X / where is the code that does Y / locate the implementation of Z / where in the codebase does W happen' \u2014 fetches the cached read-only repository contract: architecture, packages, workflows, validation commands, conventions, dependencies, ownership, sensitive paths, recent activity. Supports --semantic flag for behavior-based code search. DEFAULT for any repo-discovery or code-location prompt \u2014 wins over ad-hoc Bash/Grep tour and over the built-in Explore agent because the result is structured, cached by HEAD, and surfaces the validation commands you'd otherwise hunt for.",
+      "dispatch_to": {
+        "agent": "scout"
+      },
+      "editing": false,
+      "family": "repo-intelligence",
       "manual_only": false,
+      "mode": "read_only",
       "name": "repo-map",
-      "path": "skills\\repo-map\\SKILL.md",
+      "output_contract": "Executive Overview | Directory/Package Map | Primary Workflows + Commands | Architecture Sketch | Public APIs | Test/Validation Map | Conventions Inferred | Hotspots/Questions | Best Next Commands",
+      "outputs": [
+        "Executive Overview"
+      ],
+      "paired_panels": [
+        "repo-completeness-panel"
+      ],
+      "path": "skills/repo-map/SKILL.md",
       "paths": "",
+      "preferred_panel": "repo-completeness-panel",
+      "primary_agent": "scout",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "activity",
@@ -2912,12 +4259,33 @@
         "codebase-review",
         "repo-health"
       ],
+      "artifact_type": "repo_review_report",
+      "codex_command": "$ultraprompt:repo-review",
       "command": "/ultraprompt:repo-review",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'review this whole repo / what's incomplete / audit the codebase end-to-end / what gaps exist / find what's missing / is this ready to ship' \u2014 produces a structured repo review covering map (entrypoints, routes, data, jobs), confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence. DEFAULT for any whole-repo audit prompt. V8 panel-ready skill.",
+      "dispatch_to": {
+        "agent": "repo-cartographer",
+        "phase": "analysis"
+      },
+      "editing": false,
+      "family": "repo-completeness",
       "manual_only": false,
+      "mode": "read_only",
       "name": "repo-review",
-      "path": "skills\\repo-review\\SKILL.md",
+      "output_contract": "Executive summary | Repo map summary | Confirmed gaps (with file evidence) | Probable gaps (with verification steps) | Test gaps (risk-weighted) | Contract gaps | Stale or dead code | Release readiness (ready/risky/blocked) | Top risks | Quick wins | Recommended implementation sequence | Validation plan",
+      "outputs": [
+        "Executive summary"
+      ],
+      "paired_panels": [
+        "repo-completeness-panel"
+      ],
+      "path": "skills/repo-review/SKILL.md",
       "paths": "",
+      "preferred_panel": "repo-completeness-panel",
+      "primary_agent": "repo-cartographer",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "any",
@@ -2979,12 +4347,29 @@
         "coverage-impact",
         "agentic-deep-review"
       ],
+      "codex_command": "$ultraprompt:review",
       "command": "/ultraprompt:review",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'review this PR / code review / check this diff / look at these changes / review my code / does this look right / before-merge review / review for issues' \u2014 produces structured PR/diff review with severity-ranked findings (correctness, design, safety, maintainability, consistency). DEFAULT CHOICE for diff/PR review. Different from /repo-review (whole-repo audit) and /security-audit (security depth only).",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus_from": "argument"
+      },
+      "editing": true,
+      "family": "code-quality",
       "manual_only": false,
+      "mode": "write_capable",
       "name": "review",
-      "path": "skills\\review\\SKILL.md",
+      "output_contract": "PR Understanding | Autonomous Fix Summary (table when multiple) | Merge Recommendation (Approve / Approve with minor comments / Request changes / Needs clarification) | Risk Assessment (correctness/compat/security/perf/coverage/ops/maintainability) | Remaining Findings (severity-ordered) | Validation Performed | Final Diff Summary | Questions/Follow-Ups",
+      "outputs": [
+        "PR Understanding"
+      ],
+      "path": "skills/review/SKILL.md",
       "paths": "",
+      "preferred_panel": null,
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "architect",
@@ -3050,12 +4435,31 @@
       "aliases": [
         "security-audit"
       ],
+      "codex_command": "$ultraprompt:security-audit",
       "command": "/ultraprompt:security-audit",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'security audit / check for vulnerabilities / find injection / auth audit / secrets in repo / SQLi/XSS/CSRF check / pen test / sensitive data exposure' \u2014 produces ranked vulnerabilities with CWE references, exploit scenarios, remediation. DEFAULT for technical security review. Different from /risk-and-controls-review (compliance/regulatory).",
+      "dispatch_to": {
+        "agent": "security-auditor"
+      },
+      "editing": true,
+      "family": "risk-security",
       "manual_only": false,
+      "mode": "write_capable",
       "name": "security-audit",
-      "path": "skills\\security-audit\\SKILL.md",
+      "output_contract": "Threat Model | Trust Boundaries Audited | Findings (severity-ordered: Critical/High/Medium/Low + confidence) | Autonomous Fixes Applied | Policy Decisions Surfaced (Not Auto-Fixed) | Validation | Recommendations",
+      "outputs": [
+        "Threat Model"
+      ],
+      "paired_panels": [
+        "security-privacy-panel"
+      ],
+      "path": "skills/security-audit/SKILL.md",
       "paths": "",
+      "preferred_panel": "security-privacy-panel",
+      "primary_agent": "security-auditor",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "audit",
@@ -3118,12 +4522,33 @@
         "skill-authoring",
         "claude-md-optimize"
       ],
+      "codex_command": "$ultraprompt:skill-author",
       "command": "/ultraprompt:skill-author",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'author a new skill / write a skill / design a skill / new skill for X / skill description / skill spec' \u2014 produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation). DEFAULT for skill authoring.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "skill-authoring",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "plugin-ecosystem",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "skill-author",
-      "path": "skills\\skill-author\\SKILL.md",
+      "output_contract": "Skill Frontmatter | Body Sections (with rationale per section) | Aliases Mapped | Tier Justification | Validator + Duplication Audit Result | Router Bench Cases Added (positive + negative)",
+      "outputs": [
+        "Skill Frontmatter"
+      ],
+      "paired_panels": [
+        "cognitive-governance-panel"
+      ],
+      "path": "skills/skill-author/SKILL.md",
       "paths": "",
+      "preferred_panel": "cognitive-governance-panel",
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "ecosystem",
       "tokens": [
         "agents",
@@ -3177,12 +4602,32 @@
       "aliases": [
         "state-machine-review"
       ],
+      "codex_command": "$ultraprompt:state-machine-review",
       "command": "/ultraprompt:state-machine-review",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'state machine review / state transition audit / FSM design review / workflow state review / event-sourced state review' \u2014 dispatches reviewer with state-machine focus. DEFAULT for state-machine design and review.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "code"
+      },
+      "editing": true,
+      "family": "architecture-contracts",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "state-machine-review",
-      "path": "skills\\state-machine-review\\SKILL.md",
+      "output_contract": "State Machine | Transition Table | Invariants | Impossible States Found | Stuck States Found | Concurrent Transition Risks | Fixes Applied | Tests Added",
+      "outputs": [
+        "State Machine"
+      ],
+      "paired_panels": [
+        "contract-drift-panel"
+      ],
+      "path": "skills/state-machine-review/SKILL.md",
       "paths": "",
+      "preferred_panel": "contract-drift-panel",
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "architecture",
@@ -3232,12 +4677,33 @@
       "aliases": [
         "supply-chain-hardening"
       ],
+      "codex_command": "$ultraprompt:supply-chain-hardening",
       "command": "/ultraprompt:supply-chain-hardening",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'harden supply chain / supply chain security / dependency pinning / SLSA / SBOM / package integrity / supply chain attack defenses' \u2014 dispatches security-auditor + auditor with supply-chain focus. DEFAULT for supply-chain hardening work.",
+      "dispatch_to": {
+        "agent": "auditor",
+        "focus": "supply-chain"
+      },
+      "editing": true,
+      "family": "supply-chain",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "supply-chain-hardening",
-      "path": "skills\\supply-chain-hardening\\SKILL.md",
+      "output_contract": "Lockfile Audit | Install-Script Audit | CI Publishing Audit | Container Image Audit | SBOM Status | Signing Status | Hardenings Applied | Remaining Risks",
+      "outputs": [
+        "Lockfile Audit"
+      ],
+      "paired_panels": [
+        "security-privacy-panel",
+        "release-gate-panel"
+      ],
+      "path": "skills/supply-chain-hardening/SKILL.md",
       "paths": "",
+      "preferred_panel": "security-privacy-panel",
+      "primary_agent": "auditor",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "abandonment",
@@ -3291,12 +4757,32 @@
         "codebase-health",
         "developer-experience-audit"
       ],
+      "codex_command": "$ultraprompt:technical-debt-triage",
       "command": "/ultraprompt:technical-debt-triage",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'triage tech debt / which debt to pay down / debt prioritization / what should we refactor first / debt impact assessment / tech debt audit' \u2014 produces ranked tech debt list with impact + effort + recommended sequencing. DEFAULT for tech debt prioritization.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "technical-debt"
+      },
+      "editing": false,
+      "family": "documentation-maintenance",
       "manual_only": true,
+      "mode": "read_only",
       "name": "technical-debt-triage",
-      "path": "skills\\technical-debt-triage\\SKILL.md",
+      "output_contract": "Scope + Focus | Inventory (file-level when possible) | Risk \u00d7 Leverage / Cost Scoring | 30/60/90 Sequenced Plan | Measurement Targets per Bucket | Specific Build/DX Bottlenecks (if applicable)",
+      "outputs": [
+        "Scope + Focus"
+      ],
+      "paired_panels": [
+        "repo-completeness-panel"
+      ],
+      "path": "skills/technical-debt-triage/SKILL.md",
       "paths": "",
+      "preferred_panel": "repo-completeness-panel",
+      "primary_agent": "reviewer",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "30",
@@ -3358,12 +4844,32 @@
         "find-test-gaps",
         "untested-paths"
       ],
+      "artifact_type": "test_gap_report",
+      "codex_command": "$ultraprompt:test-gap-analysis",
       "command": "/ultraprompt:test-gap-analysis",
+      "confirmation": "not_required_read_only",
       "description": "When user says 'find test gaps / where's the missing coverage / risk-weighted test plan / what should we test / find untested paths / regression coverage review / what edge cases am I missing' \u2014 finds critical behavior with weak/missing validation. Risk-weights findings (critical for auth/payment/data-deletion lanes; medium for UI rendering; low for admin). DEFAULT for test-gap detection. Different from test-harden (designs new tests) \u2014 test-gap-analysis specifically finds the gaps.",
+      "dispatch_to": {
+        "agent": "test-gap-analyst"
+      },
+      "editing": false,
+      "family": "repo-completeness",
       "manual_only": false,
+      "mode": "read_only",
       "name": "test-gap-analysis",
-      "path": "skills\\test-gap-analysis\\SKILL.md",
+      "output_contract": "Risk-weighted test gaps | Critical lanes uncovered | Existing test summary | Missing test types per gap | Suggested test cases | Validation commands",
+      "outputs": [
+        "Risk-weighted test gaps"
+      ],
+      "paired_panels": [
+        "feature-gap-panel"
+      ],
+      "path": "skills/test-gap-analysis/SKILL.md",
       "paths": "",
+      "preferred_panel": "feature-gap-panel",
+      "primary_agent": "test-gap-analyst",
+      "risk": "low",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "admin",
@@ -3443,12 +4949,28 @@
       "aliases": [
         "test-harden"
       ],
+      "codex_command": "$ultraprompt:test-harden",
       "command": "/ultraprompt:test-harden",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'write tests for X / harden test coverage / add tests / improve test suite / implement test plan / write missing tests' \u2014 apply test code per a test plan (uses test-strategist output if provided). DEFAULT for actually writing test code. Different from /test-gap-analysis (finds gaps) and /test-strategist (designs plan).",
+      "dispatch_to": {
+        "agent": "test-strategist"
+      },
+      "editing": true,
+      "family": "test-quality",
       "manual_only": false,
+      "mode": "write_capable",
       "name": "test-harden",
-      "path": "skills\\test-harden\\SKILL.md",
+      "output_contract": "Coverage Target | Behavior Contracts Tested | Boundary Cases Added | Removed Change-Detector Tests | Mutation-Test Result (if run) | Remaining Gaps",
+      "outputs": [
+        "Coverage Target"
+      ],
+      "path": "skills/test-harden/SKILL.md",
       "paths": "",
+      "preferred_panel": null,
+      "primary_agent": "test-strategist",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "core",
       "tokens": [
         "actually",
@@ -3503,12 +5025,33 @@
       "aliases": [
         "tui-design-innovate"
       ],
+      "codex_command": "$ultraprompt:tui-design-innovate",
       "command": "/ultraprompt:tui-design-innovate",
+      "confirmation": "required_for_repo_mutation",
       "description": "When user says 'design a TUI / terminal UI design / Bubble Tea component / Ink interface / TUI interaction pattern / CLI command design' \u2014 dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state). DEFAULT for terminal-UI design work.",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "focus": "tui",
+        "phase": "analysis"
+      },
+      "editing": true,
+      "family": "experience-quality",
       "manual_only": true,
+      "mode": "write_capable",
       "name": "tui-design-innovate",
-      "path": "skills\\tui-design-innovate\\SKILL.md",
+      "output_contract": "Surface | Keyboard Interaction Model | Layout + Focus Graph | Terminal Reality Handling | Framework Primitives | Tests Added | Cross-Terminal Notes",
+      "outputs": [
+        "Surface"
+      ],
+      "paired_panels": [
+        "feature-gap-panel"
+      ],
+      "path": "skills/tui-design-innovate/SKILL.md",
       "paths": "",
+      "preferred_panel": "feature-gap-panel",
+      "primary_agent": "reviewer",
+      "risk": "medium",
+      "secondary_agents": [],
       "tier": "specialist",
       "tokens": [
         "app",

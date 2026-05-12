@@ -17,6 +17,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:auditor` (focus: `privacy`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `security-privacy-panel`. Preferred: `security-privacy-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 PII is a property of data, not a property of variables. Track where it enters, where it flows, where it lands, where it leaves. Retention, deletion, and export rights are jurisdictional and policy-driven; the code is just the implementation. Log redaction must be enforced at the redaction layer, not at every call site (call sites forget).

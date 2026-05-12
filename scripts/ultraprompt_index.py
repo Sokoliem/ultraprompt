@@ -48,6 +48,23 @@ VALIDATION_COMMAND_PATTERNS = [
     r"\bbazel\s+test\b",
 ]
 
+SOURCE_SKILL_METADATA_FIELDS = {
+    "editing",
+    "mode",
+    "risk",
+    "confirmation",
+    "outputs",
+    "output_contract",
+    "artifact_type",
+    "family",
+    "primary_agent",
+    "secondary_agents",
+    "dispatch_to",
+    "preferred_panel",
+    "paired_panels",
+    "inline_only_reason",
+}
+
 # V8 boost rules. Names map to canonical skill names, with legacy aliases handled by alias resolver.
 BOOST_RULES: list[tuple[re.Pattern[str], dict[str, float]]] = [
     (re.compile(r"\b(pr|pull request|merge|branch|diff|changed files?|pre[- ]merge)\b", re.I),
@@ -108,6 +125,12 @@ BOOST_RULES: list[tuple[re.Pattern[str], dict[str, float]]] = [
      {"database-review": 30}),
     (re.compile(r"\b(accessibility|a11y|screen reader|keyboard nav|aria|contrast|wcag)\b", re.I),
      {"accessibility-review": 32}),
+    (re.compile(r"\b(design review|taste pass|aesthetic|visual design|product design critique|ui polish|visual polish|make .* feel better|look professional)\b", re.I),
+     {"design-review": 34, "frontend-visual-qa": 10}),
+    (re.compile(r"\b(visual qa|screenshot qa|responsive qa|frontend polish|browser verify|verify .* ui|pixel check|text clipping|visual overlap|rendered surface)\b", re.I),
+     {"frontend-visual-qa": 36, "design-review": 8}),
+    (re.compile(r"\b(design system|component library|token audit|theme consistency|ui consistency|component api|design rules)\b", re.I),
+     {"design-system-review": 36, "design-review": 8}),
     (re.compile(r"\b(infrastructure|terraform|iac|cloud|kubernetes|helm|aws|gcp|azure|cron|scheduled job|queue|worker)\b", re.I),
      {"infra-iac-review": 28}),
     (re.compile(r"\b(observability|log|logs|trace|metrics|telemetry|alert|slo|dashboard)\b", re.I),
@@ -122,6 +145,10 @@ BOOST_RULES: list[tuple[re.Pattern[str], dict[str, float]]] = [
      {"ai-agent-safety-review": 30}),
     (re.compile(r"\b(claude code plugin|skill author|subagent|agent author|hook|mcp server|claude\.md|slash command)\b", re.I),
      {"plugin-review": 18, "skill-author": 10, "agent-author": 10, "hooks-design": 8, "mcp-design": 8}),
+    (re.compile(r"\b(pathfinding|pathfinder|invocation behavior|skill auto[- ]fire|agent dispatch|routing telemetry|explore fallback|automated invocation|dispatch share)\b", re.I),
+     {"pathfinding-invocation-review": 38, "plugin-review": 6}),
+    (re.compile(r"\b(/goal|set a goal|completion condition|keep working until|do not stop until|work until .* pass|goal mode|codex goal)\b", re.I),
+     {"goal": 38}),
     (re.compile(r"\b(technical debt|tech debt|modernization|debt inventory|backlog|onboarding friction|dx|developer experience)\b", re.I),
      {"technical-debt-triage": 28}),
 ]
@@ -180,6 +207,35 @@ def truthy(value: Any) -> bool:
     return clean_scalar(value).lower() == "true"
 
 
+def load_source_skill_metadata(root: Path) -> dict[str, dict[str, Any]]:
+    """Return cognitive routing metadata from canonical source specs.
+
+    Generated SKILL.md frontmatter is intentionally small, but runtime routing,
+    pathfinding, and dashboard details need the richer source-of-truth metadata.
+    """
+    path = root / "source" / "skill-specs.json"
+    if not path.exists():
+        return {}
+    try:
+        specs = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    metadata: dict[str, dict[str, Any]] = {}
+    for spec in specs:
+        name = str(spec.get("name", ""))
+        if not name:
+            continue
+        entry: dict[str, Any] = {}
+        cognitive = spec.get("cognitive") or {}
+        for field in SOURCE_SKILL_METADATA_FIELDS:
+            if field in spec:
+                entry[field] = spec[field]
+            elif isinstance(cognitive, dict) and field in cognitive:
+                entry[field] = cognitive[field]
+        metadata[name] = entry
+    return metadata
+
+
 def tokenize(text: str) -> list[str]:
     tokens: list[str] = []
     for raw in WORD_RE.findall(text.lower()):
@@ -209,6 +265,7 @@ def build_index(root: Path) -> dict[str, Any]:
     agents: list[dict[str, Any]] = []
     commands: list[dict[str, Any]] = []
     aliases: dict[str, str] = {}
+    source_skill_metadata = load_source_skill_metadata(root)
 
     skills_root = root / "skills"
     if skills_root.is_dir():
@@ -235,9 +292,10 @@ def build_index(root: Path) -> dict[str, Any]:
             for alias in entry_aliases:
                 aliases[alias] = name
             tokens = sorted(set(tokenize(f"{name} {description} {when_to_use}")))
-            skills.append({
+            entry = {
                 "name": name,
                 "command": f"/ultraprompt:{name}",
+                "codex_command": f"$ultraprompt:{name}",
                 "description": description,
                 "when_to_use": when_to_use,
                 "tier": tier,
@@ -246,7 +304,9 @@ def build_index(root: Path) -> dict[str, Any]:
                 "tokens": tokens,
                 "aliases": entry_aliases,
                 "path": str(skill_path.relative_to(root)),
-            })
+            }
+            entry.update(source_skill_metadata.get(name, {}))
+            skills.append(entry)
 
     agents_root = root / "agents"
     if agents_root.is_dir():
@@ -321,7 +381,7 @@ def load_index(root: Path | None = None) -> dict[str, Any]:
 
 def resolve_alias(index: dict[str, Any], name: str) -> tuple[str, bool]:
     """Return (canonical_name, is_aliased)."""
-    needle = name.strip().removeprefix("/ultraprompt:")
+    needle = name.strip().removeprefix("/ultraprompt:").removeprefix("$ultraprompt:")
     aliases = index.get("aliases") or {}
     if needle in aliases:
         return aliases[needle], True
@@ -346,6 +406,12 @@ def score_skill(skill: dict[str, Any], intent: str) -> float:
 
     lowered = intent.lower()
     name = str(skill.get("name"))
+    explicit_command = re.search(
+        rf"(?<![a-z0-9-])(?:\$ultraprompt:|/ultraprompt:|ultraprompt:){re.escape(name)}(?![a-z0-9-])",
+        lowered,
+    )
+    if explicit_command:
+        score += 120.0
     if name in lowered or name.replace("-", " ") in lowered:
         score += 35.0
     for pattern, boosts in BOOST_RULES:
@@ -393,6 +459,7 @@ def route_intent(index: dict[str, Any], intent: str, limit: int = 3) -> list[dic
         results.append({
             "skill": name,
             "command": skill.get("command") or f"/ultraprompt:{name}",
+            "codex_command": skill.get("codex_command") or f"$ultraprompt:{name}",
             "confidence": confidence_from_score(score, best),
             "score": score,
             "tier": skill.get("tier", "core"),
@@ -433,6 +500,7 @@ def compose_workflow(index: dict[str, Any], skills: list[str]) -> dict[str, Any]
         steps.append({
             "skill": skill["name"],
             "invoke": skill["command"],
+            "codex_invoke": skill.get("codex_command") or f"$ultraprompt:{skill['name']}",
             "purpose": skill.get("description", ""),
             "handoff": "Capture changed files, commands run, evidence, risks, and next validation before moving to the next step.",
         })

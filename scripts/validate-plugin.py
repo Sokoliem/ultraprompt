@@ -7,6 +7,7 @@ assignment. Dependency-free.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import subprocess
@@ -91,6 +92,10 @@ def clean(value: str) -> str:
     return v.strip()
 
 
+def split_list_field(value: str) -> set[str]:
+    return {item.strip() for item in clean(value).split(",") if item.strip()}
+
+
 def validate_skills(errors: list[str], warnings: list[str]) -> tuple[int, dict[str, int]]:
     skills_dir = ROOT / "skills"
     if not skills_dir.exists():
@@ -162,6 +167,14 @@ def validate_agents(errors: list[str], warnings: list[str]) -> int:
             errors.append(f"{agent_path.relative_to(ROOT)}: model pin not allowed")
         if "effort" in data:
             errors.append(f"{agent_path.relative_to(ROOT)}: effort pin not allowed")
+        tools = split_list_field(data.get("tools", ""))
+        disallowed_tools = split_list_field(data.get("disallowedTools", ""))
+        overlap = sorted(tools & disallowed_tools)
+        if overlap:
+            errors.append(
+                f"{agent_path.relative_to(ROOT)}: tools also appear in disallowedTools: "
+                f"{', '.join(overlap)}"
+            )
         count += 1
     return count
 
@@ -223,16 +236,59 @@ def validate_hooks(errors: list[str], warnings: list[str]) -> int:
     return count
 
 
-def validate_manifest(errors: list[str], warnings: list[str]) -> dict[str, Any]:
-    manifest_path = ROOT / ".claude-plugin" / "plugin.json"
-    if not manifest_path.exists():
-        errors.append(".claude-plugin/plugin.json: missing")
+def runtime_manifest_paths(target_runtime: str) -> list[Path]:
+    if target_runtime == "claude":
+        return [ROOT / ".claude-plugin" / "plugin.json"]
+    if target_runtime == "codex":
+        return [ROOT / ".codex-plugin" / "plugin.json"]
+    return [
+        ROOT / ".claude-plugin" / "plugin.json",
+        ROOT / ".codex-plugin" / "plugin.json",
+    ]
+
+
+def manifest_label(path: Path) -> str:
+    if ".codex-plugin" in path.parts:
+        return "codex"
+    return "claude"
+
+
+def validate_manifest(path: Path, errors: list[str], warnings: list[str]) -> dict[str, Any]:
+    if not path.exists():
+        errors.append(f"{path.relative_to(ROOT)}: missing")
         return {}
-    data = load_json(manifest_path, errors) or {}
+    data = load_json(path, errors) or {}
     for field in ("name", "version", "description"):
         if field not in data:
-            errors.append(f".claude-plugin/plugin.json: missing {field}")
+            errors.append(f"{path.relative_to(ROOT)}: missing {field}")
     return data
+
+
+def validate_manifest_referenced_files(path: Path, manifest: dict[str, Any], errors: list[str]) -> None:
+    mcp_ref = manifest.get("mcpServers")
+    if isinstance(mcp_ref, str):
+        rel = mcp_ref[2:] if mcp_ref.startswith("./") else mcp_ref
+        target = ROOT / rel
+        if not target.exists():
+            errors.append(
+                f"{path.relative_to(ROOT)}: references missing MCP config {mcp_ref}"
+            )
+    hooks_ref = manifest.get("hooks")
+    if isinstance(hooks_ref, str):
+        rel = hooks_ref[2:] if hooks_ref.startswith("./") else hooks_ref
+        target = ROOT / rel
+        if not target.exists():
+            errors.append(
+                f"{path.relative_to(ROOT)}: references missing hooks config {hooks_ref}"
+            )
+    styles_ref = manifest.get("outputStyles")
+    if isinstance(styles_ref, str):
+        rel = styles_ref[2:] if styles_ref.startswith("./") else styles_ref
+        target = ROOT / rel
+        if not target.exists():
+            errors.append(
+                f"{path.relative_to(ROOT)}: references missing output styles path {styles_ref}"
+            )
 
 
 def validate_marketplace(errors: list[str], warnings: list[str]) -> bool:
@@ -244,13 +300,21 @@ def validate_marketplace(errors: list[str], warnings: list[str]) -> bool:
     return bool(data.get("plugins"))
 
 
-def validate_mcp(errors: list[str], warnings: list[str]) -> int:
-    path = ROOT / ".mcp.json"
+def validate_mcp_file(path: Path, errors: list[str], warnings: list[str]) -> int:
     if not path.exists():
-        warnings.append(".mcp.json: missing")
+        warnings.append(f"{path.relative_to(ROOT)}: missing")
         return 0
     data = load_json(path, errors) or {}
     return len(data.get("mcpServers") or {})
+
+
+def validate_mcp(target_runtime: str, errors: list[str], warnings: list[str]) -> int:
+    paths = []
+    if target_runtime in ("source", "claude"):
+        paths.append(ROOT / ".mcp.json")
+    if target_runtime in ("source", "codex"):
+        paths.append(ROOT / ".codex.mcp.json")
+    return sum(validate_mcp_file(path, errors, warnings) for path in paths)
 
 
 def validate_index(errors: list[str], warnings: list[str]) -> bool:
@@ -280,22 +344,44 @@ def validate_generated_artifacts(errors: list[str], warnings: list[str]) -> None
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--target-runtime",
+        default="source",
+        choices=["source", "claude", "codex"],
+        help="Validate source manifests or one installed runtime target.",
+    )
+    parser.add_argument(
+        "--strict-runtime-files",
+        action="store_true",
+        help="Accepted for compatibility; manifest-referenced files are always strict in V8.2.",
+    )
+    args = parser.parse_args()
+
     errors: list[str] = []
     warnings: list[str] = []
 
-    manifest = validate_manifest(errors, warnings)
+    manifests: dict[str, dict[str, Any]] = {}
+    for manifest_path in runtime_manifest_paths(args.target_runtime):
+        manifest = validate_manifest(manifest_path, errors, warnings)
+        if manifest:
+            validate_manifest_referenced_files(manifest_path, manifest, errors)
+        manifests[manifest_label(manifest_path)] = manifest
+
+    display_manifest = manifests.get("claude") or manifests.get("codex") or {}
     skill_count, tier_counts = validate_skills(errors, warnings)
     agent_count = validate_agents(errors, warnings)
     cmd_count = validate_commands(errors, warnings)
     style_count = validate_output_styles(errors, warnings)
     hook_count = validate_hooks(errors, warnings)
     market = validate_marketplace(errors, warnings)
-    mcp_count = validate_mcp(errors, warnings)
+    mcp_count = validate_mcp(args.target_runtime, errors, warnings)
     has_index = validate_index(errors, warnings)
     validate_generated_artifacts(errors, warnings)
 
-    print("Ultraprompt V8 plugin validation")
-    print(f"- Plugin: {manifest.get('name', '?')} v{manifest.get('version', '?')}")
+    print("Ultraprompt V8.2 plugin validation")
+    print(f"- Target runtime: {args.target_runtime}")
+    print(f"- Plugin: {display_manifest.get('name', '?')} v{display_manifest.get('version', '?')}")
     print(f"- Skills: {skill_count} (core: {tier_counts.get('core', 0)}, specialist: {tier_counts.get('specialist', 0)}, ecosystem: {tier_counts.get('ecosystem', 0)})")
     print(f"- Commands: {cmd_count}")
     print(f"- Agents: {agent_count}")

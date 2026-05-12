@@ -36,6 +36,9 @@ def main() -> int:
 
     ok_gap = validator.validate("gap_ledger_entry", base_gap())
     cases.append(("valid_gap", ok_gap.get("ok") is True))
+    status_gap = base_gap()
+    status_gap["status"] = "validated"
+    cases.append(("valid_gap_status", validator.validate("gap_ledger_entry", status_gap).get("ok") is True))
 
     for field, value in (
         ("severity", "major"),
@@ -57,6 +60,17 @@ def main() -> int:
         "recommended_release_sequence": [],
     }
     cases.append(("invalid_release_status", validator.validate("release_readiness_report", readiness).get("ok") is False))
+
+    repo_completeness = {
+        "repo": "example",
+        "panel_run": {"run_id": "panel_1", "status": "completed"},
+        "repo_review_report": {"executive_summary": "ok"},
+        "gap_ledger_entries": [base_gap()],
+        "dedupe_summary": {"merged": 0},
+        "validation_summary": [{"command": "python3 scripts/run-artifact-tests.py", "ok": True}],
+        "next_actions": ["ship"],
+    }
+    cases.append(("valid_repo_completeness_report", validator.validate("repo_completeness_report", repo_completeness).get("ok") is True))
 
     drift = {
         "contract_gaps": [{
@@ -99,7 +113,7 @@ def main() -> int:
 
     graph = {
         "schema": "capability_graph.v1",
-        "plugin_version": "8.0.0",
+        "plugin_version": "8.2.0",
         "nodes": [{"id": "skill:build", "kind": "skill"}],
         "edges": [{"source": "skill:build", "target": "agent:reviewer", "relation": "dispatches_to"}],
         "health": {"ok": True},

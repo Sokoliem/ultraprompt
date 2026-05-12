@@ -17,6 +17,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:auditor` (focus: `a11y`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `feature-gap-panel`. Preferred: `feature-gap-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 WCAG provides the framework but not the answers. Screen reader experience, keyboard navigation, focus management, color contrast, and motion sensitivity are independent axes that all need to work. Automated tools (axe, Lighthouse) catch ~30% of issues; the rest requires manual testing or expert review.

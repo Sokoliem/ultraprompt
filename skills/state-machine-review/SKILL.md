@@ -17,6 +17,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:reviewer` (focus: `code`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `contract-drift-panel`. Preferred: `contract-drift-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Explicit state machines are easier to reason about than implicit ones (booleans + flags). The transition table tells you what's possible; the invariants tell you what should be impossible. Impossible states should be unrepresentable (type system) or unreachable (validation). Most state-machine bugs are 'this transition shouldn't have been allowed from this state'.

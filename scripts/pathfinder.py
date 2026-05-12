@@ -138,7 +138,14 @@ def expected_artifacts(skill: dict[str, Any]) -> list[str]:
     return sorted(set(out))
 
 
-def pathfind(intent: str, *, repo: str = "", budget: str = "standard", dry_run: bool = True) -> dict[str, Any]:
+def pathfind(
+    intent: str,
+    *,
+    repo: str = "",
+    budget: str = "standard",
+    dry_run: bool = True,
+    no_telemetry: bool = False,
+) -> dict[str, Any]:
     index = load_index(ROOT)
     graph = load_graph()
     policy = load_policy()
@@ -179,14 +186,18 @@ def pathfind(intent: str, *, repo: str = "", budget: str = "standard", dry_run: 
         "intent": intent,
         "repo": repo,
         "dry_run": dry_run,
+        "telemetry_enabled": not no_telemetry,
         "budget": budget,
         "recommended_path": {
             "type": path_type,
             "skill": skill.get("name"),
             "command": f"/ultraprompt:{skill.get('name')}" if skill.get("name") else None,
+            "codex_command": f"$ultraprompt:{skill.get('name')}" if skill.get("name") else None,
             "agents": agents,
             "panel": preferred_panel if path_type == "panel" else None,
             "confidence": round(confidence, 3),
+            "raw_score": top.get("score"),
+            "adjusted_score": top.get("adjusted_score"),
             "rationale": [
                 "router selected highest-scoring matching skill",
                 "capability graph supplied agent/panel edges",
@@ -202,7 +213,8 @@ def pathfind(intent: str, *, repo: str = "", budget: str = "standard", dry_run: 
         "graph_hash": graph.get("source_hash") or stable_hash(graph),
         "graph_health": graph.get("health", {}),
     }
-    emit_event(result)
+    if not no_telemetry:
+        emit_event(result)
     return command_result(True, path=result)
 
 
@@ -210,11 +222,27 @@ def emit_event(result: dict[str, Any]) -> None:
     script = ROOT / "scripts" / "cognitive-event-log.py"
     try:
         payload = {
+            "source": "pathfinder",
             "trace_id": result["trace_id"],
             "intent": result["intent"][:200],
             "skill": result["recommended_path"].get("skill"),
             "path_type": result["recommended_path"].get("type"),
             "confidence": result["recommended_path"].get("confidence"),
+            "raw_score": result["recommended_path"].get("raw_score"),
+            "adjusted_score": result["recommended_path"].get("adjusted_score"),
+            "agents": result["recommended_path"].get("agents", []),
+            "panel": result["recommended_path"].get("panel"),
+            "budget": result.get("budget"),
+            "alternatives": [
+                {
+                    "skill": alt.get("skill"),
+                    "adjusted_score": alt.get("adjusted_score"),
+                    "confidence": alt.get("confidence"),
+                }
+                for alt in result.get("alternatives", [])
+            ],
+            "followed": None,
+            "outcome": "recommended",
         }
         subprocess.run(
             [sys.executable, str(script), "write", "pathfinder_decision", "--json", json.dumps(payload), "--trace-id", result["trace_id"]],
@@ -235,20 +263,26 @@ def main() -> int:
     p.add_argument("--repo", default="")
     p.add_argument("--budget", choices=["low", "standard", "deep"], default="standard")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--no-telemetry", action="store_true", help="do not write pathfinder_decision events")
     b = sub.add_parser("bench")
     b.add_argument("--json", action="store_true")
+    b.add_argument("--no-telemetry", action="store_true", help="run golden tests without telemetry writes")
     e = sub.add_parser("explain")
     e.add_argument("intent")
     e.add_argument("--repo", default="")
     e.add_argument("--budget", choices=["low", "standard", "deep"], default="standard")
+    e.add_argument("--no-telemetry", action="store_true", help="do not write pathfinder_decision events")
 
     args = parser.parse_args()
     if args.cmd in {"pathfind", "explain"}:
         intent = args.intent if args.cmd == "explain" else args.intent
-        print_json(pathfind(intent, repo=args.repo, budget=args.budget, dry_run=True))
+        print_json(pathfind(intent, repo=args.repo, budget=args.budget, dry_run=True, no_telemetry=args.no_telemetry))
         return 0
     if args.cmd == "bench":
-        proc = subprocess.run([sys.executable, str(ROOT / "scripts" / "run-pathfinder-tests.py"), "--json"], cwd=ROOT, capture_output=True, text=True, timeout=120)
+        bench_args = [sys.executable, str(ROOT / "scripts" / "run-pathfinder-tests.py"), "--json"]
+        if args.no_telemetry:
+            bench_args.append("--no-telemetry")
+        proc = subprocess.run(bench_args, cwd=ROOT, capture_output=True, text=True, timeout=120)
         print(proc.stdout.strip())
         return proc.returncode
     return 0

@@ -1,8 +1,8 @@
 # Ultraprompt
 
-Ultraprompt is a local-first Claude Code and Codex plugin for senior engineering workflows. V8 adds a cognitive control plane on top of the proven catalog: typed memory, safe dream jobs, governed learning, workflow pathfinding, capability graph health, and a Mission Control dashboard.
+Ultraprompt is a local-first Claude Code and Codex plugin for senior engineering workflows. V8.2 adds experience-quality skills and panels, goal contracts, invocation telemetry gates, typed memory, safe dream jobs, governed learning, workflow pathfinding, capability graph health, and a Mission Control dashboard.
 
-**Version 8.0.0** | **48 skills** | **29 agents** | **42 MCP tools** | **30 commands** | **9 registered hooks** | **17 artifact schemas** | **12 panels** | **2 output styles**
+**Version 8.2.0** | **54 skills** | **31 agents** | **42 MCP tools** | **31 commands** | **9 registered hooks** | **18 artifact schemas** | **13 panels** | **2 output styles**
 
 ## What It Does
 
@@ -13,7 +13,7 @@ Ultraprompt is a local-first Claude Code and Codex plugin for senior engineering
 - Runs safe dream jobs that summarize sessions, reflect on repos, learn from routing outcomes, inspect catalog health, and propose memory pruning.
 - Queues learning candidates behind approval, validation, and reversible apply instead of silently mutating prompts or user repositories.
 - Generates a capability graph over skills, agents, panels, commands, MCP tools, artifacts, validators, hooks, ledgers, and dream jobs.
-- Ships a localhost dashboard for catalog health, live activity, cognitive health, memory, dreams, pathfinding, learning, and governance.
+- Ships a localhost dashboard for catalog health, live activity, cognitive health, memory, dreams, pathfinding, learning, gap lifecycle, panel runs, runtime readiness, and governance.
 
 ## Install
 
@@ -29,11 +29,18 @@ macOS/Linux:
 bash scripts/install.sh both
 ```
 
-After install, restart Claude Code and Codex, then run:
+After install, restart Claude Code and Codex. Claude Code exposes plugin slash commands:
 
 ```text
 /ultraprompt:doctor
 /ultraprompt:dashboard
+```
+
+Codex keeps `/` for native commands. Use `$ultraprompt:<skill>` for plugin skills and natural language or MCP tool names for command-backed operations. For example:
+
+```text
+$ultraprompt:dream run
+$ultraprompt:dream status
 ```
 
 ## V8 Commands
@@ -42,6 +49,7 @@ After install, restart Claude Code and Codex, then run:
 - `/ultraprompt:memory` queries and governs typed local memory.
 - `/ultraprompt:dream` runs or inspects safe dream jobs.
 - `/ultraprompt:dream-review` reviews dream reports and generated proposals.
+- `/ultraprompt:goal` applies a transcript-backed goal contract for Codex-compatible completion conditions.
 - `/ultraprompt:learn-review` approves, applies, rejects, or reverts learning candidates.
 - `/ultraprompt:graph` checks capability graph freshness and health.
 - `/ultraprompt:mission-control` opens the cognitive dashboard.
@@ -54,7 +62,7 @@ python3 scripts/build-catalog-metadata.py --check
 python3 scripts/build-capability-graph.py --check
 python3 scripts/regenerate-skills.py --check
 python3 scripts/regenerate-agents.py --check
-python3 scripts/run-pathfinder-tests.py
+python3 scripts/run-pathfinder-tests.py --no-telemetry
 python3 scripts/run-cognitive-tests.py
 python3 scripts/audit-catalog-consistency.py
 python3 scripts/validate-plugin.py
@@ -70,6 +78,8 @@ Runtime state is local by default:
 - `~/.ultraprompt/events/events.jsonl`
 - `~/.ultraprompt/dreams/reports/*.json`
 - `~/.ultraprompt/learning/candidates.jsonl`
+- `~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl`
+- `~/.ultraprompt/panels/<repo>/*-runs.jsonl`
 - `~/.ultraprompt/learning/route-policy.json`
 
 Environment overrides use the `ULTRAPROMPT__SECTION__KEY=value` form.

@@ -16,6 +16,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:security-auditor`. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `security-privacy-panel`. Preferred: `security-privacy-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Apply a threat model: who is the adversary, what are they trying to do, what can they reach. Auth (who is this user?) and authorization (what can they do?) are different and both must be checked. Secrets in logs, error messages, and crash dumps are common leaks. Tenant isolation requires every query, cache, and rate-limit to scope by tenant. Trust boundaries are crossings of input from a less-trusted source to a more-trusted one — that's where validation must be explicit.

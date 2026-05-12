@@ -6,12 +6,14 @@
     "customer-advocate",
     "dead-code-and-drift-hunter",
     "debugger",
+    "design-critic",
     "dream-synthesizer",
     "evaluator",
     "feature-completeness-auditor",
     "gap-analysis-lead",
     "innovation-lead",
     "integration-contract-reviewer",
+    "invocation-reliability-auditor",
     "learning-auditor",
     "market-analyst",
     "memory-curator",
@@ -31,18 +33,37 @@
     "writer"
   ],
   "counts": {
-    "agent_specs": 29,
-    "agents": 29,
-    "artifact_schemas": 17,
-    "commands": 30,
+    "agent_specs": 31,
+    "agents": 31,
+    "artifact_schemas": 18,
+    "commands": 31,
     "mcp_tools": 42,
     "output_styles": 2,
-    "panels": 12,
+    "panels": 13,
     "registered_hooks": 9,
-    "skill_specs": 48,
-    "skills": 48
+    "skill_specs": 54,
+    "skills": 54
   },
-  "plugin_version": "8.0.0",
+  "families": {
+    "ai-safety-evals": 2,
+    "architecture-contracts": 4,
+    "code-quality": 5,
+    "cognitive-operations": 3,
+    "documentation-maintenance": 2,
+    "experience-quality": 5,
+    "infrastructure-data": 2,
+    "plugin-ecosystem": 5,
+    "product-innovation": 5,
+    "product-prd": 5,
+    "release-operations": 1,
+    "repo-completeness": 6,
+    "repo-intelligence": 1,
+    "risk-security": 2,
+    "runtime-quality": 2,
+    "supply-chain": 2,
+    "test-quality": 2
+  },
+  "plugin_version": "8.2.0",
   "schema_version": 1,
   "skills": [
     "review",
@@ -92,12 +113,18 @@
     "idea-triage",
     "concept-brief",
     "mvp-scope",
-    "problem-framing"
+    "problem-framing",
+    "dream",
+    "design-review",
+    "frontend-visual-qa",
+    "design-system-review",
+    "pathfinding-invocation-review",
+    "goal"
   ],
-  "source_hash": "c2198c63eec27e8fd188968bc7fe84c9187124afc5c956233a3560bef42eb688",
+  "source_hash": "1b94e0d556fae962fca3247727650b8d2ee9fe1011d597ae9bdce945a05d3e26",
   "tiers": {
-    "core": 28,
+    "core": 33,
     "ecosystem": 5,
-    "specialist": 15
+    "specialist": 16
   }
 }

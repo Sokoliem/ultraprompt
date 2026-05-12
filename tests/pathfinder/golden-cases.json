@@ -28,11 +28,59 @@
     "expected_skill": "security-audit"
   },
   {
+    "intent": "run a design review and taste pass on the dashboard UI",
+    "expected_skill": "design-review"
+  },
+  {
+    "intent": "do visual QA on the settings page across mobile and desktop screenshots",
+    "expected_skill": "frontend-visual-qa"
+  },
+  {
+    "intent": "audit the design system tokens and component library consistency",
+    "expected_skill": "design-system-review"
+  },
+  {
+    "intent": "read telemetry and strengthen pathfinding invocation behavior for skills and agents",
+    "expected_skill": "pathfinding-invocation-review"
+  },
+  {
+    "intent": "set a goal to keep working until lint and tests pass",
+    "expected_skill": "goal"
+  },
+  {
     "intent": "query memory for repo facts about this project",
     "expected_skill": "repo-map"
   },
   {
     "intent": "show me the best skill and agent path for a dashboard bug",
     "expected_skill": "debug"
+  },
+  {
+    "intent": "review the repo end to end and find completeness gaps",
+    "expected_skill": "repo-review",
+    "budget": "deep",
+    "expected_path_type": "panel",
+    "expected_panel": "repo-completeness-panel"
+  },
+  {
+    "intent": "technical PRD for a plugin release gate with specialized agents",
+    "expected_skill": "prd-technical",
+    "budget": "deep",
+    "expected_path_type": "panel",
+    "expected_panel": "prd-panel"
+  },
+  {
+    "intent": "is this release ready to ship",
+    "expected_skill": "release-readiness",
+    "budget": "deep",
+    "expected_path_type": "panel",
+    "expected_panel": "release-gate-panel"
+  },
+  {
+    "intent": "deep visual QA and design-system review for a high-stakes frontend release",
+    "expected_skill": "frontend-visual-qa",
+    "budget": "deep",
+    "expected_path_type": "panel",
+    "expected_panel": "experience-quality-panel"
   }
 ]

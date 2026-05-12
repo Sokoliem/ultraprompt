@@ -115,13 +115,16 @@ def _ledger_write(event_type: str, **kwargs) -> None:
         pass
 
 
-# Always log the classification
-_ledger_write(
-    "destructive_guard_classification",
-    risk_class=risk_class,
-    matched_pattern=reason,
-    command_excerpt=command[:120],
-)
+# Non-LOW classifications are operationally meaningful. LOW classifications
+# are useful while debugging the guard itself, but too noisy for default
+# dashboard telemetry because every shell command passes through this hook.
+if risk_class != "LOW" or os.environ.get("ULTRAPROMPT_LOG_LOW_RISK_GUARD") == "1":
+    _ledger_write(
+        "destructive_guard_classification",
+        risk_class=risk_class,
+        matched_pattern=reason,
+        command_excerpt=command[:120],
+    )
 
 
 # ============================================================

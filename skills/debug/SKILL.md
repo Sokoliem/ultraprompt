@@ -16,6 +16,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:debugger`. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `incident-response-panel`. Preferred: `incident-response-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Symptom-to-root-cause traversal. The failing assertion is the symptom, not the cause. Trace through call sites, data flow, recent changes, invariants, and shared state. For non-deterministic failures, the variable is usually time, randomness, order dependence, network, or shared state — not 'bad luck'. Retry-masking is not repair.

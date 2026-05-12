@@ -12,6 +12,10 @@ allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 
 Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARGUMENTS` handling, evidence, validation, and safety).
 
+## Inline execution policy (V8)
+
+Prefer main-thread execution for the core workflow because the main thread owns the requested code change, edits, integration, and validation; dispatch only bounded sidecars that do not own the critical implementation path. Use subagents only for bounded discovery, critique, or test-strategy sidecars when that does not block the immediate implementation path.
+
 ## Distinctive judgment
 
 Smallest coherent feature slice that satisfies the request. Avoid scope creep. Inspect adjacent UX/API patterns and match them. Public API impact, data flow, state management, and error handling are part of the deliverable, not afterthoughts.

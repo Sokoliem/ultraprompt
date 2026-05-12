@@ -1,6 +1,336 @@
 {
   "edges": [
     {
+      "relation": "participates_in_panel",
+      "source": "agent:adversarial",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:auditor",
+      "target": "panel:incident-response-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:auditor",
+      "target": "panel:security-privacy-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:catalog-strategist",
+      "target": "panel:cognitive-governance-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:catalog-strategist",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:customer-advocate",
+      "target": "panel:idea-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:dead-code-and-drift-hunter",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:debugger",
+      "target": "panel:incident-response-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:design-critic",
+      "target": "panel:experience-quality-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:dream-synthesizer",
+      "target": "panel:cognitive-governance-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:evaluator",
+      "target": "panel:ai-feature-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:evaluator",
+      "target": "panel:mvp-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:evaluator",
+      "target": "panel:prd-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:feature-completeness-auditor",
+      "target": "panel:feature-gap-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:feature-completeness-auditor",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:gap-analysis-lead",
+      "target": "panel:contract-drift-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:gap-analysis-lead",
+      "target": "panel:feature-gap-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:gap-analysis-lead",
+      "target": "panel:incident-response-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:gap-analysis-lead",
+      "target": "panel:migration-readiness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:gap-analysis-lead",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:gap-analysis-lead",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:innovation-lead",
+      "target": "panel:idea-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:integration-contract-reviewer",
+      "target": "panel:contract-drift-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:integration-contract-reviewer",
+      "target": "panel:migration-readiness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:integration-contract-reviewer",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:invocation-reliability-auditor",
+      "target": "panel:cognitive-governance-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:learning-auditor",
+      "target": "panel:cognitive-governance-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:market-analyst",
+      "target": "panel:idea-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:memory-curator",
+      "target": "panel:cognitive-governance-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:principal-pm",
+      "target": "panel:ai-feature-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:principal-pm",
+      "target": "panel:idea-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:principal-pm",
+      "target": "panel:mvp-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:principal-pm",
+      "target": "panel:prd-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:release-readiness-auditor",
+      "target": "panel:incident-response-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:release-readiness-auditor",
+      "target": "panel:migration-readiness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:release-readiness-auditor",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:release-readiness-auditor",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:repo-cartographer",
+      "target": "panel:contract-drift-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:repo-cartographer",
+      "target": "panel:feature-gap-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:repo-cartographer",
+      "target": "panel:migration-readiness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:repo-cartographer",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:repo-cartographer",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:repo-cartographer",
+      "target": "panel:security-privacy-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:risk-and-controls-reviewer",
+      "target": "panel:ai-feature-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:risk-and-controls-reviewer",
+      "target": "panel:prd-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:risk-and-controls-reviewer",
+      "target": "panel:security-privacy-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:security-auditor",
+      "target": "panel:ai-feature-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:security-auditor",
+      "target": "panel:incident-response-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:security-auditor",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:security-auditor",
+      "target": "panel:security-privacy-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:technical-product-architect",
+      "target": "panel:ai-feature-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:technical-product-architect",
+      "target": "panel:mvp-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:technical-product-architect",
+      "target": "panel:prd-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:technical-product-architect",
+      "target": "panel:security-privacy-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:test-gap-analyst",
+      "target": "panel:contract-drift-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:test-gap-analyst",
+      "target": "panel:feature-gap-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:test-gap-analyst",
+      "target": "panel:migration-readiness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:test-gap-analyst",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:test-gap-analyst",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:wiring-gap-inspector",
+      "target": "panel:feature-gap-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:wiring-gap-inspector",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:workflow-planner",
+      "target": "panel:cognitive-governance-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:workflow-planner",
+      "target": "panel:migration-readiness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:workflow-planner",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:workflow-planner",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "participates_in_panel",
+      "source": "agent:writer",
+      "target": "panel:incident-response-panel"
+    },
+    {
       "relation": "validated_by",
       "source": "artifact:capability_graph",
       "target": "validator:artifact-validate.py"
@@ -82,6 +412,11 @@
     },
     {
       "relation": "validated_by",
+      "source": "artifact:repo_completeness_report",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
       "source": "artifact:repo_review_report",
       "target": "validator:artifact-validate.py"
     },
@@ -119,6 +454,46 @@
       "relation": "invokes",
       "source": "command:pathfind",
       "target": "mcp:pathfind_workflow"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/cognitive/health",
+      "target": "validator:build-capability-graph.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/cognitive/health",
+      "target": "validator:run-pathfinder-tests.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/gaps",
+      "target": "validator:gap-ledger.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/graph",
+      "target": "validator:build-capability-graph.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/mission-state",
+      "target": "validator:mission-state.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/panel-runs",
+      "target": "validator:panel-runs.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/pathfind",
+      "target": "validator:pathfinder.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/release-scorecard",
+      "target": "validator:release-scorecard.py"
     },
     {
       "relation": "emits",
@@ -202,6 +577,21 @@
     },
     {
       "relation": "backs_onto",
+      "source": "mcp:dashboard_launch",
+      "target": "validator:dashboard.py"
+    },
+    {
+      "relation": "backs_onto",
+      "source": "mcp:dashboard_status",
+      "target": "validator:dashboard.py"
+    },
+    {
+      "relation": "backs_onto",
+      "source": "mcp:dashboard_stop",
+      "target": "validator:dashboard.py"
+    },
+    {
+      "relation": "backs_onto",
       "source": "mcp:dream_review",
       "target": "validator:dream-runner.py"
     },
@@ -214,6 +604,21 @@
       "relation": "backs_onto",
       "source": "mcp:dream_status",
       "target": "validator:dream-runner.py"
+    },
+    {
+      "relation": "backs_onto",
+      "source": "mcp:gap_ledger_query",
+      "target": "validator:gap-ledger.py"
+    },
+    {
+      "relation": "backs_onto",
+      "source": "mcp:gap_ledger_stats",
+      "target": "validator:gap-ledger.py"
+    },
+    {
+      "relation": "backs_onto",
+      "source": "mcp:gap_ledger_write",
+      "target": "validator:gap-ledger.py"
     },
     {
       "relation": "backs_onto",
@@ -252,8 +657,18 @@
     },
     {
       "relation": "backs_onto",
+      "source": "mcp:mission_state",
+      "target": "validator:mission-state.py"
+    },
+    {
+      "relation": "backs_onto",
       "source": "mcp:pathfind_workflow",
       "target": "validator:pathfinder.py"
+    },
+    {
+      "relation": "backs_onto",
+      "source": "mcp:release_scorecard",
+      "target": "validator:release-scorecard.py"
     },
     {
       "relation": "backs_onto",
@@ -467,6 +882,89 @@
       "relation": "validated_by",
       "source": "panel:contract-drift-panel",
       "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "emits",
+      "source": "panel:experience-quality-panel",
+      "target": "artifact:design_system_review"
+    },
+    {
+      "relation": "emits",
+      "source": "panel:experience-quality-panel",
+      "target": "artifact:experience_quality_report"
+    },
+    {
+      "relation": "hands_off",
+      "source": "panel:experience-quality-panel",
+      "target": "artifact:experience_quality_report"
+    },
+    {
+      "relation": "hands_off",
+      "source": "panel:experience-quality-panel",
+      "target": "artifact:ranked fix list"
+    },
+    {
+      "relation": "hands_off",
+      "source": "panel:experience-quality-panel",
+      "target": "artifact:validation plan"
+    },
+    {
+      "relation": "hands_off",
+      "source": "panel:experience-quality-panel",
+      "target": "artifact:visual evidence inventory"
+    },
+    {
+      "relation": "emits",
+      "source": "panel:experience-quality-panel",
+      "target": "artifact:visual_qa_report"
+    },
+    {
+      "policy": "dream_policy",
+      "relation": "governed_by",
+      "source": "panel:experience-quality-panel",
+      "target": "ledger:dream-reports"
+    },
+    {
+      "policy": "learning_policy",
+      "relation": "governed_by",
+      "source": "panel:experience-quality-panel",
+      "target": "ledger:learning-queue"
+    },
+    {
+      "policy": "memory_policy",
+      "relation": "governed_by",
+      "source": "panel:experience-quality-panel",
+      "target": "ledger:memory-db"
+    },
+    {
+      "relation": "has_phase",
+      "source": "panel:experience-quality-panel",
+      "target": "panel_phase:experience-quality-panel:critique"
+    },
+    {
+      "relation": "has_phase",
+      "source": "panel:experience-quality-panel",
+      "target": "panel_phase:experience-quality-panel:surface_map"
+    },
+    {
+      "relation": "has_phase",
+      "source": "panel:experience-quality-panel",
+      "target": "panel_phase:experience-quality-panel:synthesize"
+    },
+    {
+      "relation": "has_phase",
+      "source": "panel:experience-quality-panel",
+      "target": "panel_phase:experience-quality-panel:validation_strategy"
+    },
+    {
+      "relation": "validated_by",
+      "source": "panel:experience-quality-panel",
+      "target": "validator:build-capability-graph.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "panel:experience-quality-panel",
+      "target": "validator:run-pathfinder-tests.py"
     },
     {
       "relation": "emits",
@@ -1191,6 +1689,36 @@
     {
       "parallel": true,
       "relation": "dispatches_to",
+      "source": "panel_phase:experience-quality-panel:critique",
+      "target": "agent:auditor"
+    },
+    {
+      "parallel": true,
+      "relation": "dispatches_to",
+      "source": "panel_phase:experience-quality-panel:critique",
+      "target": "agent:design-critic"
+    },
+    {
+      "parallel": false,
+      "relation": "dispatches_to",
+      "source": "panel_phase:experience-quality-panel:surface_map",
+      "target": "agent:repo-cartographer"
+    },
+    {
+      "parallel": false,
+      "relation": "dispatches_to",
+      "source": "panel_phase:experience-quality-panel:synthesize",
+      "target": "agent:design-critic"
+    },
+    {
+      "parallel": false,
+      "relation": "dispatches_to",
+      "source": "panel_phase:experience-quality-panel:validation_strategy",
+      "target": "agent:test-strategist"
+    },
+    {
+      "parallel": true,
+      "relation": "dispatches_to",
       "source": "panel_phase:feature-gap-panel:audit",
       "target": "agent:feature-completeness-auditor"
     },
@@ -1506,9 +2034,26 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:accessibility-review",
+      "target": "panel:feature-gap-panel"
+    },
+    {
+      "focus": "agent-authoring",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:agent-author",
+      "target": "agent:reviewer"
+    },
+    {
       "relation": "emits",
       "source": "skill:agent-author",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:agent-author",
+      "target": "panel:cognitive-governance-panel"
     },
     {
       "focus": "ai-safety",
@@ -1522,6 +2067,16 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:ai-agent-safety-review",
+      "target": "panel:ai-feature-panel"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:ai-agent-safety-review",
+      "target": "panel:security-privacy-panel"
+    },
+    {
       "focus": "contract",
       "relation": "dispatches_to",
       "source": "skill:api-contract",
@@ -1531,6 +2086,11 @@
       "relation": "emits",
       "source": "skill:api-contract",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:api-contract",
+      "target": "panel:contract-drift-panel"
     },
     {
       "focus": "architecture",
@@ -1560,6 +2120,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:ci-repair",
+      "target": "panel:incident-response-panel"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:concept-brief",
       "target": "agent:principal-pm"
@@ -1570,9 +2135,31 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:concept-brief",
+      "target": "panel:idea-panel"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:concept-brief",
+      "target": "panel:prd-panel"
+    },
+    {
+      "focus": "contract",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:contract-test-generate",
+      "target": "agent:test-strategist"
+    },
+    {
       "relation": "emits",
       "source": "skill:contract-test-generate",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:contract-test-generate",
+      "target": "panel:contract-drift-panel"
     },
     {
       "focus": "privacy",
@@ -1586,9 +2173,26 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:data-flow-privacy-map",
+      "target": "panel:security-privacy-panel"
+    },
+    {
+      "focus": "database",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:database-review",
+      "target": "agent:reviewer"
+    },
+    {
       "relation": "emits",
       "source": "skill:database-review",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:database-review",
+      "target": "panel:migration-readiness-panel"
     },
     {
       "relation": "dispatches_to",
@@ -1601,6 +2205,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:dead-code-drift",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:debug",
       "target": "agent:debugger"
@@ -1609,6 +2218,11 @@
       "relation": "emits",
       "source": "skill:debug",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:debug",
+      "target": "panel:incident-response-panel"
     },
     {
       "focus": "dependencies",
@@ -1622,8 +2236,62 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:dependency-audit",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "focus": "design-review",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:design-review",
+      "target": "agent:design-critic"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:design-review",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:design-review",
+      "target": "panel:experience-quality-panel"
+    },
+    {
+      "focus": "design-system",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:design-system-review",
+      "target": "agent:design-critic"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:design-system-review",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:design-system-review",
+      "target": "panel:experience-quality-panel"
+    },
+    {
+      "relation": "dispatches_to",
+      "source": "skill:docs-sync",
+      "target": "agent:writer"
+    },
+    {
       "relation": "emits",
       "source": "skill:docs-sync",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:docs-sync",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:dream",
       "target": "artifact:structured_output"
     },
     {
@@ -1637,6 +2305,28 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:feature-completeness",
+      "target": "panel:feature-gap-panel"
+    },
+    {
+      "focus": "visual-qa",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:frontend-visual-qa",
+      "target": "agent:design-critic"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:frontend-visual-qa",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:frontend-visual-qa",
+      "target": "panel:experience-quality-panel"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:gap-analysis",
       "target": "agent:gap-analysis-lead"
@@ -1647,9 +2337,36 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:gap-analysis",
+      "target": "panel:feature-gap-panel"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:gap-analysis",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:goal",
+      "target": "artifact:structured_output"
+    },
+    {
+      "focus": "hooks",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:hooks-design",
+      "target": "agent:reviewer"
+    },
+    {
       "relation": "emits",
       "source": "skill:hooks-design",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:hooks-design",
+      "target": "panel:cognitive-governance-panel"
     },
     {
       "relation": "dispatches_to",
@@ -1660,6 +2377,11 @@
       "relation": "emits",
       "source": "skill:idea-triage",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:idea-triage",
+      "target": "panel:idea-panel"
     },
     {
       "focus": "infra",
@@ -1673,9 +2395,32 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:infra-iac-review",
+      "target": "panel:migration-readiness-panel"
+    },
+    {
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:llm-eval-design",
+      "target": "agent:evaluator"
+    },
+    {
       "relation": "emits",
       "source": "skill:llm-eval-design",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:llm-eval-design",
+      "target": "panel:ai-feature-panel"
+    },
+    {
+      "focus": "mcp",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:mcp-design",
+      "target": "agent:reviewer"
     },
     {
       "relation": "emits",
@@ -1683,9 +2428,30 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:mcp-design",
+      "target": "panel:cognitive-governance-panel"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:mcp-design",
+      "target": "panel:contract-drift-panel"
+    },
+    {
+      "focus": "migration",
+      "relation": "dispatches_to",
+      "source": "skill:migrate",
+      "target": "agent:reviewer"
+    },
+    {
       "relation": "emits",
       "source": "skill:migrate",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:migrate",
+      "target": "panel:migration-readiness-panel"
     },
     {
       "relation": "dispatches_to",
@@ -1696,6 +2462,11 @@
       "relation": "emits",
       "source": "skill:mvp-scope",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:mvp-scope",
+      "target": "panel:mvp-panel"
     },
     {
       "focus": "observability",
@@ -1709,6 +2480,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:observability-pass",
+      "target": "panel:release-gate-panel"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:opportunity-map",
       "target": "agent:market-analyst"
@@ -1717,6 +2493,28 @@
       "relation": "emits",
       "source": "skill:opportunity-map",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:opportunity-map",
+      "target": "panel:idea-panel"
+    },
+    {
+      "focus": "routing-telemetry",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:pathfinding-invocation-review",
+      "target": "agent:invocation-reliability-auditor"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:pathfinding-invocation-review",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:pathfinding-invocation-review",
+      "target": "panel:cognitive-governance-panel"
     },
     {
       "focus": "performance",
@@ -1730,11 +2528,28 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:performance-pass",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "focus": "plugin",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:plugin-review",
+      "target": "agent:reviewer"
+    },
+    {
       "relation": "emits",
       "source": "skill:plugin-review",
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:plugin-review",
+      "target": "panel:cognitive-governance-panel"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:prd-ai-feature",
       "target": "agent:principal-pm"
@@ -1743,6 +2558,16 @@
       "relation": "emits",
       "source": "skill:prd-ai-feature",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:prd-ai-feature",
+      "target": "panel:ai-feature-panel"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:prd-ai-feature",
+      "target": "panel:prd-panel"
     },
     {
       "relation": "dispatches_to",
@@ -1755,6 +2580,16 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:prd-lite",
+      "target": "panel:mvp-panel"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:prd-lite",
+      "target": "panel:prd-panel"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:prd-standard",
       "target": "agent:principal-pm"
@@ -1763,6 +2598,11 @@
       "relation": "emits",
       "source": "skill:prd-standard",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:prd-standard",
+      "target": "panel:prd-panel"
     },
     {
       "relation": "dispatches_to",
@@ -1775,6 +2615,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:prd-technical",
+      "target": "panel:prd-panel"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:prd-to-plan",
       "target": "agent:principal-pm"
@@ -1783,6 +2628,11 @@
       "relation": "emits",
       "source": "skill:prd-to-plan",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:prd-to-plan",
+      "target": "panel:prd-panel"
     },
     {
       "relation": "dispatches_to",
@@ -1793,6 +2643,11 @@
       "relation": "emits",
       "source": "skill:problem-framing",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:problem-framing",
+      "target": "panel:idea-panel"
     },
     {
       "relation": "emits",
@@ -1811,6 +2666,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:release",
+      "target": "panel:release-gate-panel"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:release-readiness",
       "target": "agent:release-readiness-auditor"
@@ -1819,6 +2679,11 @@
       "relation": "emits",
       "source": "skill:release-readiness",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:release-readiness",
+      "target": "panel:release-gate-panel"
     },
     {
       "relation": "dispatches_to",
@@ -1831,6 +2696,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:repo-map",
+      "target": "panel:repo-completeness-panel"
+    },
+    {
       "phase": "analysis",
       "relation": "dispatches_to",
       "source": "skill:repo-review",
@@ -1840,6 +2710,11 @@
       "relation": "emits",
       "source": "skill:repo-review",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:repo-review",
+      "target": "panel:repo-completeness-panel"
     },
     {
       "relation": "dispatches_to",
@@ -1862,9 +2737,26 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:security-audit",
+      "target": "panel:security-privacy-panel"
+    },
+    {
+      "focus": "skill-authoring",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:skill-author",
+      "target": "agent:reviewer"
+    },
+    {
       "relation": "emits",
       "source": "skill:skill-author",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:skill-author",
+      "target": "panel:cognitive-governance-panel"
     },
     {
       "focus": "code",
@@ -1878,6 +2770,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:state-machine-review",
+      "target": "panel:contract-drift-panel"
+    },
+    {
       "focus": "supply-chain",
       "relation": "dispatches_to",
       "source": "skill:supply-chain-hardening",
@@ -1889,9 +2786,30 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:supply-chain-hardening",
+      "target": "panel:release-gate-panel"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:supply-chain-hardening",
+      "target": "panel:security-privacy-panel"
+    },
+    {
+      "focus": "technical-debt",
+      "relation": "dispatches_to",
+      "source": "skill:technical-debt-triage",
+      "target": "agent:reviewer"
+    },
+    {
       "relation": "emits",
       "source": "skill:technical-debt-triage",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:technical-debt-triage",
+      "target": "panel:repo-completeness-panel"
     },
     {
       "relation": "dispatches_to",
@@ -1904,6 +2822,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "may_use_panel",
+      "source": "skill:test-gap-analysis",
+      "target": "panel:feature-gap-panel"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:test-harden",
       "target": "agent:test-strategist"
@@ -1914,9 +2837,56 @@
       "target": "artifact:structured_output"
     },
     {
+      "focus": "tui",
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:tui-design-innovate",
+      "target": "agent:reviewer"
+    },
+    {
       "relation": "emits",
       "source": "skill:tui-design-innovate",
       "target": "artifact:structured_output"
+    },
+    {
+      "relation": "may_use_panel",
+      "source": "skill:tui-design-innovate",
+      "target": "panel:feature-gap-panel"
+    },
+    {
+      "relation": "serves",
+      "source": "validator:dashboard.py",
+      "target": "dashboard_route:/api/cognitive/health"
+    },
+    {
+      "relation": "serves",
+      "source": "validator:dashboard.py",
+      "target": "dashboard_route:/api/gaps"
+    },
+    {
+      "relation": "serves",
+      "source": "validator:dashboard.py",
+      "target": "dashboard_route:/api/graph"
+    },
+    {
+      "relation": "serves",
+      "source": "validator:dashboard.py",
+      "target": "dashboard_route:/api/mission-state"
+    },
+    {
+      "relation": "serves",
+      "source": "validator:dashboard.py",
+      "target": "dashboard_route:/api/panel-runs"
+    },
+    {
+      "relation": "serves",
+      "source": "validator:dashboard.py",
+      "target": "dashboard_route:/api/pathfind"
+    },
+    {
+      "relation": "serves",
+      "source": "validator:dashboard.py",
+      "target": "dashboard_route:/api/release-scorecard"
     }
   ],
   "generated_at": null,
@@ -1968,6 +2938,13 @@
     },
     {
       "color": "purple",
+      "id": "agent:design-critic",
+      "kind": "agent",
+      "label": "design-critic",
+      "risk": "low"
+    },
+    {
+      "color": "purple",
       "id": "agent:dream-synthesizer",
       "kind": "agent",
       "label": "dream-synthesizer",
@@ -2002,6 +2979,13 @@
       "id": "agent:integration-contract-reviewer",
       "kind": "agent",
       "label": "integration-contract-reviewer",
+      "risk": "low"
+    },
+    {
+      "color": "cyan",
+      "id": "agent:invocation-reliability-auditor",
+      "kind": "agent",
+      "label": "invocation-reliability-auditor",
       "risk": "low"
     },
     {
@@ -2182,6 +3166,11 @@
       "label": "dashboard telemetry checklist"
     },
     {
+      "id": "artifact:design_system_review",
+      "kind": "artifact",
+      "label": "design_system_review"
+    },
+    {
       "id": "artifact:dream_report",
       "kind": "artifact_schema",
       "label": "dream_report"
@@ -2190,6 +3179,11 @@
       "id": "artifact:eval plan",
       "kind": "artifact",
       "label": "eval plan"
+    },
+    {
+      "id": "artifact:experience_quality_report",
+      "kind": "artifact",
+      "label": "experience_quality_report"
     },
     {
       "id": "artifact:feature_gap_report",
@@ -2317,6 +3311,11 @@
       "label": "problem_framing"
     },
     {
+      "id": "artifact:ranked fix list",
+      "kind": "artifact",
+      "label": "ranked fix list"
+    },
+    {
       "id": "artifact:recovery plan",
       "kind": "artifact",
       "label": "recovery plan"
@@ -2335,6 +3334,11 @@
       "id": "artifact:release_readiness_report",
       "kind": "artifact_schema",
       "label": "release_readiness_report"
+    },
+    {
+      "id": "artifact:repo_completeness_report",
+      "kind": "artifact_schema",
+      "label": "repo_completeness_report"
     },
     {
       "id": "artifact:repo_review_report",
@@ -2407,6 +3411,16 @@
       "label": "verification plan"
     },
     {
+      "id": "artifact:visual evidence inventory",
+      "kind": "artifact",
+      "label": "visual evidence inventory"
+    },
+    {
+      "id": "artifact:visual_qa_report",
+      "kind": "artifact",
+      "label": "visual_qa_report"
+    },
+    {
       "id": "command:checkpoint",
       "kind": "command",
       "label": "checkpoint"
@@ -2450,6 +3464,11 @@
       "id": "command:evidence-report",
       "kind": "command",
       "label": "evidence-report"
+    },
+    {
+      "id": "command:goal",
+      "kind": "command",
+      "label": "goal"
     },
     {
       "id": "command:graph",
@@ -2555,6 +3574,41 @@
       "id": "command:wip-save",
       "kind": "command",
       "label": "wip-save"
+    },
+    {
+      "id": "dashboard_route:/api/cognitive/health",
+      "kind": "dashboard_route",
+      "label": "/api/cognitive/health"
+    },
+    {
+      "id": "dashboard_route:/api/gaps",
+      "kind": "dashboard_route",
+      "label": "/api/gaps"
+    },
+    {
+      "id": "dashboard_route:/api/graph",
+      "kind": "dashboard_route",
+      "label": "/api/graph"
+    },
+    {
+      "id": "dashboard_route:/api/mission-state",
+      "kind": "dashboard_route",
+      "label": "/api/mission-state"
+    },
+    {
+      "id": "dashboard_route:/api/panel-runs",
+      "kind": "dashboard_route",
+      "label": "/api/panel-runs"
+    },
+    {
+      "id": "dashboard_route:/api/pathfind",
+      "kind": "dashboard_route",
+      "label": "/api/pathfind"
+    },
+    {
+      "id": "dashboard_route:/api/release-scorecard",
+      "kind": "dashboard_route",
+      "label": "/api/release-scorecard"
     },
     {
       "budget": {
@@ -2682,7 +3736,12 @@
       "label": "memory-db"
     },
     {
-      "description": "V8: Validate structured artifact against schema. Catches the 'fluffy artifact' failure mode. Known artifact types: prd_lite, prd_standard, prd_technical, prd_ai_feature, gap_ledger_entry, repo_review_report, release_readiness_report, contract_drift_report, opportunity_map, idea_triage, concept_brief, mvp_scope, problem_framing. Without artifact_type: returns schema list. With type but no artifact: returns schema. With both: validates and returns findings.",
+      "id": "ledger:panel-runs",
+      "kind": "ledger",
+      "label": "panel-runs"
+    },
+    {
+      "description": "V8: Validate structured artifact against schema. Catches the 'fluffy artifact' failure mode. Known artifact types: prd_lite, prd_standard, prd_technical, prd_ai_feature, gap_ledger_entry, repo_completeness_report, repo_review_report, release_readiness_report, contract_drift_report, opportunity_map, idea_triage, concept_brief, mvp_scope, problem_framing. Without artifact_type: returns schema list. With type but no artifact: returns schema. With both: validates and returns findings.",
       "id": "mcp:artifact_validate",
       "kind": "mcp_tool",
       "label": "artifact_validate"
@@ -2712,7 +3771,7 @@
       "label": "compose_workflow"
     },
     {
-      "description": "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (29 agents, 48 skills, 12 panels, 42 MCP tools, 30 commands, 17 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent \u00e2\u20ac\u201d if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
+      "description": "V8.2: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (31 agents, 54 skills, 13 panels, 42 MCP tools, 31 commands, 18 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent \u00e2\u20ac\u201d if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
       "id": "mcp:dashboard_launch",
       "kind": "mcp_tool",
       "label": "dashboard_launch"
@@ -2742,7 +3801,7 @@
       "label": "dream_review"
     },
     {
-      "description": "V8: Run a safe read-only dream job manually. Jobs write reports, candidate memories, and learning proposals only.",
+      "description": "V8: Run a safe read-only dream job manually. Jobs write reports, candidate memories, and learning proposals only. If job is omitted, defaults to session-compaction.",
       "id": "mcp:dream_run",
       "kind": "mcp_tool",
       "label": "dream_run"
@@ -2766,19 +3825,19 @@
       "label": "explain_skill"
     },
     {
-      "description": "V8.0.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Filter by repo, status, severity. Returns gap entries from current and prior sessions.",
+      "description": "V8.2.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Defaults to latest-by-fingerprint; pass history=true for append-only lifecycle records.",
       "id": "mcp:gap_ledger_query",
       "kind": "mcp_tool",
       "label": "gap_ledger_query"
     },
     {
-      "description": "V8.0.0: Gap ledger summary stats \u00e2\u20ac\u201d totals by status/severity/category/repo/auditor.",
+      "description": "V8.2: Gap ledger summary stats \u00e2\u20ac\u201d totals by status/severity/category/repo/auditor.",
       "id": "mcp:gap_ledger_stats",
       "kind": "mcp_tool",
       "label": "gap_ledger_stats"
     },
     {
-      "description": "V8.0.0: Persist a gap finding to the gap ledger. Used by repo-completeness audit skills (gap-analysis, feature-completeness, test-gap-analysis, dead-code-drift, release-readiness) to record findings beyond a single session.",
+      "description": "V8.2.0: Persist a schema-valid gap finding to the gap ledger. Writes fingerprinted lifecycle records for repo-completeness audit skills and panel syntheses.",
       "id": "mcp:gap_ledger_write",
       "kind": "mcp_tool",
       "label": "gap_ledger_write"
@@ -2844,13 +3903,13 @@
       "label": "memory_write_candidate"
     },
     {
-      "description": "V8.0.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
+      "description": "V8.2.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
       "id": "mcp:mission_state",
       "kind": "mcp_tool",
       "label": "mission_state"
     },
     {
-      "description": "V8.0.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
+      "description": "V8.2.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
       "id": "mcp:panel_plan",
       "kind": "mcp_tool",
       "label": "panel_plan"
@@ -2868,7 +3927,7 @@
       "label": "query_ledger"
     },
     {
-      "description": "V8.0.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, conclusion (ready/risky/blocked).",
+      "description": "V8.2.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, invocation telemetry, conclusion (ready/risky/blocked).",
       "id": "mcp:release_scorecard",
       "kind": "mcp_tool",
       "label": "release_scorecard"
@@ -2904,7 +3963,7 @@
       "label": "session_lookup"
     },
     {
-      "description": "V8.0.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
+      "description": "V8.2.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
       "id": "mcp:team_plan",
       "kind": "mcp_tool",
       "label": "team_plan"
@@ -2986,6 +4045,26 @@
         "schema",
         "events",
         "compatibility",
+        "panel"
+      ],
+      "risk": "medium"
+    },
+    {
+      "artifact": "experience_quality_report",
+      "confirmation_required": false,
+      "estimated_cost": "high",
+      "id": "panel:experience-quality-panel",
+      "kind": "panel",
+      "label": "experience-quality-panel",
+      "mode": "read_only",
+      "pathfinder_tags": [
+        "frontend",
+        "design",
+        "visual-qa",
+        "aesthetic",
+        "taste",
+        "responsive",
+        "design-system",
         "panel"
       ],
       "risk": "medium"
@@ -3248,6 +4327,42 @@
       "label": "contract-drift-panel:synthesize",
       "parallel": false,
       "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
+    },
+    {
+      "contract_input": "surface map and available screenshots/routes/source files",
+      "contract_output": "independent design and a11y-adjacent findings with evidence and severity",
+      "id": "panel_phase:experience-quality-panel:critique",
+      "kind": "panel_phase",
+      "label": "experience-quality-panel:critique",
+      "parallel": true,
+      "quality_gate": "each finding cites a concrete route, screenshot, component, token, or state"
+    },
+    {
+      "contract_input": "experience-quality-panel scope plus repository path and target surface",
+      "contract_output": "surface map with entrypoints, routes, design-system sources, run commands, and unknowns",
+      "id": "panel_phase:experience-quality-panel:surface_map",
+      "kind": "panel_phase",
+      "label": "experience-quality-panel:surface_map",
+      "parallel": false,
+      "quality_gate": "downstream agents can inspect the right rendered or source surface without rediscovery"
+    },
+    {
+      "contract_input": "surface map, critique findings, and validation strategy",
+      "contract_output": "deduplicated experience-quality report with ranked fixes and preserved strengths",
+      "id": "panel_phase:experience-quality-panel:synthesize",
+      "kind": "panel_phase",
+      "label": "experience-quality-panel:synthesize",
+      "parallel": false,
+      "quality_gate": "report is implementation-ready and distinguishes must-fix defects from subjective preferences"
+    },
+    {
+      "contract_input": "surface map and critique findings",
+      "contract_output": "risk-weighted visual/regression validation plan with viewports, states, and commands",
+      "id": "panel_phase:experience-quality-panel:validation_strategy",
+      "kind": "panel_phase",
+      "label": "experience-quality-panel:validation_strategy",
+      "parallel": false,
+      "quality_gate": "the plan can verify each high/medium finding after implementation"
     },
     {
       "contract_input": "feature-gap-panel scope plus outputs from prior phases",
@@ -3539,6 +4654,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "experience-quality",
       "id": "skill:accessibility-review",
       "kind": "skill",
       "label": "accessibility-review",
@@ -3548,6 +4664,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "plugin-ecosystem",
       "id": "skill:agent-author",
       "kind": "skill",
       "label": "agent-author",
@@ -3557,6 +4674,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "ai-safety-evals",
       "id": "skill:ai-agent-safety-review",
       "kind": "skill",
       "label": "ai-agent-safety-review",
@@ -3566,6 +4684,7 @@
     },
     {
       "confirmation": "not_required_read_only",
+      "family": "architecture-contracts",
       "id": "skill:api-contract",
       "kind": "skill",
       "label": "api-contract",
@@ -3575,6 +4694,7 @@
     },
     {
       "confirmation": "not_required_read_only",
+      "family": "architecture-contracts",
       "id": "skill:architect",
       "kind": "skill",
       "label": "architect",
@@ -3584,6 +4704,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "code-quality",
       "id": "skill:build",
       "kind": "skill",
       "label": "build",
@@ -3593,6 +4714,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "code-quality",
       "id": "skill:ci-repair",
       "kind": "skill",
       "label": "ci-repair",
@@ -3612,6 +4734,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "test-quality",
       "id": "skill:contract-test-generate",
       "kind": "skill",
       "label": "contract-test-generate",
@@ -3621,6 +4744,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "risk-security",
       "id": "skill:data-flow-privacy-map",
       "kind": "skill",
       "label": "data-flow-privacy-map",
@@ -3630,6 +4754,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "infrastructure-data",
       "id": "skill:database-review",
       "kind": "skill",
       "label": "database-review",
@@ -3649,6 +4774,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "code-quality",
       "id": "skill:debug",
       "kind": "skill",
       "label": "debug",
@@ -3658,6 +4784,7 @@
     },
     {
       "confirmation": "not_required_read_only",
+      "family": "supply-chain",
       "id": "skill:dependency-audit",
       "kind": "skill",
       "label": "dependency-audit",
@@ -3666,7 +4793,28 @@
       "tier": "specialist"
     },
     {
+      "confirmation": "not_required_read_only",
+      "family": "experience-quality",
+      "id": "skill:design-review",
+      "kind": "skill",
+      "label": "design-review",
+      "mode": "read_only",
+      "risk": "low",
+      "tier": "core"
+    },
+    {
       "confirmation": "required_for_repo_mutation",
+      "family": "experience-quality",
+      "id": "skill:design-system-review",
+      "kind": "skill",
+      "label": "design-system-review",
+      "mode": "write_capable",
+      "risk": "medium",
+      "tier": "specialist"
+    },
+    {
+      "confirmation": "required_for_repo_mutation",
+      "family": "documentation-maintenance",
       "id": "skill:docs-sync",
       "kind": "skill",
       "label": "docs-sync",
@@ -3676,12 +4824,32 @@
     },
     {
       "confirmation": "not_required_read_only",
+      "family": "cognitive-operations",
+      "id": "skill:dream",
+      "kind": "skill",
+      "label": "dream",
+      "mode": "read_only",
+      "risk": "low",
+      "tier": "core"
+    },
+    {
+      "confirmation": "not_required_read_only",
       "family": "repo-completeness",
       "id": "skill:feature-completeness",
       "kind": "skill",
       "label": "feature-completeness",
       "mode": "read_only",
       "risk": "low",
+      "tier": "core"
+    },
+    {
+      "confirmation": "required_for_repo_mutation",
+      "family": "experience-quality",
+      "id": "skill:frontend-visual-qa",
+      "kind": "skill",
+      "label": "frontend-visual-qa",
+      "mode": "write_capable",
+      "risk": "medium",
       "tier": "core"
     },
     {
@@ -3696,6 +4864,17 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "cognitive-operations",
+      "id": "skill:goal",
+      "kind": "skill",
+      "label": "goal",
+      "mode": "write_capable",
+      "risk": "medium",
+      "tier": "core"
+    },
+    {
+      "confirmation": "required_for_repo_mutation",
+      "family": "plugin-ecosystem",
       "id": "skill:hooks-design",
       "kind": "skill",
       "label": "hooks-design",
@@ -3715,6 +4894,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "infrastructure-data",
       "id": "skill:infra-iac-review",
       "kind": "skill",
       "label": "infra-iac-review",
@@ -3724,6 +4904,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "ai-safety-evals",
       "id": "skill:llm-eval-design",
       "kind": "skill",
       "label": "llm-eval-design",
@@ -3733,6 +4914,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "plugin-ecosystem",
       "id": "skill:mcp-design",
       "kind": "skill",
       "label": "mcp-design",
@@ -3742,6 +4924,7 @@
     },
     {
       "confirmation": "not_required_read_only",
+      "family": "architecture-contracts",
       "id": "skill:migrate",
       "kind": "skill",
       "label": "migrate",
@@ -3761,6 +4944,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "runtime-quality",
       "id": "skill:observability-pass",
       "kind": "skill",
       "label": "observability-pass",
@@ -3780,6 +4964,17 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "cognitive-operations",
+      "id": "skill:pathfinding-invocation-review",
+      "kind": "skill",
+      "label": "pathfinding-invocation-review",
+      "mode": "write_capable",
+      "risk": "medium",
+      "tier": "core"
+    },
+    {
+      "confirmation": "required_for_repo_mutation",
+      "family": "runtime-quality",
       "id": "skill:performance-pass",
       "kind": "skill",
       "label": "performance-pass",
@@ -3789,6 +4984,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "plugin-ecosystem",
       "id": "skill:plugin-review",
       "kind": "skill",
       "label": "plugin-review",
@@ -3858,6 +5054,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "code-quality",
       "id": "skill:refactor",
       "kind": "skill",
       "label": "refactor",
@@ -3867,6 +5064,7 @@
     },
     {
       "confirmation": "not_required_read_only",
+      "family": "release-operations",
       "id": "skill:release",
       "kind": "skill",
       "label": "release",
@@ -3886,6 +5084,7 @@
     },
     {
       "confirmation": "not_required_read_only",
+      "family": "repo-intelligence",
       "id": "skill:repo-map",
       "kind": "skill",
       "label": "repo-map",
@@ -3905,6 +5104,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "code-quality",
       "id": "skill:review",
       "kind": "skill",
       "label": "review",
@@ -3914,6 +5114,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "risk-security",
       "id": "skill:security-audit",
       "kind": "skill",
       "label": "security-audit",
@@ -3923,6 +5124,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "plugin-ecosystem",
       "id": "skill:skill-author",
       "kind": "skill",
       "label": "skill-author",
@@ -3932,6 +5134,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "architecture-contracts",
       "id": "skill:state-machine-review",
       "kind": "skill",
       "label": "state-machine-review",
@@ -3941,6 +5144,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "supply-chain",
       "id": "skill:supply-chain-hardening",
       "kind": "skill",
       "label": "supply-chain-hardening",
@@ -3950,6 +5154,7 @@
     },
     {
       "confirmation": "not_required_read_only",
+      "family": "documentation-maintenance",
       "id": "skill:technical-debt-triage",
       "kind": "skill",
       "label": "technical-debt-triage",
@@ -3969,6 +5174,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "test-quality",
       "id": "skill:test-harden",
       "kind": "skill",
       "label": "test-harden",
@@ -3978,6 +5184,7 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "experience-quality",
       "id": "skill:tui-design-innovate",
       "kind": "skill",
       "label": "tui-design-innovate",
@@ -3996,6 +5203,11 @@
       "label": "audit-catalog-consistency.py"
     },
     {
+      "id": "validator:audit-invocation-telemetry.py",
+      "kind": "validator",
+      "label": "audit-invocation-telemetry.py"
+    },
+    {
       "id": "validator:build-capability-graph.py",
       "kind": "validator",
       "label": "build-capability-graph.py"
@@ -4006,9 +5218,19 @@
       "label": "catalog-audit.py"
     },
     {
+      "id": "validator:dashboard.py",
+      "kind": "validator",
+      "label": "dashboard.py"
+    },
+    {
       "id": "validator:dream-runner.py",
       "kind": "validator",
       "label": "dream-runner.py"
+    },
+    {
+      "id": "validator:gap-ledger.py",
+      "kind": "validator",
+      "label": "gap-ledger.py"
     },
     {
       "id": "validator:learning-queue.py",
@@ -4021,9 +5243,24 @@
       "label": "memory-store.py"
     },
     {
+      "id": "validator:mission-state.py",
+      "kind": "validator",
+      "label": "mission-state.py"
+    },
+    {
+      "id": "validator:panel-runs.py",
+      "kind": "validator",
+      "label": "panel-runs.py"
+    },
+    {
       "id": "validator:pathfinder.py",
       "kind": "validator",
       "label": "pathfinder.py"
+    },
+    {
+      "id": "validator:release-scorecard.py",
+      "kind": "validator",
+      "label": "release-scorecard.py"
     },
     {
       "id": "validator:run-cognitive-tests.py",
@@ -4051,7 +5288,7 @@
       "label": "validate-plugin.py"
     }
   ],
-  "plugin_version": "8.0.0",
+  "plugin_version": "8.2.0",
   "schema": "capability_graph.v1",
-  "source_hash": "c2afe05c8ef464fadc68b935f02236952f68c3d5b063486296164c943ec3a9b7"
+  "source_hash": "b5b2e1f8820c65144af9b33a2b3c7fd97d43c1a4eb10c0a9c3b20fd076bcfefc"
 }

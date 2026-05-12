@@ -1,10 +1,10 @@
-# Ultraprompt V8.0.0 Plugin Repo Notes
+# Ultraprompt V8.2.0 Plugin Repo Notes
 
 This file governs work on the Ultraprompt plugin itself, not work done by it.
 
 ## Current Shape
 
-Ultraprompt is a Claude Code + Codex plugin with 48 skills, 29 agents, 30 commands, 42 MCP tools, 9 registered hooks, 12 panels, 17 artifact schemas, 2 output styles, live dashboard telemetry, local typed memory, safe dream jobs, governed learning, pathfinding, and capability graph release gates.
+Ultraprompt is a Claude Code + Codex plugin with 54 skills, 31 agents, 31 commands, 42 MCP tools, 9 registered hooks, 13 panels, 18 artifact schemas, 2 output styles, live dashboard telemetry, local typed memory, safe dream jobs, governed learning, pathfinding, experience-quality panels, goal contracts, invocation telemetry gates, fingerprinted gap ledger, panel run lifecycle, and capability graph release gates.
 
 ## Source Of Truth
 
@@ -31,7 +31,8 @@ Do not edit generated `skills/*/SKILL.md`, `agents/*.md`, `dist/skill-index.json
 - Build graph: `python3 scripts/build-capability-graph.py`
 - Check graph: `python3 scripts/build-capability-graph.py --check`
 - Router bench: `python3 scripts/run-router-bench.py`
-- Pathfinder bench: `python3 scripts/run-pathfinder-tests.py`
+- Pathfinder bench: `python3 scripts/run-pathfinder-tests.py --no-telemetry`
+- Invocation telemetry audit: `python3 scripts/audit-invocation-telemetry.py --json`
 - Cognitive integration: `python3 scripts/run-cognitive-tests.py`
 - Hook fixtures: `python3 scripts/run-hook-tests.py`
 - Hook coverage: `python3 scripts/audit-hook-coverage.py`
@@ -39,9 +40,9 @@ Do not edit generated `skills/*/SKILL.md`, `agents/*.md`, `dist/skill-index.json
 - Config tests: `python3 scripts/run-config-tests.py`
 - MCP self-test: `python3 mcp/ultraprompt_meta.py --self-test`
 - Full consistency: `python3 scripts/audit-catalog-consistency.py`
-- Package validation: `python3 scripts/validate-plugin.py`
+- Package validation: `python3 scripts/validate-plugin.py --target-runtime source --strict-runtime-files`
 - Release scorecard: `python3 scripts/release-scorecard.py`
-- Package zip: `python3 scripts/package-plugin.py`
+- Package zip: `python3 scripts/package-plugin.py --verify-only`
 
 ## Invariants
 
@@ -51,7 +52,7 @@ Do not edit generated `skills/*/SKILL.md`, `agents/*.md`, `dist/skill-index.json
 - Proposal before mutation: dream and learning flows create candidates; they do not silently rewrite prompts, source specs, or user repos.
 - Graph freshness is release-blocking.
 - Every MCP mutation returns risk and confirmation metadata.
-- Public docs must use `ultraprompt` and `/ultraprompt:*` command names.
+- Public docs must distinguish runtime entrypoints: Claude Code uses `/ultraprompt:*` command names; Codex uses `$ultraprompt:<skill>`, natural language, or MCP tools because native `/` commands are not plugin-routed.
 
 ## Release Flow
 

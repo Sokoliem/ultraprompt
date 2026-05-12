@@ -100,6 +100,28 @@ def build_skill(spec: dict[str, Any]) -> str:
         )
         lines.append("")
 
+    inline_only_reason = spec.get("inline_only_reason")
+    if inline_only_reason:
+        lines.append("## Inline execution policy (V8)")
+        lines.append("")
+        lines.append(
+            f"Prefer main-thread execution for the core workflow because {inline_only_reason}. "
+            "Use subagents only for bounded discovery, critique, or test-strategy sidecars when that does not block the immediate implementation path."
+        )
+        lines.append("")
+
+    paired_panels = spec.get("paired_panels") or spec.get("cognitive", {}).get("paired_panels") or []
+    preferred_panel = spec.get("preferred_panel") or spec.get("cognitive", {}).get("preferred_panel")
+    if paired_panels:
+        panel_text = ", ".join(f"`{panel}`" for panel in paired_panels)
+        preferred_text = f" Preferred: `{preferred_panel}`." if preferred_panel else ""
+        lines.append("## Panel escalation (V8)")
+        lines.append("")
+        lines.append(
+            f"Deep-budget or high-consequence versions of this lane can escalate to: {panel_text}.{preferred_text} "
+            "Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests."
+        )
+        lines.append("")
 
     lines.append("## Distinctive judgment")
     lines.append("")

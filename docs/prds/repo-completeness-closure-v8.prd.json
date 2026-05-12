@@ -1,0 +1,1826 @@
+{
+  "schema": "prd_technical.v1",
+  "title": "Ultraprompt V8 Repo-Completeness Closure",
+  "date": "2026-05-12",
+  "status": "draft",
+  "source_repo": "/Users/sokoliem/.codex/local-marketplace/plugins/ultraprompt",
+  "requested_scope": "Run the repo-completion panel on the Ultraprompt plugin project and generate an exhaustive technical PRD to close the gap with specialized agents and skills.",
+  "problem": "Ultraprompt V8 has the major product primitives for a repo-completeness control plane: 48 skills, 29 agents, 30 commands, 42 MCP tools, 12 panels, 17 artifact schemas, 9 registered hooks, local memory, learning, dream jobs, gap ledgers, a capability graph, and a dashboard. The current gap is closure and trust, not raw catalog size. A user can ask for a whole-repo audit and the plugin can dispatch useful specialists, but the system does not yet guarantee that the resulting gaps are discovered, deduplicated, assigned to the right specialist, persisted, validated, visible in Mission Control, and release-gated across both Claude Code and Codex.\n\nThe repo-completeness panel found several release-blocking trust issues that show why this must be treated as a technical product closure problem. The source tree can report green generated checks and a READY release scorecard while the Claude MCP config referenced by the manifest is missing, the active Codex cache is stale, telemetry shows no skill invocation events, and panel/pathfinder graph edges are incomplete. In other words, the product can look complete from catalog counts while runtime usability, specialist activation, and governance proof are still incomplete.\n",
+  "evidence": {
+    "observed_repo_shape": [
+      "CLAUDE.md states the current catalog shape: 48 skills, 29 agents, 30 commands, 42 MCP tools, 9 hooks, 12 panels, 17 artifact schemas, 2 output styles, dashboard telemetry, memory, dreams, learning, pathfinding, and capability graph gates.",
+      "README.md positions V8 as a local-first Claude Code and Codex cognitive control plane.",
+      "source/skill-specs.json, source/agent-specs.json, and source/panel-specs.json are canonical sources; generated skills, agents, skill index, catalog metadata, and graph must be regenerated from those sources.",
+      "source/panel-specs.json defines repo-completeness-panel with map, parallel audit, and synthesize phases."
+    ],
+    "current_validation_signals": [
+      {
+        "command": "python3 scripts/build-skill-index.py --check",
+        "target": "source_repo",
+        "result": "passed: Index OK: dist/skill-index.json"
+      },
+      {
+        "command": "python3 scripts/build-catalog-metadata.py --check",
+        "target": "source_repo",
+        "result": "passed: dist/catalog-metadata.json is current"
+      },
+      {
+        "command": "python3 scripts/build-capability-graph.py --check",
+        "target": "source_repo",
+        "result": "passed: dist/capability-graph.json is current"
+      },
+      {
+        "command": "python3 scripts/regenerate-skills.py --check",
+        "target": "source_repo",
+        "result": "passed: Verified 48 skills match specs"
+      },
+      {
+        "command": "python3 scripts/regenerate-agents.py --check",
+        "target": "source_repo",
+        "result": "passed: Verified 29 agents match specs"
+      },
+      {
+        "command": "python3 scripts/audit-catalog-consistency.py",
+        "target": "source_repo",
+        "result": "passed all listed catalog checks"
+      },
+      {
+        "command": "python3 scripts/validate-plugin.py",
+        "target": "source_repo",
+        "result": "exit 0 with warning: .mcp.json missing; MCP servers: 0"
+      },
+      {
+        "command": "python3 scripts/validate-plugin.py",
+        "target": "/Users/sokoliem/.codex/plugins/cache/local-marketplace/ultraprompt/8.0.0",
+        "result": "exit 1: stale dist/skill-index.json, stale dist/catalog-metadata.json, audit-catalog-consistency failed"
+      },
+      {
+        "command": "python3 scripts/release-scorecard.py",
+        "target": "source_repo",
+        "result": "printed READY while other evidence shows missing MCP config and stale installed cache"
+      },
+      {
+        "command": "python3 scripts/doctor-skill-activation.py",
+        "target": "source_repo",
+        "result": "no skill_invocation events recorded; 48/48 skills never auto-fired in the sampled window"
+      },
+      {
+        "command": "python3 scripts/doctor-dispatch-outcomes.py",
+        "target": "source_repo",
+        "result": "97 dispatches sampled; 8 plugin specialists; 59 built-in Explore; plugin share 8%; legacy ultra-prompt-prefixed agents classified as other"
+      }
+    ],
+    "confirmed_gap_summary": [
+      {
+        "id": "G-001",
+        "severity": "critical",
+        "area": "runtime_manifest_contract",
+        "summary": "Claude manifest references .mcp.json, but .mcp.json is missing.",
+        "evidence": [
+          ".claude-plugin/plugin.json declares mcpServers: ./.mcp.json",
+          "git status shows .mcp.json deleted",
+          "validate-plugin.py only warns instead of failing"
+        ]
+      },
+      {
+        "id": "G-002",
+        "severity": "high",
+        "area": "installed_runtime_cache",
+        "summary": "Active Codex cache is stale even though source-tree generated checks pass.",
+        "evidence": [
+          "/Users/sokoliem/.codex/plugins/cache/local-marketplace/ultraprompt/8.0.0 validate-plugin.py exits 1",
+          "cache build-skill-index.py --check and build-catalog-metadata.py --check fail"
+        ]
+      },
+      {
+        "id": "G-003",
+        "severity": "high",
+        "area": "release_gate_integrity",
+        "summary": "Release scorecard can report READY while runtime-critical checks are red.",
+        "evidence": [
+          "release-scorecard.py checks manifest name/version, not referenced runtime files",
+          "release-scorecard.py does not include validate-plugin.py, install manifest verify, dirty-tree state, cache validation, or fresh-session runtime proof"
+        ]
+      },
+      {
+        "id": "G-004",
+        "severity": "high",
+        "area": "installer_contract",
+        "summary": "Codex install script moves .codex.mcp.json to .mcp.json, contradicting the Codex manifest that references .codex.mcp.json.",
+        "evidence": [
+          ".codex-plugin/plugin.json declares mcpServers: ./.codex.mcp.json",
+          "scripts/install-codex.sh renames .codex.mcp.json during install flow"
+        ]
+      },
+      {
+        "id": "G-005",
+        "severity": "high",
+        "area": "package_integrity",
+        "summary": "Install/package file selection is inconsistent and includes local state while missing required runtime files.",
+        "evidence": [
+          "scripts/install-claude-code.sh and scripts/install-codex.sh use raw cp -R",
+          "install-manifest.py tracks .git/index",
+          "package-plugin.py excludes .git but not .ultraprompt-install-manifest.json"
+        ]
+      },
+      {
+        "id": "G-006",
+        "severity": "high",
+        "area": "dispatch_graph",
+        "summary": "Skills with primary_agent are not consistently wired through dispatch_to, so graph and dispatch policy are incomplete.",
+        "evidence": [
+          "14 skills have primary_agent but no dispatch_to",
+          "build-capability-graph.py emits dispatches_to edges from dispatch_to only"
+        ]
+      },
+      {
+        "id": "G-007",
+        "severity": "high",
+        "area": "panel_reachability",
+        "summary": "Panels are defined but not reachable from skill/pathfinder graph because skills do not define paired_panels.",
+        "evidence": [
+          "source/panel-specs.json defines 12 panels",
+          "pathfinder uses panel edges only when graph has may_use_panel",
+          "observed preferred_panel values are null"
+        ]
+      },
+      {
+        "id": "G-008",
+        "severity": "medium",
+        "area": "skill_index_contract",
+        "summary": "dist/skill-index.json strips cognitive, risk, output, artifact, and panel metadata.",
+        "evidence": [
+          "source specs include editing, mode, risk, confirmation, outputs, output_contract, artifact_type, primary_agent, and dispatch_to",
+          "index builder writes mostly routing basics"
+        ]
+      },
+      {
+        "id": "G-009",
+        "severity": "medium",
+        "area": "agent_permissions",
+        "summary": "Some agents both allow and disallow Bash, making permission intent ambiguous.",
+        "evidence": [
+          "adversarial, router, and writer generated agent frontmatter include Bash in both tools and disallowedTools"
+        ]
+      },
+      {
+        "id": "G-010",
+        "severity": "medium",
+        "area": "telemetry_activation",
+        "summary": "Skill invocation telemetry is empty and specialist dispatch share is low.",
+        "evidence": [
+          "doctor-skill-activation.py reports no skill_invocation events",
+          "doctor-dispatch-outcomes.py reports plugin share 8%"
+        ]
+      },
+      {
+        "id": "G-011",
+        "severity": "medium",
+        "area": "telemetry_integrity",
+        "summary": "Dashboard health checks and pathfinder tests can emit real pathfinder telemetry, polluting learning signals.",
+        "evidence": [
+          "dashboard cognitive health calls run-pathfinder-tests.py",
+          "pathfinder.py emits pathfinder_decision events"
+        ]
+      },
+      {
+        "id": "G-012",
+        "severity": "high",
+        "area": "mission_control",
+        "summary": "Mission Control is mostly catalog/detail/live-feed UI, not a first-class governance UI for gaps, memory, dreams, learning, pathfinding, and graph health.",
+        "evidence": [
+          "dashboard server exposes APIs for multiple governance surfaces",
+          "dashboard app renders catalog-oriented panes and limited mission state"
+        ]
+      },
+      {
+        "id": "G-013",
+        "severity": "high",
+        "area": "dream_governance",
+        "summary": "Dream job governance metadata is advisory; approval_required, budgets, and permissions are not enforced.",
+        "evidence": [
+          "source/dream-jobs.json contains governance metadata",
+          "dream-runner.py does not enforce all approval and budget contracts",
+          "MCP dream_run marks runs as no-confirmation"
+        ]
+      },
+      {
+        "id": "G-014",
+        "severity": "high",
+        "area": "learning_state_machine",
+        "summary": "Learning queue can mark unsupported candidate kinds as applied with no effect.",
+        "evidence": [
+          "learning-queue.py supports multiple kinds",
+          "only route_update has concrete apply behavior"
+        ]
+      },
+      {
+        "id": "G-015",
+        "severity": "high",
+        "area": "memory_schema_privacy",
+        "summary": "Memory records do not persist schema-valid memory.v1 records, and redacted query mode is secret-focused rather than PII-complete.",
+        "evidence": [
+          "artifact-schemas/memory.schema.json requires schema: memory.v1",
+          "memory-store.py persisted records omit schema",
+          "cognitive_common.redact_text focuses on secrets"
+        ]
+      },
+      {
+        "id": "G-016",
+        "severity": "medium",
+        "area": "gap_ledger_contract",
+        "summary": "Gap ledger MCP input contract is weaker than the artifact schema and query semantics return history rather than latest-by-gap by default.",
+        "evidence": [
+          "artifact-validate.py requires repo, category, severity, confidence, title, evidence",
+          "MCP gap_ledger_write requires only repo and title",
+          "gap-ledger.py append/list semantics are history-oriented"
+        ]
+      },
+      {
+        "id": "G-017",
+        "severity": "medium",
+        "area": "mcp_mutation_controls",
+        "summary": "MCP mutating tools do not uniformly return risk and confirmation metadata despite repo invariants.",
+        "evidence": [
+          "CLAUDE.md says every MCP mutation returns risk and confirmation metadata",
+          "gap_ledger_write, memory_write_candidate, and route_feedback mutate without uniform risk/confirmation envelope"
+        ]
+      },
+      {
+        "id": "G-018",
+        "severity": "medium",
+        "area": "capability_graph_coverage",
+        "summary": "Capability graph health is green while dashboard routes, API endpoints, stores, and writer edges are not modeled comprehensively.",
+        "evidence": [
+          "build-capability-graph.py models many catalog objects but not all operational read/write edges"
+        ]
+      },
+      {
+        "id": "G-019",
+        "severity": "medium",
+        "area": "docs_and_prompt_drift",
+        "summary": "Public and injected docs have count drift and encoding defects.",
+        "evidence": [
+          "README says 12 panels",
+          "CHANGELOG and session-start context still mention 8 panels in places",
+          "mcp/ultraprompt_meta.py injected text contains mojibake"
+        ]
+      },
+      {
+        "id": "G-020",
+        "severity": "low",
+        "area": "hook_coverage_quality",
+        "summary": "Hook coverage can pass while stale coverage entries remain orphaned.",
+        "evidence": [
+          "audit-hook-coverage.py --json reports orphaned coverage entries",
+          "release gate does not fail or warn strongly on those orphaned entries"
+        ]
+      }
+    ]
+  },
+  "users_and_jobs": [
+    {
+      "user": "Ultraprompt maintainer",
+      "jobs": [
+        "Ask for a whole-plugin completion audit and get a durable, evidence-backed closure backlog.",
+        "See which specialist agent found each gap, which skill should close it, and which validation gate proves closure.",
+        "Ship a plugin release only when source, package, installed Claude runtime, and installed Codex runtime agree."
+      ]
+    },
+    {
+      "user": "Codex or Claude Code operator",
+      "jobs": [
+        "Use repo-completeness panels without manually stitching together raw subagent outputs.",
+        "Resume work and see outstanding gaps, stale validation, and next actions without rerunning discovery.",
+        "Trust that slash commands, skills, agents, MCP tools, and dashboard views reflect the same catalog."
+      ]
+    },
+    {
+      "user": "Specialist agent",
+      "jobs": [
+        "Receive enough repo map and scope context to audit without rediscovery.",
+        "Emit structured findings that can be deduped, written to the gap ledger, and linked to validation.",
+        "Avoid being bypassed by generic Explore when a specialist lane is the correct tool."
+      ]
+    },
+    {
+      "user": "Release owner",
+      "jobs": [
+        "Get a ship/no-ship verdict that accounts for manifests, installed caches, telemetry, package contents, and runtime visibility.",
+        "Use a no-write scorecard/check mode in CI-like gates.",
+        "Distinguish source-ready, package-ready, and installed-runtime-ready states."
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "id": "GOAL-001",
+      "text": "Close the repo-completeness loop from panel dispatch to persisted, assigned, validated gaps."
+    },
+    {
+      "id": "GOAL-002",
+      "text": "Make runtime truth first-class for both Claude Code and Codex installs."
+    },
+    {
+      "id": "GOAL-003",
+      "text": "Make release gates fail closed on missing runtime files, stale installed caches, stale generated artifacts, and telemetry unavailability."
+    },
+    {
+      "id": "GOAL-004",
+      "text": "Make panel and specialist routing discoverable through source specs, capability graph, pathfinder, and dashboard."
+    },
+    {
+      "id": "GOAL-005",
+      "text": "Make cognitive governance surfaces enforce their declared contracts: memory privacy, dream approvals, learning apply/revert, gap ledger schema, and MCP mutation controls."
+    },
+    {
+      "id": "GOAL-006",
+      "text": "Make Mission Control the operational view for repo-completeness, not just a catalog browser."
+    },
+    {
+      "id": "GOAL-007",
+      "text": "Keep audit panels read-only by default, with explicit confirmation for ledger writes, learning applies, memory promotion, package/install changes, and remediation."
+    }
+  ],
+  "non_goals": [
+    "Do not automatically apply code fixes from repo-completeness panels.",
+    "Do not automatically delete stale code, remove files, stage commits, publish packages, or mutate user repos.",
+    "Do not add cloud telemetry, remote dashboards, or cross-machine synchronization.",
+    "Do not replace the existing V8 skills/agents/panels architecture; harden source-of-truth and orchestration contracts.",
+    "Do not make every skill panel-backed; preserve cheaper inline/single-agent paths for low-risk work.",
+    "Do not loosen validation gates to make current releases pass."
+  ],
+  "requirements": {
+    "must": [
+      {
+        "id": "MUST-001",
+        "driver": [
+          "G-001",
+          "G-003"
+        ],
+        "requirement": "Manifest-declared runtime files must be existence-checked and release-blocking for the relevant runtime target.",
+        "owner_agent": "integration-contract-reviewer",
+        "fix_skill": "plugin-review"
+      },
+      {
+        "id": "MUST-002",
+        "driver": [
+          "G-002"
+        ],
+        "requirement": "Release readiness must validate source tree, packaged artifact, Claude installed copy, and Codex installed cache as separate targets.",
+        "owner_agent": "release-readiness-auditor",
+        "fix_skill": "release-readiness"
+      },
+      {
+        "id": "MUST-003",
+        "driver": [
+          "G-004",
+          "G-005"
+        ],
+        "requirement": "Runtime-specific manifest variants must be preserved without deleting files referenced by active manifests.",
+        "owner_agent": "integration-contract-reviewer",
+        "fix_skill": "api-contract"
+      },
+      {
+        "id": "MUST-004",
+        "driver": [
+          "G-005"
+        ],
+        "requirement": "Install and packaging file selection must share a canonical allowlist/denylist excluding .git, backup directories, local install manifests, test temp state, logs, pid files, and local-only artifacts.",
+        "owner_agent": "auditor",
+        "fix_skill": "supply-chain-hardening"
+      },
+      {
+        "id": "MUST-005",
+        "driver": [
+          "G-003"
+        ],
+        "requirement": "release-scorecard.py must support no-write --check and machine-readable --json modes, and must aggregate validate-plugin, manifest audit, install-manifest verify, generated artifact freshness, package inclusion verification, and runtime-cache validation.",
+        "owner_agent": "release-readiness-auditor",
+        "fix_skill": "ci-repair"
+      },
+      {
+        "id": "MUST-006",
+        "driver": [
+          "G-006"
+        ],
+        "requirement": "Every source skill with primary_agent must either define dispatch_to or explicit inline_only_reason; validators must fail missing coverage.",
+        "owner_agent": "catalog-strategist",
+        "fix_skill": "build"
+      },
+      {
+        "id": "MUST-007",
+        "driver": [
+          "G-007"
+        ],
+        "requirement": "Source specs must define canonical skill-to-panel mappings for deep paths, and pathfinder must select panels on deep budget for repo-completeness, release gate, PRD, AI feature, security/privacy, migration, feature gap, and incident intents.",
+        "owner_agent": "workflow-planner",
+        "fix_skill": "build"
+      },
+      {
+        "id": "MUST-008",
+        "driver": [
+          "G-008"
+        ],
+        "requirement": "dist/skill-index.json must preserve editing, mode, risk, confirmation, outputs, output_contract, artifact_type, primary_agent, dispatch_to, secondary_agents, preferred_panel, and paired_panels.",
+        "owner_agent": "workflow-planner",
+        "fix_skill": "build"
+      },
+      {
+        "id": "MUST-009",
+        "driver": [
+          "G-009"
+        ],
+        "requirement": "Agent generation and validation must fail any overlap between tools and disallowedTools.",
+        "owner_agent": "risk-and-controls-reviewer",
+        "fix_skill": "agent-author"
+      },
+      {
+        "id": "MUST-010",
+        "driver": [
+          "G-010"
+        ],
+        "requirement": "Doctor and Mission Control must report skill invocation rate, specialist dispatch share, never-fired agents/skills, Explore displacement rate, legacy prefix usage, and MCP top-tools.",
+        "owner_agent": "auditor",
+        "fix_skill": "observability-pass"
+      },
+      {
+        "id": "MUST-011",
+        "driver": [
+          "G-010"
+        ],
+        "requirement": "Telemetry diagnostics must normalize legacy ultra-prompt:* and current ultraprompt:* identifiers during the migration window and identify stale runtime sessions separately from catalog failures.",
+        "owner_agent": "debugger",
+        "fix_skill": "debug"
+      },
+      {
+        "id": "MUST-012",
+        "driver": [
+          "G-011"
+        ],
+        "requirement": "Health checks, dashboard polling, route/pathfinder benchmarks, and scorecards must not pollute real telemetry; add --no-telemetry or synthetic-event tagging and exclude synthetic events from learning decisions.",
+        "owner_agent": "auditor",
+        "fix_skill": "observability-pass"
+      },
+      {
+        "id": "MUST-013",
+        "driver": [
+          "G-012"
+        ],
+        "requirement": "Mission Control dashboard must expose first-class repo-completeness views: gaps by severity/status, owner agent, fix skill, stale validation, panel run history, runtime readiness, and next action.",
+        "owner_agent": "catalog-strategist",
+        "fix_skill": "build"
+      },
+      {
+        "id": "MUST-014",
+        "driver": [
+          "G-013"
+        ],
+        "requirement": "Dream jobs must enforce approval_required, input/output permissions, budget, cadence, locks, and dry-run defaults before execution.",
+        "owner_agent": "dream-synthesizer",
+        "fix_skill": "state-machine-review"
+      },
+      {
+        "id": "MUST-015",
+        "driver": [
+          "G-014"
+        ],
+        "requirement": "Learning apply must be implemented per candidate kind or blocked as unsupported; apply/revert must record evidence, validation, rollback data, and status history.",
+        "owner_agent": "learning-auditor",
+        "fix_skill": "state-machine-review"
+      },
+      {
+        "id": "MUST-016",
+        "driver": [
+          "G-015"
+        ],
+        "requirement": "Memory persistence and export must produce schema-valid memory.v1 records, and redacted query/export modes must redact secrets and common PII consistently.",
+        "owner_agent": "memory-curator",
+        "fix_skill": "security-audit"
+      },
+      {
+        "id": "MUST-017",
+        "driver": [
+          "G-016"
+        ],
+        "requirement": "gap_ledger_write MCP input schema must align with gap_ledger_entry artifact requirements; query must support latest-by-fingerprint as the default and history as an explicit mode.",
+        "owner_agent": "gap-analysis-lead",
+        "fix_skill": "api-contract"
+      },
+      {
+        "id": "MUST-018",
+        "driver": [
+          "G-017"
+        ],
+        "requirement": "Every MCP tool with side effects must return a uniform risk and confirmation envelope and expose dry-run or confirmation behavior when appropriate.",
+        "owner_agent": "security-auditor",
+        "fix_skill": "mcp-design"
+      },
+      {
+        "id": "MUST-019",
+        "driver": [
+          "G-018"
+        ],
+        "requirement": "Capability graph must model operational edges for dashboard routes, API endpoints, scripts, stores, ledgers, telemetry emitters, validators, and MCP tools, and health must flag missing writer/reader edges.",
+        "owner_agent": "catalog-strategist",
+        "fix_skill": "build"
+      },
+      {
+        "id": "MUST-020",
+        "driver": [
+          "G-019"
+        ],
+        "requirement": "Counts and injected prompt copy must be generated from catalog metadata and checked for UTF-8 integrity.",
+        "owner_agent": "writer",
+        "fix_skill": "docs-sync"
+      },
+      {
+        "id": "MUST-021",
+        "driver": [
+          "G-020"
+        ],
+        "requirement": "Hook coverage must warn or fail on orphaned coverage entries and must distinguish fixture coverage, integration coverage, and manual smoke coverage.",
+        "owner_agent": "test-strategist",
+        "fix_skill": "test-gap-analysis"
+      },
+      {
+        "id": "MUST-022",
+        "driver": [
+          "G-001",
+          "G-002",
+          "G-003",
+          "G-010"
+        ],
+        "requirement": "The release verdict must distinguish source_ready, package_ready, claude_runtime_ready, codex_runtime_ready, telemetry_ready, and overall_ready.",
+        "owner_agent": "release-readiness-auditor",
+        "fix_skill": "release-readiness"
+      }
+    ],
+    "should": [
+      {
+        "id": "SHOULD-001",
+        "requirement": "Add a repo_completeness_report artifact schema and validate every repo-completeness panel synthesis against it."
+      },
+      {
+        "id": "SHOULD-002",
+        "requirement": "Persist panel phase state so long-running panels can resume from the last completed phase."
+      },
+      {
+        "id": "SHOULD-003",
+        "requirement": "Add a why_not_specialist diagnostic when built-in Explore or a generic agent is chosen despite a matching Ultraprompt specialist."
+      },
+      {
+        "id": "SHOULD-004",
+        "requirement": "Embed fresh-session smoke recipes in doctor output for Claude Code and Codex after plugin update."
+      },
+      {
+        "id": "SHOULD-005",
+        "requirement": "Add package/install simulation tests that run without writing into real user runtime directories."
+      },
+      {
+        "id": "SHOULD-006",
+        "requirement": "Add dashboard links from each gap to evidence, suggested skill, owner agent, validation command, and lifecycle history."
+      },
+      {
+        "id": "SHOULD-007",
+        "requirement": "Add route-learning candidates when dispatch diagnostics repeatedly show generic Explore replacing a specialist lane."
+      },
+      {
+        "id": "SHOULD-008",
+        "requirement": "Add release scorecard warnings for dirty source trees and untracked local package-state files before packaging."
+      }
+    ],
+    "wont": [
+      {
+        "id": "WONT-001",
+        "requirement": "No autonomous remediation execution from repo-completeness panels."
+      },
+      {
+        "id": "WONT-002",
+        "requirement": "No automatic memory promotion, learning apply, package install, or file cleanup without confirmation."
+      },
+      {
+        "id": "WONT-003",
+        "requirement": "No remote dashboard or cloud event collection."
+      },
+      {
+        "id": "WONT-004",
+        "requirement": "No permanent support for unversioned or ambiguous legacy runtime paths; aliases must be observable and eventually removable."
+      }
+    ]
+  },
+  "scope": {
+    "in": [
+      "Ultraprompt plugin source specs, generated catalog artifacts, commands, agents, skills, panels, scripts, hooks, dashboard, artifact schemas, and MCP server.",
+      "Claude Code and Codex manifest, install, package, and runtime-cache validation.",
+      "Repo-completeness panel orchestration, gap ledger lifecycle, Mission Control visibility, and release gates.",
+      "Telemetry, evidence ledger, cognitive event log, memory, dreams, learning, pathfinder, and capability graph governance surfaces."
+    ],
+    "out": [
+      "External hosted services.",
+      "Nonlocal data sync.",
+      "Actual plugin remediation implementation in this PRD generation step.",
+      "Destructive cleanup of existing dirty worktree state."
+    ]
+  },
+  "technical_design": {
+    "data_model": {
+      "current_stores": [
+        {
+          "name": "source_specs",
+          "files": [
+            "source/skill-specs.json",
+            "source/agent-specs.json",
+            "source/panel-specs.json",
+            "source/dream-jobs.json"
+          ],
+          "role": "Canonical catalog sources."
+        },
+        {
+          "name": "generated_catalog",
+          "files": [
+            "dist/skill-index.json",
+            "dist/catalog-metadata.json",
+            "dist/capability-graph.json",
+            "dist/release-scorecard.json"
+          ],
+          "role": "Generated runtime and release-gate artifacts."
+        },
+        {
+          "name": "local_cognitive_state",
+          "paths": [
+            "~/.ultraprompt/events/events.jsonl",
+            "~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl",
+            "~/.ultraprompt/memory/memory.db",
+            "~/.ultraprompt/memory/memory.jsonl",
+            "~/.ultraprompt/dreams/reports/*.json",
+            "~/.ultraprompt/learning/candidates.jsonl"
+          ],
+          "role": "Local-first runtime state."
+        }
+      ],
+      "proposed_entities": [
+        {
+          "name": "RepoCompletenessRun",
+          "storage": "~/.ultraprompt/panels/<repo>/repo-completeness-runs.jsonl",
+          "fields": [
+            {
+              "run_id": "stable unique id"
+            },
+            {
+              "repo": "repo name or root"
+            },
+            {
+              "repo_root": "absolute path"
+            },
+            {
+              "git_head": "commit hash if available"
+            },
+            {
+              "worktree_dirty_count": "integer"
+            },
+            {
+              "requested_scope": "string"
+            },
+            {
+              "panel_name": "repo-completeness-panel"
+            },
+            {
+              "started_at": "ISO timestamp"
+            },
+            {
+              "completed_at": "ISO timestamp or null"
+            },
+            {
+              "status": "running | completed | cancelled | failed"
+            },
+            {
+              "phase_statuses": "map/audit/synthesize phase states"
+            },
+            {
+              "agents": "agent names and dispatch ids"
+            },
+            {
+              "artifact_paths": "repo_review_report and PRD/report paths"
+            },
+            {
+              "validation_summary": "commands and results"
+            }
+          ],
+          "indexes": [
+            "repo",
+            "run_id",
+            "status",
+            "git_head"
+          ]
+        },
+        {
+          "name": "GapLedgerEntryV2",
+          "storage": "~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl",
+          "fields": [
+            {
+              "gap_id": "stable id"
+            },
+            {
+              "fingerprint": "hash of repo + category + affected_area + normalized title"
+            },
+            {
+              "repo": "repo name"
+            },
+            {
+              "repo_root": "absolute path when local"
+            },
+            {
+              "category": "incomplete_feature | wiring_gap | contract_mismatch | missing_test | release_blocker | stale_code | documentation_drift | dead_code | observability_gap | configuration_gap"
+            },
+            {
+              "severity": "critical | high | medium | low"
+            },
+            {
+              "confidence": "confirmed | likely | possible"
+            },
+            {
+              "status": "open | accepted | in_progress | fixed | validated | deferred | false_positive"
+            },
+            {
+              "title": "short finding title"
+            },
+            {
+              "affected_area": "component, script, command, dashboard area, or runtime"
+            },
+            {
+              "expected_behavior": "required behavior"
+            },
+            {
+              "actual_behavior": "observed behavior"
+            },
+            {
+              "evidence": "array of path/line/command/panel evidence"
+            },
+            {
+              "owner_agent": "specialist agent responsible for diagnosis"
+            },
+            {
+              "fix_skill": "skill responsible for remediation"
+            },
+            {
+              "validation_plan": "commands or manual smoke path"
+            },
+            {
+              "first_seen_at": "ISO timestamp"
+            },
+            {
+              "last_seen_at": "ISO timestamp"
+            },
+            {
+              "panel_run_ids": "array"
+            },
+            {
+              "status_history": "array of status transitions"
+            },
+            {
+              "validated_at": "ISO timestamp or null"
+            },
+            {
+              "resolved_by": "commit, PR, or note"
+            }
+          ],
+          "indexes": [
+            "repo",
+            "fingerprint",
+            "severity",
+            "status",
+            "owner_agent",
+            "fix_skill"
+          ]
+        },
+        {
+          "name": "RuntimeReadinessTarget",
+          "storage": "dist/release-scorecard.json and Mission Control snapshot",
+          "fields": [
+            {
+              "target": "source | package | claude_install | codex_cache | fresh_claude_session | fresh_codex_session"
+            },
+            {
+              "plugin_version": "string"
+            },
+            {
+              "root": "path"
+            },
+            {
+              "manifest_ok": "boolean"
+            },
+            {
+              "manifest_referenced_files_ok": "boolean"
+            },
+            {
+              "mcp_servers_count": "integer"
+            },
+            {
+              "generated_artifacts_ok": "boolean"
+            },
+            {
+              "catalog_consistency_ok": "boolean"
+            },
+            {
+              "install_manifest_ok": "boolean"
+            },
+            {
+              "runtime_visibility_ok": "boolean or null"
+            },
+            {
+              "telemetry_ready": "boolean or null"
+            },
+            {
+              "blockers": "array"
+            },
+            {
+              "warnings": "array"
+            }
+          ]
+        },
+        {
+          "name": "TelemetryEventV2",
+          "storage": "~/.ultraprompt/events/events.jsonl",
+          "fields": [
+            {
+              "event_id": "unique id"
+            },
+            {
+              "event_type": "skill_invocation | agent_dispatch | mcp_tool_call | panel_lifecycle | gap_status_changed | validation_run | pathfinder_decision | dashboard_view | learning_action | dream_run | memory_action"
+            },
+            {
+              "runtime": "claude | codex | unknown"
+            },
+            {
+              "source": "real | synthetic | benchmark | dashboard_health | test"
+            },
+            {
+              "repo": "repo name"
+            },
+            {
+              "worktree": "path"
+            },
+            {
+              "skill": "optional"
+            },
+            {
+              "agent": "optional"
+            },
+            {
+              "mcp_tool": "optional"
+            },
+            {
+              "panel": "optional"
+            },
+            {
+              "ok": "boolean or null"
+            },
+            {
+              "payload": "object"
+            },
+            {
+              "created_at": "ISO timestamp"
+            }
+          ],
+          "indexes": [
+            "event_type",
+            "runtime",
+            "source",
+            "repo",
+            "skill",
+            "agent"
+          ]
+        },
+        {
+          "name": "LearningCandidateV2",
+          "storage": "~/.ultraprompt/learning/candidates.jsonl",
+          "fields": [
+            {
+              "candidate_id": "stable id"
+            },
+            {
+              "kind": "route_update | benchmark_candidate | memory_promotion | catalog_proposal | panel_proposal | retrieval_hint"
+            },
+            {
+              "status": "pending | approved | rejected | applied | reverted | expired | needs_evidence | unsupported"
+            },
+            {
+              "apply_contract": "implemented | unsupported"
+            },
+            {
+              "evidence": "array"
+            },
+            {
+              "validation_plan": "array"
+            },
+            {
+              "rollback_data": "object or null"
+            },
+            {
+              "status_history": "array"
+            }
+          ]
+        },
+        {
+          "name": "DreamJobRunV2",
+          "storage": "~/.ultraprompt/dreams/reports/*.json",
+          "fields": [
+            {
+              "run_id": "stable id"
+            },
+            {
+              "job": "dream job id"
+            },
+            {
+              "approval_required": "boolean"
+            },
+            {
+              "approval_status": "not_required | required | approved | rejected"
+            },
+            {
+              "budget": "declared budget"
+            },
+            {
+              "permissions": "declared input/output permissions"
+            },
+            {
+              "dry_run": "boolean"
+            },
+            {
+              "lock_id": "optional"
+            },
+            {
+              "result_artifacts": "array"
+            },
+            {
+              "governance_findings": "array"
+            }
+          ]
+        },
+        {
+          "name": "MemoryRecordV2",
+          "storage": "memory.db and memory.jsonl export",
+          "fields": [
+            {
+              "schema": "memory.v1"
+            },
+            {
+              "id": "stable id"
+            },
+            {
+              "kind": "schema enum"
+            },
+            {
+              "scope": "user | repo | project | plugin | global"
+            },
+            {
+              "status": "candidate | active | stale | contradicted | retired | quarantined | deleted"
+            },
+            {
+              "privacy": "metadata | local_only | contains_pii | redacted"
+            },
+            {
+              "text": "memory text"
+            },
+            {
+              "confidence": "number"
+            },
+            {
+              "importance": "number"
+            },
+            {
+              "evidence": "array"
+            },
+            {
+              "redaction_state": "none | redacted"
+            }
+          ]
+        }
+      ]
+    },
+    "api_surface": {
+      "mcp_tools_existing_to_harden": [
+        {
+          "name": "validate_plugin",
+          "changes": [
+            "Accept target_path and target_runtime.",
+            "Return source_ready/package_ready/claude_runtime_ready/codex_runtime_ready fields.",
+            "Fail when active manifest references missing files."
+          ]
+        },
+        {
+          "name": "release_scorecard",
+          "changes": [
+            "Expose no-write check mode and structured target results.",
+            "Include installed cache validation and telemetry readiness."
+          ]
+        },
+        {
+          "name": "mission_state",
+          "changes": [
+            "Include repo-completeness runs, gap latest view, runtime readiness targets, telemetry health, and panel resumability."
+          ]
+        },
+        {
+          "name": "gap_ledger_write",
+          "changes": [
+            "Require schema-aligned fields or explicit defaults only when safe.",
+            "Support upsert_by_fingerprint.",
+            "Return risk/confirmation envelope and latest entry."
+          ]
+        },
+        {
+          "name": "gap_ledger_query",
+          "changes": [
+            "Default to latest-by-fingerprint.",
+            "Add mode=latest|history and include status filters."
+          ]
+        },
+        {
+          "name": "pathfind_workflow",
+          "changes": [
+            "Use paired panel edges for deep budget.",
+            "Return why_not_specialist and legacy-prefix diagnostics."
+          ]
+        },
+        {
+          "name": "dream_run",
+          "changes": [
+            "Enforce approval_required and budget before real run.",
+            "Default approval-required jobs to dry-run until confirmed."
+          ]
+        },
+        {
+          "name": "learning_apply",
+          "changes": [
+            "Reject unsupported kinds rather than marking applied with no effect.",
+            "Return validation and rollback data."
+          ]
+        }
+      ],
+      "new_or_extended_scripts": [
+        {
+          "command": "python3 scripts/release-scorecard.py --check --json --target source|package|claude|codex|all",
+          "purpose": "No-write release scorecard for CI and doctor."
+        },
+        {
+          "command": "python3 scripts/validate-plugin.py --target-runtime claude|codex|source --strict-runtime-files",
+          "purpose": "Validate runtime-specific manifests and referenced files."
+        },
+        {
+          "command": "python3 scripts/audit-manifest-schemas.py --runtime claude|codex --strict-references",
+          "purpose": "Fail missing referenced MCP/config files."
+        },
+        {
+          "command": "python3 scripts/package-plugin.py --verify-only",
+          "purpose": "Check package inclusion/exclusion and internal consistency without writing a zip."
+        },
+        {
+          "command": "python3 scripts/install-simulate.py --runtime claude|codex",
+          "purpose": "Build an isolated temp install/copy and run validation against it."
+        },
+        {
+          "command": "python3 scripts/run-pathfinder-tests.py --no-telemetry",
+          "purpose": "Prevent benchmark and dashboard health checks from emitting real route telemetry."
+        },
+        {
+          "command": "python3 scripts/dashboard.py --health-no-telemetry",
+          "purpose": "Ensure dashboard health checks are read-only in telemetry."
+        }
+      ],
+      "dashboard_endpoints": [
+        {
+          "path": "/api/repo-completeness",
+          "method": "GET",
+          "response": "latest runs, open gaps, high-risk blockers, stale validations, next actions"
+        },
+        {
+          "path": "/api/gaps",
+          "method": "GET",
+          "response": "latest gap ledger entries with filters"
+        },
+        {
+          "path": "/api/gaps/history",
+          "method": "GET",
+          "response": "full status history for one gap fingerprint or id"
+        },
+        {
+          "path": "/api/runtime-health",
+          "method": "GET",
+          "response": "runtime readiness targets and blockers"
+        },
+        {
+          "path": "/api/telemetry-health",
+          "method": "GET",
+          "response": "event counts by source/runtime/type, synthetic filtering state, activation metrics"
+        },
+        {
+          "path": "/api/governance/memory",
+          "method": "GET",
+          "response": "memory stats, redaction health, schema validity"
+        },
+        {
+          "path": "/api/governance/dreams",
+          "method": "GET",
+          "response": "dream jobs, approval state, last runs, violations"
+        },
+        {
+          "path": "/api/governance/learning",
+          "method": "GET",
+          "response": "learning candidates, supported apply contracts, status"
+        }
+      ]
+    },
+    "integration_points": {
+      "runtime_manifests": [
+        ".claude-plugin/plugin.json",
+        ".codex-plugin/plugin.json",
+        ".mcp.json",
+        ".mcp.windows.json",
+        ".codex.mcp.json",
+        ".codex.mcp.windows.json"
+      ],
+      "install_and_package": [
+        "scripts/install.sh",
+        "scripts/install-claude-code.sh",
+        "scripts/install-codex.sh",
+        "scripts/package-plugin.py",
+        "scripts/install-manifest.py",
+        "scripts/install-windows.ps1"
+      ],
+      "catalog_and_generation": [
+        "source/skill-specs.json",
+        "source/agent-specs.json",
+        "source/panel-specs.json",
+        "scripts/regenerate-skills.py",
+        "scripts/regenerate-agents.py",
+        "scripts/build-skill-index.py",
+        "scripts/build-catalog-metadata.py",
+        "scripts/build-capability-graph.py"
+      ],
+      "validation_and_release": [
+        "scripts/validate-plugin.py",
+        "scripts/audit-catalog-consistency.py",
+        "scripts/audit-manifest-schemas.py",
+        "scripts/audit-hook-coverage.py",
+        "scripts/release-scorecard.py",
+        "commands/doctor.md"
+      ],
+      "cognitive_and_dashboard": [
+        "mcp/ultraprompt_meta.py",
+        "scripts/dashboard.py",
+        "dashboard/app.js",
+        "dashboard/styles.css",
+        "scripts/mission-state.py",
+        "scripts/ledger-v2.py",
+        "scripts/cognitive-event-log.py",
+        "scripts/memory-store.py",
+        "scripts/dream-runner.py",
+        "scripts/learning-queue.py",
+        "scripts/gap-ledger.py"
+      ]
+    },
+    "sequence_flows": {
+      "repo_completeness_panel": [
+        "User invokes repo-completeness panel.",
+        "System records RepoCompletenessRun with status running.",
+        "repo-cartographer maps repo and validation surfaces.",
+        "feature-completeness, wiring-gap, integration-contract, test-gap, dead-code-drift, and release-readiness specialists run in parallel.",
+        "gap-analysis-lead dedupes findings into repo_review_report.",
+        "GapLedgerEntryV2 upserts entries by fingerprint if write mode is enabled; otherwise report remains proposal/read-only.",
+        "Mission Control surfaces open gaps, owners, skills, validation plans, and next action."
+      ],
+      "release_gate": [
+        "release-scorecard --check --json validates source.",
+        "package verification validates inclusion/exclusion and referenced files.",
+        "install simulation validates Claude and Codex runtime copies in temp roots.",
+        "optional fresh-session smoke validates actual Claude/Codex visibility.",
+        "scorecard returns source_ready/package_ready/claude_runtime_ready/codex_runtime_ready/telemetry_ready/overall_ready."
+      ],
+      "telemetry_health": [
+        "Hooks, MCP tools, pathfinder, panels, dashboard, dreams, learning, memory, and validations emit TelemetryEventV2.",
+        "Benchmark and dashboard health events set source=synthetic or source=dashboard_health.",
+        "Doctor and Mission Control compute activation metrics from real events only by default."
+      ]
+    },
+    "failure_modes": [
+      {
+        "id": "FM-001",
+        "failure": "Manifest references a missing MCP file, but validator warns and release scorecard returns ready.",
+        "mitigation": "Strict referenced-file validation; scorecard blocker."
+      },
+      {
+        "id": "FM-002",
+        "failure": "Source tree checks pass while installed Codex cache remains stale.",
+        "mitigation": "Separate runtime target validation and fresh-session smoke gates."
+      },
+      {
+        "id": "FM-003",
+        "failure": "Installer deletes or renames the runtime-specific MCP file referenced by the manifest.",
+        "mitigation": "Install simulation tests and runtime-specific manifest/file contract matrix."
+      },
+      {
+        "id": "FM-004",
+        "failure": "Package includes local machine state or excludes required runtime files.",
+        "mitigation": "Shared package/install file selection policy and package verification."
+      },
+      {
+        "id": "FM-005",
+        "failure": "Pathfinder deep mode cannot discover panels because graph lacks skill-to-panel edges.",
+        "mitigation": "paired_panels source specs, graph edges, and golden pathfinder tests."
+      },
+      {
+        "id": "FM-006",
+        "failure": "Specialist agents are bypassed by generic Explore, causing low plugin activation and weaker audit coverage.",
+        "mitigation": "dispatch diagnostics, why_not_specialist, and route-learning candidate generation."
+      },
+      {
+        "id": "FM-007",
+        "failure": "Dashboard health checks pollute route telemetry and learning policy.",
+        "mitigation": "synthetic/no-telemetry mode and source filtering."
+      },
+      {
+        "id": "FM-008",
+        "failure": "Gap ledger accumulates duplicate historical rows and hides latest status.",
+        "mitigation": "fingerprint upsert, latest-by-default query, history mode."
+      },
+      {
+        "id": "FM-009",
+        "failure": "Learning candidates appear applied even though no apply behavior exists.",
+        "mitigation": "per-kind apply contract and unsupported status."
+      },
+      {
+        "id": "FM-010",
+        "failure": "Memory redaction claims safety but leaves PII in redacted output.",
+        "mitigation": "schema-valid records, PII redaction tests, export/query redaction gates."
+      },
+      {
+        "id": "FM-011",
+        "failure": "Dream jobs run despite approval_required or budget/cadence constraints.",
+        "mitigation": "state-machine enforcement before runner execution."
+      },
+      {
+        "id": "FM-012",
+        "failure": "Release scorecard writes files during read-only checks, creating dirty state and hiding what changed.",
+        "mitigation": "no-write --check mode; explicit --write-report mode."
+      },
+      {
+        "id": "FM-013",
+        "failure": "Docs and injected prompt instructions drift from catalog counts and command names.",
+        "mitigation": "generated count snippets, UTF-8 integrity check, docs metadata audit expansion."
+      },
+      {
+        "id": "FM-014",
+        "failure": "MCP mutating tools perform state writes without risk/confirmation metadata.",
+        "mitigation": "uniform mutation envelope and dry-run/confirm behavior."
+      }
+    ],
+    "telemetry": {
+      "events": [
+        "skill_invocation",
+        "agent_dispatch",
+        "mcp_tool_call",
+        "panel_lifecycle",
+        "gap_found",
+        "gap_status_changed",
+        "validation_run",
+        "runtime_visibility_check",
+        "release_gate_result",
+        "pathfinder_decision",
+        "dashboard_view",
+        "dashboard_health_check",
+        "dream_run",
+        "learning_action",
+        "memory_action",
+        "package_verification",
+        "install_simulation"
+      ],
+      "required_dimensions": [
+        "repo",
+        "worktree",
+        "runtime",
+        "plugin_version",
+        "source",
+        "event_type",
+        "ok",
+        "synthetic",
+        "skill",
+        "agent",
+        "panel",
+        "mcp_tool",
+        "validation_command"
+      ],
+      "metrics": [
+        {
+          "name": "open_critical_gaps",
+          "target": 0
+        },
+        {
+          "name": "open_high_gaps_before_release",
+          "target": 0
+        },
+        {
+          "name": "source_ready",
+          "target": true
+        },
+        {
+          "name": "package_ready",
+          "target": true
+        },
+        {
+          "name": "claude_runtime_ready",
+          "target": true
+        },
+        {
+          "name": "codex_runtime_ready",
+          "target": true
+        },
+        {
+          "name": "telemetry_ready",
+          "target": true
+        },
+        {
+          "name": "specialist_dispatch_share_for_matching_intents",
+          "target": ">= 50% initially, then lane-specific thresholds"
+        },
+        {
+          "name": "skill_invocation_events_after_active_usage",
+          "target": "> 0 or explicit telemetry_unavailable blocker"
+        },
+        {
+          "name": "repo_completeness_report_schema_validity",
+          "target": "100%"
+        },
+        {
+          "name": "gap_entries_with_owner_skill_validation",
+          "target": "100% for high and critical gaps"
+        },
+        {
+          "name": "synthetic_events_excluded_from_learning",
+          "target": "100%"
+        }
+      ]
+    },
+    "rollout_technical_plan": [
+      {
+        "phase": "P0",
+        "name": "Truth Gate Patch",
+        "exit_criteria": [
+          "Missing .mcp.json or equivalent manifest-reference mismatch blocks validation.",
+          "release-scorecard supports --check --json and no-write behavior.",
+          "source, package, and installed-cache targets are reported separately."
+        ]
+      },
+      {
+        "phase": "P1",
+        "name": "Runtime Packaging Contract",
+        "exit_criteria": [
+          "Codex and Claude install simulations pass.",
+          "Package verification excludes local state and includes required runtime files.",
+          "Install manifest excludes .git and volatile files."
+        ]
+      },
+      {
+        "phase": "P2",
+        "name": "Catalog and Pathfinder Closure",
+        "exit_criteria": [
+          "primary_agent coverage validator passes.",
+          "paired_panels edges exist and deep pathfinder tests pass.",
+          "skill-index preserves risk/output/artifact/panel metadata."
+        ]
+      },
+      {
+        "phase": "P3",
+        "name": "Repo-Completeness Ledger Productization",
+        "exit_criteria": [
+          "repo_review_report and gap_ledger_entry artifacts validate.",
+          "Gap ledger upsert/latest/history semantics pass tests.",
+          "Mission Control displays repo-completeness board."
+        ]
+      },
+      {
+        "phase": "P4",
+        "name": "Cognitive Governance Hardening",
+        "exit_criteria": [
+          "Dream approval/budget/cadence enforcement passes.",
+          "Learning unsupported kinds cannot be applied.",
+          "Memory schema and redaction tests pass.",
+          "MCP mutation envelope tests pass."
+        ]
+      },
+      {
+        "phase": "P5",
+        "name": "Telemetry and Dashboard Integrity",
+        "exit_criteria": [
+          "Synthetic/no-telemetry benchmark mode is implemented.",
+          "Telemetry health shows unified event model.",
+          "Dashboard governance panes render real state without polluting telemetry."
+        ]
+      },
+      {
+        "phase": "P6",
+        "name": "Release Gate Consolidation",
+        "exit_criteria": [
+          "Doctor, release-scorecard, validate-plugin, Mission Control, and dashboard agree on readiness states.",
+          "Fresh-session Claude and Codex smoke recipes are documented and pass."
+        ]
+      }
+    ]
+  },
+  "performance_considerations": [
+    "Mission Control gap and telemetry queries must default to bounded time windows and latest-by-fingerprint views.",
+    "Panel run persistence must append compact summaries, not raw unbounded subagent transcripts by default.",
+    "Capability graph expansion should keep generated graph size readable and cacheable; dashboard route/store edges can be summarized where needed.",
+    "Health checks must avoid expensive full-suite validation on every dashboard poll; use cached status with explicit refresh.",
+    "Release scorecard target validation should run source/package/installed-cache checks in parallel where safe."
+  ],
+  "security_and_privacy": [
+    "Memory redaction must cover secrets and common PII before redacted query/export output.",
+    "MCP mutating tools must return risk and confirmation metadata; high-risk mutation should require explicit confirmation.",
+    "Package/install verification must exclude .git, local runtime state, logs, pid files, backups, and user-specific manifests.",
+    "Dashboard APIs must distinguish read-only views from state-changing governance actions.",
+    "Telemetry must remain local-first and avoid recording secret-bearing command payloads.",
+    "Learning and dream flows must not silently rewrite prompts, source specs, memory, or user repos."
+  ],
+  "risks": [
+    {
+      "id": "R-001",
+      "severity": "critical",
+      "likelihood": "high",
+      "risk": "A release is marked ready while Claude or Codex cannot load MCP tools.",
+      "mitigation": "Strict runtime target validation and fresh-session smoke gates."
+    },
+    {
+      "id": "R-002",
+      "severity": "high",
+      "likelihood": "high",
+      "risk": "Repo-completeness findings remain narrative and do not become tracked closure work.",
+      "mitigation": "Gap ledger V2 lifecycle and Mission Control board."
+    },
+    {
+      "id": "R-003",
+      "severity": "high",
+      "likelihood": "medium",
+      "risk": "Telemetry-driven learning is trained on synthetic dashboard health or benchmark events.",
+      "mitigation": "source field and synthetic filtering."
+    },
+    {
+      "id": "R-004",
+      "severity": "high",
+      "likelihood": "medium",
+      "risk": "Installer/package changes accidentally mutate user runtime directories during validation.",
+      "mitigation": "install simulation in temp roots and no-write scorecard modes."
+    },
+    {
+      "id": "R-005",
+      "severity": "high",
+      "likelihood": "medium",
+      "risk": "Dream or learning governance claims are bypassed by implementation shortcuts.",
+      "mitigation": "State-machine tests and unsupported apply blocking."
+    },
+    {
+      "id": "R-006",
+      "severity": "high",
+      "likelihood": "medium",
+      "risk": "Memory redaction creates false privacy confidence.",
+      "mitigation": "PII redaction tests and schema-valid redacted exports."
+    },
+    {
+      "id": "R-007",
+      "severity": "medium",
+      "likelihood": "high",
+      "risk": "Catalog counts and docs drift as skills, agents, panels, and MCP tools evolve.",
+      "mitigation": "Generated count snippets and docs metadata audit."
+    },
+    {
+      "id": "R-008",
+      "severity": "medium",
+      "likelihood": "medium",
+      "risk": "Deep pathfinder chooses expensive panels too often.",
+      "mitigation": "Budget-aware pathfinder policy, panel confirmation metadata, and route golden tests."
+    },
+    {
+      "id": "R-009",
+      "severity": "medium",
+      "likelihood": "medium",
+      "risk": "Expanded graph coverage becomes noisy or too expensive to inspect.",
+      "mitigation": "Graph health categories and dashboard filtering by edge kind."
+    }
+  ],
+  "metrics": {
+    "product_validation": [
+      {
+        "metric": "repo-completeness runs that produce schema-valid reports",
+        "target": "100%"
+      },
+      {
+        "metric": "high/critical gaps with owner agent, fix skill, evidence, and validation plan",
+        "target": "100%"
+      },
+      {
+        "metric": "release scorecard false-ready incidents",
+        "target": "0"
+      },
+      {
+        "metric": "source/package/runtime readiness disagreement surfaced by Mission Control",
+        "target": "100% of disagreements visible"
+      }
+    ],
+    "operational_health": [
+      {
+        "metric": "validate-plugin strict mode on source",
+        "target": "pass"
+      },
+      {
+        "metric": "validate-plugin strict mode on active Codex cache",
+        "target": "pass"
+      },
+      {
+        "metric": "manifest referenced-file checks",
+        "target": "pass for Claude and Codex"
+      },
+      {
+        "metric": "no-write release scorecard",
+        "target": "does not modify dist or telemetry"
+      },
+      {
+        "metric": "synthetic telemetry excluded from route learning",
+        "target": "pass"
+      }
+    ],
+    "routing_and_activation": [
+      {
+        "metric": "specialist dispatch share for matching audit/map/review/debug intents",
+        "target": ">= 50% in first hardening release"
+      },
+      {
+        "metric": "skill invocation telemetry after active usage",
+        "target": "> 0 or explicit telemetry unavailable diagnosis"
+      },
+      {
+        "metric": "legacy prefix events classified",
+        "target": "100%"
+      }
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "id": "AC-001",
+      "given": "The Claude manifest declares mcpServers: ./.mcp.json",
+      "when": ".mcp.json is missing and validate-plugin strict mode runs",
+      "then": "validation exits nonzero and reports a release-blocking manifest reference error"
+    },
+    {
+      "id": "AC-002",
+      "given": "The Codex manifest declares ./.codex.mcp.json",
+      "when": "the Codex install simulation runs",
+      "then": ".codex.mcp.json remains present in the installed target and MCP self-test can start from that target"
+    },
+    {
+      "id": "AC-003",
+      "given": "The source tree passes generated checks but the active Codex cache is stale",
+      "when": "release-scorecard --check --json --target all runs",
+      "then": "source_ready may be true, codex_runtime_ready is false, and overall_ready is false"
+    },
+    {
+      "id": "AC-004",
+      "given": "release-scorecard is run in check mode",
+      "when": "the command completes",
+      "then": "dist/release-scorecard.json and telemetry files are not modified"
+    },
+    {
+      "id": "AC-005",
+      "given": "A skill has primary_agent and no dispatch_to",
+      "when": "catalog consistency runs",
+      "then": "the validator fails unless inline_only_reason is present"
+    },
+    {
+      "id": "AC-006",
+      "given": "repo-review is routed with deep budget",
+      "when": "pathfind_workflow runs",
+      "then": "the recommended path includes repo-completeness-panel"
+    },
+    {
+      "id": "AC-007",
+      "given": "release-readiness is routed with deep budget",
+      "when": "pathfind_workflow runs",
+      "then": "the recommended path includes release-gate-panel"
+    },
+    {
+      "id": "AC-008",
+      "given": "A generated agent has Bash in both tools and disallowedTools",
+      "when": "agent validation runs",
+      "then": "validation fails with a permission-overlap error"
+    },
+    {
+      "id": "AC-009",
+      "given": "dashboard health requests pathfinder benchmark data",
+      "when": "the health endpoint runs",
+      "then": "any emitted event is source=synthetic or no event is emitted"
+    },
+    {
+      "id": "AC-010",
+      "given": "A repo-completeness panel produces duplicate findings across agents",
+      "when": "gap ledger write mode is enabled",
+      "then": "the ledger upserts by fingerprint and shows one latest open gap with history entries"
+    },
+    {
+      "id": "AC-011",
+      "given": "A learning candidate kind has no apply implementation",
+      "when": "learning_apply is requested",
+      "then": "the candidate is marked unsupported or rejected, not applied"
+    },
+    {
+      "id": "AC-012",
+      "given": "A dream job declares approval_required",
+      "when": "dream_run is called without approval",
+      "then": "the job does not execute and returns confirmation metadata"
+    },
+    {
+      "id": "AC-013",
+      "given": "A memory record is written and exported",
+      "when": "artifact validation runs against memory_record",
+      "then": "the record includes schema: memory.v1 and required fields"
+    },
+    {
+      "id": "AC-014",
+      "given": "A memory query is requested with redacted=true",
+      "when": "stored text contains common PII or secret-like patterns",
+      "then": "redacted output removes or masks those values"
+    },
+    {
+      "id": "AC-015",
+      "given": "Mission Control opens for the plugin repo",
+      "when": "the repo-completeness view loads",
+      "then": "it shows open critical/high gaps, owner agents, fix skills, validation status, runtime readiness, and next action"
+    },
+    {
+      "id": "AC-016",
+      "given": "Package verification runs",
+      "when": "local install manifests, .git files, logs, pids, or backups are in the source tree",
+      "then": "those files are excluded and any required runtime file omission blocks packaging"
+    },
+    {
+      "id": "AC-017",
+      "given": "MCP mutating tools are called",
+      "when": "the tool returns",
+      "then": "the response includes side_effect_class, risk, confirmation_required, and rollback_or_dry_run guidance"
+    },
+    {
+      "id": "AC-018",
+      "given": "Docs and injected prompt text are generated",
+      "when": "docs metadata audit runs",
+      "then": "counts match catalog metadata and UTF-8 integrity checks pass"
+    }
+  ],
+  "rollout_plan": [
+    {
+      "phase": 0,
+      "name": "Block False Ready",
+      "scope": [
+        "Restore or correctly generate runtime MCP config variants.",
+        "Make validators fail missing referenced manifest files.",
+        "Add release-scorecard --check --json no-write mode.",
+        "Validate active Codex cache as a separate target."
+      ],
+      "gate": "overall_ready cannot be true when any runtime target is red."
+    },
+    {
+      "phase": 1,
+      "name": "Package and Install Contract",
+      "scope": [
+        "Create shared package/install file selection policy.",
+        "Exclude .git and local install state.",
+        "Add install simulation tests for Claude and Codex.",
+        "Fix Codex install script contradiction around .codex.mcp.json."
+      ],
+      "gate": "Package verification and install simulation pass on macOS/Linux and Windows manifests."
+    },
+    {
+      "phase": 2,
+      "name": "Catalog Graph Closure",
+      "scope": [
+        "Add dispatch_to or inline_only_reason coverage.",
+        "Add paired_panels and deep pathfinder behavior.",
+        "Preserve risk/output/artifact metadata in skill index.",
+        "Add permission-overlap validation for agents."
+      ],
+      "gate": "Pathfinder golden tests prove deep panel routing and write/read risk labels."
+    },
+    {
+      "phase": 3,
+      "name": "Repo-Completeness Product Loop",
+      "scope": [
+        "Add report artifact schema.",
+        "Add gap ledger V2 upsert/latest/history.",
+        "Persist panel run lifecycle.",
+        "Surface repo-completeness in Mission Control."
+      ],
+      "gate": "A repo-completeness run produces schema-valid report and dashboard-visible gaps."
+    },
+    {
+      "phase": 4,
+      "name": "Cognitive Governance Enforcement",
+      "scope": [
+        "Dream job approval/budget/cadence enforcement.",
+        "Learning apply/revert per-kind contracts.",
+        "Memory schema and redaction hardening.",
+        "MCP mutation envelopes."
+      ],
+      "gate": "State-machine and artifact tests pass for memory, dreams, learning, and MCP mutators."
+    },
+    {
+      "phase": 5,
+      "name": "Telemetry and Runtime Proof",
+      "scope": [
+        "Unify telemetry model.",
+        "Normalize legacy/current agent prefixes.",
+        "Exclude synthetic events from learning.",
+        "Add fresh-session smoke recipes for Claude and Codex."
+      ],
+      "gate": "Doctor and Mission Control agree on activation and runtime readiness."
+    },
+    {
+      "phase": 6,
+      "name": "Release Candidate",
+      "scope": [
+        "Run source, package, install simulation, installed cache, fresh-session smoke, dashboard smoke, and full catalog consistency gates.",
+        "Publish final release notes and closure report."
+      ],
+      "gate": "No critical/high open gaps and all readiness target booleans true."
+    }
+  ],
+  "validation_plan": {
+    "focused_commands": [
+      "python3 scripts/validate-plugin.py --target-runtime source --strict-runtime-files",
+      "python3 scripts/validate-plugin.py --target-runtime claude --strict-runtime-files",
+      "python3 scripts/validate-plugin.py --target-runtime codex --strict-runtime-files",
+      "python3 scripts/audit-manifest-schemas.py --runtime claude --strict-references",
+      "python3 scripts/audit-manifest-schemas.py --runtime codex --strict-references",
+      "python3 scripts/package-plugin.py --verify-only",
+      "python3 scripts/install-simulate.py --runtime claude",
+      "python3 scripts/install-simulate.py --runtime codex",
+      "python3 scripts/release-scorecard.py --check --json --target all",
+      "python3 scripts/build-skill-index.py --check",
+      "python3 scripts/build-catalog-metadata.py --check",
+      "python3 scripts/build-capability-graph.py --check",
+      "python3 scripts/regenerate-skills.py --check",
+      "python3 scripts/regenerate-agents.py --check",
+      "python3 scripts/audit-catalog-consistency.py",
+      "python3 scripts/run-pathfinder-tests.py --no-telemetry",
+      "python3 scripts/run-cognitive-tests.py",
+      "python3 scripts/run-hook-tests.py",
+      "python3 scripts/audit-hook-coverage.py --strict-orphans",
+      "python3 scripts/run-artifact-tests.py",
+      "python3 mcp/ultraprompt_meta.py --self-test"
+    ],
+    "manual_smokes": [
+      "Fresh Claude Code session: plugin appears healthy, skills visible, MCP server starts, /ultraprompt:doctor and /ultraprompt:dashboard work.",
+      "Fresh Codex session: skills visible in prompt input, MCP tools include ultraprompt_meta, cache path validates, pathfinder works.",
+      "Dashboard: Mission Control repo-completeness board renders gaps, runtime readiness, telemetry health, memory/dream/learning panes, and graph health without emitting real benchmark telemetry."
+    ],
+    "artifact_validation": [
+      "Validate this PRD with scripts/artifact-validate.py validate prd_technical docs/prds/repo-completeness-closure-v8.prd.yaml.",
+      "Validate generated repo_review_report once repo-completeness panel writes the canonical artifact.",
+      "Validate every gap ledger write against gap_ledger_entry."
+    ]
+  },
+  "open_questions": {
+    "product": [
+      "Should repo-completeness panels write gap ledger entries by default, or require explicit --write?",
+      "What exact specialist dispatch share should count as healthy: 50%, 70%, or lane-dependent?",
+      "Should the canonical public dashboard command be /ultraprompt:dashboard, /ultraprompt:mission-control, or both?",
+      "How long should legacy ultra-prompt:* identifiers be normalized before becoming a hard warning?",
+      "Should overall READY require fresh-session runtime proof, or should source/package readiness be separable for local development?"
+    ],
+    "technical": [
+      "Should .mcp.json be restored for Claude while .codex.mcp.json remains Codex-specific, or should manifests reference generated runtime variants?",
+      "Should install simulation live in a new script or be a mode of install.sh/install-codex.sh/install-claude-code.sh?",
+      "Should gap ledger V2 remain JSONL-only, or should a SQLite index be added for latest/status queries?",
+      "Should telemetry event unification migrate existing events or only apply forward with compatibility readers?",
+      "Should capability graph include every dashboard route/API/store edge, or a summarized operational-edge layer?",
+      "Which PII detectors are in scope for local redaction without adding dependencies?",
+      "Should release-scorecard write dist/release-scorecard.json only when --write-report is passed?"
+    ]
+  },
+  "recommended_first_slice": {
+    "title": "False-ready and runtime manifest blocker patch",
+    "why_first": "It is the highest-risk trust gap and blocks reliable interpretation of every downstream release signal.",
+    "scope": [
+      "Restore or generate the Claude MCP config path referenced by .claude-plugin/plugin.json.",
+      "Fix Codex install script so it does not delete the path referenced by .codex-plugin/plugin.json.",
+      "Make validate-plugin.py and audit-manifest-schemas.py fail missing manifest-declared MCP files.",
+      "Add release-scorecard --check --json no-write mode and include validate-plugin strict results.",
+      "Add a temp install/package simulation for the manifest/MCP matrix."
+    ],
+    "validation": [
+      "python3 scripts/validate-plugin.py --target-runtime source --strict-runtime-files",
+      "python3 scripts/audit-manifest-schemas.py --runtime claude --strict-references",
+      "python3 scripts/audit-manifest-schemas.py --runtime codex --strict-references",
+      "python3 scripts/release-scorecard.py --check --json --target source",
+      "python3 scripts/install-simulate.py --runtime claude",
+      "python3 scripts/install-simulate.py --runtime codex"
+    ]
+  }
+}

@@ -16,6 +16,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:reviewer` (focus: `contract`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `contract-drift-panel`. Preferred: `contract-drift-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Compatibility is asymmetric: producers can extend (add fields, add methods, add optional flags) more freely than they can change or remove. Identify what consumers depend on — including undocumented behavior — before declaring something safe to change. Deprecation is a process, not an event: announce, warn, sunset.

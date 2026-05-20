@@ -17,6 +17,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:auditor` (focus: `infra`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `migration-readiness-panel`. Preferred: `migration-readiness-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Infrastructure changes have blast radius. IAM is least-privilege by intent, often broad-privilege in practice. Secrets management has edges: rotation, access logs, blast radius of compromise. Scheduled jobs accumulate over time and silently break; audit them as a class. Drift between IaC source and actual cloud state is the silent killer.

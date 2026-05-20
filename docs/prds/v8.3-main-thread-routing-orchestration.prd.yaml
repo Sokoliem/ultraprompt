@@ -1,0 +1,610 @@
+schema: prd_technical.v1
+title: Ultraprompt V8.3 Main-Thread Routing and Agent Orchestration Effectiveness
+date: "2026-05-12"
+status: draft
+source_repo: /Users/sokoliem/development/ultraprompt
+source_branch: codex/v8.2-experience-invocation
+source_commit_observed: afb8187
+requested_scope: "Build an execution-ready technical PRD from the architecture recommendations for improving automated routing and triggering of Ultraprompt skills, agents, and panels by the main thread."
+
+problem: |
+  Ultraprompt V8.2 has the right catalog primitives for automated expert routing: 54 skills, 31 agents, 13 panels, 332 capability-graph nodes, 555 graph edges, 50 skills with dispatch_to metadata, and 47 skills with preferred_panel metadata. The current problem is that main-thread routing does not consistently consume that richness.
+
+  The actual runtime path is still skill-first and partly hardcoded: route_intent ranks skills only, pathfinder turns only the top skill into an agent or panel path, panel escalation mostly requires budget=deep, and dispatch_advise carries a static skill-to-agent map that covers 20 skills while source specs define 50 dispatch_to entries. This means a user can ask for broad routing/orchestration improvement and get useful recommendations, but the system still relies on the main thread to manually interpret advisory output instead of receiving a durable routing envelope with confidence, agent, panel, risk, confirmation, artifact, validation, and alternatives.
+
+  The product should become a main-thread Invocation Director, not another advisory-only skill. It should return the exact action plan the assistant can follow: inline answer, skill invocation, sidecar agent dispatch, panel dry run, or panel execution request. It must not bypass runtime permissions or silently spawn costly work; it should make the right route explicit, explainable, testable, and measurable.
+
+  If left as-is, V8.2 will keep passing catalog and graph gates while under-triggering specialist agents, missing panel escalation opportunities, and producing telemetry that proves catalog health more strongly than live adoption.
+
+evidence:
+  repo_shape:
+    - "source/skill-specs.json currently defines 54 skills."
+    - "source/agent-specs.json currently defines 31 agents."
+    - "source/panel-specs.json currently defines 13 panels."
+    - "dist/capability-graph.json currently contains 332 nodes and 555 edges with health.ok true."
+    - "50 skills have dispatch_to metadata and 47 skills have preferred_panel metadata."
+  confirmed_gaps:
+    - id: F-001
+      title: dispatch_advise is stale relative to source specs.
+      evidence: "mcp/ultraprompt_meta.py hardcodes 20 skill_to_agent entries while source/skill-specs.json defines 50 dispatch_to entries; stale extras include cost-audit and db-schema-review."
+    - id: F-002
+      title: Pathfinder is skill-first and panel escalation is budget-gated.
+      evidence: "scripts/pathfinder.py ranks skills first, uses the top skill, and sets path_type=panel only when budget == deep and the selected skill has a preferred panel."
+    - id: F-003
+      title: Panel choice is graph-order dependent for multi-panel skills.
+      evidence: "panel_for_skill returns the first may_use_panel edge instead of ranking candidate panels by panel use_when, pathfinder_tags, risk, or intent fit."
+    - id: F-004
+      title: Router and pathfinder benches do not fully share the production scoring path.
+      evidence: "scripts/run-router-bench.py has its own score/rank implementation; scripts/pathfinder.py calls ultraprompt_index.route_intent."
+    - id: F-005
+      title: Telemetry separates bench/runtime source but still has producer naming ambiguity.
+      evidence: "scripts/pathfinder.py emit_event sets source twice, overwriting the producer value with telemetry_source."
+    - id: F-006
+      title: Runtime adoption gates remain weaker than catalog gates.
+      evidence: "audit-invocation-telemetry reports many activation gaps while default enforcement accepts low live skill/pathfinder counts."
+    - id: F-007
+      title: Main-thread routing lacks a mandatory routing envelope.
+      evidence: "pathfind_workflow can return rich metadata, but there is no required contract that every nontrivial main-thread decision carries dispatch type, panel escalation, confidence gap, risk, artifact, and validation."
+    - id: F-008
+      title: Triggering policy is implicit rather than generated.
+      evidence: "Source specs carry dispatch and panel hints, but there is no compiled routing-policy contract with auto_trigger, min_confidence, default_execution, release_critical, or telemetry_required fields for MCP, CLI, dashboard, and release gates to share."
+  sample_pathfinder_observations:
+    - "Explicit architect request routed to architect as agent-assisted skill with reviewer and no panel."
+    - "Routing-improvement request routed to pathfinding-invocation-review; with deep budget it selected cognitive-governance-panel."
+    - "Explicit panel-quality request routed to pathfinding-invocation-review with cognitive-governance-panel."
+    - "Whole-repo gaps phrasing routed to review rather than repo-review in one probe, showing review/gap/repo ambiguity still matters."
+
+users_and_jobs:
+  - user: Ultraprompt maintainer
+    jobs:
+      - "Add or modify skills, agents, and panels without updating multiple divergent routing tables."
+      - "Know whether a request should stay inline, dispatch one specialist, or escalate to a panel."
+      - "Ship routing changes with tests that exercise the same path the runtime uses."
+  - user: Main-thread Codex or Claude Code assistant
+    jobs:
+      - "Receive a single routing envelope that names the recommended skill, agents, panel, risk, artifact, validation, and alternatives."
+      - "Use specialist agents when they materially improve breadth or isolation."
+      - "Escalate to panels for high-stakes or cross-cutting requests without relying on hand-written intuition."
+  - user: Operator invoking Ultraprompt
+    jobs:
+      - "Get the right specialist or panel for ambiguous natural-language requests."
+      - "See why the system chose skill-only, agent-assisted, or panel execution."
+      - "Trust dashboard and telemetry claims about live routing effectiveness."
+  - user: Release owner
+    jobs:
+      - "Gate releases on real routing behavior, not only catalog consistency."
+      - "Detect stale dispatch metadata, weak panel reachability, and bench-dominated telemetry before publishing."
+
+goals:
+  - id: G-001
+    goal: "Make source specs the single source of truth for skill-to-agent and skill-to-panel orchestration."
+  - id: G-002
+    goal: "Give the main thread a deterministic routing envelope for all nontrivial requests."
+  - id: G-003
+    goal: "Add panel-first and multi-panel scoring so panel escalation is intent-driven, not only budget-driven."
+  - id: G-004
+    goal: "Unify routing validation around the production route_intent/pathfinder implementation."
+  - id: G-005
+    goal: "Track live routing adoption separately from catalog health and benchmark events."
+  - id: G-006
+    goal: "Surface route feedback and governed learning without silently mutating routing policy."
+  - id: G-007
+    goal: "Introduce an Invocation Director contract that recommends exact main-thread actions without taking unauthorized actions itself."
+
+non_goals:
+  - "Do not make every request invoke an agent or panel; low-risk direct work should remain cheap."
+  - "Do not let generated or benchmark routing events count as live adoption."
+  - "Do not silently auto-apply route policy changes from telemetry; route learning must remain governed."
+  - "Do not replace the existing skill/agent/panel catalog architecture."
+  - "Do not require Codex native slash-command parity beyond supported $ultraprompt skill routing and MCP tools."
+  - "Do not introduce hosted telemetry or remote routing services."
+
+requirements:
+  must_have:
+    - id: R-001
+      title: Source-derived dispatch advice
+      description: "dispatch_advise must derive agent, focus, inline-only, mode, risk, confirmation, and artifact metadata from source/skill-specs.json or dist/skill-index.json instead of maintaining a static skill_to_agent table."
+      addresses: [F-001]
+      validation: "A new audit fails if a skill with dispatch_to is missing from dispatch_advise coverage or if dispatch_advise references non-existent skills."
+    - id: R-002
+      title: Routing envelope schema
+      description: "pathfinder and dispatch_advise must return a shared routing_envelope containing selected skill, confidence, runner-up gap, execution_mode, dispatches, panel_candidate, risk, confirmation, expected_artifact, validation_hint, alternatives, and reasons_not_selected."
+      addresses: [F-007]
+      validation: "routing_envelope fixture validates as an artifact and appears in pathfind_workflow output."
+    - id: R-003
+      title: Panel candidate scoring
+      description: "Pathfinder must rank panels directly from panel use_when, do_not_use_when, pathfinder_tags, phase contracts, risk, estimated cost, and linked skill edges."
+      addresses: [F-002, F-003]
+      validation: "Deep and explicit-panel golden cases select the expected panel even when the top skill has multiple panel candidates."
+    - id: R-004
+      title: Intent-driven panel escalation
+      description: "Requests containing high-stakes, multi-perspective, cross-cutting, release-gate, comprehensive audit, or explicit panel language must be eligible for panel execution even when budget is standard, subject to risk/cost guardrails."
+      addresses: [F-002]
+      validation: "Pathfinder tests cover standard-budget panel escalation and why-not-panel explanations."
+    - id: R-005
+      title: Unified router bench implementation
+      description: "Router positive, adversarial, overlap, and pathfinder tests must exercise the production route_intent/pathfinder path or explicitly compare any lightweight bench scorer against it."
+      addresses: [F-004]
+      validation: "run-router-bench.py fails if bench ranking diverges from route_intent for golden cases."
+    - id: R-006
+      title: Natural-language routing coverage
+      description: "Add natural-language golden cases for all core skills plus high-risk specialist and ecosystem lanes; explicit $ultraprompt generated cases remain supplemental, not the main proof."
+      addresses: [F-004]
+      validation: "Pathfinder report distinguishes hand-authored natural-language cases from generated explicit-invocation cases and gates both."
+    - id: R-007
+      title: Producer-safe telemetry event schema
+      description: "Pathfinder events must use separate producer and telemetry_source fields so runtime adoption analysis can distinguish pathfinder, MCP, command, bench, synthetic, and real user origins."
+      addresses: [F-005]
+      validation: "audit-invocation-telemetry rejects events that conflate producer and telemetry_source."
+    - id: R-008
+      title: Runtime adoption release gates
+      description: "Release scorecard target=all must include routing adoption checks: real pathfinder decisions, live skill invocations, plugin agent dispatch share, Explore share, panel recommendation count, panel run count, and release-critical lane activation."
+      addresses: [F-006]
+      validation: "Strict release mode fails when real-vs-bench ratio, live skill count, or required lane activation is below threshold."
+    - id: R-009
+      title: Governed route feedback loop
+      description: "Route outcomes must be recordable as accepted, corrected, ignored, or failed, with optional learning candidates that can be approved, applied, reverted, and audited."
+      addresses: [F-006, F-007]
+      validation: "route_feedback creates a candidate without mutating policy until learning_apply validates router/pathfinder gates."
+    - id: R-010
+      title: Dashboard routing effectiveness surface
+      description: "Mission Control must show routing envelope health, stale dispatch coverage, panel escalation opportunities, live-vs-bench telemetry, Explore share, and top corrected routes."
+      addresses: [F-006, F-007]
+      validation: "Dashboard API returns routing effectiveness summary and browser smoke verifies the cards render non-empty data."
+    - id: R-011
+      title: Invocation Director trigger plan
+      description: "Add route_trigger_plan(intent, runtime, budget, constraints, dry_run=true) as the canonical MCP/API contract for the exact main-thread action plan, including inline, skill, agent, panel-dry-run, and panel-execution recommendations."
+      addresses: [F-007, F-008]
+      validation: "route_trigger_plan returns a schema-valid routing_decision and never executes agents, panels, or mutating follow-up work directly."
+    - id: R-012
+      title: Generated triggering policy
+      description: "Extend skill metadata with a triggering block and compile it to dist/routing-policy.json with auto_trigger, min_confidence, default_execution, panel_escalation, inline_override, release_critical, and telemetry_required fields."
+      addresses: [F-001, F-008]
+      validation: "A routing-policy build/audit command fails when source metadata, generated policy, dispatch_advise, or pathfinder behavior drift."
+    - id: R-013
+      title: Concrete live activation thresholds
+      description: "Strict release mode must require at least 5 real pathfinder decisions, at least 3 distinct release-relevant intents, live activation for configured release-critical skills, plugin-agent share >=50% when dispatch total is >=20, Explore share <=35%, and panel proof via a schema-valid smoke or real run artifact."
+      addresses: [F-006]
+      validation: "Release scorecard blocks when required live skills or panel proof are missing, even if deterministic router benches pass."
+  should_have:
+    - id: R-014
+      title: Confidence calibration
+      description: "Replace raw score-as-confidence with normalized confidence plus confidence gap and ambiguity class."
+    - id: R-015
+      title: Panel dry-run planner
+      description: "When a panel is recommended but not executed, return a dry-run panel_plan with phases, agents, expected artifacts, cost, and confirmation notes."
+    - id: R-016
+      title: Catalog authoring lint
+      description: "Reject new skills or panels that omit dispatch metadata, paired panels, validators, output artifacts, or negative routing examples."
+    - id: R-017
+      title: Route replay harness
+      description: "Replay recent route_outcome and pathfinder_decision events against the current catalog to detect regressions or newly ambiguous routes."
+  wont_have_this_release:
+    - id: W-001
+      title: Fully autonomous agent execution policy
+      reason: "The PRD improves recommendations and routing contracts, but actual subagent spawning remains controlled by Codex/Claude runtime permissions and user/developer policy."
+    - id: W-002
+      title: Remote model-based router service
+      reason: "The plugin remains local-first and deterministic enough to validate with repo fixtures."
+    - id: W-003
+      title: Panel execution without confirmation for mutating follow-up work
+      reason: "Panels remain read-only or proposal-only unless a later build task explicitly applies changes."
+
+scope:
+  in:
+    - "MCP dispatch_advise, pathfind_workflow, panel_plan, route_feedback, and release_scorecard behavior."
+    - "scripts/pathfinder.py, scripts/ultraprompt_index.py, scripts/run-router-bench.py, scripts/run-pathfinder-tests.py, scripts/replay-routing-events.py, scripts/audit-invocation-telemetry.py, scripts/release-scorecard.py."
+    - "source/skill-specs.json, source/panel-specs.json, source/agent-specs.json, generated dist metadata, and dashboard routing-health UI."
+    - "Generated dist/routing-policy.json and any source/generator changes needed to keep main-thread triggering policy single-sourced."
+    - "Artifact validation for routing envelopes and invocation telemetry audits."
+    - "Local governed learning policy for route corrections."
+  out:
+    - "Changing Codex or Claude Code native agent-dispatch internals."
+    - "Removing manual user control over panel or mutation escalation."
+    - "Rewriting all existing skills or panels."
+    - "Hosted telemetry, external analytics, or cross-machine synchronization."
+  runtime_targets:
+    - source
+    - package
+    - codex_cache
+    - claude_code_install
+  release_target: "V8.3 routing-effectiveness release or V8.2.x polish release"
+
+technical_design:
+  data_model:
+    entities:
+      - name: routing_decision
+        fields:
+          - schema
+          - trace_id
+          - intent
+          - runtime
+          - top_skill
+          - confidence
+          - decision_type
+          - execution_mode
+          - dispatches
+          - panel
+          - risk
+          - confirmation_required
+          - reason
+          - telemetry_policy
+      - name: routing_envelope
+        fields:
+          - schema
+          - trace_id
+          - intent
+          - selected_skill
+          - confidence
+          - confidence_gap
+          - ambiguity
+          - execution_mode
+          - dispatches
+          - panel_candidates
+          - selected_panel
+          - risk
+          - confirmation
+          - expected_artifact
+          - validation_hint
+          - alternatives
+          - reasons_not_selected
+          - policy_influences
+          - memory_influences
+          - graph_hash
+      - name: route_outcome
+        fields:
+          - trace_id
+          - selected_skill
+          - selected_agent
+          - selected_panel
+          - followed
+          - corrected_skill
+          - corrected_panel
+          - outcome
+          - reason
+          - evidence_refs
+      - name: route_policy_candidate
+        fields:
+          - id
+          - source_event_ids
+          - intent_pattern
+          - skill
+          - panel
+          - weight_delta
+          - confidence
+          - status
+          - created_at
+          - validated_at
+      - name: triggering_policy
+        fields:
+          - skill
+          - auto_trigger
+          - min_confidence
+          - default_execution
+          - dispatch_to
+          - panel_escalation
+          - inline_override
+          - release_critical
+          - telemetry_required
+          - runtime_support
+    storage:
+      - "dist/capability-graph.json for graph-derived relationships."
+      - "dist/routing-policy.json for generated trigger and execution-mode policy."
+      - "~/.ultraprompt/events/events.jsonl for pathfinder_decision and route_outcome events."
+      - "~/.ultraprompt/learning/route-policy.json for approved route overlays."
+      - "tests/artifacts/routing_envelope.valid.json for contract validation."
+  api_surface:
+    mcp_tools:
+      - tool: dispatch_advise
+        change: "Return routing_envelope and derive dispatch data from source specs."
+      - tool: pathfind_workflow
+        change: "Return routing_envelope v2 with panel candidates and confidence gap."
+      - tool: route_trigger_plan
+        change: "Return routing_decision v1 with the exact main-thread action plan and dry-run-only execution metadata."
+      - tool: panel_plan
+        change: "Accept routing_envelope or panel_name and return executable dry-run phases."
+      - tool: route_feedback
+        change: "Record route_outcome and optionally create governed learning candidate."
+      - tool: release_scorecard
+        change: "Include routing effectiveness and runtime adoption gates."
+    cli_scripts:
+      - "python3 scripts/pathfinder.py pathfind --intent ... --budget ... --no-telemetry"
+      - "python3 scripts/run-router-bench.py"
+      - "python3 scripts/run-pathfinder-tests.py --no-telemetry --json"
+      - "python3 scripts/audit-invocation-telemetry.py --json --enforce --release-critical-v8-3"
+      - "python3 scripts/release-scorecard.py --check --target all --json"
+    dashboard_endpoints:
+      - /api/pathfind
+      - /api/cognitive/health
+      - /api/release-scorecard?target=all
+      - /api/routing-effectiveness
+  integration_points:
+    - "source/skill-specs.json remains canonical for skill routing metadata."
+    - "source/panel-specs.json remains canonical for panel phase and escalation metadata."
+    - "dist/routing-policy.json compiles source triggering metadata for MCP, CLI, dashboard, and release gates."
+    - "dist/skill-index.json carries normalized source metadata consumed by MCP and scripts."
+    - "dist/capability-graph.json supplies skill-agent-panel relationships."
+    - "mcp/ultraprompt_meta.py exposes routing decisions to Codex and Claude Code."
+    - "dashboard/app.js and scripts/dashboard.py surface health and adoption evidence."
+    - "learning-queue.py and route-policy.json govern route feedback application."
+  sequence_flows:
+    - name: Main-thread recommendation
+      steps:
+        - "Main thread calls route_trigger_plan, dispatch_advise, or pathfind_workflow with intent, runtime, budget, constraints, and estimated scope."
+        - "Router ranks skill candidates using route_intent."
+        - "Panel scorer ranks panel candidates independently and through skill graph edges."
+        - "Routing decision and routing envelope are returned with execution mode, alternatives, and why-not-selected details."
+        - "Main thread executes inline, dispatches sidecar agent, or requests/executes panel plan according to runtime policy."
+    - name: Route feedback
+      steps:
+        - "Main thread records whether recommendation was followed or corrected."
+        - "route_feedback writes route_outcome event."
+        - "Dream or learning job proposes route_policy_candidate when enough evidence accumulates."
+        - "learning_apply validates router/pathfinder gates before mutating route-policy.json."
+    - name: Release validation
+      steps:
+        - "Catalog and graph checks run first."
+      - "Router/pathfinder natural-language tests run through production code."
+      - "Recent route outcomes and pathfinder decisions replay against the current catalog."
+      - "Telemetry audit separates bench, synthetic, and live events."
+        - "Release scorecard reports routing effectiveness alongside source/package/runtime targets."
+  failure_modes:
+    - id: FM-001
+      mode: "Source specs and generated index drift."
+      mitigation: "regenerate-skills, build-skill-index, audit-catalog-consistency, and dispatch coverage audit fail release."
+    - id: FM-002
+      mode: "Panel scorer over-escalates cheap tasks."
+      mitigation: "Cost/risk guardrails require high-stakes, explicit panel, cross-cutting, or low confidence-gap signals."
+    - id: FM-003
+      mode: "Bench telemetry pollutes live adoption metrics."
+      mitigation: "producer and telemetry_source are separate; release gates exclude bench/synthetic from live thresholds."
+    - id: FM-004
+      mode: "Route feedback overfits a single bad correction."
+      mitigation: "Learning candidates require repeated evidence or explicit approval, validation gates, and reversible application."
+    - id: FM-005
+      mode: "Router bench passes while runtime path regresses."
+      mitigation: "Bench must call production route_intent/pathfinder and report divergence if any helper scorer is retained."
+    - id: FM-006
+      mode: "Main thread ignores routing envelope."
+      mitigation: "Skill instructions and CLAUDE.md require routing envelope use for nontrivial or ambiguous Ultraprompt tasks; dashboard tracks ignored/corrected outcomes."
+    - id: FM-007
+      mode: "Ambiguous requests oscillate between review, architect, repo-review, and pathfinding-invocation-review."
+      mitigation: "Add overlap-budget cases, confidence gap warnings, and alternatives with explicit disambiguation reasons."
+    - id: FM-008
+      mode: "Invocation Director recommends an action the current runtime cannot perform."
+      mitigation: "routing_decision includes runtime_support and fallback_action fields, and route_trigger_plan remains dry-run-only."
+  telemetry:
+    events:
+      - pathfinder_decision
+      - routing_envelope_emitted
+      - route_trigger_plan_emitted
+      - route_outcome
+      - panel_recommendation
+      - panel_run_started
+      - panel_run_validated
+      - dispatch_advise_decision
+      - learning_candidate_created
+      - route_policy_applied
+    metrics:
+      - real_pathfinder_decisions
+      - bench_pathfinder_decisions
+      - real_to_bench_ratio
+      - plugin_agent_dispatch_share
+      - explore_share
+      - panel_recommendation_rate
+      - panel_followed_rate
+      - routing_correction_rate
+      - top1_natural_language_accuracy
+      - overlap_budget_violations
+      - release_critical_lane_activation
+      - distinct_release_relevant_intents
+      - panel_smoke_validated
+  rollout_technical_plan:
+    - phase: "Phase 0: contracts"
+      work: "Define routing_decision, routing_envelope, route_outcome, and triggering_policy schemas and fixtures."
+    - phase: "Phase 1: source-derived dispatch"
+      work: "Refactor dispatch_advise to consume normalized skill metadata, generate dist/routing-policy.json, and add drift tests."
+    - phase: "Phase 2: panel scoring"
+      work: "Add panel candidate scorer, multi-panel ranking, why-not-panel reasons, and panel_plan bridge."
+    - phase: "Phase 3: validation unification"
+      work: "Make router/pathfinder benches exercise production routing and add natural-language coverage."
+    - phase: "Phase 4: telemetry and learning"
+      work: "Fix producer/source event schema, add route feedback lifecycle, and strengthen adoption gates."
+    - phase: "Phase 5: dashboard and release"
+      work: "Expose routing effectiveness in Mission Control and scorecard target=all."
+
+performance_considerations:
+  - "Routing envelope generation must remain fast enough for pre-dispatch use; target p95 under 500ms for local catalog-only pathfinding."
+  - "route_trigger_plan must remain dry-run and local-index only by default, so a recommendation can happen before any expensive agent or panel work."
+  - "Panel scoring should use precomputed catalog/index data and avoid scanning large repo files."
+  - "Route replay should be bounded by time window and event count to avoid slowing release scorecards."
+  - "Dashboard routing cards should read summarized telemetry instead of parsing all events on every refresh."
+
+security_and_privacy:
+  - "Route events must truncate or redact user intent snippets before persistence when they may contain secrets or private repo details."
+  - "No route feedback or learning candidate should mutate user repositories."
+  - "Panel recommendations must preserve confirmation metadata before any mutating follow-up work."
+  - "Telemetry remains local-first under ~/.ultraprompt and must not be transmitted remotely."
+  - "Dashboard endpoints must remain localhost-focused and not expose raw private prompts by default."
+
+implementation_plan:
+  milestones:
+    - id: M1
+      title: Routing contracts, trigger policy, and dispatch drift closure
+      requirements: [R-001, R-002, R-007, R-011, R-012]
+    - id: M2
+      title: Panel-aware pathfinder
+      requirements: [R-003, R-004, R-015]
+    - id: M3
+      title: Production-aligned tests and release gates
+      requirements: [R-005, R-006, R-008, R-013, R-016]
+    - id: M4
+      title: Feedback, learning, and dashboard visibility
+      requirements: [R-009, R-010, R-017]
+
+risks:
+  - id: RK-001
+    risk: "Over-routing increases latency and cost by invoking panels too often."
+    severity: high
+    likelihood: medium
+    mitigation: "Use confidence gap, risk, explicit panel language, and estimated scope guardrails."
+  - id: RK-002
+    risk: "Source-derived metadata exposes catalog authoring mistakes immediately."
+    severity: medium
+    likelihood: high
+    mitigation: "Add authoring lint and generated fixture updates before enforcing in release mode."
+  - id: RK-003
+    risk: "Telemetry adoption thresholds fail on low-usage local machines."
+    severity: medium
+    likelihood: medium
+    mitigation: "Separate warning mode from strict release mode and allow release-critical required-lane config."
+  - id: RK-004
+    risk: "Learning policy degrades routing through overfitting."
+    severity: high
+    likelihood: low
+    mitigation: "Require approval, test replay, reversible apply, and evidence thresholds."
+  - id: RK-005
+    risk: "Runtime-specific Codex and Claude command semantics cause misleading advice."
+    severity: medium
+    likelihood: medium
+    mitigation: "Routing envelope includes Claude command, Codex command, and MCP alternative where applicable."
+
+metrics:
+  primary:
+    - "100% dispatch_advise coverage for source skills with dispatch_to metadata."
+    - "0 stale dispatch_advise references to non-existent skills."
+    - ">=95% top-1 and 100% top-3 pathfinder accuracy on hand-authored natural-language cases."
+    - "0 overlap-budget violations for high-risk routing pairs."
+    - "Panel recommendation appears for 100% of explicit panel/high-stakes golden cases."
+    - "Strict release windows contain at least 5 real pathfinder decisions across at least 3 distinct release-relevant intents."
+    - "Configured release-critical skills, initially goal, frontend-visual-qa, and pathfinding-invocation-review, each have at least one live invocation or an explicit waiver."
+  secondary:
+    - "Real pathfinder events are separated from bench and synthetic events."
+    - "Plugin-agent share is >=50% when dispatch total is >=20, and Explore share is <=35% in release-candidate smoke."
+    - "experience-quality-panel has one schema-valid smoke result or real run artifact before release."
+    - "Routing correction rate trends downward after approved route-policy changes."
+    - "Plugin agent dispatch share increases without unacceptable panel overuse."
+    - "Dashboard shows non-empty routing effectiveness cards."
+
+acceptance_criteria:
+  - id: AC-001
+    requirement: R-001
+    given: "a skill has dispatch_to metadata in source/skill-specs.json"
+    when: "dispatch_advise receives an intent routed to that skill"
+    then: "the response includes the correct agent/focus and no hardcoded fallback table is needed"
+  - id: AC-002
+    requirement: R-002
+    given: "pathfind_workflow returns a recommendation"
+    when: "the output is validated"
+    then: "routing_envelope includes selected skill, execution mode, alternatives, risk, confirmation, artifact, and validation hint"
+  - id: AC-003
+    requirement: R-003
+    given: "a skill has multiple paired panels"
+    when: "the intent matches one panel more strongly"
+    then: "pathfinder selects the higher scoring panel and records why the other panel lost"
+  - id: AC-004
+    requirement: R-004
+    given: "a standard-budget request explicitly asks for a comprehensive panel"
+    when: "pathfinder runs"
+    then: "the recommended path can be panel with cost and confirmation metadata"
+  - id: AC-005
+    requirement: R-005
+    given: "router bench passes"
+    when: "the same cases are replayed through route_intent/pathfinder"
+    then: "there is no divergence in expected top skill or expected panel"
+  - id: AC-006
+    requirement: R-008
+    given: "strict release mode is enabled"
+    when: "live routing adoption is below configured thresholds"
+    then: "release scorecard reports risky or blocked rather than ready"
+  - id: AC-007
+    requirement: R-009
+    given: "the main thread corrects a route"
+    when: "route_feedback is submitted"
+    then: "a route_outcome event is written and any policy update remains pending approval"
+  - id: AC-008
+    requirement: R-010
+    given: "Mission Control is open"
+    when: "routing effectiveness data exists"
+    then: "the dashboard surfaces coverage, adoption, panel, and correction metrics"
+  - id: AC-009
+    requirement: R-011
+    given: "the main thread submits an ambiguous nontrivial request to route_trigger_plan"
+    when: "the selected route requires expert help"
+    then: "the response identifies inline, skill, agent, panel dry-run, or panel execution recommendation without executing it directly"
+  - id: AC-010
+    requirement: R-012
+    given: "a skill declares triggering metadata"
+    when: "the routing policy is generated"
+    then: "dist/routing-policy.json contains matching execution, confidence, release-critical, and telemetry policy"
+  - id: AC-011
+    requirement: R-013
+    given: "strict release mode is enabled"
+    when: "goal, frontend-visual-qa, pathfinding-invocation-review, or experience-quality-panel proof is missing"
+    then: "the release scorecard blocks or requires an explicit waiver"
+
+rollout_plan:
+  - phase: Design and fixtures
+    exit_gate: "routing_envelope and route_outcome schemas validate with positive and negative fixtures"
+  - phase: Dispatch metadata refactor
+    exit_gate: "dispatch_advise coverage audit passes against source specs"
+  - phase: Panel-aware pathfinder
+    exit_gate: "panel golden cases pass for explicit panel, high-stakes, and multi-panel skill scenarios"
+  - phase: Release gate hardening
+    exit_gate: "release-scorecard target=all reports routing effectiveness and fails strict low-adoption fixtures"
+  - phase: Dashboard and learning
+    exit_gate: "dashboard smoke shows routing cards and route feedback produces governed candidates"
+
+validation_plan:
+  prd_validation:
+    - command: "python3 scripts/artifact-validate.py validate prd_technical docs/prds/v8.3-main-thread-routing-orchestration.prd.json"
+    - command: "python3 scripts/artifact-validate.py validate prd_technical docs/prds/v8.3-main-thread-routing-orchestration.prd.yaml"
+  catalog_validation:
+    - command: "python3 scripts/audit-catalog-consistency.py --json"
+    - command: "python3 scripts/build-capability-graph.py --check"
+  routing_validation:
+    - command: "python3 scripts/run-router-bench.py"
+    - command: "python3 scripts/run-router-bench.py --adversarial"
+    - command: "python3 scripts/run-router-bench.py --overlap-budget"
+    - command: "python3 scripts/run-pathfinder-tests.py --no-telemetry --json"
+    - command: "python3 scripts/replay-routing-events.py --json --enforce"
+  telemetry_validation:
+    - command: "python3 scripts/audit-invocation-telemetry.py --json --enforce --release-critical-v8-3"
+  release_validation:
+    - command: "python3 scripts/release-scorecard.py --check --target all --json"
+    - command: "python3 scripts/panel-runs.py smoke --panel experience-quality-panel"
+  dashboard_validation:
+    - command: "start dashboard, then smoke /api/routing-effectiveness and /api/release-scorecard?target=all"
+
+traceability:
+  - finding: F-001
+    requirements: [R-001, R-012, R-016]
+    validation: ["dispatch coverage audit", "catalog validation"]
+  - finding: F-002
+    requirements: [R-003, R-004, R-015]
+    validation: ["pathfinder panel golden cases"]
+  - finding: F-004
+    requirements: [R-005, R-006]
+    validation: ["router bench", "pathfinder bench"]
+  - finding: F-005
+    requirements: [R-007, R-008, R-013]
+    validation: ["telemetry audit", "release scorecard"]
+  - finding: F-007
+    requirements: [R-002, R-009, R-010, R-011]
+    validation: ["artifact validate", "route feedback smoke", "dashboard smoke"]
+  - finding: F-008
+    requirements: [R-011, R-012]
+    validation: ["routing policy build", "route_trigger_plan smoke"]
+
+open_questions:
+  product:
+    - "Should strict routing adoption gates block local development releases or only publish/release candidates?"
+    - "What default threshold should trigger panel escalation without explicit user request?"
+    - "Should the dashboard present route corrections as recommendations or as a maintenance queue?"
+  technical:
+    - "Should routing_envelope become a first-class artifact schema in artifact-validate.py or remain internal JSON?"
+    - "Should routing_decision and triggering_policy become first-class artifact schemas or stay in generated dist metadata?"
+    - "Should panel scoring live in scripts/pathfinder.py or a shared module consumed by MCP and CLI paths?"
+    - "How should route feedback identify privacy-sensitive intent text before writing local events?"
+    - "Should dispatch_advise call pathfinder directly or share a lower-level routing envelope builder?"
+    - "What is the minimum live-event window for release-critical adoption gates on a local-first plugin?"

@@ -66,10 +66,17 @@ SCHEMAS = {
         "required": ["repo", "category", "severity", "confidence", "title", "evidence"],
         "valid_severities": ["critical", "high", "medium", "low"],
         "valid_confidences": ["confirmed", "likely", "possible"],
+        "valid_status": ["open", "accepted", "in_progress", "fixed", "validated", "false_positive", "deferred"],
         "valid_categories": [
             "incomplete_feature", "wiring_gap", "contract_mismatch", "missing_test",
             "release_blocker", "stale_code", "documentation_drift", "dead_code",
             "observability_gap", "configuration_gap"
+        ],
+    },
+    "repo_completeness_report": {
+        "required": [
+            "repo", "panel_run", "repo_review_report", "gap_ledger_entries",
+            "dedupe_summary", "validation_summary", "next_actions"
         ],
     },
     "repo_review_report": {
@@ -150,14 +157,212 @@ SCHEMAS = {
         "valid_schema": ["learning_candidate.v1"],
         "valid_learning_kinds": [
             "route_update", "benchmark_candidate", "memory_promotion",
-            "catalog_proposal", "panel_proposal", "retrieval_hint"
+            "catalog_proposal", "panel_proposal", "retrieval_hint",
+            "prompt_update", "agent_contract_update", "eval_case_update",
+            "dashboard_ui_update", "telemetry_parser_update", "source_patch"
         ],
         "valid_learning_status": ["pending", "approved", "rejected", "applied", "reverted", "expired", "needs_evidence"],
         "valid_risk": ["low", "medium", "high"],
     },
+    "self_improvement_run": {
+        "required": [
+            "schema", "id", "mode", "scope", "status", "evidence",
+            "hypotheses", "gate_results", "learner_eval", "patch_hash",
+            "rollback_path", "post_apply_monitor"
+        ],
+        "valid_schema": ["self_improvement_run.v1"],
+        "valid_self_improvement_mode": ["autopilot", "canary", "dry-run"],
+        "valid_self_improvement_status": ["dry_run", "canary", "applied", "needs_evidence", "rolled_back", "no_op"],
+    },
+    "self_improvement_patch": {
+        "required": ["schema", "id", "run_id", "created_at", "mutation_scope", "operations", "patch_hash"],
+        "valid_schema": ["self_improvement_patch.v1"],
+        "min_counts": {"operations": 1},
+    },
+    "learner_eval_report": {
+        "required": [
+            "schema", "verdict", "evidence_supported", "minimal_patch",
+            "rollback_complete", "validation_claim_matches", "risks", "created_at"
+        ],
+        "valid_schema": ["learner_eval_report.v1"],
+        "valid_learner_eval_verdict": ["pass", "fail"],
+    },
+    "rollback_manifest": {
+        "required": ["schema", "id", "run_id", "created_at", "entries"],
+        "valid_schema": ["rollback_manifest.v1"],
+    },
     "capability_graph": {
         "required": ["schema", "plugin_version", "nodes", "edges", "health", "source_hash"],
         "valid_schema": ["capability_graph.v1"],
+    },
+    "routing_decision": {
+        "required": [
+            "schema",
+            "trace_id",
+            "intent",
+            "runtime",
+            "top_skill",
+            "confidence",
+            "decision_type",
+            "execution_mode",
+            "dispatches",
+            "panel",
+            "risk",
+            "confirmation_required",
+            "reason",
+            "telemetry_policy",
+        ],
+        "valid_schema": ["routing_decision.v1"],
+        "valid_decision_type": ["inline", "agent", "panel", "command", "skill-only"],
+    },
+    "routing_envelope": {
+        "required": [
+            "schema",
+            "trace_id",
+            "intent_excerpt",
+            "selected_skill",
+            "confidence",
+            "confidence_gap",
+            "ambiguity",
+            "execution_mode",
+            "dispatches",
+            "panel_candidates",
+            "selected_panel",
+            "risk",
+            "confirmation",
+            "expected_artifact",
+            "validation_hint",
+            "alternatives",
+            "reasons_not_selected",
+            "telemetry_policy",
+        ],
+        "valid_schema": ["routing_envelope.v1"],
+    },
+    "route_outcome": {
+        "required": [
+            "schema",
+            "trace_id",
+            "intent",
+            "outcome",
+        ],
+        "valid_schema": ["route_outcome.v1"],
+        "valid_outcome": ["accepted", "corrected", "failed", "abandoned", "unknown"],
+    },
+    "design_review": {
+        "required": [
+            "scope",
+            "evidence_reviewed",
+            "product_domain_fit",
+            "visual_hierarchy_findings",
+            "layout_density_findings",
+            "interaction_state_findings",
+            "copy_tone_findings",
+            "design_system_alignment",
+            "ranked_recommendations",
+            "follow_up_validation_plan",
+        ],
+        "min_counts": {
+            "evidence_reviewed": 1,
+            "ranked_recommendations": 1,
+            "follow_up_validation_plan": 1,
+        },
+    },
+    "visual_qa_report": {
+        "required": [
+            "surface",
+            "run_command",
+            "viewports",
+            "states_inspected",
+            "screenshot_evidence",
+            "visual_findings",
+            "fixes_applied_or_proposed",
+            "before_after_verification",
+            "remaining_visual_risks",
+            "validation",
+        ],
+        "min_counts": {
+            "viewports": 1,
+            "screenshot_evidence": 1,
+            "remaining_visual_risks": 1,
+        },
+    },
+    "design_system_review": {
+        "required": [
+            "design_system_map",
+            "token_semantics_findings",
+            "component_api_findings",
+            "state_accessibility_coverage_findings",
+            "drift_duplication_findings",
+            "migration_sequence",
+            "governance_checks",
+            "validation_commands",
+        ],
+        "min_counts": {
+            "design_system_map": 1,
+            "governance_checks": 1,
+            "validation_commands": 1,
+        },
+    },
+    "experience_quality_report": {
+        "required": [
+            "surface_map",
+            "evidence_inventory",
+            "ranked_findings",
+            "visual_quality_assessment",
+            "interaction_accessibility_risks",
+            "validation_plan",
+            "implementation_sequence",
+            "preserved_strengths",
+        ],
+        "min_counts": {
+            "evidence_inventory": 1,
+            "ranked_findings": 1,
+            "validation_plan": 1,
+        },
+    },
+    "invocation_telemetry_audit": {
+        "required": [
+            "schema",
+            "generated_at",
+            "window_days",
+            "runtime_events",
+            "agent_dispatches",
+            "pathfinder",
+            "activation_gaps",
+            "thresholds",
+            "ok",
+        ],
+        "valid_schema": ["invocation_telemetry_audit.v1", "invocation_telemetry_audit.v2", "invocation_telemetry_audit.v3"],
+        "required_nested": {
+            "runtime_events": ["skill_invocations", "legacy_skill_invocations"],
+            "agent_dispatches": ["total", "plugin_total", "plugin_share_pct", "explore_total", "explore_share_pct"],
+            "pathfinder": [
+                "decisions",
+                "real_decisions",
+                "bench_decisions",
+                "synthetic_decisions",
+                "real_pathfinder_ratio_pct",
+            ],
+            "activation_gaps": ["skills_never_invoked", "agents_never_dispatched"],
+        },
+    },
+    "goal_contract": {
+        "required": [
+            "condition",
+            "acceptance_criteria",
+            "proof_method",
+            "bounds",
+            "status",
+            "runtime",
+            "native_goal_available",
+            "evidence_refs",
+        ],
+        "valid_status": ["active", "met", "blocked", "cleared"],
+        "valid_runtime": ["codex", "claude-code"],
+        "min_counts": {
+            "acceptance_criteria": 1,
+            "evidence_refs": 1,
+        },
     },
 }
 
@@ -167,6 +372,9 @@ def load_artifact(path: Path):
     text = path.read_text()
     if path.suffix in (".yaml", ".yml"):
         if yaml is None:
+            json_twin = path.with_suffix(".json")
+            if json_twin.exists():
+                return json.loads(json_twin.read_text(encoding="utf-8")), None
             return None, "PyYAML not installed; install with pip install pyyaml"
         return yaml.safe_load(text), None
     elif path.suffix == ".json":
@@ -251,6 +459,12 @@ def validate(artifact_type: str, data: dict) -> dict:
         "valid_learning_kinds": "kind",
         "valid_learning_status": "status",
         "valid_risk": "risk",
+        "valid_runtime": "runtime",
+        "valid_decision_type": "decision_type",
+        "valid_outcome": "outcome",
+        "valid_self_improvement_mode": "mode",
+        "valid_self_improvement_status": "status",
+        "valid_learner_eval_verdict": "verdict",
     }
     for schema_key, field in enum_fields.items():
         if schema_key not in schema:
@@ -280,6 +494,30 @@ def validate(artifact_type: str, data: dict) -> dict:
         if len(reframings) < schema["min_reframings"]:
             findings.append({"severity": "medium", "issue": "too_few_reframings",
                            "count": len(reframings), "required": schema["min_reframings"]})
+    for field, min_count in schema.get("min_counts", {}).items():
+        value = data.get(field)
+        if isinstance(value, (list, str, dict)):
+            count = len(value)
+        elif value:
+            count = 1
+        else:
+            count = 0
+        if count < min_count:
+            findings.append({"severity": "high", "issue": "too_few_items",
+                           "field": field, "count": count, "required": min_count})
+
+    for parent_field, required_fields in schema.get("required_nested", {}).items():
+        parent = data.get(parent_field)
+        if not isinstance(parent, dict):
+            findings.append({"severity": "high", "issue": "missing_nested_object",
+                           "field": parent_field})
+            continue
+        for nested_field in required_fields:
+            if nested_field not in parent:
+                findings.append({"severity": "high",
+                               "issue": "missing_nested_field",
+                               "field": parent_field,
+                               "nested_field": nested_field})
 
     return {
         "ok": len([f for f in findings if f["severity"] == "high"]) == 0,

@@ -24,17 +24,18 @@ def main() -> int:
     index = build_index(root)
     top = route_intent(index, intent, limit=3)
     if not top:
-        print("| Skill | Confidence | Why | Invoke |")
-        print("|-------|------------|-----|--------|")
-        print(f"| /ultraprompt:repo-map | low | No clear match for intent; start with a structural map | /ultraprompt:repo-map |")
+        print("| Skill | Confidence | Why | Claude Code | Codex |")
+        print("|-------|------------|-----|-------------|-------|")
+        print(f"| /ultraprompt:repo-map | low | No clear match for intent; start with a structural map | /ultraprompt:repo-map | $ultraprompt:repo-map |")
         return 0
-    print("| Skill | Confidence | Why | Invoke |")
-    print("|-------|------------|-----|--------|")
+    print("| Skill | Confidence | Why | Claude Code | Codex |")
+    print("|-------|------------|-----|-------------|-------|")
     for result in top:
         name = result["skill"]
         why = str(result.get("why", ""))[:120]
         invoke = result.get("command") or f"/ultraprompt:{name}"
-        print(f"| /ultraprompt:{name} | {result['confidence']} | {why} | {invoke} |")
+        codex_invoke = result.get("codex_command") or f"$ultraprompt:{name}"
+        print(f"| /ultraprompt:{name} | {result['confidence']} | {why} | {invoke} | {codex_invoke} |")
     return 0
 
 

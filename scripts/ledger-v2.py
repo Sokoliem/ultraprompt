@@ -5,16 +5,136 @@ Writes to the active runtime ledger and reads across Claude Code + Codex
 ledgers so dashboard and doctor commands see both clients.
 """
 from __future__ import annotations
-import argparse, json, os, re, sys, time
+import argparse, json, os, re, subprocess, sys, time
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 SCHEMA_VERSION = 2
 
 
-def _runtime_home_name() -> str:
+@lru_cache(maxsize=1)
+def process_runtime_hint() -> str:
+    """Infer runtime from the process tree when the host does not export env hints."""
+    if os.name != "posix":
+        return ""
+    try:
+        pid = os.getppid()
+        for _ in range(8):
+            if pid <= 1:
+                break
+            command = subprocess.check_output(
+                ["ps", "-o", "comm=", "-p", str(pid)],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+            lowered = command.lower()
+            base = Path(command).name.lower()
+            if "codex.app" in lowered or base == "codex":
+                return "codex"
+            if base in {"claude", "claude-code"} or "claude code.app" in lowered:
+                return "claude-code"
+            parent = subprocess.check_output(
+                ["ps", "-o", "ppid=", "-p", str(pid)],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+            if not parent:
+                break
+            pid = int(parent)
+    except Exception:
+        return ""
+    return ""
+
+
+def recent_codex_session_id() -> str:
+    """Best-effort session id for Codex Desktop/CLI runs that do not export CODEX_SESSION_ID."""
+    try:
+        root = Path.home() / ".codex" / "sessions"
+        if not root.exists():
+            return ""
+        now = time.time()
+        cwd = Path.cwd().resolve()
+        newest_id = ""
+        for path in sorted(root.glob("**/*.jsonl"), key=lambda p: p.stat().st_mtime, reverse=True)[:25]:
+            if now - path.stat().st_mtime > 12 * 3600:
+                continue
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                first = f.readline()
+            event = json.loads(first)
+            payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
+            if "codex" not in str(payload.get("originator", "")).lower():
+                continue
+            sid = str(payload.get("id") or "")
+            if not newest_id and sid:
+                newest_id = sid
+            session_cwd = payload.get("cwd")
+            if session_cwd and Path(str(session_cwd)).expanduser().resolve() == cwd and sid:
+                return sid
+        return newest_id
+    except Exception:
+        return ""
+
+
+def runtime_name() -> str:
+    """Return the active client runtime for telemetry normalization."""
     if any(os.environ.get(name) for name in ("CODEX_SESSION_ID", "CODEX_VERSION", "CODEX_HOME")):
+        return "codex"
+    if any(os.environ.get(name) for name in ("CLAUDE_SESSION_ID", "CLAUDECODE", "CLAUDE_PLUGIN_ROOT")):
+        return "claude-code"
+    hint = process_runtime_hint()
+    if hint:
+        return hint
+    return "unknown"
+
+
+def session_id() -> str:
+    for name in ("CODEX_SESSION_ID", "CLAUDE_SESSION_ID", "ULTRAPROMPT_SESSION_ID"):
+        value = os.environ.get(name)
+        if value:
+            return value
+    if runtime_name() == "codex":
+        inferred = recent_codex_session_id()
+        if inferred:
+            return inferred
+    return f"unknown-{int(time.time())}"
+
+
+def plugin_version() -> str:
+    root = Path(__file__).resolve().parents[1]
+    for rel in (".codex-plugin/plugin.json", ".claude-plugin/plugin.json"):
+        try:
+            data = json.loads((root / rel).read_text(encoding="utf-8"))
+            version = data.get("version")
+            if version:
+                return str(version)
+        except Exception:
+            continue
+    return "unknown"
+
+
+def repo_context() -> tuple[str, str]:
+    try:
+        worktree = Path.cwd().resolve()
+        proc = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=worktree,
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            root = Path(proc.stdout.strip()).resolve()
+            return root.name, str(root)
+        return worktree.name, str(worktree)
+    except Exception:
+        cwd = Path.cwd().resolve()
+        return cwd.name, str(cwd)
+
+
+def _runtime_home_name() -> str:
+    if runtime_name() == "codex":
         return ".codex"
     return ".claude"
 
@@ -53,7 +173,19 @@ def current_ledger_path() -> Path:
 
 def write_event(event_type: str, **fields: Any) -> None:
     try:
-        event = {"v": SCHEMA_VERSION, "ts": int(time.time()), "type": event_type, **fields}
+        repo, worktree = repo_context()
+        event = {
+            "v": SCHEMA_VERSION,
+            "ts": int(time.time()),
+            "type": event_type,
+            "runtime": runtime_name(),
+            "session_id": session_id(),
+            "plugin_version": plugin_version(),
+            "source": fields.pop("source", "ledger-v2"),
+            "repo": fields.pop("repo", repo),
+            "worktree": fields.pop("worktree", worktree),
+            **fields,
+        }
         with open(current_ledger_path(), "a", encoding="utf-8") as f:
             f.write(json.dumps(event, default=str) + "\n")
     except Exception:

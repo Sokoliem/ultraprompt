@@ -71,6 +71,7 @@ def build_graph() -> dict[str, Any]:
     dream_jobs = load_json("source/dream-jobs.json", {}).get("jobs", [])
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
+    add_node(nodes, "policy:routing-policy", "routing_policy", "dist/routing-policy.json")
 
     for skill in skill_specs:
         add_node(
@@ -94,6 +95,8 @@ def build_graph() -> dict[str, Any]:
 
     for agent in agent_specs:
         add_node(nodes, f"agent:{agent['name']}", "agent", agent["name"], color=agent.get("color"), risk=agent.get("risk"))
+        for panel in agent.get("paired_panels") or []:
+            add_edge(edges, f"agent:{agent['name']}", f"panel:{panel}", "participates_in_panel")
 
     for panel in panel_specs:
         confirmation = panel.get("confirmation") or {}
@@ -132,7 +135,8 @@ def build_graph() -> dict[str, Any]:
         for artifact in panel.get("handoff_artifacts", []):
             add_edge(edges, f"panel:{panel['name']}", f"artifact:{artifact}", "hands_off")
         for validator in panel.get("validators", []):
-            add_edge(edges, f"panel:{panel['name']}", f"validator:{validator}", "validated_by")
+            validator_script = str(validator).split()[0]
+            add_edge(edges, f"panel:{panel['name']}", f"validator:{validator_script}", "validated_by", invocation=str(validator))
         for ledger in panel.get("ledger_writes", []):
             add_edge(edges, f"panel:{panel['name']}", f"ledger:{ledger}", "writes")
         policy_ledgers = {
@@ -159,15 +163,39 @@ def build_graph() -> dict[str, Any]:
         if command in command_tools:
             add_edge(edges, f"command:{command}", f"mcp:{command_tools[command]}", "invokes")
 
+    dashboard_routes = {
+        "/api/cognitive/health": ["build-capability-graph.py", "run-pathfinder-tests.py"],
+        "/api/gaps": ["gap-ledger.py"],
+        "/api/graph": ["build-capability-graph.py"],
+        "/api/mission-state": ["mission-state.py"],
+        "/api/panel-runs": ["panel-runs.py"],
+        "/api/pathfind": ["pathfinder.py"],
+        "/api/release-scorecard": ["release-scorecard.py"],
+        "/api/routing-effectiveness": ["audit-invocation-telemetry.py", "build-routing-policy.py", "replay-routing-events.py", "release-scorecard.py"],
+    }
+    for route, scripts in dashboard_routes.items():
+        route_id = f"dashboard_route:{route}"
+        add_node(nodes, route_id, "dashboard_route", route)
+        add_edge(edges, "validator:dashboard.py", route_id, "serves")
+        for script in scripts:
+            add_edge(edges, route_id, f"validator:{script}", "reads_via")
+
     for tool in mcp_tools():
         add_node(nodes, f"mcp:{tool['name']}", "mcp_tool", tool["name"], description=tool.get("description"))
         for script_name in {
             "memory": "memory-store.py",
             "dream": "dream-runner.py",
             "pathfind": "pathfinder.py",
+            "route_trigger": "pathfinder.py",
+            "dispatch_advise": "routing_policy.py",
             "capability_graph": "build-capability-graph.py",
+            "dashboard": "dashboard.py",
+            "gap_ledger": "gap-ledger.py",
             "learning": "learning-queue.py",
+            "mission_state": "mission-state.py",
+            "release_scorecard": "release-scorecard.py",
             "route_feedback": "learning-queue.py",
+            "route_trigger_plan": "pathfinder.py",
         }.items():
             prefix, script = script_name
             if tool["name"].startswith(prefix):
@@ -183,14 +211,23 @@ def build_graph() -> dict[str, Any]:
         "catalog-audit.py",
         "audit-catalog-consistency.py",
         "build-capability-graph.py",
+        "dashboard.py",
         "dream-runner.py",
+        "mission-state.py",
+        "release-scorecard.py",
         "learning-queue.py",
         "memory-store.py",
         "pathfinder.py",
+        "routing_policy.py",
+        "build-routing-policy.py",
+        "gap-ledger.py",
+        "panel-runs.py",
         "run-hook-tests.py",
         "run-pathfinder-tests.py",
         "run-cognitive-tests.py",
         "run-router-bench.py",
+        "audit-invocation-telemetry.py",
+        "replay-routing-events.py",
     ]
     for validator in validators:
         add_node(nodes, f"validator:{validator}", "validator", validator)
@@ -198,7 +235,7 @@ def build_graph() -> dict[str, Any]:
     for hook in hook_names():
         add_node(nodes, f"hook:{hook}", "hook", hook)
 
-    for ledger in ["cognitive-events", "memory-db", "learning-queue", "dream-reports", "ledger-v2", "gap-ledger"]:
+    for ledger in ["cognitive-events", "memory-db", "learning-queue", "dream-reports", "ledger-v2", "gap-ledger", "panel-runs"]:
         add_node(nodes, f"ledger:{ledger}", "ledger", ledger)
 
     for job in dream_jobs:
@@ -235,6 +272,58 @@ def build_graph() -> dict[str, Any]:
             health["findings"].append({"severity": "high", "issue": "missing_source", "edge": edge})
         if edge["target"] not in node_ids and not edge["target"].startswith("artifact:structured_output"):
             health["findings"].append({"severity": "high", "issue": "missing_target", "edge": edge})
+
+    for skill in skill_specs:
+        cognitive = skill.get("cognitive") or {}
+        skill_id = f"skill:{skill['name']}"
+        primary_agent = skill.get("primary_agent") or cognitive.get("primary_agent")
+        dispatch = skill.get("dispatch_to") or {}
+        inline_reason = skill.get("inline_only_reason")
+        if primary_agent and f"agent:{primary_agent}" not in node_ids:
+            health["findings"].append({
+                "severity": "high",
+                "issue": "skill_primary_agent_missing",
+                "skill": skill["name"],
+                "agent": primary_agent,
+            })
+        if primary_agent and not dispatch.get("agent") and not inline_reason:
+            health["findings"].append({
+                "severity": "high",
+                "issue": "skill_primary_agent_without_dispatch_policy",
+                "skill": skill["name"],
+                "agent": primary_agent,
+            })
+        paired_panels = skill.get("paired_panels") or cognitive.get("paired_panels") or []
+        preferred_panel = skill.get("preferred_panel") or cognitive.get("preferred_panel")
+        for panel in paired_panels:
+            if f"panel:{panel}" not in node_ids:
+                health["findings"].append({
+                    "severity": "high",
+                    "issue": "skill_references_missing_panel",
+                    "skill": skill["name"],
+                    "panel": panel,
+                })
+        if preferred_panel and preferred_panel not in paired_panels:
+            health["findings"].append({
+                "severity": "medium",
+                "issue": "preferred_panel_not_in_paired_panels",
+                "skill": skill["name"],
+                "panel": preferred_panel,
+            })
+
+    inbound_panels = {
+        edge["target"]
+        for edge in edges
+        if edge.get("relation") == "may_use_panel" and str(edge.get("target", "")).startswith("panel:")
+    }
+    for panel in panel_specs:
+        panel_id = f"panel:{panel['name']}"
+        if panel_id not in inbound_panels:
+            health["findings"].append({
+                "severity": "high",
+                "issue": "panel_without_skill_entrypoint",
+                "panel": panel["name"],
+            })
     health["ok"] = not any(f["severity"] == "high" for f in health["findings"])
 
     graph = {

@@ -16,6 +16,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:test-gap-analyst`. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `feature-gap-panel`. Preferred: `feature-gap-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Test-gap-analysis finds risky behavior with weak coverage; test-harden designs the missing tests; review evaluates existing tests; debugger investigates failing tests. Use this when you want a prioritized list of what to test next.

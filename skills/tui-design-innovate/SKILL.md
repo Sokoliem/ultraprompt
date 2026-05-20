@@ -13,6 +13,14 @@ allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 
 Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARGUMENTS` handling, evidence, validation, and safety).
 
+## Dispatch policy (V8)
+
+**Dispatch target:** `ultraprompt:reviewer` (focus: `tui`) for the analysis phase only. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
+
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `feature-gap-panel`. Preferred: `feature-gap-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 The terminal is a native interaction medium with its own affordances: keyboard-first, character grid, persistent state, streaming output. TUI design is not 'GUI minus the mouse'. Think in command palettes, multi-key chords, panes, overlays, focus graphs, deterministic snapshots, and reusable framework primitives.

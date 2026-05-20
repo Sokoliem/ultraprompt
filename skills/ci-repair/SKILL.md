@@ -15,6 +15,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:debugger` for the analysis phase only. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `incident-response-panel`. Preferred: `incident-response-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 CI failures decompose into: (1) pipeline configuration (workflow YAML, matrix, runner image, env vars, secrets), (2) caching (stale, missing, key drift), (3) dependency state (lockfile mismatch, registry availability, transitive breakage), (4) environment drift (CI runner has different versions or tools than developer machines), (5) actual code bug exposed only in CI. Diagnose the layer before changing code.

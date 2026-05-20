@@ -13,6 +13,14 @@ allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 
 Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARGUMENTS` handling, evidence, validation, and safety).
 
+## Dispatch policy (V8)
+
+**Dispatch target:** `ultraprompt:reviewer` (focus: `agent-authoring`) for the analysis phase only. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
+
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `cognitive-governance-panel`. Preferred: `cognitive-governance-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 A good agent has tight tool permissions (least-privilege), a sharp body that explains what it does and what it returns, and a clear use case. Parameterized agents (reviewer, auditor with focus arg) collapse many would-be-distinct agents into one. Agent value comes from context isolation, not from prose specialization.

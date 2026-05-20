@@ -1,0 +1,36 @@
+{
+  "schema": "self_improvement_run.v1",
+  "id": "improve_1",
+  "mode": "autopilot",
+  "scope": "routing",
+  "status": "applied",
+  "evidence": {
+    "schema": "self_improvement_evidence.v1",
+    "audit": {
+      "routing_improvement_candidates": [
+        {
+          "kind": "explore_fallback",
+          "evidence_count": 12
+        }
+      ]
+    }
+  },
+  "hypotheses": [
+    {
+      "kind": "route_update",
+      "evidence_count": 12
+    }
+  ],
+  "gate_results": {
+    "ok": true
+  },
+  "learner_eval": {
+    "schema": "learner_eval_report.v1",
+    "verdict": "pass"
+  },
+  "patch_hash": "abc123",
+  "rollback_path": "/tmp/rollback.json",
+  "post_apply_monitor": {
+    "status": "pending_live_evidence"
+  }
+}

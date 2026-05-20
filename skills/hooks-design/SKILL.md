@@ -13,6 +13,14 @@ allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 
 Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARGUMENTS` handling, evidence, validation, and safety).
 
+## Dispatch policy (V8)
+
+**Dispatch target:** `ultraprompt:reviewer` (focus: `hooks`) for the analysis phase only. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
+
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `cognitive-governance-panel`. Preferred: `cognitive-governance-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Hooks are deterministic guards on tool calls. Three rules: (1) fail open on parse error (a broken hook should not brick the session), (2) provide an env-var disable for emergencies, (3) keep matchers precise (broad matchers create surprises). The evidence ledger is a hook-driven side-effect; the claim gate is an opt-in stop-time check.

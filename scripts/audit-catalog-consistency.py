@@ -41,7 +41,7 @@ def audit() -> dict:
     checks.append(run(["audit-hook-coverage.py"]))
     checks.append(run(["run-config-tests.py"]))
     checks.append(run(["run-artifact-tests.py"]))
-    checks.append(run(["run-pathfinder-tests.py"]))
+    checks.append(run(["run-pathfinder-tests.py", "--no-telemetry"]))
     checks.append(run(["run-cognitive-tests.py"]))
     checks.append(run(["dream-runner.py", "validate-catalog"]))
     checks.append(run(["audit-doc-metadata.py"]))

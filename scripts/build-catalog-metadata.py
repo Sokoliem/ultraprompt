@@ -96,12 +96,28 @@ def build() -> dict[str, Any]:
         ROOT / "mcp" / "ultraprompt_meta.py",
         ROOT / "scripts" / "artifact-validate.py",
         ROOT / "scripts" / "build-capability-graph.py",
+        ROOT / "scripts" / "build-routing-policy.py",
+        ROOT / "scripts" / "dashboard.py",
         ROOT / "scripts" / "pathfinder.py",
+        ROOT / "scripts" / "routing_policy.py",
+        ROOT / "scripts" / "ultraprompt_index.py",
+        ROOT / "scripts" / "gap-ledger.py",
+        ROOT / "scripts" / "generated-artifacts.py",
+        ROOT / "scripts" / "panel-runs.py",
+        ROOT / "scripts" / "mission-state.py",
+        ROOT / "scripts" / "release-scorecard.py",
+        ROOT / "scripts" / "replay-routing-events.py",
+        ROOT / "scripts" / "self-improve.py",
+        ROOT / "scripts" / "audit-invocation-telemetry.py",
         ROOT / "scripts" / "memory-store.py",
         ROOT / "scripts" / "dream-runner.py",
         ROOT / "scripts" / "learning-queue.py",
         ROOT / "scripts" / "cognitive-event-log.py",
     ] + commands + styles + artifact_schema_files
+    family_counts: dict[str, int] = {}
+    for skill in skill_specs:
+        family = skill.get("family") or "uncategorized"
+        family_counts[family] = family_counts.get(family, 0) + 1
     return {
         "schema_version": 1,
         "plugin_version": plugin_version(),
@@ -126,6 +142,7 @@ def build() -> dict[str, Any]:
             "specialist": sum(1 for s in skill_specs if s.get("tier") == "specialist"),
             "ecosystem": sum(1 for s in skill_specs if s.get("tier") == "ecosystem"),
         },
+        "families": dict(sorted(family_counts.items(), key=lambda item: (-item[1], item[0]))),
         "skills": [s.get("name") for s in skill_specs],
         "agents": [parse_frontmatter(p).get("name", p.stem) for p in agents],
         "source_hash": file_hash(source_paths),

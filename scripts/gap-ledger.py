@@ -41,14 +41,36 @@ Usage:
 """
 from __future__ import annotations
 import argparse
+import hashlib
 import importlib.util
 import json
 import os
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+VALID_STATUSES = {"open", "accepted", "in_progress", "fixed", "validated", "false_positive", "deferred"}
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def normalize_text(value: str) -> str:
+    return " ".join(str(value or "").casefold().split())
+
+
+def fingerprint_for_gap(gap: dict) -> str:
+    material = {
+        "repo": normalize_text(gap.get("repo", "unknown")),
+        "category": normalize_text(gap.get("category", "")),
+        "affected_area": normalize_text(gap.get("affected_area", "")),
+        "title": normalize_text(gap.get("title", "")),
+    }
+    digest = hashlib.sha256(json.dumps(material, sort_keys=True).encode("utf-8")).hexdigest()
+    return "gap_" + digest[:16]
 
 
 def validate_gap(gap: dict) -> dict:
@@ -97,13 +119,42 @@ def write_gap(gap: dict) -> dict:
     if not validation.get("ok"):
         raise ValueError(json.dumps(validation, default=str))
     repo = gap.get("repo", "unknown")
+    status = gap.get("status", "open")
+    if status not in VALID_STATUSES:
+        raise ValueError(json.dumps({"ok": False, "error": "invalid_status", "allowed": sorted(VALID_STATUSES)}))
+    fingerprint = gap.get("fingerprint") or fingerprint_for_gap(gap)
+    prior = list_gaps(repo=repo, fingerprint=fingerprint, history=False, limit=1)
+    previous = prior[0] if prior else {}
+    ts_iso = now_iso()
+    owner_agent = gap.get("owner_agent") or gap.get("suggested_owner_agent")
+    fix_skill = gap.get("fix_skill") or gap.get("suggested_skill")
+    status_history = list(previous.get("status_history", []))
+    previous_status = previous.get("status")
+    if previous_status != status:
+        status_history.append({
+            "from": previous_status,
+            "to": status,
+            "at": ts_iso,
+            "reason": gap.get("status_reason") or gap.get("reason") or "gap write",
+        })
     record = {
         "v": 1,
         "ts": int(time.time()),
-        "id": gap.get("id") or next_id(repo),
-        "status": gap.get("status", "open"),
-        **{k: v for k, v in gap.items() if k not in ("v", "ts", "id", "status")},
+        "id": gap.get("id") or previous.get("id") or next_id(repo),
+        "fingerprint": fingerprint,
+        "status": status,
+        "first_seen_at": previous.get("first_seen_at") or ts_iso,
+        "last_seen_at": ts_iso,
+        "owner_agent": owner_agent,
+        "fix_skill": fix_skill,
+        "status_history": status_history,
+        "panel_run_ids": sorted(set((previous.get("panel_run_ids") or []) + (gap.get("panel_run_ids") or []))),
+        **{k: v for k, v in gap.items() if k not in (
+            "v", "ts", "id", "status", "fingerprint", "first_seen_at", "last_seen_at",
+            "owner_agent", "fix_skill", "status_history", "panel_run_ids", "next_action",
+        )},
     }
+    record["next_action"] = gap.get("next_action") or gap.get("recommended_fix") or gap.get("validation_plan")
     p = ledger_path(repo)
     with open(p, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, default=str) + "\n")
@@ -111,7 +162,8 @@ def write_gap(gap: dict) -> dict:
 
 
 def list_gaps(repo: str | None = None, status: str | None = None,
-              severity: str | None = None, limit: int = 100) -> list[dict]:
+              severity: str | None = None, limit: int = 100,
+              *, fingerprint: str | None = None, history: bool = False) -> list[dict]:
     results = []
     p = ledger_path(repo) if repo else None
     paths = [p] if p and p.exists() else list(ledger_dir().rglob("gap-ledger.jsonl"))
@@ -122,27 +174,51 @@ def list_gaps(repo: str | None = None, status: str | None = None,
                     e = json.loads(line)
                 except Exception:
                     continue
+                if fingerprint and e.get("fingerprint") != fingerprint:
+                    continue
                 if status and e.get("status") != status:
                     continue
                 if severity and e.get("severity") != severity:
                     continue
                 results.append(e)
-                if len(results) >= limit:
-                    return results
         except Exception:
             continue
-    return results
+    results.sort(key=lambda e: (e.get("ts", 0), e.get("last_seen_at", "")))
+    if history:
+        return results[-limit:]
+    by_fingerprint: dict[str, dict] = {}
+    for entry in results:
+        key = entry.get("fingerprint") or entry.get("id")
+        if key:
+            by_fingerprint[key] = entry
+    return sorted(by_fingerprint.values(), key=lambda e: e.get("ts", 0), reverse=True)[:limit]
 
 
 def update_gap(gap_id: str, updates: dict) -> dict | None:
     """Update a gap by appending a new record with same ID and updated fields.
     Latest record per ID wins on read."""
-    matches = [e for e in list_gaps(limit=10000) if e.get("id") == gap_id]
+    matches = [e for e in list_gaps(limit=10000, history=True) if e.get("id") == gap_id]
     if not matches:
         return None
     latest = matches[-1]
     repo = latest.get("repo", "unknown")
-    new_record = {**latest, **updates, "ts": int(time.time())}
+    if "status" in updates and updates["status"] not in VALID_STATUSES:
+        raise ValueError(f"status must be one of {sorted(VALID_STATUSES)}")
+    status_history = list(latest.get("status_history", []))
+    if "status" in updates and updates["status"] != latest.get("status"):
+        status_history.append({
+            "from": latest.get("status"),
+            "to": updates["status"],
+            "at": now_iso(),
+            "reason": updates.get("reason") or "manual update",
+        })
+    new_record = {
+        **latest,
+        **updates,
+        "ts": int(time.time()),
+        "last_seen_at": now_iso(),
+        "status_history": status_history,
+    }
     with open(ledger_path(repo), "a", encoding="utf-8") as f:
         f.write(json.dumps(new_record, default=str) + "\n")
     return new_record
@@ -150,7 +226,7 @@ def update_gap(gap_id: str, updates: dict) -> dict | None:
 
 def stats() -> dict:
     """Summary across all repos."""
-    all_gaps = list_gaps(limit=10000)
+    all_gaps = list_gaps(limit=10000, history=True)
     # Latest record per ID wins
     by_id = {}
     for e in all_gaps:
@@ -186,6 +262,8 @@ def main():
     sub_list.add_argument("--repo")
     sub_list.add_argument("--status")
     sub_list.add_argument("--severity")
+    sub_list.add_argument("--fingerprint")
+    sub_list.add_argument("--history", action="store_true", help="return append-only history instead of latest-by-fingerprint")
     sub_list.add_argument("--limit", type=int, default=50)
 
     sub_update = sub.add_parser("update")
@@ -229,8 +307,19 @@ def main():
         return 0
 
     if args.cmd == "list":
-        results = list_gaps(args.repo, args.status, args.severity, args.limit)
-        print(json.dumps({"count": len(results), "gaps": results}, indent=2, default=str))
+        results = list_gaps(
+            args.repo,
+            args.status,
+            args.severity,
+            args.limit,
+            fingerprint=args.fingerprint,
+            history=args.history,
+        )
+        print(json.dumps({
+            "count": len(results),
+            "mode": "history" if args.history else "latest_by_fingerprint",
+            "gaps": results,
+        }, indent=2, default=str))
         return 0
 
     if args.cmd == "update":

@@ -1,15 +1,87 @@
 {
   "release_scorecard": {
-    "schema_version": 1,
-    "plugin_version": "8.0.0",
+    "schema_version": 3,
+    "generated_at": 1779286657,
+    "generated_from_commit": "62f5b6c7a1f84367840e6e9c66fab3829d907704",
+    "dirty_state": "dirty",
+    "report_mode": "write",
+    "plugin_version": "8.6.0",
+    "target": "all",
+    "gate_cache": {
+      "enabled": true,
+      "path": "/Users/sokoliem/.ultraprompt/cache/release-gates.json",
+      "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+      "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156"
+    },
+    "gate_phases": [
+      {
+        "phase": "preflight",
+        "gates": [
+          "generated_artifacts"
+        ]
+      },
+      {
+        "phase": "source",
+        "gates": [
+          "plugin_validation",
+          "manifest_schema_claude",
+          "manifest_schema_codex",
+          "catalog_consistency",
+          "routing_policy"
+        ]
+      },
+      {
+        "phase": "package_install",
+        "gates": [
+          "package_verify",
+          "install_simulation"
+        ]
+      },
+      {
+        "phase": "cognitive",
+        "gates": [
+          "capability_graph",
+          "pathfinder",
+          "invocation_telemetry",
+          "cognitive_integration",
+          "route_replay"
+        ]
+      },
+      {
+        "phase": "artifact_panel",
+        "gates": [
+          "config_env_overrides",
+          "artifact_enums",
+          "dream_catalog",
+          "panel_runs",
+          "experience_quality_panel_smoke"
+        ]
+      }
+    ],
     "manifest": {
       "claude_valid": true,
-      "codex_valid": true
+      "codex_valid": true,
+      "claude": {
+        "path": ".claude-plugin/plugin.json",
+        "valid": true,
+        "present": true,
+        "missing_fields": [],
+        "missing_references": [],
+        "invalid_references": []
+      },
+      "codex": {
+        "path": ".codex-plugin/plugin.json",
+        "valid": true,
+        "present": true,
+        "missing_fields": [],
+        "missing_references": [],
+        "invalid_references": []
+      }
     },
     "discovery": {
-      "skills_discovered": 48,
-      "agents_discovered": 29,
-      "commands_discovered": 30
+      "skills_discovered": 55,
+      "agents_discovered": 31,
+      "commands_discovered": 32
     },
     "routing": {
       "top1_accuracy": 100.0,
@@ -38,44 +110,758 @@
       "audit_exit": 0
     },
     "trust_gates": {
-      "catalog_consistency": {
+      "generated_artifacts": {
+        "gate_id": "generated_artifacts",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/generated-artifacts.py check --json",
+        "duration_ms": 433,
+        "exit_code": 0,
+        "status": "ok",
         "ok": true,
-        "stdout": "{\n  \"ok\": true,\n  \"checks\": [\n    {\n      \"cmd\": \"build-skill-index.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Index OK: dist\\\\skill-index.json\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-catalog-metadata.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/catalog-metadata.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-capability-graph.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/capability-graph.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-skills.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 48 skills match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-agents.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 29 agents match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-hook-coverage.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Ultraprompt hook coverage audit\\n- Registered hooks: 9\\n- Coverage entries: 9/9\\n- Fixture-covered: 5\\n- Integration-covered: 4\\n- Manual/none: 0\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-config-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"auto_wip_save.enabled\\\",\\n    \\\"notification.quiet_hours_start\\\",\\n    \\\"worktree.dirty_warn_count\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-artifact-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"valid_gap\\\",\\n    \\\"invalid_gap_severity\\\",\\n    \\\"invalid_gap_confidence\\\",\\n    \\\"invalid_gap_category\\\",\\n    \\\"invalid_release_status\\\",\\n    \\\"invalid_contract_gap_severity\\\",\\n    \\\"valid_memory_record\\\",\\n    \\\"invalid_memory_scope\\\",\\n    \\\"valid_dream_report\\\",\\n    \\\"valid_learning_candidate\\\",\\n    \\\"invalid_learning_status\\\",\\n    \\\"valid_capability_graph\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-pathfinder-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Pathfinder bench: 9 cases\\n- top-1: 9/9 (100.0%; target >=95%)\\n- top-3: 9/9 (100.0%; target 100%)\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-cognitive-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"failures\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.0.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\",\\n  \\\"tests\\\": [\\n    \\\"memory schema/privacy/query/status/export\\\",\\n    \\\"cognitive event write/query/stats\\\",\\n    \\\"capability graph freshness\\\",\\n    \\\"pathfinder golden cases\\\",\\n    \\\"dream no-repo-mutation\\\",\\n    \\\"learning approve/apply/revert\\\"\\n  ]\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"dream-runner.py validate-catalog\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"implemented\\\": [\\n    \\\"ecosystem-reflection\\\",\\n    \\\"memory-prune\\\",\\n    \\\"repo-reflection\\\",\\n    \\\"route-learning\\\",\\n    \\\"session-compaction\\\"\\n  ],\\n  \\\"jobs\\\": 5,\\n  \\\"missing_specs\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.0.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\"\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-doc-metadata.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"version\\\": \\\"8.0.0\\\",\\n  \\\"findings\\\": []\\n}\",\n      \"stderr\": \"\"\n    }\n  ],\n  \"source_checks\": [\n    {\n      \"name\": \"skills_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    },\n    {\n      \"name\": \"agents_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    }\n  ]\n}",
+        "blocker_class": null,
+        "ttl": 300,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"checks\": [\n    {\n      \"artifacts\": [\n        \"dist/skill-index.json\"\n      ],\n      \"check_command\": \"python3 scripts/build-skill-index.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/build-skill-index.py\",\n      \"id\": \"skill_index\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"build-skill-index.py --check\",\n        \"duration_ms\": 78,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"Index OK: dist/skill-index.json\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"dist/routing-policy.json\"\n      ],\n      \"check_command\": \"python3 scripts/build-routing-policy.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/build-routing-policy.py\",\n      \"id\": \"routing_policy\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"build-routing-policy.py --check\",\n        \"duration_ms\": 69,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"Routing policy OK: dist/routing-policy.json\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"dist/catalog-metadata.json\"\n      ],\n      \"check_command\": \"python3 scripts/build-catalog-metadata.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/build-catalog-metadata.py\",\n      \"id\": \"catalog_metadata\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"build-catalog-metadata.py --check\",\n        \"duration_ms\": 83,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"dist/catalog-metadata.json is current.\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"dist/capability-graph.json\"\n      ],\n      \"check_command\": \"python3 scripts/build-capability-graph.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/build-capability-graph.py\",\n      \"id\": \"capability_graph\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"build-capability-graph.py --check\",\n        \"duration_ms\": 82,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"dist/capability-graph.json is current.\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"skills/*/SKILL.md\"\n      ],\n      \"check_command\": \"python3 scripts/regenerate-skills.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/regenerate-skills.py\",\n      \"id\": \"skills\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"regenerate-skills.py --check\",\n        \"duration_ms\": 38,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"Verified 55 skills match specs.\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"agents/*.md\"\n      ],\n      \"check_command\": \"python3 scripts/regenerate-agents.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/regenerate-agents.py\",\n      \"id\": \"agents\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"regenerate-agents.py --check\",\n        \"duration_ms\": 32,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"Verified 31 agents match specs.\"\n      },\n      \"timeout\": false\n    }\n  ],\n  \"fix_plan\": [],\n  \"generated_at\": 1779286482,\n  \"ok\": true,\n  \"schema\": \"generated_artifacts.v1\"\n}",
+        "stderr": ""
+      },
+      "plugin_validation": {
+        "gate_id": "plugin_validation",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/validate-plugin.py --target-runtime source --strict-runtime-files",
+        "duration_ms": 29022,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Ultraprompt V8.6 plugin validation\n- Target runtime: source\n- Plugin: ultraprompt v8.6.0\n- Skills: 55 (core: 34, specialist: 16, ecosystem: 5)\n- Commands: 32\n- Agents: 31\n- Output styles: 2\n- Registered hooks: 9\n- Marketplace: yes\n- MCP servers: 2\n- Skill index: yes\n- Warnings: 0\n- Errors: 0",
+        "stderr": ""
+      },
+      "manifest_schema_claude": {
+        "gate_id": "manifest_schema_claude",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/audit-manifest-schemas.py --runtime claude-code --strict-references",
+        "duration_ms": 21,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Ultraprompt V8 manifest + MCP schema audit (runtime: claude-code)\n==================================================\nOK: 0 errors, 0 warning(s)",
+        "stderr": ""
+      },
+      "manifest_schema_codex": {
+        "gate_id": "manifest_schema_codex",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/audit-manifest-schemas.py --runtime codex --strict-references",
+        "duration_ms": 21,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Ultraprompt V8 manifest + MCP schema audit (runtime: codex)\n==================================================\nOK: 0 errors, 0 warning(s)",
+        "stderr": ""
+      },
+      "catalog_consistency": {
+        "gate_id": "catalog_consistency",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/audit-catalog-consistency.py --json",
+        "duration_ms": 25691,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"checks\": [\n    {\n      \"cmd\": \"build-skill-index.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Index OK: dist/skill-index.json\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-catalog-metadata.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/catalog-metadata.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-capability-graph.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/capability-graph.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-skills.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 55 skills match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-agents.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 31 agents match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-hook-coverage.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Ultraprompt hook coverage audit\\n- Registered hooks: 9\\n- Coverage entries: 9/9\\n- Fixture-covered: 5\\n- Integration-covered: 4\\n- Manual/none: 0\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-config-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"auto_wip_save.enabled\\\",\\n    \\\"notification.quiet_hours_start\\\",\\n    \\\"worktree.dirty_warn_count\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-artifact-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"valid_gap\\\",\\n    \\\"valid_gap_status\\\",\\n    \\\"invalid_gap_severity\\\",\\n    \\\"invalid_gap_confidence\\\",\\n    \\\"invalid_gap_category\\\",\\n    \\\"invalid_release_status\\\",\\n    \\\"valid_repo_completeness_report\\\",\\n    \\\"invalid_contract_gap_severity\\\",\\n    \\\"valid_memory_record\\\",\\n    \\\"invalid_memory_scope\\\",\\n    \\\"valid_dream_report\\\",\\n    \\\"valid_learning_candidate\\\",\\n    \\\"invalid_learning_status\\\",\\n    \\\"valid_capability_graph\\\",\\n    \\\"valid_design_review\\\",\\n    \\\"invalid_design_review_missing_scope\\\",\\n    \\\"valid_visual_qa_report\\\",\\n    \\\"invalid_visual_qa_report_missing_surface\\\",\\n    \\\"valid_design_system_review\\\",\\n    \\\"invalid_design_system_review_missing_design_system_map\\\",\\n    \\\"valid_experience_quality_report\\\",\\n    \\\"invalid_experience_quality_report_missing_surface_map\\\",\\n    \\\"valid_invocation_telemetry_audit\\\",\\n    \\\"invalid_invocation_telemetry_audit_missing_schema\\\",\\n    \\\"valid_goal_contract\\\",\\n    \\\"invalid_goal_contract_missing_condition\\\",\\n    \\\"valid_routing_decision\\\",\\n    \\\"invalid_routing_decision_missing_schema\\\",\\n    \\\"valid_routing_envelope\\\",\\n    \\\"invalid_routing_envelope_missing_schema\\\",\\n    \\\"valid_route_outcome\\\",\\n    \\\"invalid_route_outcome_missing_schema\\\",\\n    \\\"valid_self_improvement_run\\\",\\n    \\\"invalid_self_improvement_run_missing_schema\\\",\\n    \\\"valid_self_improvement_patch\\\",\\n    \\\"invalid_self_improvement_patch_missing_schema\\\",\\n    \\\"valid_learner_eval_report\\\",\\n    \\\"invalid_learner_eval_report_missing_schema\\\",\\n    \\\"valid_rollback_manifest\\\",\\n    \\\"invalid_rollback_manifest_missing_schema\\\",\\n    \\\"invalid_visual_qa_missing_evidence_and_risks\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-pathfinder-tests.py --no-telemetry\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Pathfinder bench: 78 cases (23 hand-authored, 55 generated skill-name coverage)\\n- top-1: 78/78 (100.0%; target >=95%)\\n- top-3: 78/78 (100.0%; target 100%)\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-cognitive-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"failures\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.6.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\",\\n  \\\"tests\\\": [\\n    \\\"memory schema/privacy/query/status/export\\\",\\n    \\\"cognitive event write/query/stats\\\",\\n    \\\"dual-runtime ledger metadata\\\",\\n    \\\"mcp ledger normalized metadata\\\",\\n    \\\"codex activity and handoff parsing\\\",\\n    \\\"release gate and generated artifact classification\\\",\\n    \\\"generated artifact preflight\\\",\\n    \\\"route trigger telemetry event write\\\",\\n    \\\"capability graph freshness\\\",\\n    \\\"pathfinder golden cases\\\",\\n    \\\"artifact-first routing envelope\\\",\\n    \\\"handoff contract status\\\",\\n    \\\"dream no-repo-mutation\\\",\\n    \\\"learning approve/apply/revert\\\",\\n    \\\"route feedback learning candidate\\\",\\n    \\\"grouped learning candidate preview\\\",\\n    \\\"self-improvement hypothesis ranking\\\",\\n    \\\"self-improvement auto-apply materialization\\\",\\n    \\\"self-improvement source rollback\\\"\\n  ]\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"dream-runner.py validate-catalog\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"implemented\\\": [\\n    \\\"ecosystem-reflection\\\",\\n    \\\"memory-prune\\\",\\n    \\\"repo-reflection\\\",\\n    \\\"route-learning\\\",\\n    \\\"self-improvement-autopilot\\\",\\n    \\\"session-compaction\\\"\\n  ],\\n  \\\"jobs\\\": 6,\\n  \\\"missing_specs\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.6.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\"\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-doc-metadata.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"version\\\": \\\"8.6.0\\\",\\n  \\\"findings\\\": []\\n}\",\n      \"stderr\": \"\"\n    }\n  ],\n  \"source_checks\": [\n    {\n      \"name\": \"skills_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    },\n    {\n      \"name\": \"agents_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    }\n  ]\n}",
+        "stderr": ""
+      },
+      "routing_policy": {
+        "gate_id": "routing_policy",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/build-routing-policy.py --check",
+        "duration_ms": 38,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Routing policy OK: dist/routing-policy.json",
+        "stderr": ""
+      },
+      "package_verify": {
+        "gate_id": "package_verify",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/package-plugin.py --verify-only",
+        "duration_ms": 106,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"files\": 309,\n  \"errors\": [],\n  \"warnings\": []\n}",
+        "stderr": ""
+      },
+      "install_simulation": {
+        "gate_id": "install_simulation",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/install-simulate.py --runtime both",
+        "duration_ms": 60186,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"temp_root\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd\",\n  \"results\": {\n    \"claude\": {\n      \"ok\": true,\n      \"target\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/claude/ultraprompt\",\n      \"runtime_target_status\": {\n        \"ok\": true,\n        \"runtime\": \"claude\",\n        \"path\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/claude/ultraprompt\",\n        \"version\": \"8.6.0\",\n        \"skill_count\": 55,\n        \"agent_count\": 31,\n        \"command_count\": 32,\n        \"expected\": {\n          \"version\": \"8.6.0\",\n          \"skill_count\": 55,\n          \"agent_count\": 31,\n          \"command_count\": 32\n        },\n        \"findings\": []\n      },\n      \"checks\": {\n        \"copy\": {\n          \"ok\": true,\n          \"stdout\": \"Copied 309 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/claude/ultraprompt\",\n          \"stderr\": \"\"\n        },\n        \"validate_plugin\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8.6 plugin validation\\n- Target runtime: claude\\n- Plugin: ultraprompt v8.6.0\\n- Skills: 55 (core: 34, specialist: 16, ecosystem: 5)\\n- Commands: 32\\n- Agents: 31\\n- Output styles: 2\\n- Registered hooks: 9\\n- Marketplace: yes\\n- MCP servers: 1\\n- Skill index: yes\\n- Warnings: 0\\n- Errors: 0\",\n          \"stderr\": \"\"\n        },\n        \"manifest_schema\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8 manifest + MCP schema audit (runtime: claude-code)\\n==================================================\\nOK: 0 errors, 0 warning(s)\",\n          \"stderr\": \"\"\n        },\n        \"claude_mcp_present\": {\n          \"ok\": true\n        },\n        \"runtime_parity\": {\n          \"ok\": true,\n          \"findings\": []\n        }\n      }\n    },\n    \"codex\": {\n      \"ok\": true,\n      \"target\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/codex/ultraprompt\",\n      \"runtime_target_status\": {\n        \"ok\": true,\n        \"runtime\": \"codex\",\n        \"path\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/codex/ultraprompt\",\n        \"version\": \"8.6.0\",\n        \"skill_count\": 55,\n        \"agent_count\": 31,\n        \"command_count\": 32,\n        \"expected\": {\n          \"version\": \"8.6.0\",\n          \"skill_count\": 55,\n          \"agent_count\": 31,\n          \"command_count\": 32\n        },\n        \"findings\": []\n      },\n      \"checks\": {\n        \"copy\": {\n          \"ok\": true,\n          \"stdout\": \"Copied 309 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/codex/ultraprompt\",\n          \"stderr\": \"\"\n        },\n        \"validate_plugin\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8.6 plugin validation\\n- Target runtime: codex\\n- Plugin: ultraprompt v8.6.0\\n- Skills: 55 (core: 34, specialist: 16, ecosystem: 5)\\n- Commands: 32\\n- Agents: 31\\n- Output styles: 2\\n- Registered hooks: 9\\n- Marketplace: yes\\n- MCP servers: 1\\n- Skill index: yes\\n- Warnings: 0\\n- Errors: 0\",\n          \"stderr\": \"\"\n        },\n        \"manifest_schema\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8 manifest + MCP schema audit (runtime: codex)\\n==================================================\\nOK: 0 errors, 0 warning(s)\",\n          \"stderr\": \"\"\n        },\n        \"codex_mcp_present\": {\n          \"ok\": true\n        },\n        \"runtime_parity\": {\n          \"ok\": true,\n          \"findings\": []\n        }\n      }\n    }\n  }\n}",
         "stderr": ""
       },
       "config_env_overrides": {
+        "gate_id": "config_env_overrides",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/run-config-tests.py",
+        "duration_ms": 25,
+        "exit_code": 0,
+        "status": "ok",
         "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
         "stdout": "{\n  \"ok\": true,\n  \"checked\": [\n    \"auto_wip_save.enabled\",\n    \"notification.quiet_hours_start\",\n    \"worktree.dirty_warn_count\"\n  ],\n  \"failures\": []\n}",
         "stderr": ""
       },
       "artifact_enums": {
+        "gate_id": "artifact_enums",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/run-artifact-tests.py",
+        "duration_ms": 32,
+        "exit_code": 0,
+        "status": "ok",
         "ok": true,
-        "stdout": "{\n  \"ok\": true,\n  \"checked\": [\n    \"valid_gap\",\n    \"invalid_gap_severity\",\n    \"invalid_gap_confidence\",\n    \"invalid_gap_category\",\n    \"invalid_release_status\",\n    \"invalid_contract_gap_severity\",\n    \"valid_memory_record\",\n    \"invalid_memory_scope\",\n    \"valid_dream_report\",\n    \"valid_learning_candidate\",\n    \"invalid_learning_status\",\n    \"valid_capability_graph\"\n  ],\n  \"failures\": []\n}",
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"checked\": [\n    \"valid_gap\",\n    \"valid_gap_status\",\n    \"invalid_gap_severity\",\n    \"invalid_gap_confidence\",\n    \"invalid_gap_category\",\n    \"invalid_release_status\",\n    \"valid_repo_completeness_report\",\n    \"invalid_contract_gap_severity\",\n    \"valid_memory_record\",\n    \"invalid_memory_scope\",\n    \"valid_dream_report\",\n    \"valid_learning_candidate\",\n    \"invalid_learning_status\",\n    \"valid_capability_graph\",\n    \"valid_design_review\",\n    \"invalid_design_review_missing_scope\",\n    \"valid_visual_qa_report\",\n    \"invalid_visual_qa_report_missing_surface\",\n    \"valid_design_system_review\",\n    \"invalid_design_system_review_missing_design_system_map\",\n    \"valid_experience_quality_report\",\n    \"invalid_experience_quality_report_missing_surface_map\",\n    \"valid_invocation_telemetry_audit\",\n    \"invalid_invocation_telemetry_audit_missing_schema\",\n    \"valid_goal_contract\",\n    \"invalid_goal_contract_missing_condition\",\n    \"valid_routing_decision\",\n    \"invalid_routing_decision_missing_schema\",\n    \"valid_routing_envelope\",\n    \"invalid_routing_envelope_missing_schema\",\n    \"valid_route_outcome\",\n    \"invalid_route_outcome_missing_schema\",\n    \"valid_self_improvement_run\",\n    \"invalid_self_improvement_run_missing_schema\",\n    \"valid_self_improvement_patch\",\n    \"invalid_self_improvement_patch_missing_schema\",\n    \"valid_learner_eval_report\",\n    \"invalid_learner_eval_report_missing_schema\",\n    \"valid_rollback_manifest\",\n    \"invalid_rollback_manifest_missing_schema\",\n    \"invalid_visual_qa_missing_evidence_and_risks\"\n  ],\n  \"failures\": []\n}",
         "stderr": ""
       }
     },
     "cognitive_gates": {
       "capability_graph": {
+        "gate_id": "capability_graph",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/build-capability-graph.py --check",
+        "duration_ms": 53,
+        "exit_code": 0,
+        "status": "ok",
         "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
         "stdout": "dist/capability-graph.json is current.",
         "stderr": ""
       },
       "pathfinder": {
+        "gate_id": "pathfinder",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/run-pathfinder-tests.py --no-telemetry",
+        "duration_ms": 6594,
+        "exit_code": 0,
+        "status": "ok",
         "ok": true,
-        "stdout": "Pathfinder bench: 9 cases\n- top-1: 9/9 (100.0%; target >=95%)\n- top-3: 9/9 (100.0%; target 100%)",
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Pathfinder bench: 78 cases (23 hand-authored, 55 generated skill-name coverage)\n- top-1: 78/78 (100.0%; target >=95%)\n- top-3: 78/78 (100.0%; target 100%)",
+        "stderr": ""
+      },
+      "invocation_telemetry": {
+        "gate_id": "invocation_telemetry",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/audit-invocation-telemetry.py --json --enforce --min-plugin-agent-share 50 --max-explore-share 35 --min-real-pathfinder-decisions 5 --min-distinct-release-intents 3 --release-critical-v8-4 --require-panel-proof experience-quality-panel",
+        "duration_ms": 36004,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"activation_gaps\": {\n    \"agents_never_dispatched\": [\n      \"adversarial\",\n      \"auditor\",\n      \"catalog-strategist\",\n      \"customer-advocate\",\n      \"dead-code-and-drift-hunter\",\n      \"debugger\",\n      \"design-critic\",\n      \"dream-synthesizer\",\n      \"evaluator\",\n      \"feature-completeness-auditor\",\n      \"gap-analysis-lead\",\n      \"innovation-lead\",\n      \"integration-contract-reviewer\",\n      \"invocation-reliability-auditor\",\n      \"learning-auditor\",\n      \"market-analyst\",\n      \"memory-curator\",\n      \"principal-pm\",\n      \"release-readiness-auditor\",\n      \"repo-cartographer\",\n      \"reviewer\",\n      \"risk-and-controls-reviewer\",\n      \"router\",\n      \"scout\",\n      \"security-auditor\",\n      \"technical-product-architect\",\n      \"test-gap-analyst\",\n      \"test-strategist\",\n      \"wiring-gap-inspector\",\n      \"workflow-planner\",\n      \"writer\"\n    ],\n    \"skills_never_invoked\": [\n      \"accessibility-review\",\n      \"agent-author\",\n      \"ai-agent-safety-review\",\n      \"api-contract\",\n      \"architect\",\n      \"build\",\n      \"ci-repair\",\n      \"concept-brief\",\n      \"contract-test-generate\",\n      \"data-flow-privacy-map\",\n      \"database-review\",\n      \"dead-code-drift\",\n      \"debug\",\n      \"dependency-audit\",\n      \"design-review\",\n      \"design-system-review\",\n      \"docs-sync\",\n      \"dream\",\n      \"feature-completeness\",\n      \"gap-analysis\",\n      \"hooks-design\",\n      \"idea-triage\",\n      \"infra-iac-review\",\n      \"llm-eval-design\",\n      \"mcp-design\",\n      \"migrate\",\n      \"mvp-scope\",\n      \"observability-pass\",\n      \"opportunity-map\",\n      \"performance-pass\",\n      \"plugin-review\",\n      \"prd-ai-feature\",\n      \"prd-lite\",\n      \"prd-standard\",\n      \"prd-technical\",\n      \"prd-to-plan\",\n      \"problem-framing\",\n      \"refactor\",\n      \"release\",\n      \"release-readiness\",\n      \"repo-map\",\n      \"repo-review\",\n      \"review\",\n      \"security-audit\",\n      \"self-improve\",\n      \"skill-author\",\n      \"state-machine-review\",\n      \"supply-chain-hardening\",\n      \"technical-debt-triage\",\n      \"test-gap-analysis\",\n      \"test-harden\",\n      \"tui-design-innovate\"\n    ]\n  },\n  \"agent_dispatches\": {\n    \"by_agent\": {},\n    \"explore_share_pct\": 0.0,\n    \"explore_total\": 0,\n    \"legacy_prefix_total\": 0,\n    \"plugin_share_pct\": 0.0,\n    \"plugin_total\": 0,\n    \"total\": 0\n  },\n  \"agent_handoffs\": {\n    \"by_agent\": {\n      \"?\": 21\n    },\n    \"by_status\": {\n      \"persisted_output\": 13,\n      \"truncated\": 8\n    },\n    \"examples\": [\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"persisted-output|Output too large|Full output saved to\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/20/rollout-2026-05-20T05-01-13-019e4579-d8ed-7063-9c33-abdf12d65713.jsonl\",\n        \"line\": 350,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"persisted_output\",\n        \"ts\": 1779283053.55\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"persisted-output|Output too large|Full output saved to\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/20/rollout-2026-05-20T05-01-13-019e4579-d8ed-7063-9c33-abdf12d65713.jsonl\",\n        \"line\": 351,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"persisted_output\",\n        \"ts\": 1779283053.55\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 14,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778805996.735\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 15,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778805996.743\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 26,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778806022.886\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 27,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778806022.891\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 298,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778806956.091\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 299,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778806956.091\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 337,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778813284.415\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 338,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778813284.416\n      }\n    ],\n    \"problem_total\": 21,\n    \"total\": 21\n  },\n  \"candidate_groups\": {\n    \"groups\": [\n      {\n        \"count\": 1,\n        \"evidence_count\": 21,\n        \"kind\": \"agent_handoff\",\n        \"priorities\": {\n          \"high\": 1\n        },\n        \"recommendations\": [\n          \"use artifact-first handoff for high-output plugin agents and record compact envelope status\"\n        ]\n      }\n    ],\n    \"total\": 1\n  },\n  \"codex_activity\": {\n    \"agent_dispatches\": 0,\n    \"files\": 2,\n    \"handoffs\": 21,\n    \"mcp_tool_calls\": 0,\n    \"skill_mentions\": 312,\n    \"top_mcp_tool_calls\": {},\n    \"top_skill_mentions\": {\n      \"ultraprompt:architect\": 10,\n      \"ultraprompt:build\": 8,\n      \"ultraprompt:checkpoint\": 8,\n      \"ultraprompt:claim-check\": 4,\n      \"ultraprompt:debug\": 12,\n      \"ultraprompt:dream\": 4,\n      \"ultraprompt:llm-eval-design\": 6,\n      \"ultraprompt:menu\": 4,\n      \"ultraprompt:migrate\": 8,\n      \"ultraprompt:panel-run\": 16,\n      \"ultraprompt:refactor\": 12,\n      \"ultraprompt:release\": 8,\n      \"ultraprompt:repo-map\": 12,\n      \"ultraprompt:resume\": 8,\n      \"ultraprompt:review\": 14,\n      \"ultraprompt:route\": 8,\n      \"ultraprompt:self-improve\": 20,\n      \"ultraprompt:status\": 12,\n      \"ultraprompt:tui-design-innovate\": 8,\n      \"ultraprompt:wip-save\": 12\n    }\n  },\n  \"codex_mcp_tool_calls\": {\n    \"by_tool\": {},\n    \"session_files\": 2,\n    \"total\": 0\n  },\n  \"failures\": [],\n  \"generated_at\": 1779286640,\n  \"handoff_contract\": {\n    \"artifact_first_agents\": [\n      \"design-critic\",\n      \"feature-completeness-auditor\",\n      \"gap-analysis-lead\",\n      \"invocation-reliability-auditor\",\n      \"repo-cartographer\",\n      \"reviewer\"\n    ],\n    \"artifact_present\": 0,\n    \"by_failure_kind\": {\n      \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\": 8,\n      \"persisted-output|Output too large|Full output saved to\": 13\n    },\n    \"missing_artifact_examples\": [],\n    \"missing_artifact_file\": 0,\n    \"missing_artifact_file_examples\": [],\n    \"missing_artifact_path\": 0,\n    \"ok\": true,\n    \"problem_handoffs\": 21,\n    \"required_total\": 0,\n    \"schema\": \"handoff_contract.v2\",\n    \"truncation_prone_agents\": {\n      \"?\": 21\n    }\n  },\n  \"ok\": true,\n  \"panel_proof\": {\n    \"artifact_path\": \"tests/artifacts/experience_quality_report.valid.json\",\n    \"artifact_type\": \"experience_quality_report\",\n    \"completed_at\": \"2026-05-20T13:57:19+00:00\",\n    \"exit\": 0,\n    \"findings\": [],\n    \"fixture_or_run_id\": \"panel-ultraprompt-experience-quality-panel-20260520T135719Z-9922\",\n    \"live_adoption\": true,\n    \"ok\": true,\n    \"panel\": \"experience-quality-panel\",\n    \"proof_kind\": \"live\",\n    \"recorded_at\": \"2026-05-20T14:17:20+00:00\",\n    \"repo\": \"ultraprompt\",\n    \"run_id\": \"panel-ultraprompt-experience-quality-panel-20260520T135719Z-9922\",\n    \"status\": \"passed\",\n    \"validation_summary\": [\n      {\n        \"command\": \"python3 scripts/panel-runs.py proof --panel experience-quality-panel\",\n        \"evidence\": \"V8.6 live panel proof\",\n        \"status\": \"passed\"\n      }\n    ],\n    \"validator\": \"artifact-validate.py\"\n  },\n  \"pathfinder\": {\n    \"bench_decisions\": 0,\n    \"bench_pathfinder_ratio_pct\": 0.0,\n    \"by_skill\": {\n      \"frontend-visual-qa\": 1,\n      \"goal\": 1,\n      \"pathfinding-invocation-review\": 3\n    },\n    \"by_source\": {\n      \"runtime\": 5\n    },\n    \"decisions\": 5,\n    \"distinct_real_intents\": 5,\n    \"panel_recommendations\": 4,\n    \"real_decisions\": 5,\n    \"real_pathfinder_ratio_pct\": 100.0,\n    \"synthetic_decisions\": 0,\n    \"synthetic_or_bench_decisions\": 0\n  },\n  \"repo_root\": \"/Users/sokoliem/development/ultraprompt\",\n  \"route_outcomes\": {\n    \"by_outcome\": {},\n    \"total\": 0\n  },\n  \"routing_improvement_candidates\": [\n    {\n      \"evidence_count\": 21,\n      \"kind\": \"agent_handoff\",\n      \"priority\": \"high\",\n      \"recommendation\": \"use artifact-first handoff for high-output plugin agents and record compact envelope status\"\n    }\n  ],\n  \"runtime_events\": {\n    \"by_runtime\": {\n      \"claude-code\": 65,\n      \"codex\": 3\n    },\n    \"legacy_skill_invocations\": 0,\n    \"live_skill_invocations_total\": 3,\n    \"mcp_tool_calls\": 0,\n    \"new_release_skill_invocations\": {\n      \"frontend-visual-qa\": 1,\n      \"goal\": 1,\n      \"pathfinding-invocation-review\": 1\n    },\n    \"skill_invocations\": 3,\n    \"top_mcp_tools\": {},\n    \"top_skills\": {\n      \"ultraprompt:frontend-visual-qa\": 1,\n      \"ultraprompt:goal\": 1,\n      \"ultraprompt:pathfinding-invocation-review\": 1\n    },\n    \"total\": 68\n  },\n  \"schema\": \"invocation_telemetry_audit.v3\",\n  \"scope\": \"current\",\n  \"thresholds\": {\n    \"allow_fixture_panel_proof\": false,\n    \"max_bench_pathfinder_ratio\": 100.0,\n    \"max_explore_share\": 35.0,\n    \"max_problem_handoffs\": 999999,\n    \"min_dispatches\": 20,\n    \"min_distinct_release_intents\": 3,\n    \"min_plugin_agent_share\": 50.0,\n    \"min_real_pathfinder_decisions\": 5,\n    \"min_real_pathfinder_ratio\": 0.0,\n    \"min_skill_invocations\": 1,\n    \"required_live_agents\": [],\n    \"required_live_skills\": [\n      \"frontend-visual-qa\",\n      \"goal\",\n      \"pathfinding-invocation-review\"\n    ],\n    \"required_panel_proof\": \"experience-quality-panel\"\n  },\n  \"window_days\": 7\n}",
         "stderr": ""
       },
       "cognitive_integration": {
+        "gate_id": "cognitive_integration",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/run-cognitive-tests.py",
+        "duration_ms": 16617,
+        "exit_code": 0,
+        "status": "ok",
         "ok": true,
-        "stdout": "{\n  \"failures\": [],\n  \"ok\": true,\n  \"plugin_version\": \"8.0.0\",\n  \"schema_version\": \"ultraprompt.v8\",\n  \"tests\": [\n    \"memory schema/privacy/query/status/export\",\n    \"cognitive event write/query/stats\",\n    \"capability graph freshness\",\n    \"pathfinder golden cases\",\n    \"dream no-repo-mutation\",\n    \"learning approve/apply/revert\"\n  ]\n}",
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"failures\": [],\n  \"ok\": true,\n  \"plugin_version\": \"8.6.0\",\n  \"schema_version\": \"ultraprompt.v8\",\n  \"tests\": [\n    \"memory schema/privacy/query/status/export\",\n    \"cognitive event write/query/stats\",\n    \"dual-runtime ledger metadata\",\n    \"mcp ledger normalized metadata\",\n    \"codex activity and handoff parsing\",\n    \"release gate and generated artifact classification\",\n    \"generated artifact preflight\",\n    \"route trigger telemetry event write\",\n    \"capability graph freshness\",\n    \"pathfinder golden cases\",\n    \"artifact-first routing envelope\",\n    \"handoff contract status\",\n    \"dream no-repo-mutation\",\n    \"learning approve/apply/revert\",\n    \"route feedback learning candidate\",\n    \"grouped learning candidate preview\",\n    \"self-improvement hypothesis ranking\",\n    \"self-improvement auto-apply materialization\",\n    \"self-improvement source rollback\"\n  ]\n}",
+        "stderr": ""
+      },
+      "route_replay": {
+        "gate_id": "route_replay",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/replay-routing-events.py --json --days 7 --limit 50 --enforce",
+        "duration_ms": 455,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"budget\": \"standard\",\n  \"cases\": [\n    {\n      \"actual_panel\": \"\",\n      \"actual_skill\": \"pathfinding-invocation-review\",\n      \"event_id\": \"evt_20260520T135708260854Z_3f59ec\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"\",\n      \"expected_skill\": \"pathfinding-invocation-review\",\n      \"intent_excerpt\": \"telemetry shows ultraprompt agents cut off mid response and skills panels are not auto firing\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    },\n    {\n      \"actual_panel\": \"cognitive-governance-panel\",\n      \"actual_skill\": \"pathfinding-invocation-review\",\n      \"event_id\": \"evt_20260520T135708391897Z_355d19\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"cognitive-governance-panel\",\n      \"expected_skill\": \"pathfinding-invocation-review\",\n      \"intent_excerpt\": \"routing thresholds and release gates for invocation telemetry need validation\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    },\n    {\n      \"actual_panel\": \"experience-quality-panel\",\n      \"actual_skill\": \"frontend-visual-qa\",\n      \"event_id\": \"evt_20260520T135708521010Z_0706e9\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"experience-quality-panel\",\n      \"expected_skill\": \"frontend-visual-qa\",\n      \"intent_excerpt\": \"frontend visual QA should verify the Mission Control dashboard after release\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    },\n    {\n      \"actual_panel\": \"\",\n      \"actual_skill\": \"goal\",\n      \"event_id\": \"evt_20260520T135708685167Z_a9b466\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"\",\n      \"expected_skill\": \"goal\",\n      \"intent_excerpt\": \"goal contract should keep working until V8.6 release validation passes\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    },\n    {\n      \"actual_panel\": \"\",\n      \"actual_skill\": \"pathfinding-invocation-review\",\n      \"event_id\": \"evt_20260520T135708808435Z_9b6023\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"\",\n      \"expected_skill\": \"pathfinding-invocation-review\",\n      \"intent_excerpt\": \"why did Explore run instead of the Ultraprompt specialist for auto fire telemetry\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    }\n  ],\n  \"drifted\": 0,\n  \"event_log\": \"/Users/sokoliem/.ultraprompt/events/events.jsonl\",\n  \"ok\": true,\n  \"plugin_version\": \"8.6.0\",\n  \"replayed\": 5,\n  \"schema\": \"routing_replay.v1\",\n  \"schema_version\": \"ultraprompt.v8\",\n  \"skipped\": 0,\n  \"stable\": 5,\n  \"window_days\": 7\n}",
         "stderr": ""
       },
       "dream_catalog": {
+        "gate_id": "dream_catalog",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/dream-runner.py validate-catalog",
+        "duration_ms": 28,
+        "exit_code": 0,
+        "status": "ok",
         "ok": true,
-        "stdout": "{\n  \"implemented\": [\n    \"ecosystem-reflection\",\n    \"memory-prune\",\n    \"repo-reflection\",\n    \"route-learning\",\n    \"session-compaction\"\n  ],\n  \"jobs\": 5,\n  \"missing_specs\": [],\n  \"ok\": true,\n  \"plugin_version\": \"8.0.0\",\n  \"schema_version\": \"ultraprompt.v8\"\n}",
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"implemented\": [\n    \"ecosystem-reflection\",\n    \"memory-prune\",\n    \"repo-reflection\",\n    \"route-learning\",\n    \"self-improvement-autopilot\",\n    \"session-compaction\"\n  ],\n  \"jobs\": 6,\n  \"missing_specs\": [],\n  \"ok\": true,\n  \"plugin_version\": \"8.6.0\",\n  \"schema_version\": \"ultraprompt.v8\"\n}",
+        "stderr": ""
+      },
+      "panel_runs": {
+        "gate_id": "panel_runs",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/panel-runs.py stats",
+        "duration_ms": 25,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"total_runs\": 1,\n  \"by_status\": {\n    \"completed\": 1\n  },\n  \"by_panel\": {\n    \"experience-quality-panel\": 1\n  }\n}",
+        "stderr": ""
+      },
+      "experience_quality_panel_smoke": {
+        "gate_id": "experience_quality_panel_smoke",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/panel-runs.py smoke --panel experience-quality-panel",
+        "duration_ms": 31,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"panel\": \"experience-quality-panel\",\n  \"proof_kind\": \"fixture\",\n  \"live_adoption\": false,\n  \"fixture_or_run_id\": \"tests/artifacts/experience_quality_report.valid.json\",\n  \"artifact_type\": \"experience_quality_report\",\n  \"validator\": \"artifact-validate.py\",\n  \"status\": \"passed\",\n  \"findings\": [],\n  \"recorded_at\": \"2026-05-20T14:17:37+00:00\"\n}",
         "stderr": ""
       }
     },
-    "conclusion": "ready"
+    "runtime_targets": {
+      "source": {
+        "target": "source",
+        "path": "/Users/sokoliem/development/ultraprompt",
+        "runtime": "claude-code",
+        "version": "8.6.0",
+        "skill_count": 55,
+        "agent_count": 31,
+        "command_count": 32,
+        "mcp_tool_count": 46,
+        "ok": true,
+        "findings": [],
+        "next_action": null,
+        "checks": {
+          "validate_plugin": {
+            "ok": true,
+            "stdout": "source validation is covered by trust_gates.plugin_validation",
+            "stderr": ""
+          }
+        }
+      },
+      "package": {
+        "target": "package",
+        "path": "/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-scorecard-package-4pjdjz0_/ultraprompt",
+        "runtime": "claude-code",
+        "version": "8.6.0",
+        "skill_count": 55,
+        "agent_count": 31,
+        "command_count": 32,
+        "mcp_tool_count": 46,
+        "ok": true,
+        "findings": [],
+        "next_action": "python3 scripts/package-plugin.py --verify-only",
+        "checks": {
+          "copy": {
+            "ok": true,
+            "stdout": "Copied 309 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-scorecard-package-4pjdjz0_/ultraprompt",
+            "stderr": ""
+          }
+        }
+      },
+      "codex_cache": {
+        "target": "codex_cache",
+        "path": "/Users/sokoliem/.codex/plugins/cache/local-marketplace/ultraprompt/8.6.0",
+        "runtime": "codex",
+        "version": "8.6.0",
+        "skill_count": 55,
+        "agent_count": 31,
+        "command_count": 32,
+        "mcp_tool_count": 46,
+        "ok": true,
+        "findings": [],
+        "next_action": "bash scripts/install.sh codex",
+        "checks": {
+          "validate_plugin": {
+            "ok": true,
+            "stdout": "Ultraprompt V8.6 plugin validation\n- Target runtime: source\n- Plugin: ultraprompt v8.6.0\n- Skills: 55 (core: 34, specialist: 16, ecosystem: 5)\n- Commands: 32\n- Agents: 31\n- Output styles: 2\n- Registered hooks: 9\n- Marketplace: yes\n- MCP servers: 2\n- Skill index: yes\n- Warnings: 0\n- Errors: 0",
+            "stderr": ""
+          },
+          "discovered_candidates": {
+            "ok": true,
+            "versions": [
+              "/Users/sokoliem/.codex/plugins/cache/local-marketplace/ultraprompt/8.6.0"
+            ]
+          }
+        }
+      },
+      "claude_code_install": {
+        "target": "claude_code_install",
+        "path": "/Users/sokoliem/.claude/plugins/cache/local-marketplace/ultraprompt/8.6.0",
+        "runtime": "claude-code",
+        "version": "8.6.0",
+        "skill_count": 55,
+        "agent_count": 31,
+        "command_count": 32,
+        "mcp_tool_count": 46,
+        "ok": true,
+        "findings": [],
+        "next_action": "bash scripts/install.sh claude-code",
+        "checks": {
+          "installed_plugins": {
+            "ok": true,
+            "installed_plugins_path": "/Users/sokoliem/.claude/plugins/installed_plugins.json",
+            "configured_paths": [
+              "/Users/sokoliem/.claude/plugins/cache/local-marketplace/ultraprompt/8.6.0"
+            ]
+          },
+          "validate_plugin": {
+            "ok": true,
+            "stdout": "Ultraprompt V8.5 plugin validation\n- Target runtime: claude\n- Plugin: ultraprompt v8.6.0\n- Skills: 55 (core: 34, specialist: 16, ecosystem: 5)\n- Commands: 32\n- Agents: 31\n- Output styles: 2\n- Registered hooks: 9\n- Marketplace: yes\n- MCP servers: 1\n- Skill index: yes\n- Warnings: 0\n- Errors: 0",
+            "stderr": ""
+          },
+          "claude_plugins_list": {
+            "ok": true,
+            "stdout": "Installed plugins:\n\n  \u276f tfcu-advisory@tfcu-advisory-marketplace\n    Version: 0.1.0\n    Scope: user\n    Status: \u2714 enabled\n\n  \u276f ultraprompt@local-marketplace\n    Version: 8.6.0\n    Scope: user\n    Status: \u2714 enabled",
+            "stderr": ""
+          }
+        }
+      }
+    },
+    "conclusion": "ready",
+    "target_decomposition": {
+      "source": {
+        "ok": true,
+        "blocker_class": null
+      },
+      "package": {
+        "ok": true,
+        "blocker_class": null
+      },
+      "install_simulation": {
+        "ok": true,
+        "blocker_class": null
+      },
+      "active_codex_cache": {
+        "ok": true,
+        "blocker_class": null
+      },
+      "active_claude_code_install": {
+        "ok": true,
+        "blocker_class": null
+      },
+      "telemetry": {
+        "ok": true,
+        "blocker_class": null
+      },
+      "artifact": {
+        "ok": true,
+        "blocker_class": null
+      },
+      "panel": {
+        "ok": true,
+        "blocker_class": null
+      }
+    },
+    "gate_results": [
+      {
+        "phase": "trust",
+        "gate_id": "generated_artifacts",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/generated-artifacts.py check --json",
+        "duration_ms": 433,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 300,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"checks\": [\n    {\n      \"artifacts\": [\n        \"dist/skill-index.json\"\n      ],\n      \"check_command\": \"python3 scripts/build-skill-index.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/build-skill-index.py\",\n      \"id\": \"skill_index\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"build-skill-index.py --check\",\n        \"duration_ms\": 78,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"Index OK: dist/skill-index.json\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"dist/routing-policy.json\"\n      ],\n      \"check_command\": \"python3 scripts/build-routing-policy.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/build-routing-policy.py\",\n      \"id\": \"routing_policy\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"build-routing-policy.py --check\",\n        \"duration_ms\": 69,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"Routing policy OK: dist/routing-policy.json\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"dist/catalog-metadata.json\"\n      ],\n      \"check_command\": \"python3 scripts/build-catalog-metadata.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/build-catalog-metadata.py\",\n      \"id\": \"catalog_metadata\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"build-catalog-metadata.py --check\",\n        \"duration_ms\": 83,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"dist/catalog-metadata.json is current.\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"dist/capability-graph.json\"\n      ],\n      \"check_command\": \"python3 scripts/build-capability-graph.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/build-capability-graph.py\",\n      \"id\": \"capability_graph\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"build-capability-graph.py --check\",\n        \"duration_ms\": 82,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"dist/capability-graph.json is current.\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"skills/*/SKILL.md\"\n      ],\n      \"check_command\": \"python3 scripts/regenerate-skills.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/regenerate-skills.py\",\n      \"id\": \"skills\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"regenerate-skills.py --check\",\n        \"duration_ms\": 38,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"Verified 55 skills match specs.\"\n      },\n      \"timeout\": false\n    },\n    {\n      \"artifacts\": [\n        \"agents/*.md\"\n      ],\n      \"check_command\": \"python3 scripts/regenerate-agents.py --check\",\n      \"drift\": false,\n      \"failure_kind\": \"\",\n      \"fix_command\": \"python3 scripts/regenerate-agents.py\",\n      \"id\": \"agents\",\n      \"ok\": true,\n      \"result\": {\n        \"command\": \"regenerate-agents.py --check\",\n        \"duration_ms\": 32,\n        \"exit_code\": 0,\n        \"ok\": true,\n        \"stderr\": \"\",\n        \"stdout\": \"Verified 31 agents match specs.\"\n      },\n      \"timeout\": false\n    }\n  ],\n  \"fix_plan\": [],\n  \"generated_at\": 1779286482,\n  \"ok\": true,\n  \"schema\": \"generated_artifacts.v1\"\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "trust",
+        "gate_id": "plugin_validation",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/validate-plugin.py --target-runtime source --strict-runtime-files",
+        "duration_ms": 29022,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Ultraprompt V8.6 plugin validation\n- Target runtime: source\n- Plugin: ultraprompt v8.6.0\n- Skills: 55 (core: 34, specialist: 16, ecosystem: 5)\n- Commands: 32\n- Agents: 31\n- Output styles: 2\n- Registered hooks: 9\n- Marketplace: yes\n- MCP servers: 2\n- Skill index: yes\n- Warnings: 0\n- Errors: 0",
+        "stderr": ""
+      },
+      {
+        "phase": "trust",
+        "gate_id": "manifest_schema_claude",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/audit-manifest-schemas.py --runtime claude-code --strict-references",
+        "duration_ms": 21,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Ultraprompt V8 manifest + MCP schema audit (runtime: claude-code)\n==================================================\nOK: 0 errors, 0 warning(s)",
+        "stderr": ""
+      },
+      {
+        "phase": "trust",
+        "gate_id": "manifest_schema_codex",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/audit-manifest-schemas.py --runtime codex --strict-references",
+        "duration_ms": 21,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Ultraprompt V8 manifest + MCP schema audit (runtime: codex)\n==================================================\nOK: 0 errors, 0 warning(s)",
+        "stderr": ""
+      },
+      {
+        "phase": "trust",
+        "gate_id": "catalog_consistency",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/audit-catalog-consistency.py --json",
+        "duration_ms": 25691,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"checks\": [\n    {\n      \"cmd\": \"build-skill-index.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Index OK: dist/skill-index.json\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-catalog-metadata.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/catalog-metadata.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"build-capability-graph.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"dist/capability-graph.json is current.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-skills.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 55 skills match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"regenerate-agents.py --check\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Verified 31 agents match specs.\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-hook-coverage.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Ultraprompt hook coverage audit\\n- Registered hooks: 9\\n- Coverage entries: 9/9\\n- Fixture-covered: 5\\n- Integration-covered: 4\\n- Manual/none: 0\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-config-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"auto_wip_save.enabled\\\",\\n    \\\"notification.quiet_hours_start\\\",\\n    \\\"worktree.dirty_warn_count\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-artifact-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"checked\\\": [\\n    \\\"valid_gap\\\",\\n    \\\"valid_gap_status\\\",\\n    \\\"invalid_gap_severity\\\",\\n    \\\"invalid_gap_confidence\\\",\\n    \\\"invalid_gap_category\\\",\\n    \\\"invalid_release_status\\\",\\n    \\\"valid_repo_completeness_report\\\",\\n    \\\"invalid_contract_gap_severity\\\",\\n    \\\"valid_memory_record\\\",\\n    \\\"invalid_memory_scope\\\",\\n    \\\"valid_dream_report\\\",\\n    \\\"valid_learning_candidate\\\",\\n    \\\"invalid_learning_status\\\",\\n    \\\"valid_capability_graph\\\",\\n    \\\"valid_design_review\\\",\\n    \\\"invalid_design_review_missing_scope\\\",\\n    \\\"valid_visual_qa_report\\\",\\n    \\\"invalid_visual_qa_report_missing_surface\\\",\\n    \\\"valid_design_system_review\\\",\\n    \\\"invalid_design_system_review_missing_design_system_map\\\",\\n    \\\"valid_experience_quality_report\\\",\\n    \\\"invalid_experience_quality_report_missing_surface_map\\\",\\n    \\\"valid_invocation_telemetry_audit\\\",\\n    \\\"invalid_invocation_telemetry_audit_missing_schema\\\",\\n    \\\"valid_goal_contract\\\",\\n    \\\"invalid_goal_contract_missing_condition\\\",\\n    \\\"valid_routing_decision\\\",\\n    \\\"invalid_routing_decision_missing_schema\\\",\\n    \\\"valid_routing_envelope\\\",\\n    \\\"invalid_routing_envelope_missing_schema\\\",\\n    \\\"valid_route_outcome\\\",\\n    \\\"invalid_route_outcome_missing_schema\\\",\\n    \\\"valid_self_improvement_run\\\",\\n    \\\"invalid_self_improvement_run_missing_schema\\\",\\n    \\\"valid_self_improvement_patch\\\",\\n    \\\"invalid_self_improvement_patch_missing_schema\\\",\\n    \\\"valid_learner_eval_report\\\",\\n    \\\"invalid_learner_eval_report_missing_schema\\\",\\n    \\\"valid_rollback_manifest\\\",\\n    \\\"invalid_rollback_manifest_missing_schema\\\",\\n    \\\"invalid_visual_qa_missing_evidence_and_risks\\\"\\n  ],\\n  \\\"failures\\\": []\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-pathfinder-tests.py --no-telemetry\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"Pathfinder bench: 78 cases (23 hand-authored, 55 generated skill-name coverage)\\n- top-1: 78/78 (100.0%; target >=95%)\\n- top-3: 78/78 (100.0%; target 100%)\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"run-cognitive-tests.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"failures\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.6.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\",\\n  \\\"tests\\\": [\\n    \\\"memory schema/privacy/query/status/export\\\",\\n    \\\"cognitive event write/query/stats\\\",\\n    \\\"dual-runtime ledger metadata\\\",\\n    \\\"mcp ledger normalized metadata\\\",\\n    \\\"codex activity and handoff parsing\\\",\\n    \\\"release gate and generated artifact classification\\\",\\n    \\\"generated artifact preflight\\\",\\n    \\\"route trigger telemetry event write\\\",\\n    \\\"capability graph freshness\\\",\\n    \\\"pathfinder golden cases\\\",\\n    \\\"artifact-first routing envelope\\\",\\n    \\\"handoff contract status\\\",\\n    \\\"dream no-repo-mutation\\\",\\n    \\\"learning approve/apply/revert\\\",\\n    \\\"route feedback learning candidate\\\",\\n    \\\"grouped learning candidate preview\\\",\\n    \\\"self-improvement hypothesis ranking\\\",\\n    \\\"self-improvement auto-apply materialization\\\",\\n    \\\"self-improvement source rollback\\\"\\n  ]\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"dream-runner.py validate-catalog\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"implemented\\\": [\\n    \\\"ecosystem-reflection\\\",\\n    \\\"memory-prune\\\",\\n    \\\"repo-reflection\\\",\\n    \\\"route-learning\\\",\\n    \\\"self-improvement-autopilot\\\",\\n    \\\"session-compaction\\\"\\n  ],\\n  \\\"jobs\\\": 6,\\n  \\\"missing_specs\\\": [],\\n  \\\"ok\\\": true,\\n  \\\"plugin_version\\\": \\\"8.6.0\\\",\\n  \\\"schema_version\\\": \\\"ultraprompt.v8\\\"\\n}\",\n      \"stderr\": \"\"\n    },\n    {\n      \"cmd\": \"audit-doc-metadata.py\",\n      \"ok\": true,\n      \"exit\": 0,\n      \"stdout\": \"{\\n  \\\"ok\\\": true,\\n  \\\"version\\\": \\\"8.6.0\\\",\\n  \\\"findings\\\": []\\n}\",\n      \"stderr\": \"\"\n    }\n  ],\n  \"source_checks\": [\n    {\n      \"name\": \"skills_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    },\n    {\n      \"name\": \"agents_have_source_specs\",\n      \"ok\": true,\n      \"missing_specs\": [],\n      \"orphan_specs\": []\n    }\n  ]\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "trust",
+        "gate_id": "routing_policy",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/build-routing-policy.py --check",
+        "duration_ms": 38,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Routing policy OK: dist/routing-policy.json",
+        "stderr": ""
+      },
+      {
+        "phase": "trust",
+        "gate_id": "package_verify",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/package-plugin.py --verify-only",
+        "duration_ms": 106,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"files\": 309,\n  \"errors\": [],\n  \"warnings\": []\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "trust",
+        "gate_id": "install_simulation",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/install-simulate.py --runtime both",
+        "duration_ms": 60186,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"temp_root\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd\",\n  \"results\": {\n    \"claude\": {\n      \"ok\": true,\n      \"target\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/claude/ultraprompt\",\n      \"runtime_target_status\": {\n        \"ok\": true,\n        \"runtime\": \"claude\",\n        \"path\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/claude/ultraprompt\",\n        \"version\": \"8.6.0\",\n        \"skill_count\": 55,\n        \"agent_count\": 31,\n        \"command_count\": 32,\n        \"expected\": {\n          \"version\": \"8.6.0\",\n          \"skill_count\": 55,\n          \"agent_count\": 31,\n          \"command_count\": 32\n        },\n        \"findings\": []\n      },\n      \"checks\": {\n        \"copy\": {\n          \"ok\": true,\n          \"stdout\": \"Copied 309 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/claude/ultraprompt\",\n          \"stderr\": \"\"\n        },\n        \"validate_plugin\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8.6 plugin validation\\n- Target runtime: claude\\n- Plugin: ultraprompt v8.6.0\\n- Skills: 55 (core: 34, specialist: 16, ecosystem: 5)\\n- Commands: 32\\n- Agents: 31\\n- Output styles: 2\\n- Registered hooks: 9\\n- Marketplace: yes\\n- MCP servers: 1\\n- Skill index: yes\\n- Warnings: 0\\n- Errors: 0\",\n          \"stderr\": \"\"\n        },\n        \"manifest_schema\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8 manifest + MCP schema audit (runtime: claude-code)\\n==================================================\\nOK: 0 errors, 0 warning(s)\",\n          \"stderr\": \"\"\n        },\n        \"claude_mcp_present\": {\n          \"ok\": true\n        },\n        \"runtime_parity\": {\n          \"ok\": true,\n          \"findings\": []\n        }\n      }\n    },\n    \"codex\": {\n      \"ok\": true,\n      \"target\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/codex/ultraprompt\",\n      \"runtime_target_status\": {\n        \"ok\": true,\n        \"runtime\": \"codex\",\n        \"path\": \"/var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/codex/ultraprompt\",\n        \"version\": \"8.6.0\",\n        \"skill_count\": 55,\n        \"agent_count\": 31,\n        \"command_count\": 32,\n        \"expected\": {\n          \"version\": \"8.6.0\",\n          \"skill_count\": 55,\n          \"agent_count\": 31,\n          \"command_count\": 32\n        },\n        \"findings\": []\n      },\n      \"checks\": {\n        \"copy\": {\n          \"ok\": true,\n          \"stdout\": \"Copied 309 files to /var/folders/43/dpqjtp4j4_9g1vq349crm0fc0000gn/T/ultraprompt-install-sim-yw3xk0sd/codex/ultraprompt\",\n          \"stderr\": \"\"\n        },\n        \"validate_plugin\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8.6 plugin validation\\n- Target runtime: codex\\n- Plugin: ultraprompt v8.6.0\\n- Skills: 55 (core: 34, specialist: 16, ecosystem: 5)\\n- Commands: 32\\n- Agents: 31\\n- Output styles: 2\\n- Registered hooks: 9\\n- Marketplace: yes\\n- MCP servers: 1\\n- Skill index: yes\\n- Warnings: 0\\n- Errors: 0\",\n          \"stderr\": \"\"\n        },\n        \"manifest_schema\": {\n          \"ok\": true,\n          \"stdout\": \"Ultraprompt V8 manifest + MCP schema audit (runtime: codex)\\n==================================================\\nOK: 0 errors, 0 warning(s)\",\n          \"stderr\": \"\"\n        },\n        \"codex_mcp_present\": {\n          \"ok\": true\n        },\n        \"runtime_parity\": {\n          \"ok\": true,\n          \"findings\": []\n        }\n      }\n    }\n  }\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "trust",
+        "gate_id": "config_env_overrides",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/run-config-tests.py",
+        "duration_ms": 25,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"checked\": [\n    \"auto_wip_save.enabled\",\n    \"notification.quiet_hours_start\",\n    \"worktree.dirty_warn_count\"\n  ],\n  \"failures\": []\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "trust",
+        "gate_id": "artifact_enums",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/run-artifact-tests.py",
+        "duration_ms": 32,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"checked\": [\n    \"valid_gap\",\n    \"valid_gap_status\",\n    \"invalid_gap_severity\",\n    \"invalid_gap_confidence\",\n    \"invalid_gap_category\",\n    \"invalid_release_status\",\n    \"valid_repo_completeness_report\",\n    \"invalid_contract_gap_severity\",\n    \"valid_memory_record\",\n    \"invalid_memory_scope\",\n    \"valid_dream_report\",\n    \"valid_learning_candidate\",\n    \"invalid_learning_status\",\n    \"valid_capability_graph\",\n    \"valid_design_review\",\n    \"invalid_design_review_missing_scope\",\n    \"valid_visual_qa_report\",\n    \"invalid_visual_qa_report_missing_surface\",\n    \"valid_design_system_review\",\n    \"invalid_design_system_review_missing_design_system_map\",\n    \"valid_experience_quality_report\",\n    \"invalid_experience_quality_report_missing_surface_map\",\n    \"valid_invocation_telemetry_audit\",\n    \"invalid_invocation_telemetry_audit_missing_schema\",\n    \"valid_goal_contract\",\n    \"invalid_goal_contract_missing_condition\",\n    \"valid_routing_decision\",\n    \"invalid_routing_decision_missing_schema\",\n    \"valid_routing_envelope\",\n    \"invalid_routing_envelope_missing_schema\",\n    \"valid_route_outcome\",\n    \"invalid_route_outcome_missing_schema\",\n    \"valid_self_improvement_run\",\n    \"invalid_self_improvement_run_missing_schema\",\n    \"valid_self_improvement_patch\",\n    \"invalid_self_improvement_patch_missing_schema\",\n    \"valid_learner_eval_report\",\n    \"invalid_learner_eval_report_missing_schema\",\n    \"valid_rollback_manifest\",\n    \"invalid_rollback_manifest_missing_schema\",\n    \"invalid_visual_qa_missing_evidence_and_risks\"\n  ],\n  \"failures\": []\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "cognitive",
+        "gate_id": "capability_graph",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/build-capability-graph.py --check",
+        "duration_ms": 53,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 900,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "dist/capability-graph.json is current.",
+        "stderr": ""
+      },
+      {
+        "phase": "cognitive",
+        "gate_id": "pathfinder",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/run-pathfinder-tests.py --no-telemetry",
+        "duration_ms": 6594,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "Pathfinder bench: 78 cases (23 hand-authored, 55 generated skill-name coverage)\n- top-1: 78/78 (100.0%; target >=95%)\n- top-3: 78/78 (100.0%; target 100%)",
+        "stderr": ""
+      },
+      {
+        "phase": "cognitive",
+        "gate_id": "invocation_telemetry",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/audit-invocation-telemetry.py --json --enforce --min-plugin-agent-share 50 --max-explore-share 35 --min-real-pathfinder-decisions 5 --min-distinct-release-intents 3 --release-critical-v8-4 --require-panel-proof experience-quality-panel",
+        "duration_ms": 36004,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"activation_gaps\": {\n    \"agents_never_dispatched\": [\n      \"adversarial\",\n      \"auditor\",\n      \"catalog-strategist\",\n      \"customer-advocate\",\n      \"dead-code-and-drift-hunter\",\n      \"debugger\",\n      \"design-critic\",\n      \"dream-synthesizer\",\n      \"evaluator\",\n      \"feature-completeness-auditor\",\n      \"gap-analysis-lead\",\n      \"innovation-lead\",\n      \"integration-contract-reviewer\",\n      \"invocation-reliability-auditor\",\n      \"learning-auditor\",\n      \"market-analyst\",\n      \"memory-curator\",\n      \"principal-pm\",\n      \"release-readiness-auditor\",\n      \"repo-cartographer\",\n      \"reviewer\",\n      \"risk-and-controls-reviewer\",\n      \"router\",\n      \"scout\",\n      \"security-auditor\",\n      \"technical-product-architect\",\n      \"test-gap-analyst\",\n      \"test-strategist\",\n      \"wiring-gap-inspector\",\n      \"workflow-planner\",\n      \"writer\"\n    ],\n    \"skills_never_invoked\": [\n      \"accessibility-review\",\n      \"agent-author\",\n      \"ai-agent-safety-review\",\n      \"api-contract\",\n      \"architect\",\n      \"build\",\n      \"ci-repair\",\n      \"concept-brief\",\n      \"contract-test-generate\",\n      \"data-flow-privacy-map\",\n      \"database-review\",\n      \"dead-code-drift\",\n      \"debug\",\n      \"dependency-audit\",\n      \"design-review\",\n      \"design-system-review\",\n      \"docs-sync\",\n      \"dream\",\n      \"feature-completeness\",\n      \"gap-analysis\",\n      \"hooks-design\",\n      \"idea-triage\",\n      \"infra-iac-review\",\n      \"llm-eval-design\",\n      \"mcp-design\",\n      \"migrate\",\n      \"mvp-scope\",\n      \"observability-pass\",\n      \"opportunity-map\",\n      \"performance-pass\",\n      \"plugin-review\",\n      \"prd-ai-feature\",\n      \"prd-lite\",\n      \"prd-standard\",\n      \"prd-technical\",\n      \"prd-to-plan\",\n      \"problem-framing\",\n      \"refactor\",\n      \"release\",\n      \"release-readiness\",\n      \"repo-map\",\n      \"repo-review\",\n      \"review\",\n      \"security-audit\",\n      \"self-improve\",\n      \"skill-author\",\n      \"state-machine-review\",\n      \"supply-chain-hardening\",\n      \"technical-debt-triage\",\n      \"test-gap-analysis\",\n      \"test-harden\",\n      \"tui-design-innovate\"\n    ]\n  },\n  \"agent_dispatches\": {\n    \"by_agent\": {},\n    \"explore_share_pct\": 0.0,\n    \"explore_total\": 0,\n    \"legacy_prefix_total\": 0,\n    \"plugin_share_pct\": 0.0,\n    \"plugin_total\": 0,\n    \"total\": 0\n  },\n  \"agent_handoffs\": {\n    \"by_agent\": {\n      \"?\": 21\n    },\n    \"by_status\": {\n      \"persisted_output\": 13,\n      \"truncated\": 8\n    },\n    \"examples\": [\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"persisted-output|Output too large|Full output saved to\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/20/rollout-2026-05-20T05-01-13-019e4579-d8ed-7063-9c33-abdf12d65713.jsonl\",\n        \"line\": 350,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"persisted_output\",\n        \"ts\": 1779283053.55\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"persisted-output|Output too large|Full output saved to\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/20/rollout-2026-05-20T05-01-13-019e4579-d8ed-7063-9c33-abdf12d65713.jsonl\",\n        \"line\": 351,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"persisted_output\",\n        \"ts\": 1779283053.55\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 14,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778805996.735\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 15,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778805996.743\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 26,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778806022.886\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 27,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778806022.891\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 298,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778806956.091\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 299,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778806956.091\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 337,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778813284.415\n      },\n      {\n        \"agent\": \"\",\n        \"artifact_detected\": false,\n        \"artifact_exists\": false,\n        \"artifact_path\": \"\",\n        \"failure_kind\": \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\",\n        \"file\": \"/Users/sokoliem/.codex/sessions/2026/05/14/rollout-2026-05-14T16-45-17-019e2918-4599-7ad2-ae64-6c8aea80a0d4.jsonl\",\n        \"line\": 338,\n        \"source\": \"codex_session_jsonl\",\n        \"status\": \"truncated\",\n        \"ts\": 1778813284.416\n      }\n    ],\n    \"problem_total\": 21,\n    \"total\": 21\n  },\n  \"candidate_groups\": {\n    \"groups\": [\n      {\n        \"count\": 1,\n        \"evidence_count\": 21,\n        \"kind\": \"agent_handoff\",\n        \"priorities\": {\n          \"high\": 1\n        },\n        \"recommendations\": [\n          \"use artifact-first handoff for high-output plugin agents and record compact envelope status\"\n        ]\n      }\n    ],\n    \"total\": 1\n  },\n  \"codex_activity\": {\n    \"agent_dispatches\": 0,\n    \"files\": 2,\n    \"handoffs\": 21,\n    \"mcp_tool_calls\": 0,\n    \"skill_mentions\": 312,\n    \"top_mcp_tool_calls\": {},\n    \"top_skill_mentions\": {\n      \"ultraprompt:architect\": 10,\n      \"ultraprompt:build\": 8,\n      \"ultraprompt:checkpoint\": 8,\n      \"ultraprompt:claim-check\": 4,\n      \"ultraprompt:debug\": 12,\n      \"ultraprompt:dream\": 4,\n      \"ultraprompt:llm-eval-design\": 6,\n      \"ultraprompt:menu\": 4,\n      \"ultraprompt:migrate\": 8,\n      \"ultraprompt:panel-run\": 16,\n      \"ultraprompt:refactor\": 12,\n      \"ultraprompt:release\": 8,\n      \"ultraprompt:repo-map\": 12,\n      \"ultraprompt:resume\": 8,\n      \"ultraprompt:review\": 14,\n      \"ultraprompt:route\": 8,\n      \"ultraprompt:self-improve\": 20,\n      \"ultraprompt:status\": 12,\n      \"ultraprompt:tui-design-innovate\": 8,\n      \"ultraprompt:wip-save\": 12\n    }\n  },\n  \"codex_mcp_tool_calls\": {\n    \"by_tool\": {},\n    \"session_files\": 2,\n    \"total\": 0\n  },\n  \"failures\": [],\n  \"generated_at\": 1779286640,\n  \"handoff_contract\": {\n    \"artifact_first_agents\": [\n      \"design-critic\",\n      \"feature-completeness-auditor\",\n      \"gap-analysis-lead\",\n      \"invocation-reliability-auditor\",\n      \"repo-cartographer\",\n      \"reviewer\"\n    ],\n    \"artifact_present\": 0,\n    \"by_failure_kind\": {\n      \"\\\\[Truncated\\\\. Full output:|returned only a partial|partial finding|partial report|reviewer truncated|auditor'?s response came back truncated|agent truncated\": 8,\n      \"persisted-output|Output too large|Full output saved to\": 13\n    },\n    \"missing_artifact_examples\": [],\n    \"missing_artifact_file\": 0,\n    \"missing_artifact_file_examples\": [],\n    \"missing_artifact_path\": 0,\n    \"ok\": true,\n    \"problem_handoffs\": 21,\n    \"required_total\": 0,\n    \"schema\": \"handoff_contract.v2\",\n    \"truncation_prone_agents\": {\n      \"?\": 21\n    }\n  },\n  \"ok\": true,\n  \"panel_proof\": {\n    \"artifact_path\": \"tests/artifacts/experience_quality_report.valid.json\",\n    \"artifact_type\": \"experience_quality_report\",\n    \"completed_at\": \"2026-05-20T13:57:19+00:00\",\n    \"exit\": 0,\n    \"findings\": [],\n    \"fixture_or_run_id\": \"panel-ultraprompt-experience-quality-panel-20260520T135719Z-9922\",\n    \"live_adoption\": true,\n    \"ok\": true,\n    \"panel\": \"experience-quality-panel\",\n    \"proof_kind\": \"live\",\n    \"recorded_at\": \"2026-05-20T14:17:20+00:00\",\n    \"repo\": \"ultraprompt\",\n    \"run_id\": \"panel-ultraprompt-experience-quality-panel-20260520T135719Z-9922\",\n    \"status\": \"passed\",\n    \"validation_summary\": [\n      {\n        \"command\": \"python3 scripts/panel-runs.py proof --panel experience-quality-panel\",\n        \"evidence\": \"V8.6 live panel proof\",\n        \"status\": \"passed\"\n      }\n    ],\n    \"validator\": \"artifact-validate.py\"\n  },\n  \"pathfinder\": {\n    \"bench_decisions\": 0,\n    \"bench_pathfinder_ratio_pct\": 0.0,\n    \"by_skill\": {\n      \"frontend-visual-qa\": 1,\n      \"goal\": 1,\n      \"pathfinding-invocation-review\": 3\n    },\n    \"by_source\": {\n      \"runtime\": 5\n    },\n    \"decisions\": 5,\n    \"distinct_real_intents\": 5,\n    \"panel_recommendations\": 4,\n    \"real_decisions\": 5,\n    \"real_pathfinder_ratio_pct\": 100.0,\n    \"synthetic_decisions\": 0,\n    \"synthetic_or_bench_decisions\": 0\n  },\n  \"repo_root\": \"/Users/sokoliem/development/ultraprompt\",\n  \"route_outcomes\": {\n    \"by_outcome\": {},\n    \"total\": 0\n  },\n  \"routing_improvement_candidates\": [\n    {\n      \"evidence_count\": 21,\n      \"kind\": \"agent_handoff\",\n      \"priority\": \"high\",\n      \"recommendation\": \"use artifact-first handoff for high-output plugin agents and record compact envelope status\"\n    }\n  ],\n  \"runtime_events\": {\n    \"by_runtime\": {\n      \"claude-code\": 65,\n      \"codex\": 3\n    },\n    \"legacy_skill_invocations\": 0,\n    \"live_skill_invocations_total\": 3,\n    \"mcp_tool_calls\": 0,\n    \"new_release_skill_invocations\": {\n      \"frontend-visual-qa\": 1,\n      \"goal\": 1,\n      \"pathfinding-invocation-review\": 1\n    },\n    \"skill_invocations\": 3,\n    \"top_mcp_tools\": {},\n    \"top_skills\": {\n      \"ultraprompt:frontend-visual-qa\": 1,\n      \"ultraprompt:goal\": 1,\n      \"ultraprompt:pathfinding-invocation-review\": 1\n    },\n    \"total\": 68\n  },\n  \"schema\": \"invocation_telemetry_audit.v3\",\n  \"scope\": \"current\",\n  \"thresholds\": {\n    \"allow_fixture_panel_proof\": false,\n    \"max_bench_pathfinder_ratio\": 100.0,\n    \"max_explore_share\": 35.0,\n    \"max_problem_handoffs\": 999999,\n    \"min_dispatches\": 20,\n    \"min_distinct_release_intents\": 3,\n    \"min_plugin_agent_share\": 50.0,\n    \"min_real_pathfinder_decisions\": 5,\n    \"min_real_pathfinder_ratio\": 0.0,\n    \"min_skill_invocations\": 1,\n    \"required_live_agents\": [],\n    \"required_live_skills\": [\n      \"frontend-visual-qa\",\n      \"goal\",\n      \"pathfinding-invocation-review\"\n    ],\n    \"required_panel_proof\": \"experience-quality-panel\"\n  },\n  \"window_days\": 7\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "cognitive",
+        "gate_id": "cognitive_integration",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/run-cognitive-tests.py",
+        "duration_ms": 16617,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"failures\": [],\n  \"ok\": true,\n  \"plugin_version\": \"8.6.0\",\n  \"schema_version\": \"ultraprompt.v8\",\n  \"tests\": [\n    \"memory schema/privacy/query/status/export\",\n    \"cognitive event write/query/stats\",\n    \"dual-runtime ledger metadata\",\n    \"mcp ledger normalized metadata\",\n    \"codex activity and handoff parsing\",\n    \"release gate and generated artifact classification\",\n    \"generated artifact preflight\",\n    \"route trigger telemetry event write\",\n    \"capability graph freshness\",\n    \"pathfinder golden cases\",\n    \"artifact-first routing envelope\",\n    \"handoff contract status\",\n    \"dream no-repo-mutation\",\n    \"learning approve/apply/revert\",\n    \"route feedback learning candidate\",\n    \"grouped learning candidate preview\",\n    \"self-improvement hypothesis ranking\",\n    \"self-improvement auto-apply materialization\",\n    \"self-improvement source rollback\"\n  ]\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "cognitive",
+        "gate_id": "route_replay",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/replay-routing-events.py --json --days 7 --limit 50 --enforce",
+        "duration_ms": 455,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"budget\": \"standard\",\n  \"cases\": [\n    {\n      \"actual_panel\": \"\",\n      \"actual_skill\": \"pathfinding-invocation-review\",\n      \"event_id\": \"evt_20260520T135708260854Z_3f59ec\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"\",\n      \"expected_skill\": \"pathfinding-invocation-review\",\n      \"intent_excerpt\": \"telemetry shows ultraprompt agents cut off mid response and skills panels are not auto firing\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    },\n    {\n      \"actual_panel\": \"cognitive-governance-panel\",\n      \"actual_skill\": \"pathfinding-invocation-review\",\n      \"event_id\": \"evt_20260520T135708391897Z_355d19\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"cognitive-governance-panel\",\n      \"expected_skill\": \"pathfinding-invocation-review\",\n      \"intent_excerpt\": \"routing thresholds and release gates for invocation telemetry need validation\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    },\n    {\n      \"actual_panel\": \"experience-quality-panel\",\n      \"actual_skill\": \"frontend-visual-qa\",\n      \"event_id\": \"evt_20260520T135708521010Z_0706e9\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"experience-quality-panel\",\n      \"expected_skill\": \"frontend-visual-qa\",\n      \"intent_excerpt\": \"frontend visual QA should verify the Mission Control dashboard after release\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    },\n    {\n      \"actual_panel\": \"\",\n      \"actual_skill\": \"goal\",\n      \"event_id\": \"evt_20260520T135708685167Z_a9b466\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"\",\n      \"expected_skill\": \"goal\",\n      \"intent_excerpt\": \"goal contract should keep working until V8.6 release validation passes\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    },\n    {\n      \"actual_panel\": \"\",\n      \"actual_skill\": \"pathfinding-invocation-review\",\n      \"event_id\": \"evt_20260520T135708808435Z_9b6023\",\n      \"event_type\": \"pathfinder_decision\",\n      \"expected_panel\": \"\",\n      \"expected_skill\": \"pathfinding-invocation-review\",\n      \"intent_excerpt\": \"why did Explore run instead of the Ultraprompt specialist for auto fire telemetry\",\n      \"ok\": true,\n      \"panel_stable\": true,\n      \"skill_stable\": true\n    }\n  ],\n  \"drifted\": 0,\n  \"event_log\": \"/Users/sokoliem/.ultraprompt/events/events.jsonl\",\n  \"ok\": true,\n  \"plugin_version\": \"8.6.0\",\n  \"replayed\": 5,\n  \"schema\": \"routing_replay.v1\",\n  \"schema_version\": \"ultraprompt.v8\",\n  \"skipped\": 0,\n  \"stable\": 5,\n  \"window_days\": 7\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "cognitive",
+        "gate_id": "dream_catalog",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/dream-runner.py validate-catalog",
+        "duration_ms": 28,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"implemented\": [\n    \"ecosystem-reflection\",\n    \"memory-prune\",\n    \"repo-reflection\",\n    \"route-learning\",\n    \"self-improvement-autopilot\",\n    \"session-compaction\"\n  ],\n  \"jobs\": 6,\n  \"missing_specs\": [],\n  \"ok\": true,\n  \"plugin_version\": \"8.6.0\",\n  \"schema_version\": \"ultraprompt.v8\"\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "cognitive",
+        "gate_id": "panel_runs",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/panel-runs.py stats",
+        "duration_ms": 25,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"total_runs\": 1,\n  \"by_status\": {\n    \"completed\": 1\n  },\n  \"by_panel\": {\n    \"experience-quality-panel\": 1\n  }\n}",
+        "stderr": ""
+      },
+      {
+        "phase": "cognitive",
+        "gate_id": "experience_quality_panel_smoke",
+        "target": "all",
+        "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/sokoliem/development/ultraprompt/scripts/panel-runs.py smoke --panel experience-quality-panel",
+        "duration_ms": 31,
+        "exit_code": 0,
+        "status": "ok",
+        "ok": true,
+        "blocker_class": null,
+        "ttl": 0,
+        "source_hash": "73229d9900f27cef2690cae31c01ee2a7d66083f46dffcbf5a96746c798b2f47",
+        "artifact_hash": "bb5946ac23a60f7b384da808daf6c93f640f3af09433b76e0374dc1cd6486156",
+        "cache_hit": false,
+        "stdout": "{\n  \"ok\": true,\n  \"panel\": \"experience-quality-panel\",\n  \"proof_kind\": \"fixture\",\n  \"live_adoption\": false,\n  \"fixture_or_run_id\": \"tests/artifacts/experience_quality_report.valid.json\",\n  \"artifact_type\": \"experience_quality_report\",\n  \"validator\": \"artifact-validate.py\",\n  \"status\": \"passed\",\n  \"findings\": [],\n  \"recorded_at\": \"2026-05-20T14:17:37+00:00\"\n}",
+        "stderr": ""
+      }
+    ],
+    "adoption_status": {
+      "state": "sufficient_live_evidence",
+      "ok": true,
+      "blocker_class": null,
+      "gate_id": "invocation_telemetry"
+    },
+    "blocker_classes": {},
+    "result_hash": "690e211fa56f937ee3f14c33715a07be67c28d3672e5771381868988ae38b42c",
+    "freshness": "current",
+    "persisted_report": {
+      "path": "dist/release-scorecard.json",
+      "schema_version": 3,
+      "plugin_version": "8.6.0",
+      "generated_at": 1779286657,
+      "generated_from_commit": "62f5b6c7a1f84367840e6e9c66fab3829d907704",
+      "target": "all",
+      "conclusion": "ready",
+      "result_hash": "690e211fa56f937ee3f14c33715a07be67c28d3672e5771381868988ae38b42c"
+    }
   }
 }

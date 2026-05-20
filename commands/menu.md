@@ -4,9 +4,9 @@ disable-model-invocation: true
 argument-hint: [optional: current task or goal]
 ---
 
-# Ultraprompt V8 Menu
+# Ultraprompt V8.5 Menu
 
-Catalog: 48 skills, 29 agents, 42 MCP tools, 30 commands, 12 panels, 17 artifact schemas.
+Catalog: 55 skills, 31 agents, 46 MCP tools, 32 commands, 13 panels, 31 artifact schemas.
 
 If `$ARGUMENTS` is present, recommend the top 3 most relevant routes first. If the task is ambiguous, recommend `/ultraprompt:route $ARGUMENTS` instead of guessing.
 
@@ -26,6 +26,9 @@ If `$ARGUMENTS` is present, recommend the top 3 most relevant routes first. If t
 - `/ultraprompt:release-readiness` - ship/no-ship readiness
 - `/ultraprompt:release` - release notes and changelog
 - `/ultraprompt:security-audit` - auth, secrets, injection, tenant isolation
+- `/ultraprompt:design-review` - product design, visual quality, and taste critique
+- `/ultraprompt:frontend-visual-qa` - rendered screenshot, responsive, and state verification
+- `/ultraprompt:pathfinding-invocation-review` - routing telemetry and dispatch reliability
 
 ## Specialist Routes
 
@@ -36,6 +39,7 @@ If `$ARGUMENTS` is present, recommend the top 3 most relevant routes first. If t
 - `/ultraprompt:supply-chain-hardening`
 - `/ultraprompt:performance-pass`
 - `/ultraprompt:accessibility-review`
+- `/ultraprompt:design-system-review`
 - `/ultraprompt:database-review`
 - `/ultraprompt:infra-iac-review`
 - `/ultraprompt:observability-pass`
@@ -69,7 +73,10 @@ If `$ARGUMENTS` is present, recommend the top 3 most relevant routes first. If t
 - `/ultraprompt:repo-capsule [path]` - read-only repo contract
 - `/ultraprompt:evidence-report` - validation, edits, blocks, and dispatch history
 - `/ultraprompt:dashboard` - localhost catalog, health, and live activity
+- `/ultraprompt:self-improve` - evidence-backed dry-run, canary, autopilot, and rollback
 - `/ultraprompt:doctor` - full plugin health
 - `/ultraprompt:usage [--days N]` - local-only telemetry
+
+Codex note: native `/` commands are not plugin-routed. Use `$ultraprompt:<skill>` where a skill exists, or invoke the MCP tool-backed operation in natural language.
 
 Keep the response compact. End with one recommended next slash-command.

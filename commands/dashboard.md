@@ -5,7 +5,7 @@ argument-hint: "[--stop | --status]"
 
 # Ultraprompt Dashboard
 
-Launch the dashboard, surface the entire plugin ecosystem (29 agents, 48 skills, 42 MCP tools, 30 commands, 12 panels, 17 artifact schemas) with live invocation telemetry streaming from the evidence ledger.
+Launch the dashboard, surface the entire plugin ecosystem (31 agents, 55 skills, 46 MCP tools, 32 commands, 13 panels, 31 artifact schemas) with live invocation telemetry streaming from the evidence ledger.
 
 ## Usage
 
@@ -19,7 +19,7 @@ Three-pane localhost UI at `http://localhost:5174/`:
 
 - **Left pane**: catalog tree (skills, agents, panels, MCP tools, commands, artifact schemas) — searchable with ⌘K, filterable by tier
 - **Center pane**: entity detail — description, trigger phrases, distinctive judgment, failure modes, workflow, output contract, lane boundaries, anti-patterns, recent invocations
-- **Right pane**: live activity feed — invocations stream in real-time from the evidence ledger via SSE
+- **Right pane**: live activity feed — filterable/exportable invocation telemetry with low-value guard noise hidden by default
 
 ## Dispatch
 

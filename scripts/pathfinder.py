@@ -16,6 +16,12 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from ultraprompt_index import load_index, route_intent  # noqa: E402
+from routing_policy import (  # noqa: E402
+    build_routing_envelope,
+    load_routing_policy,
+    panel_candidates,
+    route_confidence_gap,
+)
 
 
 def load_graph() -> dict[str, Any]:
@@ -138,10 +144,19 @@ def expected_artifacts(skill: dict[str, Any]) -> list[str]:
     return sorted(set(out))
 
 
-def pathfind(intent: str, *, repo: str = "", budget: str = "standard", dry_run: bool = True) -> dict[str, Any]:
+def pathfind(
+    intent: str,
+    *,
+    repo: str = "",
+    budget: str = "standard",
+    dry_run: bool = True,
+    no_telemetry: bool = False,
+    telemetry_source: str = "runtime",
+) -> dict[str, Any]:
     index = load_index(ROOT)
     graph = load_graph()
     policy = load_policy()
+    routing_policy = load_routing_policy(ROOT)
     raw_routes = route_intent(index, intent, limit=5)
     routes, policy_influences = apply_policy(raw_routes, intent, policy)
     memories = memory_query(intent, repo, limit=8)
@@ -149,9 +164,19 @@ def pathfind(intent: str, *, repo: str = "", budget: str = "standard", dry_run: 
     top = routes[0] if routes else {}
     skill = skill_by_name(index, str(top.get("skill", "")))
     agents = agents_for_skill(graph, skill.get("name", ""))
-    preferred_panel = panel_for_skill(graph, skill.get("name", ""))
+    confidence_gap = route_confidence_gap(routes)
+    ranked_panels = panel_candidates(
+        policy=routing_policy,
+        graph=graph,
+        skill_name=skill.get("name", ""),
+        intent=intent,
+        budget=budget,
+        confidence_gap=confidence_gap,
+    )
+    selected_panel = next((item for item in ranked_panels if item.get("selected")), None)
+    preferred_panel = selected_panel.get("panel") if selected_panel else panel_for_skill(graph, skill.get("name", ""))
     path_type = "skill-only"
-    if budget == "deep" and preferred_panel:
+    if selected_panel:
         path_type = "panel"
     elif agents:
         path_type = "agent-assisted skill"
@@ -179,14 +204,20 @@ def pathfind(intent: str, *, repo: str = "", budget: str = "standard", dry_run: 
         "intent": intent,
         "repo": repo,
         "dry_run": dry_run,
+        "telemetry_enabled": not no_telemetry,
+        "telemetry_source": telemetry_source,
         "budget": budget,
+        "confidence_gap": confidence_gap,
         "recommended_path": {
             "type": path_type,
             "skill": skill.get("name"),
             "command": f"/ultraprompt:{skill.get('name')}" if skill.get("name") else None,
+            "codex_command": f"$ultraprompt:{skill.get('name')}" if skill.get("name") else None,
             "agents": agents,
             "panel": preferred_panel if path_type == "panel" else None,
             "confidence": round(confidence, 3),
+            "raw_score": top.get("score"),
+            "adjusted_score": top.get("adjusted_score"),
             "rationale": [
                 "router selected highest-scoring matching skill",
                 "capability graph supplied agent/panel edges",
@@ -196,13 +227,17 @@ def pathfind(intent: str, *, repo: str = "", budget: str = "standard", dry_run: 
             "risk": risk,
             "cost": {"budget": budget, "estimated": "high" if path_type == "panel" else ("medium" if agents else "low")},
         },
+        "panel_candidates": ranked_panels[:5],
         "alternatives": alternatives,
         "memory_influences": [{"id": m.get("id"), "kind": m.get("kind"), "scope": m.get("scope"), "status": m.get("status")} for m in memories],
         "policy_influences": policy_influences,
         "graph_hash": graph.get("source_hash") or stable_hash(graph),
         "graph_health": graph.get("health", {}),
+        "routing_policy_hash": routing_policy.get("source_hash"),
     }
-    emit_event(result)
+    result["routing_envelope"] = build_routing_envelope(result, routing_policy)
+    if not no_telemetry:
+        emit_event(result)
     return command_result(True, path=result)
 
 
@@ -210,11 +245,32 @@ def emit_event(result: dict[str, Any]) -> None:
     script = ROOT / "scripts" / "cognitive-event-log.py"
     try:
         payload = {
+            "producer": "pathfinder",
+            "telemetry_source": result.get("telemetry_source") or "runtime",
+            "event_source": result.get("telemetry_source") or "runtime",
             "trace_id": result["trace_id"],
             "intent": result["intent"][:200],
             "skill": result["recommended_path"].get("skill"),
             "path_type": result["recommended_path"].get("type"),
             "confidence": result["recommended_path"].get("confidence"),
+            "raw_score": result["recommended_path"].get("raw_score"),
+            "adjusted_score": result["recommended_path"].get("adjusted_score"),
+            "agents": result["recommended_path"].get("agents", []),
+            "panel": result["recommended_path"].get("panel"),
+            "handoff_policy": (result.get("routing_envelope") or {}).get("handoff_policy"),
+            "reliability": (result.get("routing_envelope") or {}).get("reliability"),
+            "panel_candidates": result.get("panel_candidates", [])[:5],
+            "budget": result.get("budget"),
+            "alternatives": [
+                {
+                    "skill": alt.get("skill"),
+                    "adjusted_score": alt.get("adjusted_score"),
+                    "confidence": alt.get("confidence"),
+                }
+                for alt in result.get("alternatives", [])
+            ],
+            "followed": None,
+            "outcome": "recommended",
         }
         subprocess.run(
             [sys.executable, str(script), "write", "pathfinder_decision", "--json", json.dumps(payload), "--trace-id", result["trace_id"]],
@@ -235,20 +291,35 @@ def main() -> int:
     p.add_argument("--repo", default="")
     p.add_argument("--budget", choices=["low", "standard", "deep"], default="standard")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--no-telemetry", action="store_true", help="do not write pathfinder_decision events")
+    p.add_argument("--telemetry-source", choices=["runtime", "bench", "synthetic"], default="runtime")
     b = sub.add_parser("bench")
     b.add_argument("--json", action="store_true")
+    b.add_argument("--no-telemetry", action="store_true", help="run golden tests without telemetry writes")
     e = sub.add_parser("explain")
     e.add_argument("intent")
     e.add_argument("--repo", default="")
     e.add_argument("--budget", choices=["low", "standard", "deep"], default="standard")
+    e.add_argument("--no-telemetry", action="store_true", help="do not write pathfinder_decision events")
+    e.add_argument("--telemetry-source", choices=["runtime", "bench", "synthetic"], default="runtime")
 
     args = parser.parse_args()
     if args.cmd in {"pathfind", "explain"}:
         intent = args.intent if args.cmd == "explain" else args.intent
-        print_json(pathfind(intent, repo=args.repo, budget=args.budget, dry_run=True))
+        print_json(pathfind(
+            intent,
+            repo=args.repo,
+            budget=args.budget,
+            dry_run=True,
+            no_telemetry=args.no_telemetry,
+            telemetry_source=args.telemetry_source,
+        ))
         return 0
     if args.cmd == "bench":
-        proc = subprocess.run([sys.executable, str(ROOT / "scripts" / "run-pathfinder-tests.py"), "--json"], cwd=ROOT, capture_output=True, text=True, timeout=120)
+        bench_args = [sys.executable, str(ROOT / "scripts" / "run-pathfinder-tests.py"), "--json"]
+        if args.no_telemetry:
+            bench_args.append("--no-telemetry")
+        proc = subprocess.run(bench_args, cwd=ROOT, capture_output=True, text=True, timeout=120)
         print(proc.stdout.strip())
         return proc.returncode
     return 0

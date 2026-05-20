@@ -17,6 +17,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:auditor` (focus: `supply-chain`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `security-privacy-panel`, `release-gate-panel`. Preferred: `security-privacy-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Supply chain attacks happen at install time and publish time, not just at consume time. Untrusted install scripts run with full developer or CI privilege. The CI pipeline that publishes packages is itself a high-value target. Lockfiles bind versions but not contents (without integrity hashes). SBOMs are a record, not a control.

@@ -17,6 +17,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:auditor` (focus: `dependencies`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `release-gate-panel`. Preferred: `release-gate-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Direct dependency count is small; transitive count is what matters. Known-CVE scanning is necessary but not sufficient: also check abandonment (last commit, maintainer count), license drift (transitive GPL where MIT was promised), and version drift (multiple versions of the same package in the tree).

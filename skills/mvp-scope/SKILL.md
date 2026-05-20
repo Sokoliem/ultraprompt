@@ -16,6 +16,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:principal-pm`. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `mvp-panel`. Preferred: `mvp-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 MVP-scope decides what's in the smallest shippable version; prd-to-plan sequences the whole PRD into phases; concept-brief drafts the concept; prd-lite drafts the PRD. Use MVP-scope when scope-cutting decisions are the primary need.

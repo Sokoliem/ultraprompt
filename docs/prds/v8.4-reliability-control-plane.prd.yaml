@@ -1,0 +1,107 @@
+schema: prd_technical.v1
+title: Ultraprompt V8.4 Reliability Control Plane
+problem: >-
+  V8.3 proved the routing and telemetry loop, but release operators still need
+  clearer separation between implementation failures, generated-artifact drift,
+  runtime install failures, and live adoption evidence gaps. Codex MCP calls,
+  high-output agent handoffs, and route-learning candidates need to be
+  first-class reliability signals instead of scattered transcript clues.
+users_and_jobs:
+  - "Release owner: decide whether source, package, installs, telemetry, artifacts, and panels are independently ready."
+  - "Plugin maintainer: see exact generated-artifact fixes before spending time on long validation runs."
+  - "Routing maintainer: review evidence-backed route-policy candidates without automatic durable mutation."
+  - "Codex/Claude user: receive compact reliable agent handoffs while full reports persist locally."
+goals:
+  - Add blocker classification and gate result metadata to release scorecards.
+  - Add a generated-artifact preflight with exact fix commands.
+  - Improve Codex MCP call attribution from structured session logs.
+  - Audit artifact-first handoff contract compliance for high-output agents.
+  - Group route-learning candidates by repeated evidence with preview and replay impact.
+non_goals:
+  - No hosted telemetry service.
+  - No automatic durable route-policy mutation.
+  - No broad skill, agent, or panel catalog expansion.
+  - No cap on specialist investigation depth.
+requirements:
+  - "Release scorecard outputs additive gate_results, blocker_classes, and adoption_status fields."
+  - Generated-artifact checks run read-only and identify stale source-derived files.
+  - "MCP telemetry events always include runtime, session_id, source, repo, worktree, plugin_version, trace_id, and tool."
+  - Codex session parsing recognizes both textual mcp__ultraprompt_meta__ names and structured function-call tool names.
+  - "routing_envelope.v1 includes optional handoff_contract_status."
+  - "route_update learning candidates include evidence_summary, replay_impact, and policy_preview."
+scope:
+  - scripts/release-scorecard.py
+  - scripts/generated-artifacts.py
+  - scripts/audit-invocation-telemetry.py
+  - scripts/routing_policy.py
+  - scripts/learning-queue.py
+  - scripts/ledger-v2.py
+  - mcp/ultraprompt_meta.py
+  - dashboard API and Mission Control cards
+  - fixture coverage in run-cognitive-tests.py
+technical_design:
+  data_model: >-
+    release_gate_result.v1 contains gate_id, target, command, duration_ms,
+    exit_code, status, blocker_class, ttl, source_hash, artifact_hash,
+    cache_hit, stdout, and stderr. Learning candidates remain
+    learning_candidate.v1 with additive preview fields.
+  api_surface: >-
+    release_scorecard schema_version 3 adds gate_results, blocker_classes, and
+    adoption_status. invocation_telemetry_audit.v3 adds codex_mcp_tool_calls,
+    handoff_contract, and candidate_groups. routing_envelope.v1 adds
+    handoff_contract_status without breaking existing consumers.
+  integration_points: >-
+    The release scorecard calls generated-artifacts.py before expensive gates,
+    dashboard APIs forward scorecard and telemetry reliability fields, MCP
+    route_feedback creates enriched route_update candidates, and routing_policy
+    generates artifact-first prompts plus contract status.
+  failure_modes: >-
+    Generated artifacts may be stale, a gate may timeout, live telemetry may be
+    insufficient, an active runtime cache may be stale, a high-output agent may
+    omit an artifact path, or a learning overlay may fail validation before apply.
+  telemetry: >-
+    ledger-v2 normalizes runtime, session, repo, worktree, source, and plugin
+    version for all events. MCP tool calls add trace_id and tool. Invocation
+    audit separates Codex MCP structured calls, handoff contract failures, route
+    outcomes, and live-vs-bench pathfinder evidence.
+  rollout_technical_plan: >-
+    Ship additive schemas first, regenerate dist artifacts, validate source
+    gates, then install to Codex and Claude Code for fresh smoke sessions that
+    satisfy live adoption gates.
+risks:
+  - Gate caching could hide failures if keyed too broadly; key by command, target, source hash, and artifact hash and cache only successful short-TTL gates.
+  - Codex session formats may drift; parser should remain permissive and fail open.
+  - Dashboard fields may be missing on older reports; UI must treat all new fields as optional.
+metrics:
+  - Non-telemetry gates can pass while telemetry reports live_adoption_blocker.
+  - Codex MCP calls are nonzero when session logs contain MCP function calls.
+  - Generated-artifact preflight reports zero drift after regeneration.
+  - All high-output routing envelopes include satisfied handoff_contract_status.
+  - Route-update candidates include policy preview and replay impact before apply.
+acceptance_criteria:
+  - release-scorecard --check --target all --json includes gate_results, blocker_classes, and adoption_status.
+  - generated-artifacts.py check exits nonzero on stale dist artifacts and prints exact fix commands.
+  - audit-invocation-telemetry.py --json reports codex_mcp_tool_calls and handoff_contract.
+  - run-cognitive-tests.py covers gate classification, Codex MCP parsing, handoff contracts, and grouped learning previews.
+  - learning_apply remains the only durable route-policy mutation path.
+rollout_plan:
+  - Implement source changes and fixture tests.
+  - Regenerate source-derived artifacts.
+  - Run source validation, cognitive tests, pathfinder tests, router bench, telemetry audit, and scorecard.
+  - Install to active Codex and Claude Code caches only after source/package checks pass.
+  - Run fresh smoke sessions to satisfy live telemetry volume.
+validation_plan:
+  - python3 scripts/generated-artifacts.py check
+  - python3 scripts/regenerate-skills.py --check
+  - python3 scripts/regenerate-agents.py --check
+  - python3 scripts/build-routing-policy.py --check
+  - python3 scripts/build-catalog-metadata.py --check
+  - python3 scripts/audit-catalog-consistency.py --json
+  - python3 scripts/run-cognitive-tests.py
+  - python3 scripts/run-pathfinder-tests.py --no-telemetry
+  - python3 scripts/run-router-bench.py
+  - python3 scripts/audit-invocation-telemetry.py --json --days 14
+  - python3 scripts/release-scorecard.py --check --target all --json
+open_questions:
+  - How much live telemetry volume should V8.4 require before release after fresh Codex and Claude Code smoke sessions?
+  - Should gate cache TTLs become user-configurable after one release cycle?

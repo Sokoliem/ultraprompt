@@ -34,6 +34,12 @@ from ultraprompt_index import (  # noqa: E402
     route_intent,
     validate_plugin,
 )
+from routing_policy import (  # noqa: E402
+    load_routing_policy,
+    policy_for_skill,
+    run_pathfind_for_decision,
+)
+from cognitive_common import sortable_id  # noqa: E402
 
 
 def plugin_version() -> str:
@@ -76,12 +82,14 @@ V8: dispatch-first architecture with trust-consolidated release gates and live d
 
 Skills with specialist agents dispatch via Task by default. Follow each skill body's DISPATCH POLICY. Inline override only when trivial (â‰¤5 reads), user asked for fast-path, OR context is already loaded.
 
-### Anti-patterns vs built-in Explore
+### Specialist-first routing
 
-- "map X / explore Y / read Z / show me W" â†’ `ultraprompt:scout`, NOT Explore
-- "audit X for Y" â†’ `ultraprompt:auditor` with focus, NOT Explore
-- "draft release notes / write ADR" â†’ `ultraprompt:writer`, NOT Explore
-- "red-team / critique / find weakness" â†’ `ultraprompt:adversarial`, NOT Explore"""
+- When a matching `ultraprompt:*` specialist exists and confidence is above threshold, prefer it over built-in Explore.
+- "map X / explore Y / read Z / show me W" â†’ `ultraprompt:scout`, not Explore.
+- "audit X for Y" â†’ `ultraprompt:auditor` with focus, not Explore.
+- "draft release notes / write ADR" â†’ `ultraprompt:writer`, not Explore.
+- "red-team / critique / find weakness" â†’ `ultraprompt:adversarial`, not Explore.
+- High-output specialists should use artifact-first handoff: full report on disk, compact envelope in chat."""
 
 
 def _ledger_write_call(tool_name: str, args: dict, dur_ms: int, ok: bool, extra: dict = None) -> None:
@@ -96,7 +104,16 @@ def _ledger_write_call(tool_name: str, args: dict, dur_ms: int, ok: bool, extra:
         ledger = _ilu.module_from_spec(spec)
         spec.loader.exec_module(ledger)
         args_summary = {k: (v if not isinstance(v, str) or len(v) <= 200 else v[:200] + "...") for k, v in args.items()}
-        kwargs = {"tool": tool_name, "args": args_summary, "dur_ms": dur_ms, "ok": ok}
+        kwargs = {
+            "trace_id": str(args.get("trace_id") or sortable_id("mcp")),
+            "tool": tool_name,
+            "args": args_summary,
+            "dur_ms": dur_ms,
+            "ok": ok,
+            "source": "mcp/ultraprompt_meta.py",
+            "repo": PLUGIN_ROOT.name,
+            "worktree": str(PLUGIN_ROOT),
+        }
         if extra:
             kwargs.update(extra)
         ledger.write_event("mcp_tool_call", **kwargs)
@@ -184,7 +201,7 @@ def tool_list_skills(args: dict[str, Any]) -> dict[str, Any]:
         haystack = " ".join(str(skill.get(k, "")) for k in ("name", "description", "when_to_use", "tier")).lower()
         if query and query not in haystack:
             continue
-        skills.append({k: skill.get(k) for k in ("name", "command", "description", "tier", "manual_only", "paths", "path")})
+        skills.append({k: skill.get(k) for k in ("name", "command", "codex_command", "description", "tier", "manual_only", "paths", "path")})
     return text_result({"count": len(skills[:limit]), "skills": skills[:limit]})
 
 
@@ -581,7 +598,7 @@ def tool_wip_save_advise(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def tool_dispatch_advise(args):
-    """V8: Recommend dispatch vs inline."""
+    """V8.5: Recommend dispatch vs inline from generated source policy."""
     intent = str(args.get("intent", "")).strip()
     if not intent:
         return text_result({"error": "intent is required"}, is_error=True)
@@ -589,63 +606,42 @@ def tool_dispatch_advise(args):
     estimated = int(args.get("estimated_files_to_read", 10))
     is_interactive = bool(args.get("is_interactive", False))
 
-    skill_routes = route_intent(load_index(PLUGIN_ROOT), intent, limit=1)
+    index = load_index(PLUGIN_ROOT)
+    policy = load_routing_policy(PLUGIN_ROOT)
+    skill_routes = route_intent(index, intent, limit=3)
     top_skill = skill_routes[0].get("skill") if skill_routes else None
-
-    skill_to_agent = {
-        "review": ("reviewer", None),
-        "security-audit": ("security-auditor", None),
-        "debug": ("debugger", None),
-        "architect": ("reviewer", "architecture"),
-        "api-contract": ("reviewer", "contract"),
-        "repo-map": ("scout", None),
-        "test-harden": ("test-strategist", None),
-        "performance-pass": ("reviewer", "performance"),
-        "state-machine-review": ("reviewer", "code"),
-        "dependency-audit": ("auditor", "dependencies"),
-        "supply-chain-hardening": ("auditor", "supply-chain"),
-        "accessibility-review": ("auditor", "a11y"),
-        "db-schema-review": ("auditor", "db"),
-        "infra-iac-review": ("auditor", "infra"),
-        "observability-pass": ("auditor", "observability"),
-        "data-flow-privacy-map": ("auditor", "privacy"),
-        "ai-agent-safety-review": ("auditor", "ai-safety"),
-        "cost-audit": ("auditor", "cost"),
-        "release": ("writer", None),
-        "ci-repair": ("debugger", None),
-    }
-
-    inline_skills = {"build", "refactor", "migrate", "llm-eval-design",
-                     "tui-design-innovate", "contract-test-generate"}
+    skill_policy = policy_for_skill(policy, str(top_skill or ""))
+    dispatch = skill_policy.get("dispatch_to") or {}
+    inline_override = skill_policy.get("inline_override") or {}
+    default_execution = skill_policy.get("default_execution")
 
     advise = {
+        "schema": "dispatch_advise.v2",
         "intent_excerpt": intent[:200],
         "top_skill": top_skill,
+        "top_routes": skill_routes,
         "estimated_files": estimated,
         "is_interactive": is_interactive,
+        "routing_policy_hash": policy.get("source_hash"),
     }
 
     if estimated <= 5 and not skill_routes:
         advise["recommend"] = "inline"
         advise["agent"] = None
         advise["reason"] = "trivial scope, no matching skill - answer inline"
-    elif top_skill in inline_skills:
+    elif inline_override.get("enabled") or (estimated <= 5 and default_execution == "inline"):
         advise["recommend"] = "inline"
         advise["agent"] = None
-        advise["reason"] = top_skill + " is interactive by design - keep on main thread"
-    elif top_skill in skill_to_agent:
-        agent, focus = skill_to_agent[top_skill]
+        advise["reason"] = inline_override.get("reason") or f"{top_skill} policy prefers inline execution for this scope"
+    elif dispatch.get("agent"):
+        agent = str(dispatch["agent"])
+        focus = dispatch.get("focus") or dispatch.get("focus_from")
         advise["recommend"] = "dispatch"
         advise["agent"] = "ultraprompt:" + agent
         if focus:
             advise["focus"] = focus
-        advise["reason"] = top_skill + " is scope-bounded analysis - dispatch keeps main context clean and uses persona-locked specialist"
-        focus_line = focus if focus else "<from $ARGUMENTS>"
-        advise["brief"] = (
-            "Task(description='<intent>', subagent_type='ultraprompt:" + agent + "', "
-            "prompt='focus: " + focus_line + " | <intent + scope hints> | "
-            "Apply discipline at ${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md.')"
-        )
+        advise["phase"] = dispatch.get("phase")
+        advise["reason"] = top_skill + " has source-derived dispatch_to metadata; dispatch uses a specialist with artifact-first handoff when needed"
     else:
         advise["recommend"] = "inline" if estimated <= 5 else "dispatch"
         advise["agent"] = None
@@ -653,6 +649,28 @@ def tool_dispatch_advise(args):
             advise["reason"] = "no clear specialist agent match"
         else:
             advise["reason"] = "high scope but no specialist - consider /ultraprompt:panel-run for cross-cutting work"
+    advise["policy"] = {
+        "default_execution": default_execution,
+        "release_critical": skill_policy.get("release_critical"),
+        "telemetry_required": skill_policy.get("telemetry_required"),
+        "panel_escalation": skill_policy.get("panel_escalation"),
+        "risk": skill_policy.get("risk"),
+        "confirmation": skill_policy.get("confirmation"),
+    }
+    envelope_payload = _run_json_script(
+        "pathfinder.py",
+        ["pathfind", "--intent", intent, "--budget", "standard", "--dry-run", "--no-telemetry"],
+        timeout=30,
+    )
+    envelope = ((envelope_payload.get("path") or {}).get("routing_envelope") if envelope_payload.get("ok") else None)
+    if envelope:
+        advise["routing_envelope"] = envelope
+        dispatches = envelope.get("dispatches") or []
+        if dispatches:
+            first = dispatches[0]
+            advise["brief"] = first.get("prompt")
+            advise["handoff_policy"] = first.get("handoff_policy")
+            advise["artifact_path"] = first.get("artifact_path")
 
     return text_result(advise)
 
@@ -660,26 +678,67 @@ def tool_dispatch_advise(args):
 
 
 def tool_release_scorecard(args):
-    """V8.0.0: Generate plugin release scorecard."""
+    """V8.6.0: Generate plugin release scorecard without returning stale timeout data."""
     import subprocess
+    target = str(args.get("target") or "source")
+    if target not in {"source", "all"}:
+        target = "source"
+    timeout_seconds = int(args.get("timeout_seconds") or 180)
+    cmd = [
+        sys.executable,
+        str(PLUGIN_ROOT / "scripts/release-scorecard.py"),
+        "--check",
+        "--target",
+        target,
+        "--json",
+    ]
+    if args.get("no_gate_cache"):
+        cmd.append("--no-gate-cache")
     try:
-        out = subprocess.run(
-            [sys.executable, str(PLUGIN_ROOT / "scripts/release-scorecard.py")],
-            capture_output=True, text=True, timeout=120
-        )
-        # Try to load the JSON report
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout_seconds)
         try:
-            report = json.loads((PLUGIN_ROOT / "dist/release-scorecard.json").read_text())
-        except Exception:
-            report = {"error": "scorecard JSON not generated", "stdout": out.stdout, "stderr": out.stderr}
-        return text_result(report)
+            report = json.loads(out.stdout)
+        except json.JSONDecodeError:
+            return text_result({
+                "ok": False,
+                "schema": "release_scorecard_tool.v2",
+                "error": "scorecard stdout was not valid JSON",
+                "command": cmd,
+                "exit": out.returncode,
+                "stdout": out.stdout[-4000:],
+                "stderr": out.stderr[-4000:],
+                "stale_report_used": False,
+            }, is_error=True)
+        report.setdefault("tool", {})
+        report["tool"].update({
+            "schema": "release_scorecard_tool.v2",
+            "command": cmd,
+            "exit": out.returncode,
+            "target": target,
+            "timeout_seconds": timeout_seconds,
+            "stale_report_used": False,
+        })
+        return text_result(report, is_error=out.returncode != 0)
+    except subprocess.TimeoutExpired as exc:
+        return text_result({
+            "ok": False,
+            "schema": "release_scorecard_tool.v2",
+            "error": "release scorecard timed out before completion",
+            "command": cmd,
+            "target": target,
+            "timeout_seconds": timeout_seconds,
+            "stdout": (exc.stdout or "")[-4000:] if isinstance(exc.stdout, str) else "",
+            "stderr": (exc.stderr or "")[-4000:] if isinstance(exc.stderr, str) else "",
+            "suggested_cli": " ".join(cmd),
+            "stale_report_used": False,
+        }, is_error=True)
     except Exception as exc:
-        return text_result({"error": str(exc)}, is_error=True)
+        return text_result({"ok": False, "schema": "release_scorecard_tool.v2", "error": str(exc), "stale_report_used": False}, is_error=True)
 
 
 
 def tool_panel_plan(args):
-    """V8.0.0: Return dispatch plan for a named panel.
+    """V8.2.0: Return dispatch plan for a named panel.
 
     Args:
         panel_name: name of the panel (e.g. 'repo-completeness-panel')
@@ -783,7 +842,7 @@ def tool_panel_plan(args):
 
 
 def tool_mission_state(args):
-    """V8.0.0: Mission Control unified state snapshot.
+    """V8.2.0: Mission Control unified state snapshot.
 
     Reads from repo capsule, worktree state, sessions, evidence ledger v2,
     WIP snapshots, gap ledger. Returns the V8 mission_state schema.
@@ -807,7 +866,7 @@ def tool_mission_state(args):
 
 
 def tool_gap_ledger_query(args):
-    """V8.0.0: Query gap ledger.
+    """V8.2.0: Query gap ledger.
 
     Args:
         repo: filter by repo name
@@ -820,6 +879,8 @@ def tool_gap_ledger_query(args):
     if args.get("repo"): cmd_args += ["--repo", args["repo"]]
     if args.get("status"): cmd_args += ["--status", args["status"]]
     if args.get("severity"): cmd_args += ["--severity", args["severity"]]
+    if args.get("fingerprint"): cmd_args += ["--fingerprint", args["fingerprint"]]
+    if args.get("history"): cmd_args += ["--history"]
     if args.get("limit"): cmd_args += ["--limit", str(args["limit"])]
     try:
         out = subprocess.run(cmd_args, capture_output=True, text=True, timeout=15)
@@ -829,7 +890,7 @@ def tool_gap_ledger_query(args):
 
 
 def tool_gap_ledger_write(args):
-    """V8.0.0: Write gap entry to persistent ledger.
+    """V8.2.0: Write gap entry to persistent ledger.
 
     Required fields: repo, category, severity, confidence, title, evidence
     Optional: affected_area, expected_behavior, actual_behavior, recommended_fix,
@@ -837,8 +898,10 @@ def tool_gap_ledger_write(args):
     """
     import subprocess
     import tempfile
-    if not args.get("repo") or not args.get("title"):
-        return text_result({"error": "repo and title are required"}, is_error=True)
+    required = ["repo", "title", "category", "severity", "confidence", "evidence"]
+    missing = [field for field in required if not args.get(field)]
+    if missing:
+        return text_result({"error": "missing required fields", "missing": missing}, is_error=True)
     try:
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(args, f)
@@ -854,7 +917,7 @@ def tool_gap_ledger_write(args):
 
 
 def tool_gap_ledger_stats(args):
-    """V8.0.0: Gap ledger summary stats."""
+    """V8.2.0: Gap ledger summary stats."""
     import subprocess
     try:
         out = subprocess.run(
@@ -1186,8 +1249,10 @@ def tool_memory_stats(args: dict[str, Any]) -> dict[str, Any]:
 
 def tool_dream_run(args: dict[str, Any]) -> dict[str, Any]:
     job = str(args.get("job", "")).strip()
+    defaulted_job = False
     if not job:
-        return text_result({"ok": False, "error": "job is required"}, is_error=True)
+        job = "session-compaction"
+        defaulted_job = True
     argv = ["run", job]
     if args.get("repo"):
         argv.extend(["--repo", str(args["repo"])])
@@ -1196,6 +1261,7 @@ def tool_dream_run(args: dict[str, Any]) -> dict[str, Any]:
     data = _run_json_script("dream-runner.py", argv, timeout=120)
     data["risk"] = "low"
     data["confirmation_required"] = False
+    data["defaulted_job"] = defaulted_job
     return text_result(data, is_error=not data.get("ok", False))
 
 
@@ -1216,7 +1282,48 @@ def tool_pathfind_workflow(args: dict[str, Any]) -> dict[str, Any]:
         argv.extend(["--repo", str(args["repo"])])
     if args.get("dry_run", True):
         argv.append("--dry-run")
+    if args.get("no_telemetry", False):
+        argv.append("--no-telemetry")
     return text_result(_run_json_script("pathfinder.py", argv, timeout=60))
+
+
+def tool_route_trigger_plan(args: dict[str, Any]) -> dict[str, Any]:
+    """V8.5: Return a dry-run main-thread action plan for an intent."""
+    intent = str(args.get("intent", "")).strip()
+    if not intent:
+        return text_result({"ok": False, "error": "intent is required"}, is_error=True)
+    runtime = str(args.get("runtime", "codex"))
+    budget = str(args.get("budget", "standard"))
+    repo = str(args.get("repo", ""))
+    constraints = args.get("constraints") if isinstance(args.get("constraints"), dict) else {}
+    data = run_pathfind_for_decision(intent, runtime=runtime, budget=budget, repo=repo, constraints=constraints)
+    if data.get("ok") and not args.get("no_telemetry", False):
+        decision = data.get("routing_decision") or {}
+        _run_json_script(
+            "cognitive-event-log.py",
+            [
+                "write",
+                "route_trigger_plan_emitted",
+                "--json",
+                json.dumps({
+                    "producer": "route_trigger_plan",
+                    "telemetry_source": "runtime",
+                    "trace_id": decision.get("trace_id"),
+                    "intent": intent[:200],
+                    "skill": decision.get("top_skill"),
+                    "decision_type": decision.get("decision_type"),
+                    "execution_mode": decision.get("execution_mode"),
+                    "panel": decision.get("panel"),
+                    "handoff_policy": decision.get("handoff_policy"),
+                    "handoff_contract_status": decision.get("handoff_contract_status"),
+                    "reliability": decision.get("reliability"),
+                    "dry_run": True,
+                }),
+                "--trace-id",
+                str(decision.get("trace_id") or ""),
+            ],
+        )
+    return text_result(data, is_error=not data.get("ok", False))
 
 
 def tool_capability_graph(args: dict[str, Any]) -> dict[str, Any]:
@@ -1240,6 +1347,8 @@ def tool_learning_candidates(args: dict[str, Any]) -> dict[str, Any]:
         argv.extend(["--status", str(args["status"])])
     if args.get("kind"):
         argv.extend(["--kind", str(args["kind"])])
+    if args.get("grouped"):
+        argv.append("--grouped")
     return text_result(_run_json_script("learning-queue.py", argv))
 
 
@@ -1259,21 +1368,79 @@ def tool_learning_apply(args: dict[str, Any]) -> dict[str, Any]:
     return text_result(data, is_error=not data.get("ok", False))
 
 
+def tool_self_improve_run(args: dict[str, Any]) -> dict[str, Any]:
+    argv = [
+        "run",
+        "--mode",
+        str(args.get("mode", "dry-run")),
+        "--scope",
+        str(args.get("scope", "all")),
+    ]
+    if args.get("repo"):
+        argv.extend(["--repo", str(args["repo"])])
+    data = _run_json_script("self-improve.py", argv, timeout=420)
+    data["risk"] = "high" if args.get("mode") == "autopilot" else "medium"
+    data["confirmation_required"] = False
+    return text_result(data, is_error=not data.get("ok", False))
+
+
+def tool_self_improve_runs(args: dict[str, Any]) -> dict[str, Any]:
+    data = _run_json_script("self-improve.py", ["list", "--limit", str(args.get("limit", 20))], timeout=30)
+    return text_result(data, is_error=not data.get("ok", False))
+
+
+def tool_self_improve_rollback(args: dict[str, Any]) -> dict[str, Any]:
+    run_id = str(args.get("run_id", "")).strip()
+    if not run_id:
+        return text_result({"ok": False, "error": "run_id is required"}, is_error=True)
+    data = _run_json_script("self-improve.py", ["rollback", run_id], timeout=60)
+    data["risk"] = "medium"
+    data["confirmation_required"] = False
+    return text_result(data, is_error=not data.get("ok", False))
+
+
 def tool_route_feedback(args: dict[str, Any]) -> dict[str, Any]:
     intent = str(args.get("intent", "")).strip()
     outcome = str(args.get("outcome", "")).strip()
     skill = str(args.get("skill", "")).strip()
     corrected_skill = str(args.get("corrected_skill", "")).strip()
+    selected_panel = str(args.get("selected_panel", "")).strip()
+    corrected_panel = str(args.get("corrected_panel", "")).strip()
+    agent = str(args.get("agent", "")).strip()
+    corrected_agent = str(args.get("corrected_agent", "")).strip()
+    handoff_status = str(args.get("handoff_status", "")).strip()
+    failure_kind = str(args.get("failure_kind", "")).strip()
+    artifact_path = str(args.get("artifact_path", "")).strip()
+    tool_count = args.get("tool_count")
+    token_count = args.get("token_count")
+    trace_id = str(args.get("trace_id", "")).strip() or sortable_id("route")
     payload = {
+        "schema": "route_outcome.v1",
+        "trace_id": trace_id,
         "intent": intent,
         "outcome": outcome,
+        "selected_skill": skill,
         "skill": skill,
         "corrected_skill": corrected_skill,
+        "selected_panel": selected_panel,
+        "corrected_panel": corrected_panel,
+        "agent": agent,
+        "corrected_agent": corrected_agent,
+        "handoff_status": handoff_status,
+        "failure_kind": failure_kind,
+        "artifact_path": artifact_path,
+        "tool_count": tool_count,
+        "token_count": token_count,
         "reason": str(args.get("reason", "")),
+        "evidence_refs": args.get("evidence_refs", []),
     }
-    event = _run_json_script("cognitive-event-log.py", ["write", "route_outcome", "--json", json.dumps(payload), "--privacy", "metadata"])
+    event_args = ["write", "route_outcome", "--json", json.dumps(payload), "--privacy", "metadata"]
+    if trace_id:
+        event_args.extend(["--trace-id", trace_id])
+    event = _run_json_script("cognitive-event-log.py", event_args)
     learning = None
-    if outcome in {"corrected", "failed"} and (corrected_skill or skill):
+    handoff_failed = handoff_status in {"partial", "truncated", "persisted_output", "empty"}
+    if (outcome in {"corrected", "failed"} or handoff_failed or agent == "Explore") and (corrected_skill or skill or corrected_panel):
         learning = _run_json_script(
             "learning-queue.py",
             [
@@ -1282,9 +1449,37 @@ def tool_route_feedback(args: dict[str, Any]) -> dict[str, Any]:
                 "--payload-json", json.dumps({
                     "intent_pattern": intent[:80],
                     "skill": corrected_skill or skill,
+                    "panel": corrected_panel or selected_panel,
+                    "agent": corrected_agent or agent,
+                    "handoff_status": handoff_status,
+                    "failure_kind": failure_kind,
+                    "artifact_path": artifact_path,
+                    "tool_count": tool_count,
+                    "token_count": token_count,
                     "weight_delta": 0.1,
                     "reason": str(args.get("reason", "")),
                 }),
+                "--evidence-json",
+                json.dumps(args.get("evidence_refs", [])),
+            ],
+        )
+    if handoff_status:
+        _run_json_script(
+            "cognitive-event-log.py",
+            [
+                "write", "agent_handoff",
+                "--json", json.dumps({
+                    "trace_id": trace_id,
+                    "intent": intent[:200],
+                    "skill": skill,
+                    "agent": agent,
+                    "handoff_status": handoff_status,
+                    "failure_kind": failure_kind,
+                    "artifact_path": artifact_path,
+                    "tool_count": tool_count,
+                    "token_count": token_count,
+                }),
+                "--trace-id", trace_id,
             ],
         )
     return text_result({"ok": event.get("ok", False), "event": event, "learning_candidate": learning, "schema_version": "route_feedback.v1", "plugin_version": plugin_version()})
@@ -1380,7 +1575,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_evidence_diff,
     ),
     "team_plan": (
-        "V8.0.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
+        "V8.2.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
         {
             "type": "object",
             "properties": {
@@ -1463,15 +1658,19 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_ledger_query,
     ),
     "release_scorecard": (
-        "V8.0.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, conclusion (ready/risky/blocked).",
+        "V8.6.0: Generate a release-readiness scorecard for the plugin with classified gates, runtime targets, telemetry adoption state, routing policy, self-improvement regression classification, and conclusion. Returns live --check JSON and reports timeout explicitly without falling back to stale dist output.",
         {
             "type": "object",
-            "properties": {},
+            "properties": {
+                "target": {"type": "string", "enum": ["source", "all"], "default": "source"},
+                "timeout_seconds": {"type": "integer", "minimum": 30, "maximum": 900, "default": 180},
+                "no_gate_cache": {"type": "boolean", "default": False},
+            },
         },
         tool_release_scorecard,
     ),
     "panel_plan": (
-        "V8.0.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
+        "V8.2.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
         {
             "type": "object",
             "properties": {
@@ -1482,7 +1681,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_panel_plan,
     ),
     "mission_state": (
-        "V8.0.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
+        "V8.2.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
         {
             "type": "object",
             "properties": {
@@ -1493,20 +1692,22 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_mission_state,
     ),
     "gap_ledger_query": (
-        "V8.0.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Filter by repo, status, severity. Returns gap entries from current and prior sessions.",
+        "V8.2.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Defaults to latest-by-fingerprint; pass history=true for append-only lifecycle records.",
         {
             "type": "object",
             "properties": {
                 "repo": {"type": "string"},
-                "status": {"type": "string", "description": "open|accepted|fixed|false_positive|deferred"},
+                "status": {"type": "string", "description": "open|accepted|in_progress|fixed|validated|false_positive|deferred"},
                 "severity": {"type": "string", "description": "critical|high|medium|low"},
+                "fingerprint": {"type": "string"},
+                "history": {"type": "boolean", "default": False},
                 "limit": {"type": "integer"},
             },
         },
         tool_gap_ledger_query,
     ),
     "gap_ledger_write": (
-        "V8.0.0: Persist a gap finding to the gap ledger. Used by repo-completeness audit skills (gap-analysis, feature-completeness, test-gap-analysis, dead-code-drift, release-readiness) to record findings beyond a single session.",
+        "V8.2.0: Persist a schema-valid gap finding to the gap ledger. Writes fingerprinted lifecycle records for repo-completeness audit skills and panel syntheses.",
         {
             "type": "object",
             "properties": {
@@ -1523,19 +1724,22 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
                 "validation_plan": {"type": "string"},
                 "suggested_owner_agent": {"type": "string"},
                 "suggested_skill": {"type": "string"},
+                "owner_agent": {"type": "string"},
+                "fix_skill": {"type": "string"},
+                "panel_run_ids": {"type": "array", "items": {"type": "string"}},
                 "auditor": {"type": "string"},
             },
-            "required": ["repo", "title"],
+            "required": ["repo", "title", "category", "severity", "confidence", "evidence"],
         },
         tool_gap_ledger_write,
     ),
     "gap_ledger_stats": (
-        "V8.0.0: Gap ledger summary stats â€” totals by status/severity/category/repo/auditor.",
+        "V8.2: Gap ledger summary stats â€” totals by status/severity/category/repo/auditor.",
         {"type": "object", "properties": {}},
         tool_gap_ledger_stats,
     ),
     "artifact_validate": (
-        "V8: Validate structured artifact against schema. Catches the 'fluffy artifact' failure mode. Known artifact types: prd_lite, prd_standard, prd_technical, prd_ai_feature, gap_ledger_entry, repo_review_report, release_readiness_report, contract_drift_report, opportunity_map, idea_triage, concept_brief, mvp_scope, problem_framing. Without artifact_type: returns schema list. With type but no artifact: returns schema. With both: validates and returns findings.",
+        "V8.5: Validate structured artifact against schema. Catches the 'fluffy artifact' failure mode. Known artifact types include PRDs, gap/review/release reports, route telemetry artifacts, learning candidates, and self_improvement_run/self_improvement_patch/learner_eval_report/rollback_manifest. Without artifact_type: returns schema list. With type but no artifact: returns schema. With both: validates and returns findings.",
         {
             "type": "object",
             "properties": {
@@ -1551,7 +1755,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_catalog_audit,
     ),
     "dashboard_launch": (
-        "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (29 agents, 48 skills, 12 panels, 42 MCP tools, 30 commands, 17 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent â€” if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
+        "V8.5: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (31 agents, 55 skills, 13 panels, 46 MCP tools, 32 commands, 31 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent; if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
         {
             "type": "object",
             "properties": {
@@ -1635,12 +1839,11 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_memory_stats,
     ),
     "dream_run": (
-        "V8: Run a safe read-only dream job manually. Jobs write reports, candidate memories, and learning proposals only.",
+        "V8.5: Run a dream job manually. Jobs are read-only except self-improvement-autopilot, which may mutate local repo files only through the gated self-improvement runner. If job is omitted, defaults to session-compaction.",
         {
             "type": "object",
-            "required": ["job"],
             "properties": {
-                "job": {"type": "string"},
+                "job": {"type": "string", "default": "session-compaction"},
                 "repo": {"type": "string"},
                 "dry_run": {"type": "boolean", "default": False},
             },
@@ -1667,9 +1870,27 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
                 "repo": {"type": "string"},
                 "budget": {"type": "string", "enum": ["low", "standard", "deep"], "default": "standard"},
                 "dry_run": {"type": "boolean", "default": True},
+                "no_telemetry": {"type": "boolean", "default": False},
             },
         },
         tool_pathfind_workflow,
+    ),
+    "route_trigger_plan": (
+        "V8.5: Dry-run Invocation Director contract. Returns the exact main-thread action plan for an intent without executing agents, panels, or mutating work.",
+        {
+            "type": "object",
+            "required": ["intent"],
+            "properties": {
+                "intent": {"type": "string"},
+                "runtime": {"type": "string", "enum": ["codex", "claude-code", "generic"], "default": "codex"},
+                "repo": {"type": "string"},
+                "budget": {"type": "string", "enum": ["low", "standard", "deep"], "default": "standard"},
+                "constraints": {"type": "object"},
+                "dry_run": {"type": "boolean", "default": True},
+                "no_telemetry": {"type": "boolean", "default": False},
+            },
+        },
+        tool_route_trigger_plan,
     ),
     "capability_graph": (
         "V8: Return capability graph health, source hash, node counts, and optionally full graph JSON.",
@@ -1677,19 +1898,20 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_capability_graph,
     ),
     "learning_candidates": (
-        "V8: List governed learning candidates by status or kind.",
+        "V8.5: List evidence-backed learning candidates by status or kind, optionally grouped by route failure evidence and self-improvement provenance.",
         {
             "type": "object",
             "properties": {
                 "status": {"type": "string"},
                 "kind": {"type": "string"},
                 "limit": {"type": "integer", "minimum": 1, "maximum": 500, "default": 100},
+                "grouped": {"type": "boolean", "default": False},
             },
         },
         tool_learning_candidates,
     ),
     "learning_apply": (
-        "V8: Approve, reject, apply, or revert a learning candidate. Apply validates graph, pathfinder, and router gates first.",
+        "V8.5: Approve, reject, apply, or revert a learning candidate. Auto-apply candidates may apply without human approval when evidence thresholds and gates pass; manual apply still validates graph, pathfinder, and router gates first.",
         {
             "type": "object",
             "required": ["candidate_id"],
@@ -1701,8 +1923,30 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         },
         tool_learning_apply,
     ),
+    "self_improve_run": (
+        "V8.5: Run the evidence-backed self-improvement autopilot. Autopilot may mutate local repo files only through gated apply and rollback manifests.",
+        {
+            "type": "object",
+            "properties": {
+                "mode": {"type": "string", "enum": ["autopilot", "canary", "dry-run"], "default": "dry-run"},
+                "scope": {"type": "string", "enum": ["all", "routing", "telemetry", "dashboard", "tests"], "default": "all"},
+                "repo": {"type": "string"},
+            },
+        },
+        tool_self_improve_run,
+    ),
+    "self_improve_runs": (
+        "V8.5: List recent self-improvement autopilot runs and their gate/rollback status.",
+        {"type": "object", "properties": {"limit": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}}},
+        tool_self_improve_runs,
+    ),
+    "self_improve_rollback": (
+        "V8.5: Roll back a self-improvement run from its rollback manifest.",
+        {"type": "object", "required": ["run_id"], "properties": {"run_id": {"type": "string"}}},
+        tool_self_improve_rollback,
+    ),
     "route_feedback": (
-        "V8: Record accepted/corrected/failed route outcomes and create reviewable route-learning candidates when appropriate.",
+        "V8.5: Record accepted/corrected/failed route outcomes and create evidence-backed route-learning candidates when appropriate.",
         {
             "type": "object",
             "required": ["intent", "outcome"],
@@ -1711,6 +1955,17 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
                 "outcome": {"type": "string", "enum": ["accepted", "corrected", "failed", "abandoned", "unknown"]},
                 "skill": {"type": "string"},
                 "corrected_skill": {"type": "string"},
+                "selected_panel": {"type": "string"},
+                "corrected_panel": {"type": "string"},
+                "agent": {"type": "string"},
+                "corrected_agent": {"type": "string"},
+                "handoff_status": {"type": "string", "enum": ["", "complete", "partial", "truncated", "persisted_output", "empty"]},
+                "failure_kind": {"type": "string"},
+                "artifact_path": {"type": "string"},
+                "tool_count": {"type": "integer"},
+                "token_count": {"type": "integer"},
+                "trace_id": {"type": "string"},
+                "evidence_refs": {"type": "array", "items": {"type": "string"}},
                 "reason": {"type": "string"},
             },
         },

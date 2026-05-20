@@ -30,11 +30,13 @@ Call the `panel_plan` MCP tool without arguments to list panels with cost, risk,
 
 1. Parse `$ARGUMENTS` for `<panel-name> [scope]`. If no panel name: call `panel_plan` MCP tool with no args, print catalog, ask user which panel.
 2. Call `panel_plan` MCP tool with `panel_name` and optional `scope`. Receive phased dispatch plan, inputs, success criteria, handoff artifacts, risk, confirmation, cognitive policies, and phase contracts.
-3. Execute phases in order:
+3. Start a resumable lifecycle record with `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/panel-runs.py start --panel <panel-name> --scope <scope>`. Keep the returned `run_id`.
+4. Execute phases in order:
    - **Sequential phases (`parallel=false`):** dispatch the single agent, wait for completion, pass output as context to next phase.
    - **Parallel phases (`parallel=true`):** issue all Task calls in a single assistant message. Wait for all to complete before proceeding.
-4. Before each phase, honor its `phase_contracts` input, output, and quality gate. After synthesize phase: present the final structured artifact to the user.
-5. If panel `writes_gap_ledger=true` and synthesis produced gap entries, write them via the `gap_ledger_write` MCP tool.
+5. Before and after each phase, update lifecycle state with `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/panel-runs.py update <run_id> --phase <phase> --phase-status <running|completed|failed>`.
+6. After synthesize phase: present the final structured artifact to the user and record artifact/validation paths on the run.
+7. If panel `writes_gap_ledger=true` and synthesis produced gap entries, write them via the `gap_ledger_write` MCP tool and include `panel_run_ids: [<run_id>]`.
 
 ## Synthesis pattern
 

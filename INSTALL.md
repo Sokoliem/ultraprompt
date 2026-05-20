@@ -52,7 +52,7 @@ python3 ~/.claude/plugins/marketplaces/local-marketplace/ultraprompt/scripts/rel
 python3 ~/.claude/plugins/marketplaces/local-marketplace/ultraprompt/mcp/ultraprompt_meta.py --self-test
 ```
 
-Expected V8 shape: 48 skills, 29 agents, 42 MCP tools, 30 commands, 12 panels, and 17 artifact schemas.
+Expected V8.2 shape: 54 skills, 31 agents, 42 MCP tools, 31 commands, 13 panels, and 18 artifact schemas.
 
 ## Dashboard
 

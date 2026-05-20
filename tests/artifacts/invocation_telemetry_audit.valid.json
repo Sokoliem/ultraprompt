@@ -1,0 +1,38 @@
+{
+  "schema": "invocation_telemetry_audit.v2",
+  "generated_at": 1778597509,
+  "window_days": 7,
+  "runtime_events": {
+    "total": 3,
+    "skill_invocations": 2,
+    "legacy_skill_invocations": 0,
+    "live_skill_invocations_total": 2,
+    "top_skills": {
+      "ultraprompt:goal": 1
+    }
+  },
+  "agent_dispatches": {
+    "total": 4,
+    "plugin_total": 3,
+    "plugin_share_pct": 75.0,
+    "explore_total": 0,
+    "explore_share_pct": 0.0,
+    "legacy_prefix_total": 0
+  },
+  "pathfinder": {
+    "decisions": 5,
+    "real_decisions": 4,
+    "bench_decisions": 1,
+    "synthetic_decisions": 0,
+    "real_pathfinder_ratio_pct": 80.0
+  },
+  "activation_gaps": {
+    "skills_never_invoked": [],
+    "agents_never_dispatched": []
+  },
+  "thresholds": {
+    "min_skill_invocations": 1,
+    "min_real_pathfinder_decisions": 1
+  },
+  "ok": true
+}

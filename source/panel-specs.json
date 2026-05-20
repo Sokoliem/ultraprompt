@@ -111,7 +111,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -228,7 +228,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -345,7 +345,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -464,7 +464,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -1097,7 +1097,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "Audits and queues learning candidates; application is explicitly review-gated."
+      "notes": "Audits and queues learning candidates; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -1229,7 +1229,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -1361,7 +1361,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -1495,12 +1495,148 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
       "run_jobs": false,
       "notes": "May use existing dream reports as context; does not launch background analysis without user approval."
+    }
+  },
+  {
+    "name": "experience-quality-panel",
+    "title": "Experience Quality Panel",
+    "description": "Cross-functional product UI quality panel for important frontend, design-system, visual QA, accessibility-adjacent, or interaction-polish work. Combines repo mapping, design critique, accessibility/runtime audit, test strategy, and synthesis into a concrete experience-quality report.",
+    "phases": [
+      {
+        "phase": "surface_map",
+        "agents": [
+          "repo-cartographer"
+        ],
+        "parallel": false,
+        "purpose": "Map the relevant frontend entrypoints, design-system sources, routes, run commands, and validation tools before critique"
+      },
+      {
+        "phase": "critique",
+        "agents": [
+          "design-critic",
+          "auditor"
+        ],
+        "parallel": true,
+        "purpose": "Review visual/product quality and accessibility-adjacent risks independently with evidence"
+      },
+      {
+        "phase": "validation_strategy",
+        "agents": [
+          "test-strategist"
+        ],
+        "parallel": false,
+        "purpose": "Turn the critique into screenshot, responsive, state, and regression validation coverage"
+      },
+      {
+        "phase": "synthesize",
+        "agents": [
+          "design-critic"
+        ],
+        "parallel": false,
+        "purpose": "Deduplicate findings, preserve strengths, rank fixes, and produce an implementation-ready experience-quality report"
+      }
+    ],
+    "output_artifact": "experience_quality_report",
+    "estimated_cost": "high",
+    "estimated_time_minutes": 18,
+    "writes_gap_ledger": false,
+    "use_when": "Use for high-stakes frontend quality, visual polish, product taste, responsive QA, or design-system work where one reviewer is likely to miss cross-cutting issues.",
+    "artifacts": [
+      "experience_quality_report",
+      "visual_qa_report",
+      "design_system_review"
+    ],
+    "validators": [
+      "run-pathfinder-tests.py",
+      "build-capability-graph.py",
+      "panel-runs.py smoke --panel experience-quality-panel"
+    ],
+    "ledger_writes": [],
+    "resume_behavior": "resume_from_last_completed_phase",
+    "cancel_behavior": "record_cancelled_panel_lifecycle_event",
+    "graph_metadata": {
+      "node_kind": "panel",
+      "phase_edges": true
+    },
+    "mode": "read_only",
+    "risk": "medium",
+    "confirmation": {
+      "required": false,
+      "reason": "Read-only critique and validation planning panel. Confirm before applying any generated UI changes."
+    },
+    "inputs": [
+      "surface route, screenshot, component, or design-system path",
+      "product domain and target user",
+      "known design-system constraints",
+      "target viewports or states",
+      "optional acceptance criteria"
+    ],
+    "success_criteria": [
+      "actual frontend or design-system surface is mapped before critique",
+      "visual, interaction, a11y-adjacent, and validation findings cite concrete evidence",
+      "recommendations are ranked by user impact and implementation leverage",
+      "follow-up validation names exact screenshots, states, commands, or tests"
+    ],
+    "handoff_artifacts": [
+      "experience_quality_report",
+      "visual evidence inventory",
+      "ranked fix list",
+      "validation plan"
+    ],
+    "phase_contracts": {
+      "surface_map": {
+        "input": "experience-quality-panel scope plus repository path and target surface",
+        "output": "surface map with entrypoints, routes, design-system sources, run commands, and unknowns",
+        "quality_gate": "downstream agents can inspect the right rendered or source surface without rediscovery"
+      },
+      "critique": {
+        "input": "surface map and available screenshots/routes/source files",
+        "output": "independent design and a11y-adjacent findings with evidence and severity",
+        "quality_gate": "each finding cites a concrete route, screenshot, component, token, or state"
+      },
+      "validation_strategy": {
+        "input": "surface map and critique findings",
+        "output": "risk-weighted visual/regression validation plan with viewports, states, and commands",
+        "quality_gate": "the plan can verify each high/medium finding after implementation"
+      },
+      "synthesize": {
+        "input": "surface map, critique findings, and validation strategy",
+        "output": "deduplicated experience-quality report with ranked fixes and preserved strengths",
+        "quality_gate": "report is implementation-ready and distinguishes must-fix defects from subjective preferences"
+      }
+    },
+    "do_not_use_when": "Use design-review for lightweight critique, frontend-visual-qa for a single surface with immediate implementation, accessibility-review for WCAG-only audits, or review for code diff correctness.",
+    "pathfinder_tags": [
+      "frontend",
+      "design",
+      "visual-qa",
+      "aesthetic",
+      "taste",
+      "responsive",
+      "design-system",
+      "panel"
+    ],
+    "memory_policy": {
+      "read": true,
+      "write_candidates": true,
+      "promote": false,
+      "notes": "May propose reusable design-system or product-quality preferences as memory candidates; promotion remains explicit."
+    },
+    "learning_policy": {
+      "create_candidates": true,
+      "apply": false,
+      "notes": "May queue route-learning candidates for visual QA/design phrasing; gated self-improvement may auto-apply when evidence and validation pass."
+    },
+    "dream_policy": {
+      "consume_reports": true,
+      "run_jobs": false,
+      "notes": "May use existing dream reports as context; does not launch background design analysis without user approval."
     }
   }
 ]

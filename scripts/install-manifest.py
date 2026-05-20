@@ -27,6 +27,19 @@ VOLATILE_GENERATED_FILES = {
     "dist/catalog-audit-report.json",
     "dist/release-scorecard.json",
 }
+EXCLUDED_PARTS = {
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    "node_modules",
+    ".test-tmp",
+    "backups",
+}
+EXCLUDED_FILES = {
+    ".ultraprompt-install-manifest.json",
+    "ledger.lock",
+}
 
 
 def file_sha256(path: Path) -> str | None:
@@ -51,11 +64,13 @@ def collect_install_state(install_root: Path) -> dict:
         # Skip the manifest itself + obvious caches
         rel = p.relative_to(install_root)
         rel_key = rel.as_posix()
-        if rel_key == ".ultraprompt-install-manifest.json":
+        if rel_key in EXCLUDED_FILES:
             continue
         if rel_key in VOLATILE_GENERATED_FILES:
             continue
-        if "__pycache__" in p.parts or rel.suffix == ".pyc":
+        if any(part in EXCLUDED_PARTS for part in rel.parts):
+            continue
+        if rel.suffix == ".pyc":
             continue
         files[str(rel)] = {
             "sha256": file_sha256(p),

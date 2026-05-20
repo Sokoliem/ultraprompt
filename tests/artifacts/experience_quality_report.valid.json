@@ -1,0 +1,51 @@
+{
+  "surface_map": {
+    "target_surface": "Ultraprompt Mission Control dashboard",
+    "entrypoints": [
+      "scripts/dashboard.py",
+      "dashboard/app.js"
+    ],
+    "run_commands": [
+      "python3 scripts/dashboard.py --no-open"
+    ],
+    "unknowns": []
+  },
+  "evidence_inventory": [
+    {
+      "kind": "source",
+      "ref": "dashboard/app.js",
+      "why_it_matters": "Mission Control renders release readiness."
+    }
+  ],
+  "ranked_findings": [
+    {
+      "rank": 1,
+      "severity": "high",
+      "finding": "Runtime parity blockers need to be visible in the status surface.",
+      "evidence": "release-scorecard runtime_targets"
+    }
+  ],
+  "visual_quality_assessment": {
+    "verdict": "structured but needs runtime parity detail",
+    "notes": "The layout is operational and scan-friendly."
+  },
+  "interaction_accessibility_risks": [
+    {
+      "severity": "medium",
+      "risk": "Long runtime paths may reduce readability."
+    }
+  ],
+  "validation_plan": [
+    {
+      "command": "python3 scripts/panel-runs.py smoke --panel experience-quality-panel",
+      "expected": "ok true"
+    }
+  ],
+  "implementation_sequence": [
+    "Validate report schema",
+    "Surface panel smoke in release scorecard"
+  ],
+  "preserved_strengths": [
+    "Mission cards keep release state scannable."
+  ]
+}

@@ -33,6 +33,7 @@ EVENT_TYPES = {
     "route_attempt",
     "route_outcome",
     "dispatch_decision",
+    "agent_handoff",
     "panel_lifecycle",
     "mcp_tool_call",
     "artifact_validation",
@@ -47,7 +48,14 @@ EVENT_TYPES = {
     "learning_candidate_created",
     "learning_candidate_applied",
     "learning_candidate_reverted",
+    "dispatch_advise_decision",
     "pathfinder_decision",
+    "panel_recommendation",
+    "panel_run_started",
+    "panel_run_validated",
+    "route_policy_applied",
+    "route_trigger_plan_emitted",
+    "routing_envelope_emitted",
     "dashboard_action",
 }
 

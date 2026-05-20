@@ -1,0 +1,12 @@
+{
+  "schema": "learner_eval_report.v1",
+  "verdict": "pass",
+  "evidence_supported": true,
+  "minimal_patch": true,
+  "rollback_complete": true,
+  "validation_claim_matches": true,
+  "risks": [
+    "Autopilot changes are local and uncommitted."
+  ],
+  "created_at": "2026-05-16T00:00:00Z"
+}

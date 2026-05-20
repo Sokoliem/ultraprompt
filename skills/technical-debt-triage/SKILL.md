@@ -13,6 +13,14 @@ allowed-tools: "Read, Grep, Glob, Bash, Agent"
 
 Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARGUMENTS` handling, evidence, validation, and safety).
 
+## Dispatch policy (V8)
+
+**Dispatch target:** `ultraprompt:reviewer` (focus: `technical-debt`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
+
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `repo-completeness-panel`. Preferred: `repo-completeness-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Maintenance backlog is shaped like an inventory + sequencing problem. The inventory is what's broken or rotting; the sequencing is what to fix first given finite engineering time. Risk × leverage × cost. DX friction and build speed are debt with compounding interest: every day of delay costs more time per contributor.

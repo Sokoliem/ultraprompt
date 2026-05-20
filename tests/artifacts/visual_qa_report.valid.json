@@ -1,0 +1,41 @@
+{
+  "surface": "Mission Control runtime readiness cards",
+  "run_command": "python3 scripts/dashboard.py --no-open",
+  "viewports": [
+    {
+      "width": 1280,
+      "height": 800
+    }
+  ],
+  "states_inspected": [
+    "source ready with stale active runtime"
+  ],
+  "screenshot_evidence": [
+    {
+      "path": "artifacts/dashboard-runtime-readiness.png",
+      "viewport": "1280x800",
+      "notes": "Runtime mismatch card visible."
+    }
+  ],
+  "visual_findings": [
+    {
+      "severity": "medium",
+      "finding": "Cache version mismatch should be visible without reading JSON."
+    }
+  ],
+  "fixes_applied_or_proposed": [
+    "Expose runtime target version summaries in Mission Control."
+  ],
+  "before_after_verification": [
+    {
+      "state": "after",
+      "evidence": "Runtime readiness summary includes target counts and blockers."
+    }
+  ],
+  "remaining_visual_risks": [
+    "Very long path strings may still wrap on narrow windows."
+  ],
+  "validation": [
+    "Manual browser smoke after dashboard changes."
+  ]
+}

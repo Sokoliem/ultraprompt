@@ -125,6 +125,12 @@
 - intent: "review my Claude Code plugin for issues"
   expected: plugin-review
 
+- intent: "why did Explore run instead of a specialist for this Ultraprompt task"
+  expected: pathfinding-invocation-review
+
+- intent: "strengthen automated routing and trigger metrics for skill activation"
+  expected: pathfinding-invocation-review
+
 - intent: "help me author a new skill for this plugin"
   expected: skill-author
 

@@ -1,0 +1,3667 @@
+{
+  "dispatch_coverage": {
+    "inline_only_skills": [
+      "build",
+      "goal",
+      "refactor"
+    ],
+    "release_critical_skills": [
+      "frontend-visual-qa",
+      "goal",
+      "pathfinding-invocation-review"
+    ],
+    "skills_with_dispatch": [
+      "accessibility-review",
+      "agent-author",
+      "ai-agent-safety-review",
+      "api-contract",
+      "architect",
+      "ci-repair",
+      "concept-brief",
+      "contract-test-generate",
+      "data-flow-privacy-map",
+      "database-review",
+      "dead-code-drift",
+      "debug",
+      "dependency-audit",
+      "design-review",
+      "design-system-review",
+      "docs-sync",
+      "feature-completeness",
+      "frontend-visual-qa",
+      "gap-analysis",
+      "hooks-design",
+      "idea-triage",
+      "infra-iac-review",
+      "llm-eval-design",
+      "mcp-design",
+      "migrate",
+      "mvp-scope",
+      "observability-pass",
+      "opportunity-map",
+      "pathfinding-invocation-review",
+      "performance-pass",
+      "plugin-review",
+      "prd-ai-feature",
+      "prd-lite",
+      "prd-standard",
+      "prd-technical",
+      "prd-to-plan",
+      "problem-framing",
+      "release",
+      "release-readiness",
+      "repo-map",
+      "repo-review",
+      "review",
+      "security-audit",
+      "skill-author",
+      "state-machine-review",
+      "supply-chain-hardening",
+      "technical-debt-triage",
+      "test-gap-analysis",
+      "test-harden",
+      "tui-design-innovate"
+    ]
+  },
+  "generated_at": null,
+  "plugin_version": "8.6.0",
+  "schema": "routing_policy.v1",
+  "skills": [
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "auditor",
+        "agent_ref": "ultraprompt:auditor",
+        "focus": "a11y"
+      },
+      "expected_artifacts": [
+        "Scope"
+      ],
+      "family": "experience-quality",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "feature-gap-panel"
+        ],
+        "preferred_panel": "feature-gap-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:accessibility-review",
+        "codex_command": "$ultraprompt:accessibility-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "accessibility-review",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "agent-authoring",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Agent Frontmatter"
+      ],
+      "family": "plugin-ecosystem",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "cognitive-governance-panel"
+        ],
+        "preferred_panel": "cognitive-governance-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:agent-author",
+        "codex_command": "$ultraprompt:agent-author",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "agent-author",
+      "telemetry_required": true,
+      "tier": "ecosystem"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "auditor",
+        "agent_ref": "ultraprompt:auditor",
+        "focus": "ai-safety"
+      },
+      "expected_artifacts": [
+        "Scope"
+      ],
+      "family": "ai-safety-evals",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "ai-feature-panel",
+          "security-privacy-panel"
+        ],
+        "preferred_panel": "ai-feature-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:ai-agent-safety-review",
+        "codex_command": "$ultraprompt:ai-agent-safety-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "ai-agent-safety-review",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "contract"
+      },
+      "expected_artifacts": [
+        "Surface Affected"
+      ],
+      "family": "architecture-contracts",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "contract-drift-panel"
+        ],
+        "preferred_panel": "contract-drift-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:api-contract",
+        "codex_command": "$ultraprompt:api-contract",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "api-contract",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "architecture"
+      },
+      "expected_artifacts": [
+        "Architectural Question"
+      ],
+      "family": "architecture-contracts",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [],
+        "preferred_panel": null,
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:architect",
+        "codex_command": "$ultraprompt:architect",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "architect",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "inline",
+      "dispatch_to": {},
+      "expected_artifacts": [
+        "Feature Understanding"
+      ],
+      "family": "code-quality",
+      "handoff_policy": {
+        "artifact": "none",
+        "mode": "inline"
+      },
+      "inline_override": {
+        "enabled": true,
+        "reason": "the main thread owns the requested code change, edits, integration, and validation; dispatch only bounded sidecars that do not own the critical implementation path"
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [],
+        "preferred_panel": null,
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:build",
+        "codex_command": "$ultraprompt:build",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "build",
+      "telemetry_required": false,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "debugger",
+        "agent_ref": "ultraprompt:debugger",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Failure Layer (workflow"
+      ],
+      "family": "code-quality",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-debugger.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "incident-response-panel"
+        ],
+        "preferred_panel": "incident-response-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:ci-repair",
+        "codex_command": "$ultraprompt:ci-repair",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "ci-repair",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "concept_brief",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "principal-pm",
+        "agent_ref": "ultraprompt:principal-pm"
+      },
+      "expected_artifacts": [
+        "Problem statement"
+      ],
+      "family": "product-innovation",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-principal-pm.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "idea-panel",
+          "prd-panel"
+        ],
+        "preferred_panel": "idea-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:concept-brief",
+        "codex_command": "$ultraprompt:concept-brief",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "concept-brief",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "test-strategist",
+        "agent_ref": "ultraprompt:test-strategist",
+        "focus": "contract",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Boundary"
+      ],
+      "family": "test-quality",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-test-strategist.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "contract-drift-panel"
+        ],
+        "preferred_panel": "contract-drift-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:contract-test-generate",
+        "codex_command": "$ultraprompt:contract-test-generate",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "contract-test-generate",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "auditor",
+        "agent_ref": "ultraprompt:auditor",
+        "focus": "privacy"
+      },
+      "expected_artifacts": [
+        "PII Inventory"
+      ],
+      "family": "risk-security",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "security-privacy-panel"
+        ],
+        "preferred_panel": "security-privacy-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:data-flow-privacy-map",
+        "codex_command": "$ultraprompt:data-flow-privacy-map",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "data-flow-privacy-map",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "database",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Change Type"
+      ],
+      "family": "infrastructure-data",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "migration-readiness-panel"
+        ],
+        "preferred_panel": "migration-readiness-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:database-review",
+        "codex_command": "$ultraprompt:database-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "database-review",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": "drift_report",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "dead-code-and-drift-hunter",
+        "agent_ref": "ultraprompt:dead-code-and-drift-hunter"
+      },
+      "expected_artifacts": [
+        "Drift findings by type"
+      ],
+      "family": "repo-completeness",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-dead-code-and-drift-hunter.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "repo-completeness-panel"
+        ],
+        "preferred_panel": "repo-completeness-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:dead-code-drift",
+        "codex_command": "$ultraprompt:dead-code-drift",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "dead-code-drift",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "debugger",
+        "agent_ref": "ultraprompt:debugger"
+      },
+      "expected_artifacts": [
+        "Symptom"
+      ],
+      "family": "code-quality",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-debugger.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "incident-response-panel"
+        ],
+        "preferred_panel": "incident-response-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:debug",
+        "codex_command": "$ultraprompt:debug",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "debug",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "auditor",
+        "agent_ref": "ultraprompt:auditor",
+        "focus": "dependencies"
+      },
+      "expected_artifacts": [
+        "Dep Inventory (direct + transitive count)"
+      ],
+      "family": "supply-chain",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "release-gate-panel"
+        ],
+        "preferred_panel": "release-gate-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:dependency-audit",
+        "codex_command": "$ultraprompt:dependency-audit",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "dependency-audit",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": "design_review",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "design-critic",
+        "agent_ref": "ultraprompt:design-critic",
+        "focus": "design-review",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Design review report"
+      ],
+      "family": "experience-quality",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-design-critic.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "experience-quality-panel"
+        ],
+        "preferred_panel": "experience-quality-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:design-review",
+        "codex_command": "$ultraprompt:design-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "design-review",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "design_system_review",
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "design-critic",
+        "agent_ref": "ultraprompt:design-critic",
+        "focus": "design-system",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Design system review report"
+      ],
+      "family": "experience-quality",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-design-critic.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "experience-quality-panel"
+        ],
+        "preferred_panel": "experience-quality-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:design-system-review",
+        "codex_command": "$ultraprompt:design-system-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "design-system-review",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "writer",
+        "agent_ref": "ultraprompt:writer"
+      },
+      "expected_artifacts": [
+        "Docs Inventory"
+      ],
+      "family": "documentation-maintenance",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-writer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "repo-completeness-panel"
+        ],
+        "preferred_panel": "repo-completeness-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:docs-sync",
+        "codex_command": "$ultraprompt:docs-sync",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "docs-sync",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": "dream_report",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "inline",
+      "dispatch_to": {},
+      "expected_artifacts": [
+        "Dream operation result"
+      ],
+      "family": "cognitive-operations",
+      "handoff_policy": {
+        "artifact": "none",
+        "mode": "inline"
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [],
+        "preferred_panel": null,
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:dream",
+        "codex_command": "$ultraprompt:dream",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "dream",
+      "telemetry_required": false,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "feature_completeness_report",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "feature-completeness-auditor",
+        "agent_ref": "ultraprompt:feature-completeness-auditor",
+        "focus_from": "argument"
+      },
+      "expected_artifacts": [
+        "Feature surface map"
+      ],
+      "family": "repo-completeness",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-feature-completeness-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "feature-gap-panel"
+        ],
+        "preferred_panel": "feature-gap-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:feature-completeness",
+        "codex_command": "$ultraprompt:feature-completeness",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "feature-completeness",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "visual_qa_report",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "design-critic",
+        "agent_ref": "ultraprompt:design-critic",
+        "focus": "visual-qa",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Visual QA report"
+      ],
+      "family": "experience-quality",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-design-critic.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.78,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "experience-quality-panel"
+        ],
+        "preferred_panel": "experience-quality-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": true,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:frontend-visual-qa",
+        "codex_command": "$ultraprompt:frontend-visual-qa",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "frontend-visual-qa",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "gap_ledger",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "gap-analysis-lead",
+        "agent_ref": "ultraprompt:gap-analysis-lead"
+      },
+      "expected_artifacts": [
+        "Executive summary"
+      ],
+      "family": "repo-completeness",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-gap-analysis-lead.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "repo-completeness-panel",
+          "feature-gap-panel"
+        ],
+        "preferred_panel": "repo-completeness-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:gap-analysis",
+        "codex_command": "$ultraprompt:gap-analysis",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "gap-analysis",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "goal_contract",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "inline",
+      "dispatch_to": {},
+      "expected_artifacts": [
+        "Goal contract"
+      ],
+      "family": "cognitive-operations",
+      "handoff_policy": {
+        "artifact": "none",
+        "mode": "inline"
+      },
+      "inline_override": {
+        "enabled": true,
+        "reason": "goal state and completion proof must stay visible in the main conversation transcript and Codex does not provide a plugin-owned Stop-hook evaluator loop"
+      },
+      "min_confidence": 0.78,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [],
+        "preferred_panel": null,
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": true,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:goal",
+        "codex_command": "$ultraprompt:goal",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "goal",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "hooks",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Hook Purpose"
+      ],
+      "family": "plugin-ecosystem",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "cognitive-governance-panel"
+        ],
+        "preferred_panel": "cognitive-governance-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:hooks-design",
+        "codex_command": "$ultraprompt:hooks-design",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "hooks-design",
+      "telemetry_required": true,
+      "tier": "ecosystem"
+    },
+    {
+      "artifact_type": "idea_triage",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "innovation-lead",
+        "agent_ref": "ultraprompt:innovation-lead"
+      },
+      "expected_artifacts": [
+        "Triage criteria with weights"
+      ],
+      "family": "product-innovation",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-innovation-lead.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "idea-panel"
+        ],
+        "preferred_panel": "idea-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:idea-triage",
+        "codex_command": "$ultraprompt:idea-triage",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "idea-triage",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "auditor",
+        "agent_ref": "ultraprompt:auditor",
+        "focus": "infra"
+      },
+      "expected_artifacts": [
+        "Scope"
+      ],
+      "family": "infrastructure-data",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "migration-readiness-panel"
+        ],
+        "preferred_panel": "migration-readiness-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:infra-iac-review",
+        "codex_command": "$ultraprompt:infra-iac-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "infra-iac-review",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "evaluator",
+        "agent_ref": "ultraprompt:evaluator",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Capability Under Test"
+      ],
+      "family": "ai-safety-evals",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-evaluator.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "ai-feature-panel"
+        ],
+        "preferred_panel": "ai-feature-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:llm-eval-design",
+        "codex_command": "$ultraprompt:llm-eval-design",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "llm-eval-design",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "mcp",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Server Purpose"
+      ],
+      "family": "plugin-ecosystem",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "cognitive-governance-panel",
+          "contract-drift-panel"
+        ],
+        "preferred_panel": "cognitive-governance-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:mcp-design",
+        "codex_command": "$ultraprompt:mcp-design",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "mcp-design",
+      "telemetry_required": true,
+      "tier": "ecosystem"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "migration"
+      },
+      "expected_artifacts": [
+        "Current State"
+      ],
+      "family": "architecture-contracts",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "migration-readiness-panel"
+        ],
+        "preferred_panel": "migration-readiness-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:migrate",
+        "codex_command": "$ultraprompt:migrate",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "migrate",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "mvp_scope",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "principal-pm",
+        "agent_ref": "ultraprompt:principal-pm"
+      },
+      "expected_artifacts": [
+        "Hypothesis MVP validates"
+      ],
+      "family": "product-innovation",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-principal-pm.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "mvp-panel"
+        ],
+        "preferred_panel": "mvp-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:mvp-scope",
+        "codex_command": "$ultraprompt:mvp-scope",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "mvp-scope",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "auditor",
+        "agent_ref": "ultraprompt:auditor",
+        "focus": "observability"
+      },
+      "expected_artifacts": [
+        "Scope"
+      ],
+      "family": "runtime-quality",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "release-gate-panel"
+        ],
+        "preferred_panel": "release-gate-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:observability-pass",
+        "codex_command": "$ultraprompt:observability-pass",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "observability-pass",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": "opportunity_map",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "market-analyst",
+        "agent_ref": "ultraprompt:market-analyst"
+      },
+      "expected_artifacts": [
+        "Market axes"
+      ],
+      "family": "product-innovation",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-market-analyst.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "idea-panel"
+        ],
+        "preferred_panel": "idea-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:opportunity-map",
+        "codex_command": "$ultraprompt:opportunity-map",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "opportunity-map",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "invocation_telemetry_audit",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "invocation-reliability-auditor",
+        "agent_ref": "ultraprompt:invocation-reliability-auditor",
+        "focus": "routing-telemetry",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Invocation telemetry audit"
+      ],
+      "family": "cognitive-operations",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-invocation-reliability-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.78,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "cognitive-governance-panel"
+        ],
+        "preferred_panel": "cognitive-governance-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": true,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:pathfinding-invocation-review",
+        "codex_command": "$ultraprompt:pathfinding-invocation-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "pathfinding-invocation-review",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "performance"
+      },
+      "expected_artifacts": [
+        "Performance Goal"
+      ],
+      "family": "runtime-quality",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "release-gate-panel"
+        ],
+        "preferred_panel": "release-gate-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:performance-pass",
+        "codex_command": "$ultraprompt:performance-pass",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "performance-pass",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "plugin",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Plugin Manifest Status"
+      ],
+      "family": "plugin-ecosystem",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "cognitive-governance-panel"
+        ],
+        "preferred_panel": "cognitive-governance-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:plugin-review",
+        "codex_command": "$ultraprompt:plugin-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "plugin-review",
+      "telemetry_required": true,
+      "tier": "ecosystem"
+    },
+    {
+      "artifact_type": "prd_ai_feature",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "principal-pm",
+        "agent_ref": "ultraprompt:principal-pm"
+      },
+      "expected_artifacts": [
+        "Problem statement + evidence"
+      ],
+      "family": "product-prd",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-principal-pm.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "ai-feature-panel",
+          "prd-panel"
+        ],
+        "preferred_panel": "ai-feature-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:prd-ai-feature",
+        "codex_command": "$ultraprompt:prd-ai-feature",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "prd-ai-feature",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "prd_lite",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "principal-pm",
+        "agent_ref": "ultraprompt:principal-pm"
+      },
+      "expected_artifacts": [
+        "Problem statement (with evidence)"
+      ],
+      "family": "product-prd",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-principal-pm.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "prd-panel",
+          "mvp-panel"
+        ],
+        "preferred_panel": "prd-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:prd-lite",
+        "codex_command": "$ultraprompt:prd-lite",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "prd-lite",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "prd_standard",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "principal-pm",
+        "agent_ref": "ultraprompt:principal-pm"
+      },
+      "expected_artifacts": [
+        "Problem statement with evidence"
+      ],
+      "family": "product-prd",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-principal-pm.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "prd-panel"
+        ],
+        "preferred_panel": "prd-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:prd-standard",
+        "codex_command": "$ultraprompt:prd-standard",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "prd-standard",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "prd_technical",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "principal-pm",
+        "agent_ref": "ultraprompt:principal-pm"
+      },
+      "expected_artifacts": [
+        "Problem statement + evidence"
+      ],
+      "family": "product-prd",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-principal-pm.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "prd-panel"
+        ],
+        "preferred_panel": "prd-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:prd-technical",
+        "codex_command": "$ultraprompt:prd-technical",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "prd-technical",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "implementation_plan",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "principal-pm",
+        "agent_ref": "ultraprompt:principal-pm"
+      },
+      "expected_artifacts": [
+        "Phases (numbered, named)"
+      ],
+      "family": "product-prd",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-principal-pm.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "prd-panel"
+        ],
+        "preferred_panel": "prd-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:prd-to-plan",
+        "codex_command": "$ultraprompt:prd-to-plan",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "prd-to-plan",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "problem_framing",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "innovation-lead",
+        "agent_ref": "ultraprompt:innovation-lead"
+      },
+      "expected_artifacts": [
+        "Original problem statement"
+      ],
+      "family": "product-innovation",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-innovation-lead.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "idea-panel"
+        ],
+        "preferred_panel": "idea-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:problem-framing",
+        "codex_command": "$ultraprompt:problem-framing",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "problem-framing",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "inline",
+      "dispatch_to": {},
+      "expected_artifacts": [
+        "Refactor Target"
+      ],
+      "family": "code-quality",
+      "handoff_policy": {
+        "artifact": "none",
+        "mode": "inline"
+      },
+      "inline_override": {
+        "enabled": true,
+        "reason": "the main thread must preserve local behavior and coordinate edits directly; dispatch only bounded discovery, architecture critique, or test strategy sidecars"
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [],
+        "preferred_panel": null,
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:refactor",
+        "codex_command": "$ultraprompt:refactor",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "refactor",
+      "telemetry_required": false,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "writer",
+        "agent_ref": "ultraprompt:writer",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "If readiness: Readiness Checklist"
+      ],
+      "family": "release-operations",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-writer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "release-gate-panel"
+        ],
+        "preferred_panel": "release-gate-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:release",
+        "codex_command": "$ultraprompt:release",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "release",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "release_readiness_report",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "release-readiness-auditor",
+        "agent_ref": "ultraprompt:release-readiness-auditor"
+      },
+      "expected_artifacts": [
+        "Verdict (ready/risky/blocked)"
+      ],
+      "family": "repo-completeness",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-release-readiness-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "release-gate-panel"
+        ],
+        "preferred_panel": "release-gate-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:release-readiness",
+        "codex_command": "$ultraprompt:release-readiness",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "release-readiness",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "scout",
+        "agent_ref": "ultraprompt:scout"
+      },
+      "expected_artifacts": [
+        "Executive Overview"
+      ],
+      "family": "repo-intelligence",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-scout.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "repo-completeness-panel"
+        ],
+        "preferred_panel": "repo-completeness-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:repo-map",
+        "codex_command": "$ultraprompt:repo-map",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "repo-map",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "repo_review_report",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "repo-cartographer",
+        "agent_ref": "ultraprompt:repo-cartographer",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Executive summary"
+      ],
+      "family": "repo-completeness",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-repo-cartographer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "repo-completeness-panel"
+        ],
+        "preferred_panel": "repo-completeness-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:repo-review",
+        "codex_command": "$ultraprompt:repo-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "repo-review",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus_from": "argument"
+      },
+      "expected_artifacts": [
+        "PR Understanding"
+      ],
+      "family": "code-quality",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [],
+        "preferred_panel": null,
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:review",
+        "codex_command": "$ultraprompt:review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "review",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "security-auditor",
+        "agent_ref": "ultraprompt:security-auditor"
+      },
+      "expected_artifacts": [
+        "Threat Model"
+      ],
+      "family": "risk-security",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-security-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "security-privacy-panel"
+        ],
+        "preferred_panel": "security-privacy-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:security-audit",
+        "codex_command": "$ultraprompt:security-audit",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "security-audit",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": "self_improvement_run",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "inline",
+      "dispatch_to": {},
+      "expected_artifacts": [
+        "Self-improvement operation result"
+      ],
+      "family": "cognitive-operations",
+      "handoff_policy": {
+        "artifact": "none",
+        "mode": "inline"
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [],
+        "preferred_panel": null,
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "high",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:self-improve",
+        "codex_command": "$ultraprompt:self-improve",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "self-improve",
+      "telemetry_required": false,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "skill-authoring",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Skill Frontmatter"
+      ],
+      "family": "plugin-ecosystem",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "cognitive-governance-panel"
+        ],
+        "preferred_panel": "cognitive-governance-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:skill-author",
+        "codex_command": "$ultraprompt:skill-author",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "skill-author",
+      "telemetry_required": true,
+      "tier": "ecosystem"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "code"
+      },
+      "expected_artifacts": [
+        "State Machine"
+      ],
+      "family": "architecture-contracts",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "contract-drift-panel"
+        ],
+        "preferred_panel": "contract-drift-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:state-machine-review",
+        "codex_command": "$ultraprompt:state-machine-review",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "state-machine-review",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "auditor",
+        "agent_ref": "ultraprompt:auditor",
+        "focus": "supply-chain"
+      },
+      "expected_artifacts": [
+        "Lockfile Audit"
+      ],
+      "family": "supply-chain",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-auditor.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "security-privacy-panel",
+          "release-gate-panel"
+        ],
+        "preferred_panel": "security-privacy-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:supply-chain-hardening",
+        "codex_command": "$ultraprompt:supply-chain-hardening",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "supply-chain-hardening",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "technical-debt"
+      },
+      "expected_artifacts": [
+        "Scope + Focus"
+      ],
+      "family": "documentation-maintenance",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "repo-completeness-panel"
+        ],
+        "preferred_panel": "repo-completeness-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:technical-debt-triage",
+        "codex_command": "$ultraprompt:technical-debt-triage",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "technical-debt-triage",
+      "telemetry_required": true,
+      "tier": "specialist"
+    },
+    {
+      "artifact_type": "test_gap_report",
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "not_required_read_only",
+        "required": false
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "test-gap-analyst",
+        "agent_ref": "ultraprompt:test-gap-analyst"
+      },
+      "expected_artifacts": [
+        "Risk-weighted test gaps"
+      ],
+      "family": "repo-completeness",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-test-gap-analyst.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.62,
+      "mode": "read_only",
+      "panel_escalation": {
+        "paired_panels": [
+          "feature-gap-panel"
+        ],
+        "preferred_panel": "feature-gap-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "low",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:test-gap-analysis",
+        "codex_command": "$ultraprompt:test-gap-analysis",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "test-gap-analysis",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": true,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "test-strategist",
+        "agent_ref": "ultraprompt:test-strategist"
+      },
+      "expected_artifacts": [
+        "Coverage Target"
+      ],
+      "family": "test-quality",
+      "handoff_policy": {
+        "artifact": "optional",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-test-strategist.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "compact_chat",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [],
+        "preferred_panel": null,
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:test-harden",
+        "codex_command": "$ultraprompt:test-harden",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "test-harden",
+      "telemetry_required": true,
+      "tier": "core"
+    },
+    {
+      "artifact_type": null,
+      "auto_trigger": false,
+      "confirmation": {
+        "policy": "required_for_repo_mutation",
+        "required": true
+      },
+      "default_execution": "agent",
+      "dispatch_to": {
+        "agent": "reviewer",
+        "agent_ref": "ultraprompt:reviewer",
+        "focus": "tui",
+        "phase": "analysis"
+      },
+      "expected_artifacts": [
+        "Surface"
+      ],
+      "family": "experience-quality",
+      "handoff_policy": {
+        "artifact": "required",
+        "artifact_path": "/Users/sokoliem/.ultraprompt/agent-handoffs/2026-05/trace-reviewer.md",
+        "chat_handoff_budget": "summary_only_no_depth_cap",
+        "depth_cap": null,
+        "final_response_contract": "compact_envelope",
+        "mode": "artifact_first",
+        "required_fields": [
+          "status",
+          "artifact_path",
+          "top_findings",
+          "validation",
+          "remaining_risk",
+          "truncation_flag"
+        ]
+      },
+      "inline_override": {
+        "enabled": false,
+        "reason": null
+      },
+      "min_confidence": 0.72,
+      "mode": "write_capable",
+      "panel_escalation": {
+        "paired_panels": [
+          "feature-gap-panel"
+        ],
+        "preferred_panel": "feature-gap-panel",
+        "signals": [
+          "explicit_panel_language",
+          "high_stakes_scope",
+          "low_confidence_gap"
+        ],
+        "standard_budget_allowed": false
+      },
+      "release_critical": false,
+      "risk": "medium",
+      "runtime_support": {
+        "claude_command": "/ultraprompt:tui-design-innovate",
+        "codex_command": "$ultraprompt:tui-design-innovate",
+        "mcp_tools": [
+          "route_intent",
+          "pathfind_workflow",
+          "dispatch_advise",
+          "route_trigger_plan"
+        ]
+      },
+      "skill": "tui-design-innovate",
+      "telemetry_required": true,
+      "tier": "specialist"
+    }
+  ],
+  "source_hash": "8cd01accc3aa1dd6991ef0ebd43dcfd32a12798153199c05f2d9c79ec1317230",
+  "summary": {
+    "dispatch_enabled": 50,
+    "inline_only": 3,
+    "release_critical": 3,
+    "skills": 55
+  }
+}

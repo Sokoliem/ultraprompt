@@ -1,0 +1,14 @@
+{
+  "schema": "route_outcome.v1",
+  "trace_id": "path_20260512T000000000000Z_fixture",
+  "intent": "improve automated routing for skill and panel activation",
+  "outcome": "corrected",
+  "selected_skill": "review",
+  "corrected_skill": "pathfinding-invocation-review",
+  "selected_panel": "",
+  "corrected_panel": "cognitive-governance-panel",
+  "reason": "The request was about invocation routing, not a generic code review.",
+  "evidence_refs": [
+    "docs/prds/v8.3-main-thread-routing-orchestration.prd.yaml"
+  ]
+}

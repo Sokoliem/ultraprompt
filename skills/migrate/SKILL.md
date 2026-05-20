@@ -12,6 +12,14 @@ allowed-tools: "Read, Grep, Glob, Bash, Agent"
 
 Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARGUMENTS` handling, evidence, validation, and safety).
 
+## Dispatch policy (V8)
+
+**Dispatch target:** `ultraprompt:reviewer` (focus: `migration`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
+
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `migration-readiness-panel`. Preferred: `migration-readiness-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 Migrations must be reversible at each step until the point of no return, which should be explicit. Forward-compatible (new code can read old data) before backward-incompatible (new code only reads new data). For deps: identify breaking changes, then sequence by risk: leaf deps first, framework deps last.

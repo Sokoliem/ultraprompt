@@ -88,6 +88,10 @@ def extract_tool(payload: dict[str, Any]) -> tuple[str, dict[str, Any], dict[str
 def summarize_payload(event: str, payload: dict[str, Any]) -> dict[str, Any]:
     tool, tool_input, tool_response = extract_tool(payload)
     summary: dict[str, Any] = {"event": event}
+    if event == "hook-block":
+        for key in ("reason", "hook", "file_path", "path", "command"):
+            if key in payload:
+                summary[key] = compact(payload.get(key))
     if payload.get("session_id"):
         summary["session_id"] = str(payload.get("session_id"))
     if payload.get("cwd"):

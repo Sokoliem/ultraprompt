@@ -17,6 +17,10 @@ Apply discipline per `${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md` (covers `$ARG
 
 **Dispatch target:** `ultraprompt:auditor` (focus: `ai-safety`). See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the full V8 dispatch decision tree, Task call template, and inline-override conditions.
 
+## Panel escalation (V8)
+
+Deep-budget or high-consequence versions of this lane can escalate to: `ai-feature-panel`, `security-privacy-panel`. Preferred: `ai-feature-panel`. Use panel escalation for independent specialist breadth; keep the default path lighter for ordinary requests.
+
 ## Distinctive judgment
 
 LLM systems have a unique attack surface: prompts and retrieved content are mixed with instructions, and the model treats both as authoritative. Trust boundaries must be explicit (this is data, that is instruction). Tool-calling is privilege escalation: each tool a model can call is an action it can take. Autonomy controls (human-in-loop, confirmation, audit) are part of the design, not afterthoughts.

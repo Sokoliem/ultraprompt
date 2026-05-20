@@ -1,0 +1,566 @@
+schema: prd_standard.v1
+title: Ultraprompt V8.6 Invocation Reliability and Handoff Hardening
+date: "2026-05-20"
+status: draft
+source_repo: /Users/sokoliem/development/ultraprompt
+requested_scope: >-
+  Produce a standard PRD for the next Ultraprompt version using current
+  telemetry evidence. The release should address agents getting cut off
+  mid-response and skills, agents, and panels not auto-firing reliably.
+
+problem: >-
+  Ultraprompt 8.5.0 has a rich catalog, but current evidence shows the catalog
+  is not consistently translating into live runtime behavior. Source validation
+  confirms the plugin shape is present: 55 skills, 31 agents, 32 commands, 13
+  panels, 46 MCP tools, 9 hooks, and 31 artifact schemas. The release blocker is
+  adoption and handoff reliability. The strict invocation audit failed because
+  plugin agent dispatch share was 49.5% against a 50% target, Explore dispatch
+  share was 39.1% against a maximum 35% target, real pathfinder decisions were
+  0 against a target of 5, distinct real pathfinder intents were 0 against a
+  target of 3, and release-critical skills `frontend-visual-qa` and
+  `pathfinding-invocation-review` had no current live invocation. Agent handoff
+  telemetry also shows 474 handoffs with 257 problematic outcomes: 231
+  persisted-output events, 22 truncated events, and 4 empty events. Panel
+  telemetry is not yet live enough to support release confidence: panel stats
+  reported 0 live runs, while experience-quality-panel proof came from a fixture
+  smoke. Route replay over 7 days returned `ok: true` with 0 replayed cases,
+  which is itself a gate weakness. Finally, routing surfaces disagree: for this
+  exact telemetry/recommendation request, `route_intent` selected
+  `pathfinding-invocation-review`, while `route_trigger_plan` and the CLI
+  pathfinder routed to `release` plus `release-gate-panel` and `writer`. V8.6
+  must make invocation effectiveness, artifact-first handoff completion, and
+  live runtime proof the center of the release.
+
+evidence:
+  - id: E-001
+    source: "python3 scripts/validate-plugin.py --target-runtime source --strict-runtime-files"
+    observation: >-
+      Source validation passed for Ultraprompt 8.5.0 with 55 skills, 31 agents,
+      32 commands, 46 MCP tools, 13 panels, 31 artifact schemas, 9 hooks, and
+      no warnings or errors.
+  - id: E-002
+    source: "python3 scripts/audit-invocation-telemetry.py --json --enforce"
+    observation: >-
+      Basic invocation audit failed because real pathfinder decisions were 0
+      against a minimum of 1.
+  - id: E-003
+    source: "python3 scripts/audit-invocation-telemetry.py --json --enforce --min-plugin-agent-share 50 --max-explore-share 35 --min-real-pathfinder-decisions 5 --min-distinct-release-intents 3 --release-critical-v8-4 --require-panel-proof experience-quality-panel"
+    observation: >-
+      Strict invocation audit failed: plugin agent dispatch share 49.5% < 50%,
+      Explore dispatch share 39.1% > 35%, real pathfinder decisions 0 < 5,
+      distinct real pathfinder intents 0 < 3, and release-critical skills
+      `frontend-visual-qa` and `pathfinding-invocation-review` had no current
+      invocation.
+  - id: E-004
+    source: "audit-invocation-telemetry handoff_contract"
+    observation: >-
+      Handoff telemetry reported 474 handoffs, 257 problematic handoffs, 231
+      persisted-output events, 22 truncated events, 4 empty events, and 72
+      missing artifact paths for required high-output agent contracts.
+  - id: E-005
+    source: "python3 scripts/panel-runs.py stats"
+    observation: "Panel run stats reported ok=true with total_runs=0."
+  - id: E-006
+    source: "python3 scripts/panel-runs.py smoke --panel experience-quality-panel"
+    observation: >-
+      Experience-quality-panel smoke passed against
+      tests/artifacts/experience_quality_report.valid.json, proving fixture
+      validity but not live panel adoption.
+  - id: E-007
+    source: "python3 scripts/replay-routing-events.py --json --days 7 --limit 50 --enforce"
+    observation: >-
+      Route replay returned ok=true with replayed=0, stable=0, skipped=0, and
+      no cases, meaning an empty live replay window can currently satisfy the
+      gate.
+  - id: E-008
+    source: "python3 scripts/run-pathfinder-tests.py --no-telemetry"
+    observation: >-
+      Static pathfinder bench passed 76/77 top-1 and 77/77 top-3. The lone
+      top-1 miss was directly relevant: a routing thresholds and release gates
+      prompt selected `release` instead of `pathfinding-invocation-review`.
+  - id: E-009
+    source: "route_intent and route_trigger_plan MCP checks"
+    observation: >-
+      `route_intent` selected `pathfinding-invocation-review` for the telemetry
+      auto-fire/truncation request, but `route_trigger_plan` selected `release`
+      with `release-gate-panel` and `writer`.
+  - id: E-010
+    source: "python3 scripts/self-improve.py run --mode dry-run --scope routing"
+    observation: >-
+      Self-improvement dry run proposed five evidence-backed hypotheses:
+      pathfinder live-signal boost, agent handoff contract update, Explore
+      fallback reduction, legacy prefix handling, and specialist coverage eval
+      cases.
+  - id: E-011
+    source: "release-scorecard CLI and MCP behavior"
+    observation: >-
+      `release-scorecard.py --check --target all --json`,
+      `release-scorecard.py --check --target source --json`, and MCP
+      `release_scorecard` did not complete in the observed time window. The MCP
+      call timed out at 120 seconds.
+  - id: E-012
+    source: "dist/release-scorecard.json inspection"
+    observation: >-
+      Persisted release scorecard evidence still reported plugin_version 8.4.0
+      while source validation reported 8.5.0, indicating stale persisted
+      release evidence can confuse current-version decisions.
+
+users_and_jobs:
+  - user: Ultraprompt maintainer
+    jobs:
+      - "Know whether the active release is actually routing to current skills, agents, and panels."
+      - "Fix routing policy and handoff behavior using evidence rather than adding more catalog entries."
+      - "Ship a version whose scorecard is fast, current, and actionable."
+  - user: Codex or Claude Code main-thread assistant
+    jobs:
+      - "Receive a consistent routing plan from route_intent, pathfinder, route_trigger_plan, and dispatch_advise."
+      - "Use specialist agents instead of generic Explore when the catalog has a high-confidence specialist."
+      - "Recover full agent analysis from artifact paths when chat output would truncate."
+  - user: High-output specialist agent consumer
+    jobs:
+      - "Get a compact, complete envelope in chat and a durable full report on disk."
+      - "See whether an agent completed, truncated, emitted persisted output, or failed to provide an artifact."
+  - user: Release owner
+    jobs:
+      - "Block releases when live adoption is absent, stale, or fixture-only."
+      - "Separate source/package/install health from runtime invocation health."
+      - "Inspect the exact failing gate without waiting on an opaque long-running scorecard."
+
+goals:
+  - id: G-001
+    goal: >-
+      Make `pathfinding-invocation-review` the reliable default for telemetry,
+      auto-fire, Explore fallback, route threshold, and handoff reliability
+      requests.
+  - id: G-002
+    goal: >-
+      Align `route_intent`, `pathfinder`, `route_trigger_plan`, and
+      `dispatch_advise` on one source-derived scoring and execution policy.
+  - id: G-003
+    goal: >-
+      Reduce generic Explore overuse and increase plugin specialist dispatch
+      share in real runtime telemetry.
+  - id: G-004
+    goal: >-
+      Enforce artifact-first handoff contracts for high-output agents so full
+      reports survive chat truncation.
+  - id: G-005
+    goal: >-
+      Make live panel runs and live pathfinder decisions first-class release
+      evidence, distinct from fixture and bench events.
+  - id: G-006
+    goal: >-
+      Make release scorecards fast, fresh, per-gate observable, and incapable of
+      presenting stale version evidence as current.
+  - id: G-007
+    goal: >-
+      Add activation coverage gates for release-critical and representative
+      specialist skills across Claude Code and Codex where runtime support
+      exists.
+
+non_goals:
+  - "Do not expand the skill, agent, or panel catalog unless needed to close an evidenced routing gap."
+  - "Do not weaken telemetry thresholds to make 8.6 look green."
+  - "Do not count fixture-only panel smoke as live panel adoption."
+  - "Do not make every request spawn an agent or panel; cheap inline work remains valid when confidence and risk justify it."
+  - "Do not silently auto-apply route-learning or self-improvement patches without the existing governed apply path."
+
+requirements:
+  must_have:
+    - id: R-001
+      title: Unified invocation routing policy
+      description: >-
+        `route_intent`, `pathfinder`, `route_trigger_plan`, and
+        `dispatch_advise` must use the same source-derived skill ranking,
+        policy boosts, panel selection, execution-mode, and handoff metadata.
+      evidence_refs: [E-008, E-009]
+      acceptance_ref: AC-001
+    - id: R-002
+      title: Invocation reliability route boost
+      description: >-
+        Requests mentioning telemetry, invocation behavior, skill auto-fire,
+        agent dispatch, Explore fallback, pathfinder health, routing thresholds,
+        handoff truncation, or live adoption must route to
+        `pathfinding-invocation-review` unless a narrower explicit skill is
+        named.
+      evidence_refs: [E-002, E-003, E-008, E-009]
+      acceptance_ref: AC-002
+    - id: R-003
+      title: High-output artifact-first enforcement
+      description: >-
+        High-output agents must persist full reports to the generated
+        artifact_path and return a compact envelope with status, artifact_path,
+        top_findings, validation, remaining_risk, and truncation_flag. A
+        required high-output handoff without an existing artifact must count as
+        failed or incomplete.
+      evidence_refs: [E-004]
+      acceptance_ref: AC-003
+    - id: R-004
+      title: Handoff outcome telemetry
+      description: >-
+        Handoff events must include agent, artifact_path, artifact_exists,
+        envelope_fields_present, status, failure_kind, token_count when
+        available, tool_count when available, runtime, session_id, trace_id, and
+        source.
+      evidence_refs: [E-004]
+      acceptance_ref: AC-004
+    - id: R-005
+      title: Live pathfinder gate
+      description: >-
+        Release checks must fail when real pathfinder decisions or distinct
+        real pathfinder intents are zero. Empty replay windows must not pass
+        strict release mode.
+      evidence_refs: [E-002, E-003, E-007]
+      acceptance_ref: AC-005
+    - id: R-006
+      title: Live panel adoption gate
+      description: >-
+        Release checks must distinguish panel fixture smoke from live panel run
+        evidence. Critical panel proof must require either a real run artifact
+        or an explicitly labeled fixture-only status that does not satisfy live
+        adoption.
+      evidence_refs: [E-005, E-006]
+      acceptance_ref: AC-006
+    - id: R-007
+      title: Activation coverage matrix
+      description: >-
+        The invocation audit must report release-critical skills, representative
+        core skills, specialist skills, ecosystem skills, plugin agents, and
+        panels as activated, missing, fixture-only, or unsupported by runtime.
+      evidence_refs: [E-003]
+      acceptance_ref: AC-007
+    - id: R-008
+      title: Explore displacement gate
+      description: >-
+        Strict release mode must keep plugin agent share at or above 50% when
+        dispatch volume is at least 20 and Explore share at or below 35%, with
+        top Explore-producing intent families surfaced for remediation.
+      evidence_refs: [E-003]
+      acceptance_ref: AC-008
+    - id: R-009
+      title: Scorecard freshness and progress
+      description: >-
+        `release-scorecard.py` and MCP `release_scorecard` must emit current
+        plugin version, per-gate start/finish/timeout status, elapsed duration,
+        cache status, and stale persisted-report warnings. A stale persisted
+        scorecard must be impossible to confuse with the active source version.
+      evidence_refs: [E-011, E-012]
+      acceptance_ref: AC-009
+    - id: R-010
+      title: Self-improvement candidate promotion path
+      description: >-
+        The five self-improvement dry-run hypotheses from current telemetry
+        must become concrete implementation candidates, eval cases, or explicit
+        rejected items with rationale.
+      evidence_refs: [E-010]
+      acceptance_ref: AC-010
+  should_have:
+    - id: R-011
+      title: Runtime-specific telemetry split
+      description: >-
+        Dashboard and audit output should separate Claude Code hook telemetry,
+        Codex MCP telemetry, Codex session-file inference, unknown-runtime
+        events, and legacy-prefix events.
+      evidence_refs: [E-003]
+    - id: R-012
+      title: Handoff artifact browser
+      description: >-
+        Mission Control should link recent handoff artifacts and show missing,
+        truncated, persisted-output, and empty handoffs by agent.
+      evidence_refs: [E-004]
+    - id: R-013
+      title: Natural-language golden cases for activation gaps
+      description: >-
+        Add golden cases for skills and agents that current telemetry reports
+        as never invoked or never dispatched, prioritizing release-critical and
+        high-risk lanes.
+      evidence_refs: [E-003, E-010]
+    - id: R-014
+      title: Route conflict regression tests
+      description: >-
+        Add tests for the observed `release` versus
+        `pathfinding-invocation-review` conflict and for telemetry requests that
+        mention next release recommendations.
+      evidence_refs: [E-008, E-009]
+  wont_have_this_release:
+    - id: W-001
+      title: New hosted telemetry service
+      reason: "Ultraprompt remains local-first; the issue is local telemetry interpretation and gating."
+    - id: W-002
+      title: Fully autonomous panel execution
+      reason: "Panel execution remains subject to runtime/user/developer tool policy."
+    - id: W-003
+      title: Broad catalog expansion
+      reason: "Current evidence points to invocation, handoff, and gates rather than missing catalog breadth."
+    - id: W-004
+      title: Lowering release thresholds
+      reason: "The release must improve runtime behavior, not make the gates easier to pass."
+
+scope:
+  in:
+    - scripts/pathfinder.py
+    - scripts/routing_policy.py
+    - scripts/ultraprompt_index.py
+    - scripts/run-pathfinder-tests.py
+    - scripts/run-router-bench.py
+    - scripts/replay-routing-events.py
+    - scripts/audit-invocation-telemetry.py
+    - scripts/release-scorecard.py
+    - scripts/self-improve.py
+    - scripts/learning-queue.py
+    - scripts/panel-runs.py
+    - mcp/ultraprompt_meta.py
+    - dashboard routing-effectiveness and handoff-reliability surfaces
+    - source/skill-specs.json routing metadata and generated dist artifacts
+    - handoff artifact storage under ~/.ultraprompt/agent-handoffs
+  out:
+    - Rewriting Codex or Claude Code native slash-command parsing
+    - Changing runtime permission policies for subagent spawning
+    - Removing Explore entirely
+    - Replacing local ledgers with remote telemetry
+    - Committing or applying self-improvement patches automatically
+
+technical_considerations:
+  - area: Routing policy
+    consideration: >-
+      The source of truth should remain source/skill-specs.json plus generated
+      routing-policy metadata. Any route boost for invocation reliability must
+      regenerate dist/routing-policy.json and be covered by pathfinder and
+      router bench tests.
+  - area: Handoff artifacts
+    consideration: >-
+      Artifact-first enforcement requires both prompt contract generation and
+      verification. The runtime can ask agents to write artifacts, but the audit
+      must confirm artifacts exist before counting handoffs as complete.
+  - area: Telemetry parsing
+    consideration: >-
+      Claude Code hooks and Codex session files emit different shapes. The audit
+      should keep first-class runtime events separate from inferred session
+      evidence, and it should preserve unknown-runtime events without treating
+      them as proof for a runtime-specific gate.
+  - area: Scorecard runtime
+    consideration: >-
+      The scorecard needs per-gate subprocess timeout handling that returns a
+      partial report. MCP `release_scorecard` should call a read-only JSON mode
+      and return partial progress rather than relying on stale dist output.
+  - area: Panels
+    consideration: >-
+      Fixture panel smoke remains valuable for schema validation, but live
+      adoption requires a panel run ledger event or a run artifact produced by
+      the panel execution path.
+  - area: Learning loop
+    consideration: >-
+      Self-improvement can generate hypotheses and patches, but V8.6 should use
+      those hypotheses as evidence-backed inputs to implementation and eval
+      design, not as automatic mutation.
+
+risks:
+  - id: RISK-001
+    risk: "Routing boost overcorrects and sends ordinary release-note work to invocation review."
+    severity: medium
+    likelihood: medium
+    mitigation: "Add negative golden cases for release notes, changelog, and ship/no-ship requests."
+  - id: RISK-002
+    risk: "Artifact-first enforcement adds friction or fails in runtimes where agents cannot write files."
+    severity: high
+    likelihood: medium
+    mitigation: "Report unsupported runtime separately and keep compact_chat optional for non-high-output agents."
+  - id: RISK-003
+    risk: "Strict live gates block releases when there has not been enough recent real usage."
+    severity: medium
+    likelihood: high
+    mitigation: "Provide a documented fresh-session smoke matrix that creates the minimum live evidence deliberately."
+  - id: RISK-004
+    risk: "Scorecard partial reports are mistaken for full release readiness."
+    severity: high
+    likelihood: medium
+    mitigation: "Include explicit conclusion values: ready, blocked, partial, timed_out, stale."
+  - id: RISK-005
+    risk: "Codex session inference produces false positives for skill mentions."
+    severity: medium
+    likelihood: medium
+    mitigation: "Keep inferred mentions separate from first-class runtime events and do not let inference satisfy activation gates alone."
+  - id: RISK-006
+    risk: "Handoff artifact paths contain stale reports from previous traces."
+    severity: medium
+    likelihood: low
+    mitigation: "Require trace_id in artifact filename and verify file mtime after dispatch start."
+
+metrics:
+  leading:
+    - metric: "Pathfinding invocation route accuracy"
+      baseline: "Observed miss: telemetry/release-gate prompt selected release instead of pathfinding-invocation-review in static bench and pathfinder probe."
+      target: "100% of invocation telemetry golden cases route top-1 to pathfinding-invocation-review."
+      measurement: "python3 scripts/run-pathfinder-tests.py --no-telemetry plus new targeted golden cases."
+    - metric: "Handoff artifact compliance"
+      baseline: "72 missing artifact paths for required high-output handoffs in current audit."
+      target: "0 missing artifact paths for required high-output handoffs in strict release audit."
+      measurement: "audit-invocation-telemetry handoff_contract.missing_artifact_path."
+    - metric: "Scorecard completion"
+      baseline: "Observed CLI scorecard runs did not complete in the interactive window; MCP release_scorecard timed out at 120s."
+      target: "Scorecard returns full or partial JSON within 120s, with per-gate timeout status."
+      measurement: "time python3 scripts/release-scorecard.py --check --target all --json and MCP release_scorecard smoke."
+  lagging:
+    - metric: "Plugin agent dispatch share"
+      baseline: "49.5% in strict 7-day invocation audit."
+      target: ">= 55% for dispatch windows with at least 20 dispatches."
+      measurement: "audit-invocation-telemetry agent_dispatches.plugin_share_pct."
+    - metric: "Explore dispatch share"
+      baseline: "39.1% in strict 7-day invocation audit."
+      target: "<= 30% for dispatch windows with at least 20 dispatches."
+      measurement: "audit-invocation-telemetry agent_dispatches.explore_share_pct."
+    - metric: "Problem handoff rate"
+      baseline: "257 / 474 handoffs problematic in current audit."
+      target: "<= 10% problematic handoffs for high-output plugin agents, excluding explicitly unsupported runtime cases."
+      measurement: "audit-invocation-telemetry agent_handoffs.problem_total / total."
+    - metric: "Live panel adoption"
+      baseline: "0 live panel runs."
+      target: "At least 1 live run for each release-critical panel required by strict release mode."
+      measurement: "python3 scripts/panel-runs.py stats plus panel run artifacts."
+  guardrails:
+    - metric: "Fixture-only proof isolation"
+      baseline: "Experience-quality panel fixture smoke passed while live panel runs were 0."
+      target: "Fixture smoke never satisfies live adoption gates."
+      measurement: "release-scorecard target decomposition and invocation audit panel_proof source."
+    - metric: "Live-vs-inferred telemetry separation"
+      baseline: "Codex activity includes session-file inference and MCP calls, but runtime event coverage is uneven."
+      target: "Strict gates label first-class, inferred, fixture, bench, synthetic, and unknown evidence separately."
+      measurement: "audit-invocation-telemetry runtime_events and codex_activity sections."
+    - metric: "No threshold weakening"
+      baseline: "Strict thresholds: plugin share >=50%, Explore <=35%, real pathfinder >=5, distinct real intents >=3."
+      target: "Thresholds preserved or strengthened unless a PRD update explicitly changes them."
+      measurement: "release-scorecard invocation_telemetry command arguments and audit thresholds output."
+
+acceptance_criteria:
+  - id: AC-001
+    requirement: R-001
+    given: "A telemetry auto-fire and handoff truncation request is evaluated"
+    when: "`route_intent`, `pathfinder`, `route_trigger_plan`, and `dispatch_advise` are run"
+    then: "All four surfaces select `pathfinding-invocation-review` or a documented invocation-reliability execution path with matching agent/panel metadata."
+  - id: AC-002
+    requirement: R-002
+    given: "A natural-language request mentions telemetry, skill auto-fire, agents being cut off, or routing thresholds"
+    when: "the pathfinder bench and targeted golden cases run"
+    then: "`pathfinding-invocation-review` is top-1 and `release` is not selected unless the request is only release notes or changelog."
+  - id: AC-003
+    requirement: R-003
+    given: "A high-output plugin agent is dispatched"
+    when: "the routing envelope contains `artifact_required=true`"
+    then: "the final handoff is counted complete only if the artifact path exists and the compact envelope includes all required fields."
+  - id: AC-004
+    requirement: R-004
+    given: "An agent returns persisted output, truncated output, empty output, or a complete artifact"
+    when: "audit-invocation-telemetry parses the relevant ledger/session data"
+    then: "the handoff status, failure_kind, artifact existence, and runtime are reported accurately."
+  - id: AC-005
+    requirement: R-005
+    given: "The 7-day route replay window has zero real routing cases"
+    when: "`python3 scripts/replay-routing-events.py --json --days 7 --limit 50 --enforce` runs"
+    then: "the command exits nonzero or returns ok=false with `empty_live_window` as the reason."
+  - id: AC-006
+    requirement: R-006
+    given: "Only a fixture smoke exists for a required panel"
+    when: "strict release scorecard runs"
+    then: "panel schema validation may pass, but live panel adoption remains blocked until a real run is recorded."
+  - id: AC-007
+    requirement: R-007
+    given: "The invocation audit runs in strict mode"
+    when: "activation coverage is computed"
+    then: "release-critical skills, representative specialist skills, plugin agents, and panels are labeled activated, missing, fixture-only, or unsupported."
+  - id: AC-008
+    requirement: R-008
+    given: "At least 20 agent dispatches exist in the telemetry window"
+    when: "strict invocation audit runs"
+    then: "it fails if plugin dispatch share is below 50% or Explore share is above 35%, and it lists top Explore-producing intent families."
+  - id: AC-009
+    requirement: R-009
+    given: "A scorecard gate runs longer than its timeout or a persisted scorecard version differs from source"
+    when: "CLI or MCP release scorecard is invoked"
+    then: "the result returns partial JSON with gate status, timeout class, active source version, persisted report version, and stale-report warning."
+  - id: AC-010
+    requirement: R-010
+    given: "Self-improvement dry run identifies route and handoff hypotheses"
+    when: "the V8.6 implementation plan is prepared"
+    then: "each hypothesis maps to an implementation task, eval case, or explicit rejection with rationale."
+
+rollout_plan:
+  - phase: 0
+    name: "Baseline freeze"
+    entry_criteria: "Current dirty worktree is preserved and no unrelated changes are reverted."
+    work:
+      - "Capture current audit outputs as V8.6 baseline evidence."
+      - "Record current route conflicts and handoff failure counts."
+    exit_criteria: "Baseline artifact is committed or linked in the implementation plan."
+  - phase: 1
+    name: "Routing policy convergence"
+    entry_criteria: "Baseline freeze complete."
+    work:
+      - "Unify route_intent, pathfinder, route_trigger_plan, and dispatch_advise scoring."
+      - "Add invocation reliability route boosts and negative cases."
+      - "Regenerate routing policy, catalog metadata, and capability graph."
+    exit_criteria: "Targeted route conflict tests and pathfinder bench pass."
+  - phase: 2
+    name: "Artifact-first handoff enforcement"
+    entry_criteria: "Routing policy convergence passes."
+    work:
+      - "Enforce high-output artifact contract."
+      - "Add artifact existence checks and compact envelope validation."
+      - "Update audit and dashboard handoff summaries."
+    exit_criteria: "Synthetic and fixture handoff tests cover complete, missing, truncated, persisted-output, and empty statuses."
+  - phase: 3
+    name: "Live adoption gates"
+    entry_criteria: "Handoff enforcement tests pass."
+    work:
+      - "Make empty route replay windows fail strict mode."
+      - "Separate fixture panel smoke from live panel adoption."
+      - "Add activation coverage matrix and runtime split."
+    exit_criteria: "Strict audit fails on missing live evidence and passes only after fresh smoke evidence is generated."
+  - phase: 4
+    name: "Scorecard reliability"
+    entry_criteria: "Live adoption gates implemented."
+    work:
+      - "Add scorecard per-gate progress, timeout, stale-report, and partial-result behavior."
+      - "Fix MCP release_scorecard to avoid stale dist-only responses."
+    exit_criteria: "CLI and MCP scorecard return within 120s with full or partial JSON."
+  - phase: 5
+    name: "Fresh runtime smoke"
+    entry_criteria: "Source/package gates pass."
+    work:
+      - "Install to Claude Code and Codex."
+      - "Run a fresh-session smoke matrix for routing, high-output handoff, and panel adoption."
+      - "Re-run strict invocation audit and target=all scorecard."
+    exit_criteria: "Source, package, install, telemetry, handoff, route replay, and panel gates pass without stale evidence."
+
+validation_plan:
+  - "python3 scripts/artifact-validate.py validate prd_standard docs/prds/v8.6-invocation-reliability-handoff-hardening.prd.yaml"
+  - "python3 scripts/build-routing-policy.py --check"
+  - "python3 scripts/build-catalog-metadata.py --check"
+  - "python3 scripts/build-capability-graph.py --check"
+  - "python3 scripts/run-pathfinder-tests.py --no-telemetry"
+  - "python3 scripts/run-router-bench.py"
+  - "python3 scripts/replay-routing-events.py --json --days 7 --limit 50 --enforce"
+  - "python3 scripts/audit-invocation-telemetry.py --json --enforce --min-plugin-agent-share 50 --max-explore-share 35 --min-real-pathfinder-decisions 5 --min-distinct-release-intents 3 --release-critical-v8-4 --require-panel-proof experience-quality-panel"
+  - "python3 scripts/run-cognitive-tests.py"
+  - "python3 scripts/run-hook-tests.py"
+  - "python3 scripts/audit-hook-coverage.py"
+  - "python3 scripts/validate-plugin.py --target-runtime source --strict-runtime-files"
+  - "python3 scripts/package-plugin.py --verify-only"
+  - "python3 scripts/release-scorecard.py --check --target all --json"
+  - "MCP release_scorecard smoke returns full or partial JSON within 120 seconds."
+
+open_questions:
+  - priority: blocking
+    question: "Should the next version be numbered 8.6.0, or should it ship as 8.5.1 because it is reliability-focused?"
+    decision_needed_by: "Before manifest/version edits."
+  - priority: blocking
+    question: "Which panels are release-critical for live adoption in V8.6: only experience-quality-panel, or also cognitive-governance-panel and release-gate-panel?"
+    decision_needed_by: "Before strict scorecard threshold implementation."
+  - priority: high
+    question: "What is the minimum fresh-session smoke matrix for Codex, given Codex native slash behavior and plugin hook support differ from Claude Code?"
+    decision_needed_by: "Before phase 5 runtime smoke."
+  - priority: high
+    question: "Should high-output handoff artifacts be required for all high-output agents in all runtimes, or should unsupported runtimes get a separate partial status?"
+    decision_needed_by: "Before handoff enforcement ships."
+  - priority: medium
+    question: "Should self-improvement dry-run hypotheses be promoted manually into implementation tickets, or should the learning queue create draft candidates automatically after this PRD is accepted?"
+    decision_needed_by: "Before implementation planning."

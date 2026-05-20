@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ultraprompt",
-  "version": "8.2.0",
-  "description": "Ultraprompt V8.2 cognitive control-plane plugin for Claude Code and Codex: 54 skills, 31 agents, 42 MCP tools, 31 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, experience-quality panels, invocation telemetry gates, goal contracts, live Mission Control dashboard, fingerprinted gap ledger, and dual-runtime install.",
+  "version": "8.6.0",
+  "description": "Ultraprompt V8.6 cognitive control-plane plugin for Claude Code and Codex: 55 skills, 31 agents, 46 MCP tools, 32 commands, typed local memory, safe dream jobs, automated evidence-based self-improvement, workflow pathfinding, source-derived routing policy, Invocation Director trigger plans, route replay, live panel proof gates, invocation telemetry gates, reliability-classified release gates, artifact-first agent handoffs, live Mission Control dashboard, fingerprinted gap ledger, and dual-runtime install.",
   "author": {
     "name": "Ultraprompt Toolkit"
   },

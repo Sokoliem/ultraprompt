@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""V8.2.0: Release scorecard.
+"""V8.5.0: Release scorecard.
 
 Generates a release-readiness scorecard for the plugin itself. Covers manifest,
 discovery, routing, safety, docs, install dimensions.
@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -28,13 +29,225 @@ CLAUDE_INSTALL_CANDIDATES = [
     Path.home() / ".claude" / "plugins" / "marketplaces" / "local-marketplace" / "ultra-prompt",
 ]
 
+BLOCKER_IMPLEMENTATION = "implementation_blocker"
+BLOCKER_GENERATED = "generated_artifact_drift"
+BLOCKER_INSTALL = "install_runtime_blocker"
+BLOCKER_ADOPTION = "live_adoption_blocker"
+BLOCKER_STALE_REPORT = "stale_persisted_report"
+BLOCKER_TIMEOUT = "harness_timeout"
+BLOCKER_SELF_IMPROVEMENT = "self_improvement_regression"
+
+GATE_CACHE_TTL_SECONDS = 15 * 60
+CACHEABLE_GATE_TTL_SECONDS = {
+    "generated_artifacts": 5 * 60,
+    "manifest_schema_claude": GATE_CACHE_TTL_SECONDS,
+    "manifest_schema_codex": GATE_CACHE_TTL_SECONDS,
+    "routing_policy": GATE_CACHE_TTL_SECONDS,
+    "capability_graph": GATE_CACHE_TTL_SECONDS,
+    "artifact_enums": GATE_CACHE_TTL_SECONDS,
+    "config_env_overrides": GATE_CACHE_TTL_SECONDS,
+}
+
+GENERATED_DRIFT_MARKERS = (
+    " is stale",
+    " drift from specs",
+    " has no source spec",
+    " missing; run scripts/",
+    "run scripts/build-",
+    "run scripts/regenerate-",
+    "generated artifact drift",
+)
+
+
+def state_root() -> Path:
+    return Path(os.environ.get("ULTRAPROMPT_STATE_DIR") or Path.home() / ".ultraprompt").expanduser()
+
+
+def gate_cache_path() -> Path:
+    return state_root() / "cache" / "release-gates.json"
+
+
+def read_gate_cache() -> dict[str, Any]:
+    return load_json(gate_cache_path())
+
+
+def write_gate_cache(cache: dict[str, Any]) -> None:
+    try:
+        path = gate_cache_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(cache, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    except Exception:
+        pass
+
+
+def hash_paths(paths: list[Path]) -> str:
+    digest = hashlib.sha256()
+    for path in sorted({p for p in paths if p.exists()}):
+        if path.is_file():
+            try:
+                digest.update(str(path.relative_to(ROOT)).replace("\\", "/").encode())
+                digest.update(b"\0")
+                digest.update(path.read_bytes())
+                digest.update(b"\0")
+            except Exception:
+                continue
+    return digest.hexdigest()
+
+
+def scorecard_source_paths() -> list[Path]:
+    paths: list[Path] = []
+    for pattern in (
+        "source/**/*.json",
+        "scripts/*.py",
+        "mcp/*.py",
+        "hooks/**/*.json",
+        ".claude-plugin/plugin.json",
+        ".codex-plugin/plugin.json",
+        "artifact-schemas/*.json",
+        "commands/*.md",
+        "dashboard/*.js",
+        "dashboard/*.css",
+        "tests/**/*.json",
+        "tests/**/*.yaml",
+    ):
+        paths.extend(ROOT.glob(pattern))
+    return paths
+
+
+def scorecard_source_hash() -> str:
+    return hash_paths(scorecard_source_paths())
+
+
+def scorecard_artifact_hash() -> str:
+    paths: list[Path] = []
+    for pattern in ("dist/*.json", "skills/*/SKILL.md", "agents/*.md"):
+        paths.extend(ROOT.glob(pattern))
+    return hash_paths(paths)
+
+
+def gate_cache_key(gate_id: str, target: str, cmd: list[str], source_hash: str, artifact_hash: str) -> str:
+    payload = {
+        "gate_id": gate_id,
+        "target": target,
+        "command": cmd,
+        "source_hash": source_hash,
+        "artifact_hash": artifact_hash,
+    }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
 
 def run(cmd, *, cwd: Path | None = None, timeout: int = 120):
     try:
         out = subprocess.run(cmd, cwd=cwd or ROOT, capture_output=True, text=True, timeout=timeout)
         return out.returncode, out.stdout, out.stderr
+    except subprocess.TimeoutExpired as e:
+        stdout = e.stdout if isinstance(e.stdout, str) else (e.stdout or b"").decode(errors="ignore")
+        stderr = e.stderr if isinstance(e.stderr, str) else (e.stderr or b"").decode(errors="ignore")
+        detail = f"timeout after {timeout}s"
+        return -124, stdout or "", "\n".join(part for part in (stderr, detail) if part)
     except Exception as e:
         return -1, "", str(e)
+
+
+def classify_gate_blocker(gate_id: str, code: int, stdout: str, stderr: str, default: str | None = None) -> str | None:
+    if code == 0:
+        return None
+    text = f"{stdout}\n{stderr}".lower()
+    if code == -124 or "timeout after" in text or "timed out" in text:
+        return BLOCKER_TIMEOUT
+    if gate_id == "invocation_telemetry":
+        return BLOCKER_ADOPTION
+    if gate_id.startswith("self_improvement") or "self_improvement" in text or "self-improvement" in text:
+        return BLOCKER_SELF_IMPROVEMENT
+    if gate_id in {"install_simulation", "package_verify"} or "install" in gate_id or "runtime" in gate_id:
+        return BLOCKER_INSTALL
+    if gate_id == "generated_artifacts" or any(marker in text for marker in GENERATED_DRIFT_MARKERS):
+        return BLOCKER_GENERATED
+    return default or BLOCKER_IMPLEMENTATION
+
+
+def gate_result(
+    gate_id: str,
+    *,
+    target: str,
+    cmd: list[str],
+    code: int,
+    stdout: str,
+    stderr: str,
+    duration_ms: int,
+    ttl: int,
+    source_hash: str,
+    artifact_hash: str,
+    cache_hit: bool = False,
+    blocker_class: str | None = None,
+) -> dict[str, Any]:
+    ok = code == 0
+    return {
+        "gate_id": gate_id,
+        "target": target,
+        "command": " ".join(str(part) for part in cmd),
+        "duration_ms": duration_ms,
+        "exit_code": code,
+        "status": "ok" if ok else "failed",
+        "ok": ok,
+        "blocker_class": None if ok else (blocker_class or classify_gate_blocker(gate_id, code, stdout, stderr)),
+        "ttl": ttl,
+        "source_hash": source_hash,
+        "artifact_hash": artifact_hash,
+        "cache_hit": cache_hit,
+        "stdout": stdout.strip(),
+        "stderr": stderr.strip(),
+    }
+
+
+def run_gate(
+    gate_id: str,
+    cmd: list[str],
+    *,
+    target: str = "source",
+    timeout: int = 120,
+    blocker_class: str | None = None,
+    ttl: int | None = None,
+    use_cache: bool = True,
+) -> dict[str, Any]:
+    ttl = CACHEABLE_GATE_TTL_SECONDS.get(gate_id, 0) if ttl is None else ttl
+    source_hash = scorecard_source_hash()
+    artifact_hash = scorecard_artifact_hash()
+    key = gate_cache_key(gate_id, target, cmd, source_hash, artifact_hash)
+    now = int(time.time())
+    cache = read_gate_cache() if use_cache and ttl > 0 else {}
+    cached = (cache.get("gates") or {}).get(key) if isinstance(cache, dict) else None
+    if isinstance(cached, dict) and cached.get("ok") and now - int(cached.get("cached_at", 0)) <= ttl:
+        return {
+            **cached,
+            "duration_ms": 0,
+            "cache_hit": True,
+            "ttl": ttl,
+            "source_hash": source_hash,
+            "artifact_hash": artifact_hash,
+        }
+
+    started = time.time()
+    code, stdout, stderr = run(cmd, timeout=timeout)
+    result = gate_result(
+        gate_id,
+        target=target,
+        cmd=cmd,
+        code=code,
+        stdout=stdout,
+        stderr=stderr,
+        duration_ms=int((time.time() - started) * 1000),
+        ttl=ttl,
+        source_hash=source_hash,
+        artifact_hash=artifact_hash,
+        blocker_class=blocker_class,
+    )
+    if use_cache and ttl > 0 and result.get("ok"):
+        next_cache = cache if isinstance(cache, dict) else {}
+        next_cache.setdefault("schema", "release_gate_cache.v1")
+        next_cache.setdefault("gates", {})[key] = {**result, "cached_at": now, "cache_hit": False}
+        write_gate_cache(next_cache)
+    return result
 
 
 def plugin_version() -> str:
@@ -256,37 +469,153 @@ def check_docs():
     return {"stale_version_refs": stale_count, "audit_exit": code}
 
 
-def check_trust_gates():
+def check_trust_gates(*, target: str = "source", use_cache: bool = True):
     gates = {
-        "plugin_validation": run([sys.executable, str(ROOT / "scripts/validate-plugin.py"), "--target-runtime", "source", "--strict-runtime-files"]),
-        "manifest_schema_claude": run([sys.executable, str(ROOT / "scripts/audit-manifest-schemas.py"), "--runtime", "claude-code", "--strict-references"]),
-        "manifest_schema_codex": run([sys.executable, str(ROOT / "scripts/audit-manifest-schemas.py"), "--runtime", "codex", "--strict-references"]),
-        "catalog_consistency": run([sys.executable, str(ROOT / "scripts/audit-catalog-consistency.py"), "--json"]),
-        "package_verify": run([sys.executable, str(ROOT / "scripts/package-plugin.py"), "--verify-only"]),
-        "install_simulation": run([sys.executable, str(ROOT / "scripts/install-simulate.py"), "--runtime", "both"]),
-        "config_env_overrides": run([sys.executable, str(ROOT / "scripts/run-config-tests.py")]),
-        "artifact_enums": run([sys.executable, str(ROOT / "scripts/run-artifact-tests.py")]),
+        "generated_artifacts": run_gate(
+            "generated_artifacts",
+            [sys.executable, str(ROOT / "scripts/generated-artifacts.py"), "check", "--json"],
+            target=target,
+            timeout=180,
+            blocker_class=BLOCKER_GENERATED,
+            use_cache=use_cache,
+        ),
+        "plugin_validation": run_gate(
+            "plugin_validation",
+            [sys.executable, str(ROOT / "scripts/validate-plugin.py"), "--target-runtime", "source", "--strict-runtime-files"],
+            target=target,
+            timeout=300,
+            blocker_class=BLOCKER_IMPLEMENTATION,
+            use_cache=False,
+        ),
+        "manifest_schema_claude": run_gate(
+            "manifest_schema_claude",
+            [sys.executable, str(ROOT / "scripts/audit-manifest-schemas.py"), "--runtime", "claude-code", "--strict-references"],
+            target=target,
+            blocker_class=BLOCKER_IMPLEMENTATION,
+            use_cache=use_cache,
+        ),
+        "manifest_schema_codex": run_gate(
+            "manifest_schema_codex",
+            [sys.executable, str(ROOT / "scripts/audit-manifest-schemas.py"), "--runtime", "codex", "--strict-references"],
+            target=target,
+            blocker_class=BLOCKER_IMPLEMENTATION,
+            use_cache=use_cache,
+        ),
+        "catalog_consistency": run_gate(
+            "catalog_consistency",
+            [sys.executable, str(ROOT / "scripts/audit-catalog-consistency.py"), "--json"],
+            target=target,
+            timeout=300,
+            blocker_class=BLOCKER_GENERATED,
+            use_cache=False,
+        ),
+        "routing_policy": run_gate(
+            "routing_policy",
+            [sys.executable, str(ROOT / "scripts/build-routing-policy.py"), "--check"],
+            target=target,
+            blocker_class=BLOCKER_GENERATED,
+            use_cache=use_cache,
+        ),
+        "package_verify": run_gate(
+            "package_verify",
+            [sys.executable, str(ROOT / "scripts/package-plugin.py"), "--verify-only"],
+            target=target,
+            blocker_class=BLOCKER_INSTALL,
+            use_cache=False,
+        ),
+        "install_simulation": run_gate(
+            "install_simulation",
+            [sys.executable, str(ROOT / "scripts/install-simulate.py"), "--runtime", "both"],
+            target=target,
+            timeout=420,
+            blocker_class=BLOCKER_INSTALL,
+            use_cache=False,
+        ),
+        "config_env_overrides": run_gate(
+            "config_env_overrides",
+            [sys.executable, str(ROOT / "scripts/run-config-tests.py")],
+            target=target,
+            use_cache=use_cache,
+        ),
+        "artifact_enums": run_gate(
+            "artifact_enums",
+            [sys.executable, str(ROOT / "scripts/run-artifact-tests.py")],
+            target=target,
+            use_cache=use_cache,
+        ),
     }
-    return {
-        name: {"ok": code == 0, "stdout": out.strip(), "stderr": err.strip()}
-        for name, (code, out, err) in gates.items()
-    }
+    return gates
 
 
-def check_cognitive_gates():
+def check_cognitive_gates(*, target: str = "source", use_cache: bool = True):
     gates = {
-        "capability_graph": run([sys.executable, str(ROOT / "scripts/build-capability-graph.py"), "--check"]),
-        "pathfinder": run([sys.executable, str(ROOT / "scripts/run-pathfinder-tests.py"), "--no-telemetry"]),
-        "invocation_telemetry": run([sys.executable, str(ROOT / "scripts/audit-invocation-telemetry.py"), "--json", "--enforce"]),
-        "cognitive_integration": run([sys.executable, str(ROOT / "scripts/run-cognitive-tests.py")]),
-        "dream_catalog": run([sys.executable, str(ROOT / "scripts/dream-runner.py"), "validate-catalog"]),
-        "panel_runs": run([sys.executable, str(ROOT / "scripts/panel-runs.py"), "stats"]),
-        "experience_quality_panel_smoke": run([sys.executable, str(ROOT / "scripts/panel-runs.py"), "smoke", "--panel", "experience-quality-panel"]),
+        "capability_graph": run_gate(
+            "capability_graph",
+            [sys.executable, str(ROOT / "scripts/build-capability-graph.py"), "--check"],
+            target=target,
+            blocker_class=BLOCKER_GENERATED,
+            use_cache=use_cache,
+        ),
+        "pathfinder": run_gate(
+            "pathfinder",
+            [sys.executable, str(ROOT / "scripts/run-pathfinder-tests.py"), "--no-telemetry"],
+            target=target,
+            blocker_class=BLOCKER_IMPLEMENTATION,
+            use_cache=False,
+        ),
+        "invocation_telemetry": run_gate(
+            "invocation_telemetry",
+            [
+                sys.executable,
+                str(ROOT / "scripts/audit-invocation-telemetry.py"),
+                "--json",
+                "--enforce",
+                "--min-plugin-agent-share", "50",
+                "--max-explore-share", "35",
+                "--min-real-pathfinder-decisions", "5",
+                "--min-distinct-release-intents", "3",
+                "--release-critical-v8-4",
+                "--require-panel-proof", "experience-quality-panel",
+            ],
+            target=target,
+            blocker_class=BLOCKER_ADOPTION,
+            use_cache=False,
+        ),
+        "cognitive_integration": run_gate(
+            "cognitive_integration",
+            [sys.executable, str(ROOT / "scripts/run-cognitive-tests.py")],
+            target=target,
+            timeout=240,
+            blocker_class=BLOCKER_IMPLEMENTATION,
+            use_cache=False,
+        ),
+        "route_replay": run_gate(
+            "route_replay",
+            [sys.executable, str(ROOT / "scripts/replay-routing-events.py"), "--json", "--days", "7", "--limit", "50", "--enforce"],
+            target=target,
+            blocker_class=BLOCKER_ADOPTION,
+            use_cache=False,
+        ),
+        "dream_catalog": run_gate(
+            "dream_catalog",
+            [sys.executable, str(ROOT / "scripts/dream-runner.py"), "validate-catalog"],
+            target=target,
+            use_cache=False,
+        ),
+        "panel_runs": run_gate(
+            "panel_runs",
+            [sys.executable, str(ROOT / "scripts/panel-runs.py"), "stats"],
+            target=target,
+            use_cache=False,
+        ),
+        "experience_quality_panel_smoke": run_gate(
+            "experience_quality_panel_smoke",
+            [sys.executable, str(ROOT / "scripts/panel-runs.py"), "smoke", "--panel", "experience-quality-panel"],
+            target=target,
+            use_cache=use_cache,
+        ),
     }
-    return {
-        name: {"ok": code == 0, "stdout": out.strip(), "stderr": err.strip()}
-        for name, (code, out, err) in gates.items()
-    }
+    return gates
 
 
 def find_codex_cache_version() -> Path | None:
@@ -479,19 +808,89 @@ def gate_ok(gates: dict[str, Any], name: str) -> bool:
     return bool((gates.get(name) or {}).get("ok"))
 
 
+def gate_blocker(gates: dict[str, Any], name: str) -> str | None:
+    value = gates.get(name) or {}
+    return value.get("blocker_class") if not value.get("ok") else None
+
+
 def target_decomposition(scorecard_data: dict[str, Any]) -> dict[str, Any]:
     runtime_targets = scorecard_data.get("runtime_targets", {})
     trust = scorecard_data.get("trust_gates", {})
     cognitive = scorecard_data.get("cognitive_gates", {})
     return {
-        "source": {"ok": bool((runtime_targets.get("source") or {}).get("ok")) and gate_ok(trust, "plugin_validation")},
-        "package": {"ok": bool((runtime_targets.get("package") or {}).get("ok", True)) and gate_ok(trust, "package_verify")},
-        "install_simulation": {"ok": gate_ok(trust, "install_simulation")},
-        "active_codex_cache": {"ok": bool((runtime_targets.get("codex_cache") or {}).get("ok", scorecard_data.get("target") != "all"))},
-        "active_claude_code_install": {"ok": bool((runtime_targets.get("claude_code_install") or {}).get("ok", scorecard_data.get("target") != "all"))},
-        "telemetry": {"ok": gate_ok(cognitive, "invocation_telemetry")},
-        "artifact": {"ok": gate_ok(trust, "artifact_enums")},
-        "panel": {"ok": gate_ok(cognitive, "experience_quality_panel_smoke")},
+        "source": {
+            "ok": bool((runtime_targets.get("source") or {}).get("ok")) and gate_ok(trust, "plugin_validation"),
+            "blocker_class": gate_blocker(trust, "plugin_validation"),
+        },
+        "package": {
+            "ok": bool((runtime_targets.get("package") or {}).get("ok", True)) and gate_ok(trust, "package_verify"),
+            "blocker_class": gate_blocker(trust, "package_verify"),
+        },
+        "install_simulation": {
+            "ok": gate_ok(trust, "install_simulation"),
+            "blocker_class": gate_blocker(trust, "install_simulation"),
+        },
+        "active_codex_cache": {
+            "ok": bool((runtime_targets.get("codex_cache") or {}).get("ok", scorecard_data.get("target") != "all")),
+            "blocker_class": None if bool((runtime_targets.get("codex_cache") or {}).get("ok", scorecard_data.get("target") != "all")) else BLOCKER_INSTALL,
+        },
+        "active_claude_code_install": {
+            "ok": bool((runtime_targets.get("claude_code_install") or {}).get("ok", scorecard_data.get("target") != "all")),
+            "blocker_class": None if bool((runtime_targets.get("claude_code_install") or {}).get("ok", scorecard_data.get("target") != "all")) else BLOCKER_INSTALL,
+        },
+        "telemetry": {
+            "ok": gate_ok(cognitive, "invocation_telemetry"),
+            "blocker_class": gate_blocker(cognitive, "invocation_telemetry"),
+        },
+        "artifact": {
+            "ok": gate_ok(trust, "artifact_enums") and gate_ok(trust, "generated_artifacts"),
+            "blocker_class": gate_blocker(trust, "artifact_enums") or gate_blocker(trust, "generated_artifacts"),
+        },
+        "panel": {
+            "ok": gate_ok(cognitive, "experience_quality_panel_smoke"),
+            "blocker_class": gate_blocker(cognitive, "experience_quality_panel_smoke"),
+        },
+    }
+
+
+def gate_results_from(scorecard_data: dict[str, Any]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for group_name in ("trust_gates", "cognitive_gates"):
+        for gate_id, result in (scorecard_data.get(group_name) or {}).items():
+            if isinstance(result, dict):
+                out.append({"phase": group_name.replace("_gates", ""), **result, "gate_id": result.get("gate_id") or gate_id})
+    return out
+
+
+def blocker_class_summary(scorecard_data: dict[str, Any]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for result in gate_results_from(scorecard_data):
+        blocker = result.get("blocker_class")
+        if not result.get("ok") and blocker:
+            counts[str(blocker)] = counts.get(str(blocker), 0) + 1
+    for target in (scorecard_data.get("runtime_targets") or {}).values():
+        if isinstance(target, dict) and not target.get("ok"):
+            counts[BLOCKER_INSTALL] = counts.get(BLOCKER_INSTALL, 0) + 1
+    if scorecard_data.get("freshness") in {"stale_persisted_report", "missing_persisted_report"}:
+        counts[BLOCKER_STALE_REPORT] = counts.get(BLOCKER_STALE_REPORT, 0) + 1
+    return dict(sorted(counts.items(), key=lambda item: item[0]))
+
+
+def adoption_status(scorecard_data: dict[str, Any]) -> dict[str, Any]:
+    telemetry_gate = (scorecard_data.get("cognitive_gates") or {}).get("invocation_telemetry") or {}
+    if telemetry_gate.get("ok"):
+        state = "sufficient_live_evidence"
+    elif telemetry_gate.get("blocker_class") == BLOCKER_ADOPTION:
+        state = "needs_live_evidence"
+    elif telemetry_gate:
+        state = "blocked_by_implementation"
+    else:
+        state = "not_evaluated"
+    return {
+        "state": state,
+        "ok": state == "sufficient_live_evidence",
+        "blocker_class": telemetry_gate.get("blocker_class"),
+        "gate_id": "invocation_telemetry",
     }
 
 
@@ -509,6 +908,19 @@ def normalized_scorecard_for_hash(scorecard_data: dict[str, Any]) -> dict[str, A
         "docs": scorecard_data.get("docs"),
         "trust_gates": {k: {"ok": v.get("ok")} for k, v in (scorecard_data.get("trust_gates") or {}).items()},
         "cognitive_gates": {k: {"ok": v.get("ok")} for k, v in (scorecard_data.get("cognitive_gates") or {}).items()},
+        "gate_results": [
+            {
+                "gate_id": item.get("gate_id"),
+                "target": item.get("target"),
+                "status": item.get("status"),
+                "ok": item.get("ok"),
+                "blocker_class": item.get("blocker_class"),
+                "exit_code": item.get("exit_code"),
+            }
+            for item in scorecard_data.get("gate_results", [])
+        ],
+        "blocker_classes": scorecard_data.get("blocker_classes", {}),
+        "adoption_status": scorecard_data.get("adoption_status", {}),
         "runtime_targets": {
             k: {
                 "ok": v.get("ok"),
@@ -545,6 +957,8 @@ def annotate_freshness(scorecard: dict[str, Any], *, report_mode: str) -> None:
         freshness = "missing_persisted_report"
     elif persisted_scorecard.get("schema_version") != s.get("schema_version") or not persisted_hash:
         freshness = "stale_persisted_report"
+    elif persisted_scorecard.get("plugin_version") != s.get("plugin_version"):
+        freshness = "stale_persisted_report"
     elif persisted_hash != s["result_hash"]:
         freshness = "stale_persisted_report"
     else:
@@ -554,6 +968,7 @@ def annotate_freshness(scorecard: dict[str, Any], *, report_mode: str) -> None:
         s["persisted_report"] = {
             "path": str(persisted_path.relative_to(ROOT)),
             "schema_version": s.get("schema_version"),
+            "plugin_version": s.get("plugin_version"),
             "generated_at": s.get("generated_at"),
             "generated_from_commit": s.get("generated_from_commit"),
             "target": s.get("target"),
@@ -564,6 +979,7 @@ def annotate_freshness(scorecard: dict[str, Any], *, report_mode: str) -> None:
         s["persisted_report"] = {
             "path": str(persisted_path.relative_to(ROOT)),
             "schema_version": persisted_scorecard.get("schema_version"),
+            "plugin_version": persisted_scorecard.get("plugin_version"),
             "generated_at": persisted_scorecard.get("generated_at"),
             "generated_from_commit": persisted_scorecard.get("generated_from_commit"),
             "target": persisted_scorecard.get("target"),
@@ -579,25 +995,42 @@ def main():
     parser.add_argument("--target", choices=["source", "all"], default="source",
                         help="Validation target scope. 'all' also validates package, active Codex cache, and active Claude Code install.")
     parser.add_argument("--write-report", action="store_true", help="Write dist/release-scorecard.json even with --check")
+    parser.add_argument("--no-gate-cache", action="store_true", help="Disable release gate cache reuse")
     args = parser.parse_args()
 
     report_mode = "write" if (args.write_report or not args.check) else "check"
+    use_gate_cache = not args.no_gate_cache
+    trust_gates = check_trust_gates(target=args.target, use_cache=use_gate_cache)
+    cognitive_gates = check_cognitive_gates(target=args.target, use_cache=use_gate_cache)
     scorecard = {
         "release_scorecard": {
-            "schema_version": 2,
+            "schema_version": 3,
             "generated_at": int(time.time()),
             "generated_from_commit": git_value(["rev-parse", "HEAD"]) or "unknown",
             "dirty_state": dirty_state(),
             "report_mode": report_mode,
             "plugin_version": plugin_version(),
             "target": args.target,
+            "gate_cache": {
+                "enabled": use_gate_cache,
+                "path": str(gate_cache_path()),
+                "source_hash": scorecard_source_hash(),
+                "artifact_hash": scorecard_artifact_hash(),
+            },
+            "gate_phases": [
+                {"phase": "preflight", "gates": ["generated_artifacts"]},
+                {"phase": "source", "gates": ["plugin_validation", "manifest_schema_claude", "manifest_schema_codex", "catalog_consistency", "routing_policy"]},
+                {"phase": "package_install", "gates": ["package_verify", "install_simulation"]},
+                {"phase": "cognitive", "gates": ["capability_graph", "pathfinder", "invocation_telemetry", "cognitive_integration", "route_replay"]},
+                {"phase": "artifact_panel", "gates": ["config_env_overrides", "artifact_enums", "dream_catalog", "panel_runs", "experience_quality_panel_smoke"]},
+            ],
             "manifest": check_manifests(),
             "discovery": check_discovery(),
             "routing": check_routing(),
             "safety": check_safety(),
             "docs": check_docs(),
-            "trust_gates": check_trust_gates(),
-            "cognitive_gates": check_cognitive_gates(),
+            "trust_gates": trust_gates,
+            "cognitive_gates": cognitive_gates,
             "runtime_targets": check_runtime_targets(args.target),
             "conclusion": None,
         }
@@ -621,6 +1054,9 @@ def main():
             blockers.append(f"{target_name} runtime target failed")
 
     s["target_decomposition"] = target_decomposition(s)
+    s["gate_results"] = gate_results_from(s)
+    s["adoption_status"] = adoption_status(s)
+    s["blocker_classes"] = blocker_class_summary(s)
 
     if blockers:
         s["conclusion"] = "blocked"
@@ -634,6 +1070,7 @@ def main():
     annotate_freshness(scorecard, report_mode=report_mode)
     if s["freshness"] != "current":
         s.setdefault("warnings", []).append(s["freshness"])
+    s["blocker_classes"] = blocker_class_summary(s)
 
     if args.json:
         print(json.dumps(scorecard, indent=2))
@@ -652,6 +1089,9 @@ def main():
         print(f"Trust gates:     {sum(1 for g in s['trust_gates'].values() if g['ok'])}/{len(s['trust_gates'])}")
         print(f"Cognitive gates: {sum(1 for g in s['cognitive_gates'].values() if g['ok'])}/{len(s['cognitive_gates'])}")
         print(f"Runtime targets: {sum(1 for g in s['runtime_targets'].values() if g.get('ok'))}/{len(s['runtime_targets'])}")
+        print(f"Adoption:        {s['adoption_status']['state']}")
+        if s.get("blocker_classes"):
+            print("Blocker classes: " + ", ".join(f"{k}={v}" for k, v in s["blocker_classes"].items()))
         for target_name, result in s["runtime_targets"].items():
             state = "ok" if result.get("ok") else "blocked"
             version = result.get("version", "unknown")

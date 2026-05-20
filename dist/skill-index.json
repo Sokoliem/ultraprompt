@@ -293,6 +293,7 @@
     "api-contract": "api-contract",
     "api-deprecation": "api-contract",
     "architecture-review": "architect",
+    "autopilot": "self-improve",
     "backlog-triage": "idea-triage",
     "claude-code-plugin-review": "plugin-review",
     "claude-md-optimize": "skill-author",
@@ -340,6 +341,7 @@
     "is-this-complete": "feature-completeness",
     "job-framing": "problem-framing",
     "keep-working": "goal",
+    "learning-autopilot": "self-improve",
     "llm-eval-design": "llm-eval-design",
     "llm-feature-prd": "prd-ai-feature",
     "log-redaction-pass": "data-flow-privacy-map",
@@ -382,6 +384,8 @@
     "routing-telemetry-review": "pathfinding-invocation-review",
     "screenshot-qa": "frontend-visual-qa",
     "security-audit": "security-audit",
+    "self-improve-run": "self-improve",
+    "self-improvement": "self-improve",
     "semantic-search-codebase": "repo-map",
     "settings-permissions-audit": "hooks-design",
     "ship-readiness": "release-readiness",
@@ -449,7 +453,7 @@
       "path": "commands/dream-review.md"
     },
     {
-      "description": "Run or inspect safe V8 dream jobs that compact sessions, reflect on repos, learn routes, inspect catalog health, and prune memory candidates.",
+      "description": "Run or inspect safe V8 dream jobs that compact sessions, reflect on repos, learn routes, inspect catalog health, prune memory candidates, and launch gated self-improvement.",
       "manual_only": false,
       "name": "dream",
       "path": "commands/dream.md"
@@ -557,6 +561,12 @@
       "path": "commands/route.md"
     },
     {
+      "description": "Run or inspect V8.5 evidence-backed self-improvement. Supports dry-run, canary, autopilot, list/latest, and rollback.",
+      "manual_only": false,
+      "name": "self-improve",
+      "path": "commands/self-improve.md"
+    },
+    {
       "description": "Cross-worktree dashboard. Shows every worktree's state in one screen with urgency triage.",
       "manual_only": false,
       "name": "status",
@@ -595,14 +605,14 @@
   ],
   "counts": {
     "agents": 31,
-    "commands": 31,
-    "skills": 54
+    "commands": 32,
+    "skills": 55
   },
-  "generated_at": "2026-05-12T15:08:44+00:00",
+  "generated_at": "2026-05-20T13:58:23+00:00",
   "plugin": {
-    "description": "Ultraprompt V8.2 cognitive control-plane plugin for Claude Code and Codex: 54 skills, 31 agents, 42 MCP tools, 31 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, experience-quality panels, invocation telemetry gates, goal contracts, live Mission Control dashboard, fingerprinted gap ledger, and dual-runtime install.",
+    "description": "Ultraprompt V8.6 cognitive control-plane plugin for Claude Code and Codex: 55 skills, 31 agents, 46 MCP tools, 32 commands, typed local memory, safe dream jobs, automated evidence-based self-improvement, workflow pathfinding, source-derived routing policy, Invocation Director trigger plans, route replay, live panel proof gates, invocation telemetry gates, reliability-classified release gates, artifact-first agent handoffs, live Mission Control dashboard, fingerprinted gap ledger, and dual-runtime install.",
     "name": "ultraprompt",
-    "version": "8.2.0"
+    "version": "8.6.0"
   },
   "skills": [
     {
@@ -4516,6 +4526,93 @@
         "xss"
       ],
       "when_to_use": "Use for security-focused review of auth flows, secret handling, injection surfaces, tenant isolation, dependency security, or sensitive data handling. Kept as a core skill (auto-discoverable) because security work is too important to hide behind a flag."
+    },
+    {
+      "aliases": [
+        "self-improvement",
+        "self-improve-run",
+        "autopilot",
+        "learning-autopilot"
+      ],
+      "artifact_type": "self_improvement_run",
+      "codex_command": "$ultraprompt:self-improve",
+      "command": "/ultraprompt:self-improve",
+      "confirmation": "required_for_repo_mutation",
+      "description": "When user says 'self improvement / run autopilot / improve the plugin from telemetry / apply learning automatically / rollback self improvement' - runs the V8.5 evidence-backed self-improvement autopilot. DEFAULT for direct requests to mine telemetry, generate repo patches, validate gates, apply safely, or roll back a previous self-improvement run.",
+      "editing": true,
+      "family": "cognitive-operations",
+      "manual_only": false,
+      "mode": "write_capable",
+      "name": "self-improve",
+      "output_contract": "Runtime note when slash command was attempted | Operation executed | Mode/scope/defaults used | Result status | Run id | Patch path | Rollback path | Gate summary | Learner eval verdict | Touched files | Post-apply monitor or next action",
+      "outputs": [
+        "Self-improvement operation result"
+      ],
+      "paired_panels": [],
+      "path": "skills/self-improve/SKILL.md",
+      "paths": "",
+      "preferred_panel": "",
+      "primary_agent": "",
+      "risk": "high",
+      "secondary_agents": [],
+      "tier": "core",
+      "tokens": [
+        "apply",
+        "asks",
+        "automatically",
+        "autopilot",
+        "back",
+        "backed",
+        "bridge",
+        "bundled",
+        "claude",
+        "cli",
+        "code",
+        "codex",
+        "command",
+        "default",
+        "direct",
+        "does",
+        "evidence",
+        "explicitly",
+        "gates",
+        "generate",
+        "improve",
+        "improvement",
+        "inspect",
+        "language",
+        "learning",
+        "markdown",
+        "mcp",
+        "mine",
+        "native",
+        "natural",
+        "not",
+        "parsing",
+        "patches",
+        "plugin",
+        "previous",
+        "repo",
+        "requests",
+        "roll",
+        "rollback",
+        "route",
+        "runs",
+        "safely",
+        "says",
+        "schedule",
+        "self",
+        "skill",
+        "slash",
+        "so",
+        "telemetry",
+        "tools",
+        "ultraprompt",
+        "user",
+        "v8",
+        "validate"
+      ],
+      "when_to_use": "Use when the user explicitly asks to run, inspect, schedule, or roll back Ultraprompt self-improvement. This is the Codex skill bridge for Claude Code `/ultraprompt:self-improve`; Codex native slash parsing does not route plugin command markdown, so use this skill, natural language, MCP tools, or the bundled CLI."
     },
     {
       "aliases": [

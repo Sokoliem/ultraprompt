@@ -3589,7 +3589,7 @@
       "Claiming Codex supports plugin slash commands when the slash parser rejected the command.",
       "Stopping at 'job is required' for a bare `run` instead of using the safe default `session-compaction`.",
       "Presenting dream reports or memory candidates as durable facts before review.",
-      "Mutating repository files from a dream job.",
+      "Mutating repository files from a dream job outside the gated self-improvement runner.",
       "Ignoring the concrete report path or failure payload from the runner."
     ],
     "workflow_steps": [
@@ -3600,7 +3600,7 @@
       "Return exact result fields: ok/error, job, report id, report path, candidate ids if present, and whether repo mutation occurred.",
       "If the user attempted `/ultraprompt:dream` in Codex, make the runtime boundary explicit: use `$ultraprompt:dream ...`, natural language, or the MCP dream tools in Codex; slash command markdown is for Claude Code."
     ],
-    "validation_strategy": "A successful run reports `ok: true` and either recent dream status, a report path under `~/.ultraprompt/dreams/reports`, recent report ids, or a clean catalog validation result. Bare `run` must resolve to `session-compaction`. Dream jobs must remain repo-read-only and write only dream reports, candidate memories, or learning candidates.",
+    "validation_strategy": "A successful run reports `ok: true` and either recent dream status, a report path under `~/.ultraprompt/dreams/reports`, recent report ids, a clean catalog validation result, or a self-improvement run id with patch and rollback manifests. Bare `run` must resolve to `session-compaction`. Dream jobs remain repo-read-only except `self-improvement-autopilot`, which defaults to canary mode and may mutate local repo files only when configured for autopilot through the gated self-improvement runner.",
     "output_contract": "Runtime note when slash command was attempted | Operation executed | Job/default used | Result status | Report path/id or recent reports | Candidate memory/learning ids if present | Repo mutation statement | Next review action if output created candidates",
     "subagent_delegation": "Do not dispatch by default. This is a narrow operations bridge; use dream-synthesizer only when the user asks to analyze multiple dream reports after they exist.",
     "primary_agent": "",
@@ -3622,6 +3622,70 @@
       "mode": "read_only",
       "risk": "low",
       "confirmation": "not_required_read_only",
+      "paired_panels": []
+    },
+    "paired_panels": []
+  },
+  {
+    "name": "self-improve",
+    "title": "Self Improve",
+    "tier": "core",
+    "description": "When user says 'self improvement / run autopilot / improve the plugin from telemetry / apply learning automatically / rollback self improvement' - runs the V8.5 evidence-backed self-improvement autopilot. DEFAULT for direct requests to mine telemetry, generate repo patches, validate gates, apply safely, or roll back a previous self-improvement run.",
+    "when_to_use": "Use when the user explicitly asks to run, inspect, schedule, or roll back Ultraprompt self-improvement. This is the Codex skill bridge for Claude Code `/ultraprompt:self-improve`; Codex native slash parsing does not route plugin command markdown, so use this skill, natural language, MCP tools, or the bundled CLI.",
+    "argument_hint": "[run|latest|list|rollback <run_id>] [--mode dry-run|canary|autopilot] [--scope all|routing|telemetry|dashboard|tests]",
+    "editing": true,
+    "aliases": [
+      "self-improvement",
+      "self-improve-run",
+      "autopilot",
+      "learning-autopilot"
+    ],
+    "family": "cognitive-operations",
+    "artifact_type": "self_improvement_run",
+    "distinctive_judgment": "Self-improvement is model-owned mutation with evidence gates, not a suggestion queue. Prefer dry-run for inspection, canary for scheduled or low-trust runs, and autopilot when the user explicitly wants gated local mutation. Never commit, push, install, or mutate remotes from this lane. Every applied change must have a run record, patch hash, gate matrix, learner eval, rollback manifest, and post-apply monitor status.",
+    "first_signals": [
+      "User asks to run self-improvement, autopilot, automated learning, or telemetry-backed patching.",
+      "User asks whether learning can apply itself without human approval.",
+      "User asks to list latest runs, inspect evidence, view rollback state, or revert a self-improvement run.",
+      "User asks to schedule self-improvement separately from dream reporting."
+    ],
+    "failure_modes": [
+      "Treating self-improvement as review-gated suggestions when the user asked for gated auto-apply.",
+      "Running full autopilot on a schedule before canary/dry-run evidence is healthy.",
+      "Applying changes without gate results, learner eval, patch hash, and rollback manifest.",
+      "Committing, pushing, installing, or mutating remote state from self-improvement.",
+      "Claiming a patch applied or rolled back without showing the run id and manifest path."
+    ],
+    "workflow_steps": [
+      "Parse `$ARGUMENTS` into run, latest, list, or rollback. Default bare run to `--mode dry-run --scope routing`.",
+      "Prefer MCP tools: `self_improve_run`, `self_improve_runs`, and `self_improve_rollback`. Use `python3 scripts/self-improve.py` from the plugin root if MCP tools are unavailable.",
+      "For scheduled work, prefer `dry-run` or `canary` unless the user explicitly requests `autopilot` and accepts local repo mutation.",
+      "For rollback, require the run id and call `self_improve_rollback` or `python3 scripts/self-improve.py rollback <run_id>`.",
+      "Return exact result fields: ok/error, run id, mode, scope, status, patch path, rollback path, gate status, learner eval verdict, touched files, and next monitor command.",
+      "If the user attempted `/ultraprompt:self-improve` in Codex, make the runtime boundary explicit: use `$ultraprompt:self-improve ...`, natural language, or the MCP self-improve tools in Codex; slash command markdown is for Claude Code."
+    ],
+    "validation_strategy": "A successful run returns `ok: true`, a `self_improvement_run.v1` record, patch and rollback artifact paths, and either dry-run evidence, canary gate results, applied gate results, or rolled-back status. Autopilot success requires gate results with `ok: true`; failed gates must leave source restored and status `needs_evidence`.",
+    "output_contract": "Runtime note when slash command was attempted | Operation executed | Mode/scope/defaults used | Result status | Run id | Patch path | Rollback path | Gate summary | Learner eval verdict | Touched files | Post-apply monitor or next action",
+    "subagent_delegation": "Do not dispatch by default. This is a control-plane operation; use specialist review only after a run exists and the user asks to audit its evidence or patch.",
+    "primary_agent": "",
+    "secondary_agents": [],
+    "preferred_panel": "",
+    "outputs": [
+      "Self-improvement operation result"
+    ],
+    "mode": "write_capable",
+    "risk": "high",
+    "confirmation": "required_for_repo_mutation",
+    "cognitive": {
+      "primary_agent": "",
+      "secondary_agents": [],
+      "preferred_panel": "",
+      "outputs": [
+        "Self-improvement operation result"
+      ],
+      "mode": "write_capable",
+      "risk": "high",
+      "confirmation": "required_for_repo_mutation",
       "paired_panels": []
     },
     "paired_panels": []

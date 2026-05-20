@@ -1,0 +1,32 @@
+{
+  "schema": "routing_decision.v1",
+  "trace_id": "path_fixture_routing_decision",
+  "intent": "deep visual QA and design-system review for a high-stakes frontend release",
+  "runtime": "codex",
+  "top_skill": "frontend-visual-qa",
+  "confidence": 0.97,
+  "decision_type": "panel",
+  "execution_mode": "panel",
+  "dispatches": [
+    {
+      "agent": "design-critic",
+      "subagent_type": "ultraprompt:design-critic",
+      "focus": "visual-qa",
+      "phase": "analysis"
+    }
+  ],
+  "panel": "experience-quality-panel",
+  "risk": {
+    "mode": "write_capable",
+    "risk": "medium",
+    "mutation_intent": false,
+    "confirmation_required": false
+  },
+  "confirmation_required": false,
+  "reason": "Panel route selected because the request is high-stakes frontend quality work.",
+  "telemetry_policy": {
+    "producer": "pathfinder",
+    "telemetry_source": "runtime",
+    "required": true
+  }
+}

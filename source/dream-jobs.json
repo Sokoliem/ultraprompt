@@ -45,6 +45,16 @@
       "budget": {"seconds": 30, "max_memories": 1000},
       "permissions": {"repo_read_only": true, "writes": ["dream_reports", "learning_candidates"]},
       "approval_required": true
+    },
+    {
+      "name": "self-improvement-autopilot",
+      "cadence": "daily",
+      "default_mode": "canary",
+      "inputs": ["invocation_telemetry", "release_scorecard", "route_replay", "learning_history"],
+      "outputs": ["dream_report", "self_improvement_run", "learning_candidate"],
+      "budget": {"seconds": 300, "max_events": 2000},
+      "permissions": {"repo_read_only": false, "repo_mutation": "gated_self_improve_runner", "writes": ["dream_reports", "self_improvement_runs", "learning_candidates", "rollback_manifests"]},
+      "approval_required": false
     }
   ]
 }

@@ -35,20 +35,20 @@
   "counts": {
     "agent_specs": 31,
     "agents": 31,
-    "artifact_schemas": 24,
-    "commands": 31,
-    "mcp_tools": 42,
+    "artifact_schemas": 31,
+    "commands": 32,
+    "mcp_tools": 46,
     "output_styles": 2,
     "panels": 13,
     "registered_hooks": 9,
-    "skill_specs": 54,
-    "skills": 54
+    "skill_specs": 55,
+    "skills": 55
   },
   "families": {
     "ai-safety-evals": 2,
     "architecture-contracts": 4,
     "code-quality": 5,
-    "cognitive-operations": 3,
+    "cognitive-operations": 4,
     "documentation-maintenance": 2,
     "experience-quality": 5,
     "infrastructure-data": 2,
@@ -63,7 +63,7 @@
     "supply-chain": 2,
     "test-quality": 2
   },
-  "plugin_version": "8.2.0",
+  "plugin_version": "8.6.0",
   "schema_version": 1,
   "skills": [
     "review",
@@ -115,15 +115,16 @@
     "mvp-scope",
     "problem-framing",
     "dream",
+    "self-improve",
     "design-review",
     "frontend-visual-qa",
     "design-system-review",
     "pathfinding-invocation-review",
     "goal"
   ],
-  "source_hash": "960a1b678f7bfa94f0f1db7214724cc69135827495a358d57fcb4fd9a33c4afe",
+  "source_hash": "6ea7741f24f9d27f95fa353e51f442fde3bfcfced32fd4db9b4cf329358a3310",
   "tiers": {
-    "core": 33,
+    "core": 34,
     "ecosystem": 5,
     "specialist": 16
   }

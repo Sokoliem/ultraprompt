@@ -1,0 +1,64 @@
+{
+  "schema": "routing_envelope.v1",
+  "trace_id": "path_fixture_routing_envelope",
+  "intent_excerpt": "deep visual QA and design-system review for a high-stakes frontend release",
+  "selected_skill": "frontend-visual-qa",
+  "confidence": 0.97,
+  "confidence_gap": 0.42,
+  "ambiguity": "clear",
+  "execution_mode": "panel",
+  "dispatches": [
+    {
+      "agent": "design-critic",
+      "subagent_type": "ultraprompt:design-critic",
+      "focus": "visual-qa",
+      "phase": "analysis"
+    }
+  ],
+  "panel_candidates": [
+    {
+      "panel": "experience-quality-panel",
+      "score": 43.0,
+      "linked_to_skill": true,
+      "preferred_for_skill": true,
+      "selected": true,
+      "selection_signals": {
+        "budget": "standard",
+        "explicit_panel_language": false,
+        "high_stakes_scope": true,
+        "low_confidence_gap": false
+      }
+    }
+  ],
+  "selected_panel": "experience-quality-panel",
+  "risk": {
+    "mode": "write_capable",
+    "risk": "medium",
+    "mutation_intent": false,
+    "confirmation_required": false
+  },
+  "confirmation": {
+    "required": true,
+    "policy": "required_for_repo_mutation"
+  },
+  "expected_artifact": "visual_qa_report",
+  "validation_hint": "Run pathfinder/router/release gates after applying routing changes.",
+  "alternatives": [
+    {
+      "skill": "design-review",
+      "confidence": "high",
+      "reason_lost": "lower route score after policy and memory context"
+    }
+  ],
+  "reasons_not_selected": [
+    {
+      "skill": "design-review",
+      "reason": "lower route score after policy and memory context"
+    }
+  ],
+  "telemetry_policy": {
+    "producer": "pathfinder",
+    "telemetry_source": "runtime",
+    "required": true
+  }
+}

@@ -27,7 +27,7 @@ Dream is an operations bridge, not a planning or writing lane. It should run or 
 - Claiming Codex supports plugin slash commands when the slash parser rejected the command.
 - Stopping at 'job is required' for a bare `run` instead of using the safe default `session-compaction`.
 - Presenting dream reports or memory candidates as durable facts before review.
-- Mutating repository files from a dream job.
+- Mutating repository files from a dream job outside the gated self-improvement runner.
 - Ignoring the concrete report path or failure payload from the runner.
 
 ## Workflow
@@ -41,7 +41,7 @@ Dream is an operations bridge, not a planning or writing lane. It should run or 
 
 ## Validation
 
-A successful run reports `ok: true` and either recent dream status, a report path under `~/.ultraprompt/dreams/reports`, recent report ids, or a clean catalog validation result. Bare `run` must resolve to `session-compaction`. Dream jobs must remain repo-read-only and write only dream reports, candidate memories, or learning candidates.
+A successful run reports `ok: true` and either recent dream status, a report path under `~/.ultraprompt/dreams/reports`, recent report ids, a clean catalog validation result, or a self-improvement run id with patch and rollback manifests. Bare `run` must resolve to `session-compaction`. Dream jobs remain repo-read-only except `self-improvement-autopilot`, which defaults to canary mode and may mutate local repo files only when configured for autopilot through the gated self-improvement runner.
 
 ## Output contract
 

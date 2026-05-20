@@ -7,7 +7,7 @@ Three modes:
 - --overlap-budget: catalog overlap budget from tests/routing/overlap-budget.yaml
 
 Targets:
-- positive: >=90% top-1, 100% top-3
+- positive: >=95% top-1, 100% top-3
 - adversarial: 100% reject
 - overlap: no two skills tied above the overlap threshold on the same intent
 """
@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from ultraprompt_index import build_index, find_plugin_root
+from ultraprompt_index import build_index, find_plugin_root, route_intent
 
 
 def load_yaml_cases(path: Path) -> list[dict]:
@@ -259,9 +259,8 @@ def score(intent: str, skill: dict) -> float:
 
 
 def rank(intent: str, skills: list[dict]) -> list[tuple[str, float]]:
-    scored = [(s["name"], score(intent, s)) for s in skills]
-    scored.sort(key=lambda x: -x[1])
-    return scored
+    routes = route_intent({"skills": skills}, intent, limit=max(5, len(skills)))
+    return [(str(route.get("skill")), float(route.get("score") or 0.0)) for route in routes]
 
 
 def run_positive(skills: list[dict], cases_path: Path) -> int:
@@ -289,7 +288,7 @@ def run_positive(skills: list[dict], cases_path: Path) -> int:
     rate1 = top1 / total
     rate3 = top3 / total
     print(f"Router bench (positive): {total} cases")
-    print(f"- top-1: {top1}/{total} ({rate1:.1%}; target >=90%)")
+    print(f"- top-1: {top1}/{total} ({rate1:.1%}; target >=95%)")
     print(f"- top-3: {top3}/{total} ({rate3:.1%}; target 100%)")
     if top1_only_misses:
         print("Top-1 misses (recoverable in top-3):")
@@ -299,7 +298,7 @@ def run_positive(skills: list[dict], cases_path: Path) -> int:
         print("Top-3 misses:")
         for intent, expected, got in misses[:20]:
             print(f"  T3 MISS  '{intent[:60]}' expected={expected} got={got}")
-    if rate1 < 0.90 or rate3 < 1.0:
+    if rate1 < 0.95 or rate3 < 1.0:
         return 1
     return 0
 
@@ -318,8 +317,9 @@ def run_adversarial(skills: list[dict], cases_path: Path) -> int:
         top_name = ranked[0][0] if ranked else ""
         top_score = ranked[0][1] if ranked else 0.0
         total += 1
-        # Adversarial pass: top skill is not the forbidden one OR top score is below confidence threshold
-        if top_name != forbidden or top_score < 0.7:
+        # Adversarial pass: top skill is not the forbidden one OR production
+        # router confidence is below the medium threshold.
+        if top_name != forbidden or top_score < 12:
             rejected += 1
         else:
             failures.append((intent, top_name))

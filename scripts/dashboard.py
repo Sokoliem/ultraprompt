@@ -749,13 +749,19 @@ def run_json_script(script_name: str, args: list[str] | None = None, timeout: in
         return {"ok": False, "error": str(exc)}
 
 
+async def run_json_script_async(script_name: str, args: list[str] | None = None, timeout: int = 30) -> dict:
+    return await asyncio.to_thread(run_json_script, script_name, args, timeout)
+
+
 async def handle_cognitive_health(request):
-    graph = run_json_script("build-capability-graph.py", ["--json"], timeout=45)
-    memory = run_json_script("memory-store.py", ["stats"])
-    dreams = run_json_script("dream-runner.py", ["status"])
-    learning = run_json_script("learning-queue.py", ["stats"])
-    events = run_json_script("cognitive-event-log.py", ["stats"])
-    pathfinder = run_json_script("run-pathfinder-tests.py", ["--json", "--no-telemetry"], timeout=90)
+    graph, memory, dreams, learning, events, pathfinder = await asyncio.gather(
+        run_json_script_async("build-capability-graph.py", ["--json"], timeout=45),
+        run_json_script_async("memory-store.py", ["stats"]),
+        run_json_script_async("dream-runner.py", ["status"]),
+        run_json_script_async("learning-queue.py", ["stats"]),
+        run_json_script_async("cognitive-event-log.py", ["stats"]),
+        run_json_script_async("run-pathfinder-tests.py", ["--json", "--no-telemetry"], timeout=90),
+    )
     return web.json_response({
         "ok": all(item.get("ok", False) for item in [graph, memory, dreams, learning, events, pathfinder]),
         "graph": {
@@ -783,11 +789,11 @@ async def handle_memory_query(request):
             args.extend([f"--{key.replace('_', '-')}", value])
     if request.query.get("include_inactive") == "1":
         args.append("--include-inactive")
-    return web.json_response(run_json_script("memory-store.py", args))
+    return web.json_response(await run_json_script_async("memory-store.py", args))
 
 
 async def handle_dreams_status(request):
-    return web.json_response(run_json_script("dream-runner.py", ["status"]))
+    return web.json_response(await run_json_script_async("dream-runner.py", ["status"]))
 
 
 async def handle_learning_candidates(request):
@@ -796,7 +802,9 @@ async def handle_learning_candidates(request):
         args.extend(["--status", request.query["status"]])
     if request.query.get("kind"):
         args.extend(["--kind", request.query["kind"]])
-    return web.json_response(run_json_script("learning-queue.py", args))
+    if request.query.get("grouped") == "1":
+        args.append("--grouped")
+    return web.json_response(await run_json_script_async("learning-queue.py", args))
 
 
 async def handle_pathfind_api(request):
@@ -808,11 +816,11 @@ async def handle_pathfind_api(request):
         args.extend(["--repo", request.query["repo"]])
     if request.query.get("telemetry") != "1":
         args.append("--no-telemetry")
-    return web.json_response(run_json_script("pathfinder.py", args, timeout=60))
+    return web.json_response(await run_json_script_async("pathfinder.py", args, timeout=60))
 
 
 async def handle_graph_api(request):
-    return web.json_response(run_json_script("build-capability-graph.py", ["--json"], timeout=45))
+    return web.json_response(await run_json_script_async("build-capability-graph.py", ["--json"], timeout=45))
 
 
 async def handle_mission_state(request):
@@ -846,7 +854,7 @@ async def handle_gaps_api(request):
             args.extend([f"--{key}", value])
     if request.query.get("history") == "1":
         args.append("--history")
-    return web.json_response(run_json_script("gap-ledger.py", args, timeout=30))
+    return web.json_response(await run_json_script_async("gap-ledger.py", args, timeout=30))
 
 
 async def handle_panel_runs_api(request):
@@ -857,12 +865,80 @@ async def handle_panel_runs_api(request):
             args.extend([f"--{key}", value])
     if request.query.get("history") == "1":
         args.append("--history")
-    return web.json_response(run_json_script("panel-runs.py", args, timeout=30))
+    return web.json_response(await run_json_script_async("panel-runs.py", args, timeout=30))
+
+
+async def handle_self_improvement_runs_api(request):
+    return web.json_response(await run_json_script_async("self-improve.py", ["list", "--limit", request.query.get("limit", "20")], timeout=30))
+
+
+async def handle_self_improvement_latest_api(request):
+    return web.json_response(await run_json_script_async("self-improve.py", ["latest"], timeout=30))
+
+
+async def handle_self_improvement_rollback_api(request):
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    run_id = str(payload.get("run_id") or request.query.get("run_id") or "").strip()
+    if not run_id:
+        return web.json_response({"ok": False, "error": "run_id required"}, status=400)
+    return web.json_response(await run_json_script_async("self-improve.py", ["rollback", run_id], timeout=60))
 
 
 async def handle_release_scorecard_api(request):
     target = request.query.get("target", "source")
-    return web.json_response(run_json_script("release-scorecard.py", ["--check", "--json", "--target", target], timeout=120))
+    if target == "all" and request.query.get("refresh") not in {"1", "true", "yes"}:
+        persisted = ROOT / "dist" / "release-scorecard.json"
+        if persisted.exists():
+            try:
+                data = json.loads(persisted.read_text(encoding="utf-8"))
+                scorecard = data.get("release_scorecard", data)
+                if scorecard.get("schema_version") == 3 and scorecard.get("target") == "all":
+                    data.setdefault("release_scorecard", scorecard)
+                    data["served_from"] = "persisted_report"
+                    data["refresh_hint"] = "/api/release-scorecard?target=all&refresh=1"
+                    return web.json_response(data)
+            except Exception:
+                pass
+    timeout = 420 if target == "all" else 180
+    return web.json_response(await run_json_script_async("release-scorecard.py", ["--check", "--json", "--target", target], timeout=timeout))
+
+
+async def handle_routing_effectiveness_api(request):
+    policy_path = ROOT / "dist" / "routing-policy.json"
+    policy = {}
+    if policy_path.exists():
+        try:
+            policy = json.loads(policy_path.read_text(encoding="utf-8"))
+        except Exception:
+            policy = {}
+    telemetry, replay, panel_smoke = await asyncio.gather(
+        run_json_script_async("audit-invocation-telemetry.py", ["--json"], timeout=60),
+        run_json_script_async("replay-routing-events.py", ["--json", "--days", "7", "--limit", "50"], timeout=90),
+        run_json_script_async("panel-runs.py", ["smoke", "--panel", "experience-quality-panel"], timeout=30),
+    )
+    return web.json_response({
+        "ok": bool(policy) and telemetry.get("ok", False) and replay.get("ok", False) and panel_smoke.get("ok", False),
+        "routing_policy": {
+            "present": bool(policy),
+            "source_hash": policy.get("source_hash"),
+            "summary": policy.get("summary", {}),
+            "dispatch_coverage": policy.get("dispatch_coverage", {}),
+        },
+        "telemetry": telemetry,
+        "handoff_reliability": telemetry.get("handoff_contract", {}),
+        "candidate_groups": telemetry.get("candidate_groups", {}),
+        "replay": {
+            "ok": replay.get("ok", False),
+            "replayed": replay.get("replayed", 0),
+            "stable": replay.get("stable", 0),
+            "drifted": replay.get("drifted", 0),
+            "skipped": replay.get("skipped", 0),
+        },
+        "panel_smoke": panel_smoke,
+    })
 
 
 async def handle_validate(request):
@@ -898,10 +974,20 @@ async def handle_stream(request):
         },
     )
     await response.prepare(request)
+    async def write_stream(chunk: bytes) -> bool:
+        try:
+            await response.write(chunk)
+            return True
+        except (asyncio.CancelledError, ConnectionResetError, BrokenPipeError, OSError):
+            return False
+
+    if not await write_stream(b": ready\n\n"):
+        return response
 
     # Replay recent events
     for ev in telemetry.recent(50):
-        await response.write(f"event: invocation\ndata: {json.dumps(ev)}\n\n".encode())
+        if not await write_stream(f"event: invocation\ndata: {json.dumps(ev)}\n\n".encode()):
+            return response
 
     q = telemetry.subscribe()
     try:
@@ -909,12 +995,14 @@ async def handle_stream(request):
         while True:
             try:
                 event = await asyncio.wait_for(q.get(), timeout=10)
-                await response.write(f"event: invocation\ndata: {json.dumps(event)}\n\n".encode())
+                if not await write_stream(f"event: invocation\ndata: {json.dumps(event)}\n\n".encode()):
+                    break
             except asyncio.TimeoutError:
                 pass
             # 15s heartbeat
             if time.time() - last_ping > 15:
-                await response.write(b": ping\n\n")
+                if not await write_stream(b": ping\n\n"):
+                    break
                 last_ping = time.time()
     except (asyncio.CancelledError, ConnectionResetError):
         pass
@@ -1017,7 +1105,11 @@ def make_app() -> "web.Application":
     app.router.add_get("/api/mission-state", handle_mission_state)
     app.router.add_get("/api/gaps", handle_gaps_api)
     app.router.add_get("/api/panel-runs", handle_panel_runs_api)
+    app.router.add_get("/api/self-improvement/runs", handle_self_improvement_runs_api)
+    app.router.add_get("/api/self-improvement/latest", handle_self_improvement_latest_api)
+    app.router.add_post("/api/self-improvement/rollback", handle_self_improvement_rollback_api)
     app.router.add_get("/api/release-scorecard", handle_release_scorecard_api)
+    app.router.add_get("/api/routing-effectiveness", handle_routing_effectiveness_api)
     app.router.add_get("/api/stream", handle_stream)
     app.router.add_post("/api/validate", handle_validate)
     return app

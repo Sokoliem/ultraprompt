@@ -48,6 +48,17 @@ VALIDATION_COMMAND_PATTERNS = [
     r"\bbazel\s+test\b",
 ]
 
+DOMAIN_TOKENS = {
+    "agent", "agents", "api", "artifact", "auth", "branch", "bug", "cache",
+    "ci", "cli", "code", "codebase", "codex", "component", "config", "contract",
+    "database", "db", "dependency", "deploy", "diff", "docs",
+    "eval", "feature", "frontend", "git", "github", "hook", "install", "lint",
+    "llm", "manifest", "mcp", "memory", "migration", "module", "package",
+    "panel", "plugin", "pr", "prd", "privacy", "production", "repo", "routing",
+    "schema", "security", "skill", "subagent", "telemetry", "test", "tests",
+    "threshold", "thresholds", "tui", "typecheck", "ui", "validation", "version", "workflow",
+}
+
 SOURCE_SKILL_METADATA_FIELDS = {
     "editing",
     "mode",
@@ -73,14 +84,24 @@ BOOST_RULES: list[tuple[re.Pattern[str], dict[str, float]]] = [
      {"review": 12, "panel-run": 25}),
     (re.compile(r"\b(repo map|repository map|codebase map|package map|onboarding|where.*start|understand.*repo)\b", re.I),
      {"repo-map": 30}),
+    (re.compile(r"\b(find code|where .*handles?|code that handles|signature verification)\b", re.I),
+     {"repo-map": 30, "dead-code-drift": -8}),
     (re.compile(r"\b(debug|bug|exception|traceback|stack trace|regression|failing test|crash|broken|flaky|flake|intermittent|non[- ]deterministic|random failure)\b", re.I),
      {"debug": 30, "ci-repair": 6}),
     (re.compile(r"\b(ci|github actions?|workflow|pipeline|build failure|lint failure|typecheck failure|matrix|cache miss)\b", re.I),
      {"ci-repair": 30, "debug": 4}),
+    (re.compile(r"\b(build is broken|the build is broken|build failure|fix .*build)\b", re.I),
+     {"ci-repair": 34, "build": -8}),
     (re.compile(r"\b(find test gaps?|missing coverage|untested paths?|risk[- ]weighted test plan|what should we test|where'?s the missing coverage|regression coverage review)\b", re.I),
      {"test-gap-analysis": 34, "test-harden": 8}),
+    (re.compile(r"(?=.*\b(telemetry|handoffs?|truncat(?:ed|ion)?|cut off|auto[- ]?fir(?:e|ing)|dispatch|pathfinder|routing|explore fallback|live adoption)\b)(?=.*\b(ultraprompt|agents?|skills?|panels?|invocation|routing|pathfinder|plugin)\b)", re.I),
+     {"pathfinding-invocation-review": 92, "plugin-review": 8, "observability-pass": -8, "release": -18, "release-readiness": -14}),
+    (re.compile(r"\b(design .*validation plan|validation plan .*thresholds?|routing thresholds?|release gates?)\b", re.I),
+     {"pathfinding-invocation-review": 30, "test-gap-analysis": 14, "release-readiness": 4}),
     (re.compile(r"\b(release readiness|launch readiness|ship/no-ship|go/no-go|ready to ship|ready to deploy|production-ready|pre[- ]release audit|blocking release|can we deploy)\b", re.I),
      {"release-readiness": 34, "release": 6}),
+    (re.compile(r"\b(version ready to release|ready to release|is this version ready)\b", re.I),
+     {"release-readiness": 34, "release": -8}),
     (re.compile(r"\b(gap analysis|what'?s missing|incomplete|wiring gaps?|half-built|missing pieces|is feature .* complete|workflow actually work|wired to the backend|persist correctly)\b", re.I),
      {"gap-analysis": 30, "feature-completeness": 18, "repo-review": 6}),
     (re.compile(r"\b(prd for an ai|ai feature prd|llm[- ]based feature spec|agent feature prd|rag feature spec)\b", re.I),
@@ -107,6 +128,8 @@ BOOST_RULES: list[tuple[re.Pattern[str], dict[str, float]]] = [
      {"performance-pass": 30}),
     (re.compile(r"\b(changelog|release notes|release announcement|document this release|what changed in version|publish notes)\b", re.I),
      {"release": 28}),
+    (re.compile(r"\b(summarize this pr|pr .*changelog|changelog .*pr)\b", re.I),
+     {"review": 34, "release": -10}),
     (re.compile(r"\b(docs?|readme|examples?|comments?|documentation drift|stale)\b", re.I),
      {"docs-sync": 26, "document": 4}),
     (re.compile(r"\b(architecture|boundary|coupling|dependency direction|module design|abstraction|monorepo|workspace)\b", re.I),
@@ -121,6 +144,8 @@ BOOST_RULES: list[tuple[re.Pattern[str], dict[str, float]]] = [
      {"supply-chain-hardening": 30}),
     (re.compile(r"\b(upgrade|bump|update dependency|dependency update|migration|migrate|rollout|rollback|backfill|postgres \d+\s+to\s+postgres \d+)\b", re.I),
      {"migrate": 26}),
+    (re.compile(r"\b(upgrade dependencies|update dependencies|dependency upgrade)\b", re.I),
+     {"migrate": 34, "dependency-audit": -8}),
     (re.compile(r"\b(database|sql|query|index|transaction|schema change|backfill data)\b", re.I),
      {"database-review": 30}),
     (re.compile(r"\b(accessibility|a11y|screen reader|keyboard nav|aria|contrast|wcag)\b", re.I),
@@ -145,8 +170,14 @@ BOOST_RULES: list[tuple[re.Pattern[str], dict[str, float]]] = [
      {"ai-agent-safety-review": 30}),
     (re.compile(r"\b(claude code plugin|skill author|subagent|agent author|hook|mcp server|claude\.md|slash command)\b", re.I),
      {"plugin-review": 18, "skill-author": 10, "agent-author": 10, "hooks-design": 8, "mcp-design": 8}),
+    (re.compile(r"\b(new subagent|design .*subagent|agent author)\b", re.I),
+     {"agent-author": 34, "review": -8}),
+    (re.compile(r"\b(new mcp server|build .*mcp server|mcp integration)\b", re.I),
+     {"mcp-design": 70, "build": -20}),
     (re.compile(r"\b(pathfinding|pathfinder|invocation behavior|skill auto[- ]fire|agent dispatch|routing telemetry|explore fallback|automated invocation|dispatch share)\b", re.I),
      {"pathfinding-invocation-review": 38, "plugin-review": 6}),
+    (re.compile(r"\b(automated routing|trigger metrics|skill activation|routing effectiveness|route trigger)\b", re.I),
+     {"pathfinding-invocation-review": 38, "observability-pass": -8}),
     (re.compile(r"\b(/goal|set a goal|completion condition|keep working until|do not stop until|work until .* pass|goal mode|codex goal)\b", re.I),
      {"goal": 38}),
     (re.compile(r"\b(technical debt|tech debt|modernization|debt inventory|backlog|onboarding friction|dx|developer experience)\b", re.I),
@@ -432,6 +463,8 @@ def score_skill(skill: dict[str, Any], intent: str) -> float:
         score -= 0.5
     if len(skill_tokens) > 45:
         score -= math.log(len(skill_tokens) - 44)
+    if not explicit_command and not (set(intent_tokens) & DOMAIN_TOKENS):
+        score *= 0.05
     return round(score, 3)
 
 

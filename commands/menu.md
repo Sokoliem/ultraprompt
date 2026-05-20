@@ -4,9 +4,9 @@ disable-model-invocation: true
 argument-hint: [optional: current task or goal]
 ---
 
-# Ultraprompt V8.2 Menu
+# Ultraprompt V8.5 Menu
 
-Catalog: 54 skills, 31 agents, 42 MCP tools, 31 commands, 13 panels, 18 artifact schemas.
+Catalog: 55 skills, 31 agents, 46 MCP tools, 32 commands, 13 panels, 31 artifact schemas.
 
 If `$ARGUMENTS` is present, recommend the top 3 most relevant routes first. If the task is ambiguous, recommend `/ultraprompt:route $ARGUMENTS` instead of guessing.
 
@@ -73,6 +73,7 @@ If `$ARGUMENTS` is present, recommend the top 3 most relevant routes first. If t
 - `/ultraprompt:repo-capsule [path]` - read-only repo contract
 - `/ultraprompt:evidence-report` - validation, edits, blocks, and dispatch history
 - `/ultraprompt:dashboard` - localhost catalog, health, and live activity
+- `/ultraprompt:self-improve` - evidence-backed dry-run, canary, autopilot, and rollback
 - `/ultraprompt:doctor` - full plugin health
 - `/ultraprompt:usage [--days N]` - local-only telemetry
 

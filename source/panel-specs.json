@@ -111,7 +111,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -228,7 +228,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -345,7 +345,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -464,7 +464,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -1097,7 +1097,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "Audits and queues learning candidates; application is explicitly review-gated."
+      "notes": "Audits and queues learning candidates; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -1229,7 +1229,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -1361,7 +1361,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -1495,7 +1495,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue learning candidates for routing or workflow lessons; application remains review-gated."
+      "notes": "May queue learning candidates for routing or workflow lessons; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,
@@ -1631,7 +1631,7 @@
     "learning_policy": {
       "create_candidates": true,
       "apply": false,
-      "notes": "May queue route-learning candidates for visual QA/design phrasing; application remains review-gated."
+      "notes": "May queue route-learning candidates for visual QA/design phrasing; gated self-improvement may auto-apply when evidence and validation pass."
     },
     "dream_policy": {
       "consume_reports": true,

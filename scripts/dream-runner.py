@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -157,12 +158,39 @@ def job_memory_prune(repo: str, report_id: str) -> dict[str, Any]:
     return {"summary": f"Memory prune inspected candidate memories; {len(stale_candidates)} need review.", "stats": stats, "learning_candidate": learning}
 
 
+def job_self_improvement_autopilot(repo: str, report_id: str) -> dict[str, Any]:
+    mode = os.environ.get("ULTRAPROMPT_SELF_IMPROVE_DREAM_MODE", "canary")
+    result = run_script([
+        "self-improve.py",
+        "run",
+        "--mode",
+        mode,
+        "--scope",
+        "all",
+        "--repo",
+        repo or str(ROOT),
+    ], timeout=360)
+    try:
+        data = json.loads(result["stdout"])
+    except Exception:
+        data = result
+    run = (data.get("run") or {}) if isinstance(data, dict) else {}
+    return {
+        "summary": f"Self-improvement {mode} run completed with status {run.get('status', 'unknown')}.",
+        "self_improvement": data,
+        "self_improvement_mode": mode,
+        "self_improvement_run_id": run.get("id"),
+        "report_id": report_id,
+    }
+
+
 JOBS = {
     "session-compaction": job_session_compaction,
     "repo-reflection": job_repo_reflection,
     "route-learning": job_route_learning,
     "ecosystem-reflection": job_ecosystem_reflection,
     "memory-prune": job_memory_prune,
+    "self-improvement-autopilot": job_self_improvement_autopilot,
 }
 
 DEFAULT_JOB = "session-compaction"
@@ -194,7 +222,7 @@ def run_job(args: argparse.Namespace) -> dict[str, Any]:
             "repo": args.repo,
             "created_at": utc_now(),
             "spec": spec,
-            "repo_mutation": "forbidden",
+            "repo_mutation": "gated_self_improve_runner" if args.job == "self-improvement-autopilot" else "forbidden",
             "writes": ["dream_report", "memory_candidate_or_learning_candidate"],
             **body,
         }

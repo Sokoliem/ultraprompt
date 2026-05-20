@@ -1,8 +1,8 @@
 # Ultraprompt
 
-Ultraprompt is a local-first Claude Code and Codex plugin for senior engineering workflows. V8.2 adds experience-quality skills and panels, goal contracts, invocation telemetry gates, typed memory, safe dream jobs, governed learning, workflow pathfinding, capability graph health, and a Mission Control dashboard.
+Ultraprompt is a local-first Claude Code and Codex plugin for senior engineering workflows. V8.6 hardens invocation reliability on top of V8.5 self-improvement: routing telemetry now steers cut-off handoff and auto-fire failures to the invocation review lane, strict release gates require live panel proof, route replay cannot pass on empty evidence, MCP scorecards report timeout state without stale fallbacks, and artifact-first agent handoff auditing checks persisted paths.
 
-**Version 8.2.0** | **54 skills** | **31 agents** | **42 MCP tools** | **31 commands** | **9 registered hooks** | **18 artifact schemas** | **13 panels** | **2 output styles**
+**Version 8.6.0** | **55 skills** | **31 agents** | **46 MCP tools** | **32 commands** | **9 registered hooks** | **31 artifact schemas** | **13 panels** | **2 output styles**
 
 ## What It Does
 
@@ -10,8 +10,8 @@ Ultraprompt is a local-first Claude Code and Codex plugin for senior engineering
 - Runs V8 panels with explicit mode, risk, confirmation, input, success, handoff, phase-contract, and cognitive-policy metadata.
 - Records evidence-led local telemetry for validation claims, routing outcomes, dashboard activity, and cognitive events.
 - Stores typed long-term memory with scope, evidence, privacy class, lifecycle state, export, forget, and redaction controls.
-- Runs safe dream jobs that summarize sessions, reflect on repos, learn from routing outcomes, inspect catalog health, and propose memory pruning.
-- Queues learning candidates behind approval, validation, and reversible apply instead of silently mutating prompts or user repositories.
+- Runs safe dream jobs that summarize sessions, reflect on repos, learn from routing outcomes, inspect catalog health, prune memory candidates, and invoke the gated self-improvement autopilot.
+- Turns telemetry into auto-apply learning candidates and reversible local patches when evidence, eval, replay, and validation gates pass.
 - Generates a capability graph over skills, agents, panels, commands, MCP tools, artifacts, validators, hooks, ledgers, and dream jobs.
 - Ships a localhost dashboard for catalog health, live activity, cognitive health, memory, dreams, pathfinding, learning, gap lifecycle, panel runs, runtime readiness, and governance.
 
@@ -34,6 +34,7 @@ After install, restart Claude Code and Codex. Claude Code exposes plugin slash c
 ```text
 /ultraprompt:doctor
 /ultraprompt:dashboard
+/ultraprompt:self-improve run --mode dry-run --scope routing
 ```
 
 Codex keeps `/` for native commands. Use `$ultraprompt:<skill>` for plugin skills and natural language or MCP tool names for command-backed operations. For example:
@@ -41,6 +42,7 @@ Codex keeps `/` for native commands. Use `$ultraprompt:<skill>` for plugin skill
 ```text
 $ultraprompt:dream run
 $ultraprompt:dream status
+$ultraprompt:self-improve run --mode dry-run --scope routing
 ```
 
 ## V8 Commands
@@ -51,6 +53,7 @@ $ultraprompt:dream status
 - `/ultraprompt:dream-review` reviews dream reports and generated proposals.
 - `/ultraprompt:goal` applies a transcript-backed goal contract for Codex-compatible completion conditions; Codex gets bridge semantics, not a plugin-owned native evaluator loop.
 - `/ultraprompt:learn-review` approves, applies, rejects, or reverts learning candidates.
+- `/ultraprompt:self-improve` runs evidence-backed dry-run, canary, autopilot, and rollback.
 - `/ultraprompt:graph` checks capability graph freshness and health.
 - `/ultraprompt:mission-control` opens the cognitive dashboard.
 
@@ -58,12 +61,16 @@ $ultraprompt:dream status
 
 ```bash
 python3 scripts/build-skill-index.py --check
+python3 scripts/generated-artifacts.py check
+python3 scripts/build-routing-policy.py --check
 python3 scripts/build-catalog-metadata.py --check
 python3 scripts/build-capability-graph.py --check
 python3 scripts/regenerate-skills.py --check
 python3 scripts/regenerate-agents.py --check
 python3 scripts/run-pathfinder-tests.py --no-telemetry
 python3 scripts/run-cognitive-tests.py
+python3 scripts/self-improve.py run --mode dry-run --scope routing
+python3 scripts/replay-routing-events.py --json
 python3 scripts/audit-catalog-consistency.py
 python3 scripts/validate-plugin.py
 python3 scripts/release-scorecard.py

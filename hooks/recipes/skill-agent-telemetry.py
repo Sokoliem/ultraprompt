@@ -12,7 +12,6 @@ import importlib.util
 import json
 import os
 import sys
-import time
 from pathlib import Path
 
 PR = Path(os.environ.get("CLAUDE_PLUGIN_ROOT", Path(__file__).resolve().parents[2]))
@@ -81,7 +80,8 @@ def main() -> int:
     except Exception:
         pass
 
-    sid = os.environ.get("CLAUDE_SESSION_ID") or f"unknown-{int(time.time())}"
+    sid = led.session_id() if hasattr(led, "session_id") else "unknown"
+    runtime = led.runtime_name() if hasattr(led, "runtime_name") else "unknown"
 
     if tool_name == "Skill":
         # Skill tool input has a 'skill' field
@@ -96,7 +96,7 @@ def main() -> int:
             repo=repo_n,
             worktree=worktree,
             session_id=sid,
-            runtime="claude-code",
+            runtime=runtime,
             source="pre_tool_use_hook",
         )
     elif tool_name in ("Task", "Agent"):
@@ -112,7 +112,7 @@ def main() -> int:
             repo=repo_n,
             worktree=worktree,
             session_id=sid,
-            runtime="claude-code",
+            runtime=runtime,
             source="pre_tool_use_hook",
         )
 

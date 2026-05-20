@@ -132,6 +132,13 @@ def main() -> int:
         "experience_quality_report": "experience_quality_report.valid.json",
         "invocation_telemetry_audit": "invocation_telemetry_audit.valid.json",
         "goal_contract": "goal_contract.valid.json",
+        "routing_decision": "routing_decision.valid.json",
+        "routing_envelope": "routing_envelope.valid.json",
+        "route_outcome": "route_outcome.valid.json",
+        "self_improvement_run": "self_improvement_run.valid.json",
+        "self_improvement_patch": "self_improvement_patch.valid.json",
+        "learner_eval_report": "learner_eval_report.valid.json",
+        "rollback_manifest": "rollback_manifest.valid.json",
     }
     for artifact_type, fixture_name in v82_fixture_types.items():
         fixture = load_fixture(fixture_name)

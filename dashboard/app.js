@@ -9,7 +9,9 @@ const STATE = {
   mission: null,
   gaps: null,
   panelRuns: null,
+  selfImprovement: null,
   releaseScorecard: null,
+  routingEffectiveness: null,
   activity: null,
   searchQuery: "",
 };
@@ -33,7 +35,9 @@ const api = {
   async missionState() { return (await fetch("/api/mission-state")).json(); },
   async gaps(limit = 20) { return (await fetch(`/api/gaps?limit=${limit}`)).json(); },
   async panelRuns(limit = 10) { return (await fetch(`/api/panel-runs?limit=${limit}`)).json(); },
+  async selfImprovement(limit = 10) { return (await fetch(`/api/self-improvement/runs?limit=${limit}`)).json(); },
   async releaseScorecard() { return (await fetch("/api/release-scorecard?target=all")).json(); },
+  async routingEffectiveness() { return (await fetch("/api/routing-effectiveness")).json(); },
 };
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -560,11 +564,14 @@ class DetailPane extends HTMLElement {
       home.appendChild(obsBox);
     }
 
-    if (STATE.mission || STATE.gaps || STATE.panelRuns || STATE.releaseScorecard) {
+    if (STATE.mission || STATE.gaps || STATE.panelRuns || STATE.selfImprovement || STATE.releaseScorecard || STATE.routingEffectiveness) {
       const missionBox = el("div", { class: "home-section" });
       missionBox.appendChild(el("div", { class: "home-section-title" }, "Mission Control"));
 
       const scorecard = STATE.releaseScorecard?.release_scorecard || STATE.releaseScorecard || {};
+      const routing = STATE.routingEffectiveness || {};
+      const routingPolicy = routing.routing_policy || {};
+      const policySummary = routingPolicy.summary || {};
       const readiness = STATE.mission?.runtime_readiness || {};
       const conclusion = scorecard.conclusion || readiness.conclusion || "unknown";
       const blockers = scorecard.blockers || readiness.blockers || [];
@@ -572,8 +579,16 @@ class DetailPane extends HTMLElement {
       const codexCache = runtimeTargets.codex_cache || {};
       const claudeInstall = runtimeTargets.claude_code_install || {};
       const telemetryReport = parseJsonMaybe(scorecard.cognitive_gates?.invocation_telemetry?.stdout) || {};
-      const pathfinder = telemetryReport.pathfinder || {};
+      const pathfinder = (routing.telemetry || telemetryReport).pathfinder || {};
+      const blockerClasses = scorecard.blocker_classes || {};
+      const adoptionStatus = scorecard.adoption_status || {};
+      const handoffReliability = routing.handoff_reliability || telemetryReport.handoff_contract || {};
+      const candidateGroups = routing.candidate_groups || telemetryReport.candidate_groups || {};
+      const panelSmoke = routing.panel_smoke || {};
+      const routeReplay = routing.replay || {};
       const freshness = scorecard.freshness || "unknown";
+      const selfRuns = STATE.selfImprovement?.runs || [];
+      const latestImprove = selfRuns[0] || {};
       missionBox.appendChild(el("div", { class: "mission-grid" },
         el("div", { class: "mission-card" },
           el("span", {}, "Runtime readiness"),
@@ -589,7 +604,55 @@ class DetailPane extends HTMLElement {
           el("span", {}, "Pathfinder live"),
           el("strong", { "data-state": (pathfinder.real_pathfinder_ratio_pct || 0) > 0 ? "ready" : "risky" },
             `${pathfinder.real_pathfinder_ratio_pct ?? 0}%`),
-          el("small", {}, `${pathfinder.real_decisions ?? 0} real · ${pathfinder.bench_decisions ?? 0} bench`)
+          el("small", {}, `${pathfinder.real_decisions ?? 0} real · ${pathfinder.bench_decisions ?? 0} bench · ${pathfinder.distinct_real_intents ?? 0} intents`)
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Adoption evidence"),
+          el("strong", { "data-state": adoptionStatus.ok ? "ready" : "risky" },
+            adoptionStatus.state || "unknown"),
+          el("small", {}, adoptionStatus.blocker_class || "live telemetry gate")
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Blocker classes"),
+          el("strong", { "data-state": Object.keys(blockerClasses).length ? "blocked" : "ready" },
+            String(Object.values(blockerClasses).reduce((a, b) => a + Number(b || 0), 0))),
+          el("small", {}, Object.entries(blockerClasses).map(([k, v]) => `${k}:${v}`).join(" · ") || "none")
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Routing policy"),
+          el("strong", { "data-state": routingPolicy.present ? "ready" : "blocked" },
+            String(policySummary.dispatch_enabled ?? 0)),
+          el("small", {}, `${policySummary.skills ?? 0} skills · ${policySummary.release_critical ?? 0} critical`)
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Handoff reliability"),
+          el("strong", { "data-state": handoffReliability.ok === false ? "blocked" : "ready" },
+            String(handoffReliability.missing_artifact_path ?? 0)),
+          el("small", {}, `${handoffReliability.problem_handoffs ?? 0} problem · ${handoffReliability.required_total ?? 0} artifact-first`)
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Learning evidence"),
+          el("strong", { "data-state": (candidateGroups.total || 0) ? "risky" : "ready" },
+            String(candidateGroups.total ?? 0)),
+          el("small", {}, (candidateGroups.groups || []).slice(0, 2).map(g => `${g.kind}:${g.count}`).join(" · ") || "no route candidates")
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Self-improvement"),
+          el("strong", { "data-state": latestImprove.status === "applied" ? "ready" : (latestImprove.status ? "risky" : "unknown") },
+            latestImprove.status || "none"),
+          el("small", {}, latestImprove.id ? `${latestImprove.scope || "all"} · ${latestImprove.mode || "run"}` : "no autopilot runs")
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Panel proof"),
+          el("strong", { "data-state": panelSmoke.ok ? "ready" : "blocked" },
+            panelSmoke.status || "unknown"),
+          el("small", {}, panelSmoke.panel || "experience-quality-panel")
+        ),
+        el("div", { class: "mission-card" },
+          el("span", {}, "Route replay"),
+          el("strong", { "data-state": routeReplay.ok ? "ready" : "risky" },
+            String(routeReplay.stable ?? 0)),
+          el("small", {}, `${routeReplay.drifted ?? 0} drift · ${routeReplay.skipped ?? 0} skipped`)
         ),
         el("div", { class: "mission-card" },
           el("span", {}, "Active cache"),
@@ -975,7 +1038,9 @@ async function boot() {
   api.missionState().then(d => { STATE.mission = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
   api.gaps().then(d => { STATE.gaps = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
   api.panelRuns().then(d => { STATE.panelRuns = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
+  api.selfImprovement().then(d => { STATE.selfImprovement = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
   api.releaseScorecard().then(d => { STATE.releaseScorecard = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
+  api.routingEffectiveness().then(d => { STATE.routingEffectiveness = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
   api.invocations(200, { signal: "all" }).then(d => { STATE.activity = d; if (!STATE.selected) document.getElementById("detail").renderHome(); });
 
   document.getElementById("stats").render();

@@ -60,7 +60,7 @@ Do not edit generated `skills/*/SKILL.md`, `agents/*.md`, `dist/skill-index.json
 - Graph freshness is release-blocking.
 - Every MCP mutation returns risk and confirmation metadata.
 - Public docs must distinguish runtime entrypoints: Claude Code uses `/ultraprompt:*` command names; Codex uses `$ultraprompt:<skill>`, natural language, or MCP tools because native `/` commands are not plugin-routed.
-- Goal contracts must distinguish runtime semantics: Codex support is transcript-backed bridge discipline; Claude Code may also expose native built-in `/goal` evaluator behavior outside the plugin.
+- Goal contracts must distinguish runtime semantics: Codex support is transcript-backed bridge discipline; Codex may also expose native built-in `/goal` evaluator behavior outside the plugin.
 
 ## Release Flow
 
@@ -70,6 +70,6 @@ Do not edit generated `skills/*/SKILL.md`, `agents/*.md`, `dist/skill-index.json
 4. Run `python3 scripts/audit-catalog-consistency.py`.
 5. Run `python3 scripts/validate-plugin.py`.
 6. Run `python3 scripts/package-plugin.py`.
-7. Run `python3 scripts/release-scorecard.py --check --target all --json` to verify source, package, install simulation, active Codex cache, active Claude Code install, telemetry, artifact, and panel gates separately.
+7. Run `python3 scripts/release-scorecard.py --check --target all --json` to verify source, package, install simulation, active Codex cache, active Codex install, telemetry, artifact, and panel gates separately.
 8. Install to Claude Code and Codex with `scripts/install-windows.ps1 both` or `scripts/install.sh both`.
 9. Run dashboard browser smoke against `/api/catalog`, `/api/cognitive/health`, `/api/pathfind`, `/api/routing-effectiveness`, `/api/release-scorecard?target=all`, `/api/self-improvement/latest`, `/api/self-improvement/runs`, and `/api/stream`.

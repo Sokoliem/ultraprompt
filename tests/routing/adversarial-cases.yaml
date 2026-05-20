@@ -37,3 +37,12 @@
 
 - intent: "what is 2+2"
   forbidden: build
+
+- intent: "plan a scenic route through the mountains"
+  forbidden: pathfinding-invocation-review
+
+- intent: "trigger a birthday reminder tomorrow"
+  forbidden: hooks-design
+
+- intent: "show me a dashboard of weekend chores"
+  forbidden: observability-pass

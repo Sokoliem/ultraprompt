@@ -44,6 +44,22 @@
     "expected_skill": "pathfinding-invocation-review"
   },
   {
+    "intent": "why did Explore run instead of a specialist for this Ultraprompt task",
+    "expected_skill": "pathfinding-invocation-review"
+  },
+  {
+    "intent": "strengthen automated routing and trigger metrics for skill activation",
+    "expected_skill": "pathfinding-invocation-review"
+  },
+  {
+    "intent": "design a validation plan for routing thresholds and release gates",
+    "expected_skill": "pathfinding-invocation-review"
+  },
+  {
+    "intent": "check the telemetry for current version of ultraprompt and recommend the next release; agents are getting cut off mid response and skills and panels are not auto firing",
+    "expected_skill": "pathfinding-invocation-review"
+  },
+  {
     "intent": "set a goal to keep working until lint and tests pass",
     "expected_skill": "goal"
   },
@@ -80,6 +96,13 @@
     "intent": "deep visual QA and design-system review for a high-stakes frontend release",
     "expected_skill": "frontend-visual-qa",
     "budget": "deep",
+    "expected_path_type": "panel",
+    "expected_panel": "experience-quality-panel"
+  },
+  {
+    "intent": "comprehensive panel review for high-stakes frontend visual QA before release",
+    "expected_skill": "frontend-visual-qa",
+    "budget": "standard",
     "expected_path_type": "panel",
     "expected_panel": "experience-quality-panel"
   }

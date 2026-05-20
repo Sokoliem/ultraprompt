@@ -37,3 +37,12 @@
 
 - intent: "triage technical debt"
   min_top_to_runner_up: "0.10"
+
+- intent: "routing telemetry dashboard for skill activation"
+  min_top_to_runner_up: "0.10"
+
+- intent: "design a test plan for pathfinder thresholds"
+  min_top_to_runner_up: "0.10"
+
+- intent: "frontend visual QA versus design-system consistency"
+  min_top_to_runner_up: "0.10"

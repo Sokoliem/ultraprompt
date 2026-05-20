@@ -304,7 +304,7 @@
   "scope": {
     "in": [
       "MCP dispatch_advise, pathfind_workflow, panel_plan, route_feedback, and release_scorecard behavior.",
-      "scripts/pathfinder.py, scripts/ultraprompt_index.py, scripts/run-router-bench.py, scripts/run-pathfinder-tests.py, scripts/audit-invocation-telemetry.py, scripts/release-scorecard.py.",
+      "scripts/pathfinder.py, scripts/ultraprompt_index.py, scripts/run-router-bench.py, scripts/run-pathfinder-tests.py, scripts/replay-routing-events.py, scripts/audit-invocation-telemetry.py, scripts/release-scorecard.py.",
       "source/skill-specs.json, source/panel-specs.json, source/agent-specs.json, generated dist metadata, and dashboard routing-health UI.",
       "Generated dist/routing-policy.json and any source/generator changes needed to keep main-thread triggering policy single-sourced.",
       "Artifact validation for routing envelopes and invocation telemetry audits.",
@@ -456,6 +456,7 @@
         "python3 scripts/pathfinder.py pathfind --intent ... --budget ... --no-telemetry",
         "python3 scripts/run-router-bench.py",
         "python3 scripts/run-pathfinder-tests.py --no-telemetry --json",
+        "python3 scripts/replay-routing-events.py --json --enforce",
         "python3 scripts/audit-invocation-telemetry.py --json --enforce --release-critical-v8-3",
         "python3 scripts/release-scorecard.py --check --target all --json"
       ],
@@ -501,6 +502,7 @@
         "steps": [
           "Catalog and graph checks run first.",
           "Router/pathfinder natural-language tests run through production code.",
+          "Recent route outcomes and pathfinder decisions replay against the current catalog.",
           "Telemetry audit separates bench, synthetic, and live events.",
           "Release scorecard reports routing effectiveness alongside source/package/runtime targets."
         ]
@@ -848,6 +850,9 @@
       },
       {
         "command": "python3 scripts/run-pathfinder-tests.py --no-telemetry --json"
+      },
+      {
+        "command": "python3 scripts/replay-routing-events.py --json --enforce"
       }
     ],
     "telemetry_validation": [

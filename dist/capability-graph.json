@@ -387,6 +387,11 @@
     },
     {
       "relation": "validated_by",
+      "source": "artifact:learner_eval_report",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
       "source": "artifact:learning_candidate",
       "target": "validator:artifact-validate.py"
     },
@@ -443,6 +448,36 @@
     {
       "relation": "validated_by",
       "source": "artifact:repo_review_report",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:rollback_manifest",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:route_outcome",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:routing_decision",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:routing_envelope",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:self_improvement_patch",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
+      "source": "artifact:self_improvement_run",
       "target": "validator:artifact-validate.py"
     },
     {
@@ -526,6 +561,26 @@
       "target": "validator:release-scorecard.py"
     },
     {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/routing-effectiveness",
+      "target": "validator:audit-invocation-telemetry.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/routing-effectiveness",
+      "target": "validator:build-routing-policy.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/routing-effectiveness",
+      "target": "validator:release-scorecard.py"
+    },
+    {
+      "relation": "reads_via",
+      "source": "dashboard_route:/api/routing-effectiveness",
+      "target": "validator:replay-routing-events.py"
+    },
+    {
       "relation": "emits",
       "source": "dream:ecosystem-reflection",
       "target": "artifact:dream_report"
@@ -583,6 +638,26 @@
     {
       "relation": "writes",
       "source": "dream:route-learning",
+      "target": "ledger:dream-reports"
+    },
+    {
+      "relation": "emits",
+      "source": "dream:self-improvement-autopilot",
+      "target": "artifact:dream_report"
+    },
+    {
+      "relation": "emits",
+      "source": "dream:self-improvement-autopilot",
+      "target": "artifact:learning_candidate"
+    },
+    {
+      "relation": "emits",
+      "source": "dream:self-improvement-autopilot",
+      "target": "artifact:self_improvement_run"
+    },
+    {
+      "relation": "writes",
+      "source": "dream:self-improvement-autopilot",
       "target": "ledger:dream-reports"
     },
     {
@@ -619,6 +694,11 @@
       "relation": "backs_onto",
       "source": "mcp:dashboard_stop",
       "target": "validator:dashboard.py"
+    },
+    {
+      "relation": "backs_onto",
+      "source": "mcp:dispatch_advise",
+      "target": "validator:routing_policy.py"
     },
     {
       "relation": "backs_onto",
@@ -704,6 +784,11 @@
       "relation": "backs_onto",
       "source": "mcp:route_feedback",
       "target": "validator:learning-queue.py"
+    },
+    {
+      "relation": "backs_onto",
+      "source": "mcp:route_trigger_plan",
+      "target": "validator:pathfinder.py"
     },
     {
       "relation": "emits",
@@ -2797,6 +2882,11 @@
       "target": "panel:security-privacy-panel"
     },
     {
+      "relation": "emits",
+      "source": "skill:self-improve",
+      "target": "artifact:structured_output"
+    },
+    {
       "focus": "skill-authoring",
       "phase": "analysis",
       "relation": "dispatches_to",
@@ -2942,6 +3032,11 @@
       "relation": "serves",
       "source": "validator:dashboard.py",
       "target": "dashboard_route:/api/release-scorecard"
+    },
+    {
+      "relation": "serves",
+      "source": "validator:dashboard.py",
+      "target": "dashboard_route:/api/routing-effectiveness"
     }
   ],
   "generated_at": null,
@@ -3291,6 +3386,11 @@
       "label": "invocation_telemetry_audit"
     },
     {
+      "id": "artifact:learner_eval_report",
+      "kind": "artifact_schema",
+      "label": "learner_eval_report"
+    },
+    {
       "id": "artifact:learning candidate recommendations",
       "kind": "artifact",
       "label": "learning candidate recommendations"
@@ -3421,9 +3521,29 @@
       "label": "risk register"
     },
     {
+      "id": "artifact:rollback_manifest",
+      "kind": "artifact_schema",
+      "label": "rollback_manifest"
+    },
+    {
       "id": "artifact:rollout plan",
       "kind": "artifact",
       "label": "rollout plan"
+    },
+    {
+      "id": "artifact:route_outcome",
+      "kind": "artifact_schema",
+      "label": "route_outcome"
+    },
+    {
+      "id": "artifact:routing_decision",
+      "kind": "artifact_schema",
+      "label": "routing_decision"
+    },
+    {
+      "id": "artifact:routing_envelope",
+      "kind": "artifact_schema",
+      "label": "routing_envelope"
     },
     {
       "id": "artifact:safety controls",
@@ -3439,6 +3559,16 @@
       "id": "artifact:security_privacy_report",
       "kind": "artifact",
       "label": "security_privacy_report"
+    },
+    {
+      "id": "artifact:self_improvement_patch",
+      "kind": "artifact_schema",
+      "label": "self_improvement_patch"
+    },
+    {
+      "id": "artifact:self_improvement_run",
+      "kind": "artifact_schema",
+      "label": "self_improvement_run"
     },
     {
       "id": "artifact:structured_output",
@@ -3616,6 +3746,11 @@
       "label": "route"
     },
     {
+      "id": "command:self-improve",
+      "kind": "command",
+      "label": "self-improve"
+    },
+    {
       "id": "command:status",
       "kind": "command",
       "label": "status"
@@ -3681,6 +3816,11 @@
       "label": "/api/release-scorecard"
     },
     {
+      "id": "dashboard_route:/api/routing-effectiveness",
+      "kind": "dashboard_route",
+      "label": "/api/routing-effectiveness"
+    },
+    {
       "budget": {
         "max_files": 250,
         "seconds": 90
@@ -3719,6 +3859,16 @@
       "id": "dream:route-learning",
       "kind": "dream_job",
       "label": "route-learning"
+    },
+    {
+      "budget": {
+        "max_events": 2000,
+        "seconds": 300
+      },
+      "cadence": "daily",
+      "id": "dream:self-improvement-autopilot",
+      "kind": "dream_job",
+      "label": "self-improvement-autopilot"
     },
     {
       "budget": {
@@ -3811,7 +3961,7 @@
       "label": "panel-runs"
     },
     {
-      "description": "V8: Validate structured artifact against schema. Catches the 'fluffy artifact' failure mode. Known artifact types: prd_lite, prd_standard, prd_technical, prd_ai_feature, gap_ledger_entry, repo_completeness_report, repo_review_report, release_readiness_report, contract_drift_report, opportunity_map, idea_triage, concept_brief, mvp_scope, problem_framing. Without artifact_type: returns schema list. With type but no artifact: returns schema. With both: validates and returns findings.",
+      "description": "V8.5: Validate structured artifact against schema. Catches the 'fluffy artifact' failure mode. Known artifact types include PRDs, gap/review/release reports, route telemetry artifacts, learning candidates, and self_improvement_run/self_improvement_patch/learner_eval_report/rollback_manifest. Without artifact_type: returns schema list. With type but no artifact: returns schema. With both: validates and returns findings.",
       "id": "mcp:artifact_validate",
       "kind": "mcp_tool",
       "label": "artifact_validate"
@@ -3841,7 +3991,7 @@
       "label": "compose_workflow"
     },
     {
-      "description": "V8.2: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (31 agents, 54 skills, 13 panels, 42 MCP tools, 31 commands, 18 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent \u00e2\u20ac\u201d if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
+      "description": "V8.5: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (31 agents, 55 skills, 13 panels, 46 MCP tools, 32 commands, 31 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent; if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
       "id": "mcp:dashboard_launch",
       "kind": "mcp_tool",
       "label": "dashboard_launch"
@@ -3871,7 +4021,7 @@
       "label": "dream_review"
     },
     {
-      "description": "V8: Run a safe read-only dream job manually. Jobs write reports, candidate memories, and learning proposals only. If job is omitted, defaults to session-compaction.",
+      "description": "V8.5: Run a dream job manually. Jobs are read-only except self-improvement-autopilot, which may mutate local repo files only through the gated self-improvement runner. If job is omitted, defaults to session-compaction.",
       "id": "mcp:dream_run",
       "kind": "mcp_tool",
       "label": "dream_run"
@@ -3913,13 +4063,13 @@
       "label": "gap_ledger_write"
     },
     {
-      "description": "V8: Approve, reject, apply, or revert a learning candidate. Apply validates graph, pathfinder, and router gates first.",
+      "description": "V8.5: Approve, reject, apply, or revert a learning candidate. Auto-apply candidates may apply without human approval when evidence thresholds and gates pass; manual apply still validates graph, pathfinder, and router gates first.",
       "id": "mcp:learning_apply",
       "kind": "mcp_tool",
       "label": "learning_apply"
     },
     {
-      "description": "V8: List governed learning candidates by status or kind.",
+      "description": "V8.5: List evidence-backed learning candidates by status or kind, optionally grouped by route failure evidence and self-improvement provenance.",
       "id": "mcp:learning_candidates",
       "kind": "mcp_tool",
       "label": "learning_candidates"
@@ -3997,7 +4147,7 @@
       "label": "query_ledger"
     },
     {
-      "description": "V8.2.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, invocation telemetry, conclusion (ready/risky/blocked).",
+      "description": "V8.6.0: Generate a release-readiness scorecard for the plugin with classified gates, runtime targets, telemetry adoption state, routing policy, self-improvement regression classification, and conclusion. Returns live --check JSON and reports timeout explicitly without falling back to stale dist output.",
       "id": "mcp:release_scorecard",
       "kind": "mcp_tool",
       "label": "release_scorecard"
@@ -4015,7 +4165,7 @@
       "label": "repo_capsule_diff"
     },
     {
-      "description": "V8: Record accepted/corrected/failed route outcomes and create reviewable route-learning candidates when appropriate.",
+      "description": "V8.5: Record accepted/corrected/failed route outcomes and create evidence-backed route-learning candidates when appropriate.",
       "id": "mcp:route_feedback",
       "kind": "mcp_tool",
       "label": "route_feedback"
@@ -4025,6 +4175,30 @@
       "id": "mcp:route_intent",
       "kind": "mcp_tool",
       "label": "route_intent"
+    },
+    {
+      "description": "V8.5: Dry-run Invocation Director contract. Returns the exact main-thread action plan for an intent without executing agents, panels, or mutating work.",
+      "id": "mcp:route_trigger_plan",
+      "kind": "mcp_tool",
+      "label": "route_trigger_plan"
+    },
+    {
+      "description": "V8.5: Roll back a self-improvement run from its rollback manifest.",
+      "id": "mcp:self_improve_rollback",
+      "kind": "mcp_tool",
+      "label": "self_improve_rollback"
+    },
+    {
+      "description": "V8.5: Run the evidence-backed self-improvement autopilot. Autopilot may mutate local repo files only through gated apply and rollback manifests.",
+      "id": "mcp:self_improve_run",
+      "kind": "mcp_tool",
+      "label": "self_improve_run"
+    },
+    {
+      "description": "V8.5: List recent self-improvement autopilot runs and their gate/rollback status.",
+      "id": "mcp:self_improve_runs",
+      "kind": "mcp_tool",
+      "label": "self_improve_runs"
     },
     {
       "description": "V8: Find Claude Code / Codex sessions currently active in a worktree path.",
@@ -4723,6 +4897,11 @@
       "quality_gate": "synthesize output is specific enough for the next phase to consume without re-discovery"
     },
     {
+      "id": "policy:routing-policy",
+      "kind": "routing_policy",
+      "label": "dist/routing-policy.json"
+    },
+    {
       "confirmation": "required_for_repo_mutation",
       "family": "experience-quality",
       "id": "skill:accessibility-review",
@@ -5194,6 +5373,16 @@
     },
     {
       "confirmation": "required_for_repo_mutation",
+      "family": "cognitive-operations",
+      "id": "skill:self-improve",
+      "kind": "skill",
+      "label": "self-improve",
+      "mode": "write_capable",
+      "risk": "high",
+      "tier": "core"
+    },
+    {
+      "confirmation": "required_for_repo_mutation",
       "family": "plugin-ecosystem",
       "id": "skill:skill-author",
       "kind": "skill",
@@ -5283,6 +5472,11 @@
       "label": "build-capability-graph.py"
     },
     {
+      "id": "validator:build-routing-policy.py",
+      "kind": "validator",
+      "label": "build-routing-policy.py"
+    },
+    {
       "id": "validator:catalog-audit.py",
       "kind": "validator",
       "label": "catalog-audit.py"
@@ -5333,6 +5527,16 @@
       "label": "release-scorecard.py"
     },
     {
+      "id": "validator:replay-routing-events.py",
+      "kind": "validator",
+      "label": "replay-routing-events.py"
+    },
+    {
+      "id": "validator:routing_policy.py",
+      "kind": "validator",
+      "label": "routing_policy.py"
+    },
+    {
       "id": "validator:run-cognitive-tests.py",
       "kind": "validator",
       "label": "run-cognitive-tests.py"
@@ -5358,7 +5562,7 @@
       "label": "validate-plugin.py"
     }
   ],
-  "plugin_version": "8.2.0",
+  "plugin_version": "8.6.0",
   "schema": "capability_graph.v1",
-  "source_hash": "d1aaa96b31b1686df5e5cd950d8ad41fe001e8bca8fc8b97a984b8b1955c8e1a"
+  "source_hash": "cd0fd1a1120b42f2627a490652915e36430704a9e6ed418c23421cbf9f484bc2"
 }

@@ -334,6 +334,7 @@ def validate_index(errors: list[str], warnings: list[str]) -> bool:
 def validate_generated_artifacts(errors: list[str], warnings: list[str]) -> None:
     checks = [
         ["build-skill-index.py", "--check"],
+        ["build-routing-policy.py", "--check"],
         ["build-catalog-metadata.py", "--check"],
         ["regenerate-skills.py", "--check"],
         ["regenerate-agents.py", "--check"],
@@ -384,7 +385,8 @@ def main() -> int:
     has_index = validate_index(errors, warnings)
     validate_generated_artifacts(errors, warnings)
 
-    print("Ultraprompt V8.2 plugin validation")
+    major_minor = ".".join(str(display_manifest.get("version", "8")).split(".")[:2])
+    print(f"Ultraprompt V{major_minor} plugin validation")
     print(f"- Target runtime: {args.target_runtime}")
     print(f"- Plugin: {display_manifest.get('name', '?')} v{display_manifest.get('version', '?')}")
     print(f"- Skills: {skill_count} (core: {tier_counts.get('core', 0)}, specialist: {tier_counts.get('specialist', 0)}, ecosystem: {tier_counts.get('ecosystem', 0)})")

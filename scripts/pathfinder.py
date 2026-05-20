@@ -16,6 +16,12 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 from ultraprompt_index import load_index, route_intent  # noqa: E402
+from routing_policy import (  # noqa: E402
+    build_routing_envelope,
+    load_routing_policy,
+    panel_candidates,
+    route_confidence_gap,
+)
 
 
 def load_graph() -> dict[str, Any]:
@@ -150,6 +156,7 @@ def pathfind(
     index = load_index(ROOT)
     graph = load_graph()
     policy = load_policy()
+    routing_policy = load_routing_policy(ROOT)
     raw_routes = route_intent(index, intent, limit=5)
     routes, policy_influences = apply_policy(raw_routes, intent, policy)
     memories = memory_query(intent, repo, limit=8)
@@ -157,9 +164,19 @@ def pathfind(
     top = routes[0] if routes else {}
     skill = skill_by_name(index, str(top.get("skill", "")))
     agents = agents_for_skill(graph, skill.get("name", ""))
-    preferred_panel = panel_for_skill(graph, skill.get("name", ""))
+    confidence_gap = route_confidence_gap(routes)
+    ranked_panels = panel_candidates(
+        policy=routing_policy,
+        graph=graph,
+        skill_name=skill.get("name", ""),
+        intent=intent,
+        budget=budget,
+        confidence_gap=confidence_gap,
+    )
+    selected_panel = next((item for item in ranked_panels if item.get("selected")), None)
+    preferred_panel = selected_panel.get("panel") if selected_panel else panel_for_skill(graph, skill.get("name", ""))
     path_type = "skill-only"
-    if budget == "deep" and preferred_panel:
+    if selected_panel:
         path_type = "panel"
     elif agents:
         path_type = "agent-assisted skill"
@@ -190,6 +207,7 @@ def pathfind(
         "telemetry_enabled": not no_telemetry,
         "telemetry_source": telemetry_source,
         "budget": budget,
+        "confidence_gap": confidence_gap,
         "recommended_path": {
             "type": path_type,
             "skill": skill.get("name"),
@@ -209,12 +227,15 @@ def pathfind(
             "risk": risk,
             "cost": {"budget": budget, "estimated": "high" if path_type == "panel" else ("medium" if agents else "low")},
         },
+        "panel_candidates": ranked_panels[:5],
         "alternatives": alternatives,
         "memory_influences": [{"id": m.get("id"), "kind": m.get("kind"), "scope": m.get("scope"), "status": m.get("status")} for m in memories],
         "policy_influences": policy_influences,
         "graph_hash": graph.get("source_hash") or stable_hash(graph),
         "graph_health": graph.get("health", {}),
+        "routing_policy_hash": routing_policy.get("source_hash"),
     }
+    result["routing_envelope"] = build_routing_envelope(result, routing_policy)
     if not no_telemetry:
         emit_event(result)
     return command_result(True, path=result)
@@ -224,7 +245,9 @@ def emit_event(result: dict[str, Any]) -> None:
     script = ROOT / "scripts" / "cognitive-event-log.py"
     try:
         payload = {
-            "source": "pathfinder",
+            "producer": "pathfinder",
+            "telemetry_source": result.get("telemetry_source") or "runtime",
+            "event_source": result.get("telemetry_source") or "runtime",
             "trace_id": result["trace_id"],
             "intent": result["intent"][:200],
             "skill": result["recommended_path"].get("skill"),
@@ -234,8 +257,10 @@ def emit_event(result: dict[str, Any]) -> None:
             "adjusted_score": result["recommended_path"].get("adjusted_score"),
             "agents": result["recommended_path"].get("agents", []),
             "panel": result["recommended_path"].get("panel"),
+            "handoff_policy": (result.get("routing_envelope") or {}).get("handoff_policy"),
+            "reliability": (result.get("routing_envelope") or {}).get("reliability"),
+            "panel_candidates": result.get("panel_candidates", [])[:5],
             "budget": result.get("budget"),
-            "source": result.get("telemetry_source") or "runtime",
             "alternatives": [
                 {
                     "skill": alt.get("skill"),

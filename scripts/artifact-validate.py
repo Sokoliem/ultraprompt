@@ -157,14 +157,96 @@ SCHEMAS = {
         "valid_schema": ["learning_candidate.v1"],
         "valid_learning_kinds": [
             "route_update", "benchmark_candidate", "memory_promotion",
-            "catalog_proposal", "panel_proposal", "retrieval_hint"
+            "catalog_proposal", "panel_proposal", "retrieval_hint",
+            "prompt_update", "agent_contract_update", "eval_case_update",
+            "dashboard_ui_update", "telemetry_parser_update", "source_patch"
         ],
         "valid_learning_status": ["pending", "approved", "rejected", "applied", "reverted", "expired", "needs_evidence"],
         "valid_risk": ["low", "medium", "high"],
     },
+    "self_improvement_run": {
+        "required": [
+            "schema", "id", "mode", "scope", "status", "evidence",
+            "hypotheses", "gate_results", "learner_eval", "patch_hash",
+            "rollback_path", "post_apply_monitor"
+        ],
+        "valid_schema": ["self_improvement_run.v1"],
+        "valid_self_improvement_mode": ["autopilot", "canary", "dry-run"],
+        "valid_self_improvement_status": ["dry_run", "canary", "applied", "needs_evidence", "rolled_back", "no_op"],
+    },
+    "self_improvement_patch": {
+        "required": ["schema", "id", "run_id", "created_at", "mutation_scope", "operations", "patch_hash"],
+        "valid_schema": ["self_improvement_patch.v1"],
+        "min_counts": {"operations": 1},
+    },
+    "learner_eval_report": {
+        "required": [
+            "schema", "verdict", "evidence_supported", "minimal_patch",
+            "rollback_complete", "validation_claim_matches", "risks", "created_at"
+        ],
+        "valid_schema": ["learner_eval_report.v1"],
+        "valid_learner_eval_verdict": ["pass", "fail"],
+    },
+    "rollback_manifest": {
+        "required": ["schema", "id", "run_id", "created_at", "entries"],
+        "valid_schema": ["rollback_manifest.v1"],
+    },
     "capability_graph": {
         "required": ["schema", "plugin_version", "nodes", "edges", "health", "source_hash"],
         "valid_schema": ["capability_graph.v1"],
+    },
+    "routing_decision": {
+        "required": [
+            "schema",
+            "trace_id",
+            "intent",
+            "runtime",
+            "top_skill",
+            "confidence",
+            "decision_type",
+            "execution_mode",
+            "dispatches",
+            "panel",
+            "risk",
+            "confirmation_required",
+            "reason",
+            "telemetry_policy",
+        ],
+        "valid_schema": ["routing_decision.v1"],
+        "valid_decision_type": ["inline", "agent", "panel", "command", "skill-only"],
+    },
+    "routing_envelope": {
+        "required": [
+            "schema",
+            "trace_id",
+            "intent_excerpt",
+            "selected_skill",
+            "confidence",
+            "confidence_gap",
+            "ambiguity",
+            "execution_mode",
+            "dispatches",
+            "panel_candidates",
+            "selected_panel",
+            "risk",
+            "confirmation",
+            "expected_artifact",
+            "validation_hint",
+            "alternatives",
+            "reasons_not_selected",
+            "telemetry_policy",
+        ],
+        "valid_schema": ["routing_envelope.v1"],
+    },
+    "route_outcome": {
+        "required": [
+            "schema",
+            "trace_id",
+            "intent",
+            "outcome",
+        ],
+        "valid_schema": ["route_outcome.v1"],
+        "valid_outcome": ["accepted", "corrected", "failed", "abandoned", "unknown"],
     },
     "design_review": {
         "required": [
@@ -250,7 +332,7 @@ SCHEMAS = {
             "thresholds",
             "ok",
         ],
-        "valid_schema": ["invocation_telemetry_audit.v1", "invocation_telemetry_audit.v2"],
+        "valid_schema": ["invocation_telemetry_audit.v1", "invocation_telemetry_audit.v2", "invocation_telemetry_audit.v3"],
         "required_nested": {
             "runtime_events": ["skill_invocations", "legacy_skill_invocations"],
             "agent_dispatches": ["total", "plugin_total", "plugin_share_pct", "explore_total", "explore_share_pct"],
@@ -378,6 +460,11 @@ def validate(artifact_type: str, data: dict) -> dict:
         "valid_learning_status": "status",
         "valid_risk": "risk",
         "valid_runtime": "runtime",
+        "valid_decision_type": "decision_type",
+        "valid_outcome": "outcome",
+        "valid_self_improvement_mode": "mode",
+        "valid_self_improvement_status": "status",
+        "valid_learner_eval_verdict": "verdict",
     }
     for schema_key, field in enum_fields.items():
         if schema_key not in schema:

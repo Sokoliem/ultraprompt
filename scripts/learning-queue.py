@@ -21,9 +21,33 @@ from cognitive_common import (
     write_json,
 )
 
-KINDS = {"route_update", "benchmark_candidate", "memory_promotion", "catalog_proposal", "panel_proposal", "retrieval_hint"}
+KINDS = {
+    "route_update",
+    "benchmark_candidate",
+    "memory_promotion",
+    "catalog_proposal",
+    "panel_proposal",
+    "retrieval_hint",
+    "prompt_update",
+    "agent_contract_update",
+    "eval_case_update",
+    "dashboard_ui_update",
+    "telemetry_parser_update",
+    "source_patch",
+}
 STATUSES = {"pending", "approved", "rejected", "applied", "reverted", "expired", "needs_evidence"}
-LOW_RISK = {"route_update", "benchmark_candidate", "memory_promotion", "retrieval_hint"}
+LOW_RISK = {"route_update", "benchmark_candidate", "memory_promotion", "retrieval_hint", "eval_case_update"}
+ROUTE_FAILURE_KINDS = {
+    "wrong_skill",
+    "wrong_agent",
+    "explore_fallback",
+    "low_confidence_gap",
+    "truncation_prone_agent",
+    "stale_legacy_prefix",
+    "missing_artifact_contract",
+    "handoff_partial",
+    "handoff_empty",
+}
 
 
 def queue_path() -> Path:
@@ -53,6 +77,83 @@ def persist(action: str, candidate: dict[str, Any]) -> dict[str, Any]:
     return candidate
 
 
+def route_update_failure_group(payload: dict[str, Any]) -> str:
+    failure_kind = str(payload.get("failure_kind") or "").lower().replace(" ", "_").replace("-", "_")
+    handoff_status = str(payload.get("handoff_status") or "").lower()
+    agent = str(payload.get("agent") or "")
+    if agent == "Explore":
+        return "explore_fallback"
+    if handoff_status in {"truncated", "persisted_output"} or "trunc" in failure_kind:
+        return "truncation_prone_agent"
+    if handoff_status in {"partial", "empty"}:
+        return f"handoff_{handoff_status}"
+    if "artifact" in failure_kind and "missing" in failure_kind:
+        return "missing_artifact_contract"
+    if "agent" in failure_kind:
+        return "wrong_agent"
+    if "skill" in failure_kind or "route" in failure_kind:
+        return "wrong_skill"
+    if "confidence" in failure_kind:
+        return "low_confidence_gap"
+    if "legacy" in failure_kind or "prefix" in failure_kind:
+        return "stale_legacy_prefix"
+    return failure_kind if failure_kind in ROUTE_FAILURE_KINDS else "wrong_skill"
+
+
+def route_update_policy_preview(payload: dict[str, Any], candidate_id: str) -> dict[str, Any]:
+    return {
+        "operation": "append_or_replace_route_overlay",
+        "policy_path": str(policy_path()),
+        "route": {
+            "id": candidate_id,
+            "intent_pattern": payload.get("intent_pattern") or payload.get("intent") or "",
+            "skill": payload.get("skill") or payload.get("preferred_skill") or "",
+            "agent": payload.get("agent") or "",
+            "panel": payload.get("panel") or "",
+            "weight_delta": float(payload.get("weight_delta", 0.1)),
+            "reason": payload.get("reason") or "",
+            "failure_group": route_update_failure_group(payload),
+        },
+        "durable_mutation_requires": "learning_apply",
+    }
+
+
+def route_update_replay_impact(payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "mode": "preview_only",
+        "intent_pattern": payload.get("intent_pattern") or payload.get("intent") or "",
+        "expected_effect": "increase selected route weight for the matched intent pattern",
+        "validation_commands": [
+            "python3 scripts/run-pathfinder-tests.py",
+            "python3 scripts/run-router-bench.py",
+            "python3 scripts/replay-routing-events.py --json --days 7 --limit 50",
+        ],
+    }
+
+
+def evidence_summary(kind: str, payload: dict[str, Any], evidence: list[Any]) -> dict[str, Any]:
+    return {
+        "evidence_count": len(evidence),
+        "failure_kind": payload.get("failure_kind") or "",
+        "handoff_status": payload.get("handoff_status") or "",
+        "artifact_path": payload.get("artifact_path") or "",
+        "group": route_update_failure_group(payload) if kind == "route_update" else kind,
+    }
+
+
+def enrich_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
+    payload = candidate.get("payload") or {}
+    evidence = candidate.get("evidence") if isinstance(candidate.get("evidence"), list) else []
+    enriched = {
+        **candidate,
+        "evidence_summary": evidence_summary(str(candidate.get("kind")), payload, evidence),
+    }
+    if candidate.get("kind") == "route_update":
+        enriched["replay_impact"] = route_update_replay_impact(payload)
+        enriched["policy_preview"] = route_update_policy_preview(payload, candidate["id"])
+    return enriched
+
+
 def add_candidate(args: argparse.Namespace) -> dict[str, Any]:
     if args.kind not in KINDS:
         raise ValueError(f"invalid learning kind: {args.kind}")
@@ -72,7 +173,16 @@ def add_candidate(args: argparse.Namespace) -> dict[str, Any]:
         "validation": None,
         "rollback": None,
         "notes": args.notes,
+        "auto_apply": bool(args.auto_apply),
+        "evidence_threshold": args.evidence_threshold,
+        "mutation_scope": args.mutation_scope,
+        "gate_results": json.loads(args.gate_results_json or "{}"),
+        "patch_path": args.patch_path,
+        "rollback_path": args.rollback_path,
+        "learner_eval": json.loads(args.learner_eval_json or "{}"),
+        "post_apply_monitor": json.loads(args.post_apply_monitor_json or "{}"),
     }
+    candidate = enrich_candidate(candidate)
     persist("add", candidate)
     emit_cognitive_event("learning_candidate_created", {"candidate_id": candidate["id"], "kind": candidate["kind"], "risk": candidate["risk"]})
     return command_result(True, candidate=candidate)
@@ -93,14 +203,14 @@ def set_status(args: argparse.Namespace, status: str) -> dict[str, Any]:
 def run_validation() -> dict[str, Any]:
     commands = [
         [sys.executable, "scripts/build-capability-graph.py", "--check"],
-        [sys.executable, "scripts/run-pathfinder-tests.py"],
+        [sys.executable, "scripts/run-pathfinder-tests.py", "--no-telemetry"],
         [sys.executable, "scripts/run-router-bench.py"],
     ]
     results = []
     ok = True
     root = Path(__file__).resolve().parents[1]
     for cmd in commands:
-        proc = subprocess.run(cmd, cwd=root, capture_output=True, text=True, timeout=120)
+        proc = subprocess.run(cmd, cwd=root, capture_output=True, text=True, timeout=180)
         item = {
             "cmd": " ".join(cmd[1:]),
             "ok": proc.returncode == 0,
@@ -121,6 +231,9 @@ def apply_route_update(candidate: dict[str, Any]) -> dict[str, Any]:
         "id": candidate["id"],
         "intent_pattern": payload.get("intent_pattern") or payload.get("intent") or "",
         "skill": payload.get("skill") or payload.get("preferred_skill") or "",
+        "agent": payload.get("agent") or "",
+        "panel": payload.get("panel") or "",
+        "failure_group": route_update_failure_group(payload),
         "weight_delta": float(payload.get("weight_delta", 0.1)),
         "reason": payload.get("reason") or candidate.get("title"),
         "expires_at": payload.get("expires_at"),
@@ -140,9 +253,10 @@ def apply_candidate(args: argparse.Namespace) -> dict[str, Any]:
     candidate = candidates.get(args.candidate_id)
     if not candidate:
         raise ValueError(f"unknown candidate: {args.candidate_id}")
-    if candidate.get("status") != "approved" and not args.force:
+    auto_apply = bool(candidate.get("auto_apply"))
+    if candidate.get("status") != "approved" and not args.force and not auto_apply:
         raise ValueError("candidate_must_be_approved")
-    if candidate.get("risk") == "high" and not args.force:
+    if candidate.get("risk") == "high" and not args.force and not auto_apply:
         raise ValueError("high_risk_candidate_requires_explicit_force")
     validation = run_validation()
     if not validation["ok"]:
@@ -162,6 +276,19 @@ def revert_candidate(args: argparse.Namespace) -> dict[str, Any]:
     candidates = latest_candidates()
     candidate = candidates.get(args.candidate_id)
     if not candidate:
+        rollback = data_dir("self-improvement") / "rollbacks" / f"{args.candidate_id}.json"
+        if rollback.exists():
+            proc = subprocess.run(
+                [sys.executable, str(Path(__file__).with_name("self-improve.py")), "rollback", args.candidate_id],
+                cwd=Path(__file__).resolve().parents[1],
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            try:
+                return json.loads(proc.stdout)
+            except Exception:
+                return command_result(proc.returncode == 0, stdout=proc.stdout, stderr=proc.stderr)
         raise ValueError(f"unknown candidate: {args.candidate_id}")
     rollback = candidate.get("rollback") or {}
     if rollback.get("kind") == "route_policy":
@@ -173,13 +300,38 @@ def revert_candidate(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def list_candidates(args: argparse.Namespace) -> dict[str, Any]:
-    rows = list(latest_candidates().values())
+    rows = [enrich_candidate(row) for row in latest_candidates().values()]
     if args.status:
         rows = [c for c in rows if c.get("status") == args.status]
     if args.kind:
         rows = [c for c in rows if c.get("kind") == args.kind]
     rows.sort(key=lambda c: c.get("updated_at", ""), reverse=True)
-    return command_result(True, count=len(rows[: args.limit]), candidates=rows[: args.limit], path=str(queue_path()))
+    limited = rows[: args.limit]
+    result = command_result(True, count=len(limited), candidates=limited, path=str(queue_path()))
+    if getattr(args, "grouped", False):
+        groups: dict[str, dict[str, Any]] = {}
+        for candidate in limited:
+            summary = candidate.get("evidence_summary") or {}
+            group = str(summary.get("group") or candidate.get("kind") or "unknown")
+            bucket = groups.setdefault(group, {
+                "group": group,
+                "count": 0,
+                "candidate_ids": [],
+                "evidence_count": 0,
+                "examples": [],
+            })
+            bucket["count"] += 1
+            bucket["candidate_ids"].append(candidate.get("id"))
+            bucket["evidence_count"] += int(summary.get("evidence_count") or 0)
+            if len(bucket["examples"]) < 3:
+                bucket["examples"].append({
+                    "id": candidate.get("id"),
+                    "title": candidate.get("title"),
+                    "policy_preview": candidate.get("policy_preview"),
+                    "replay_impact": candidate.get("replay_impact"),
+                })
+        result["candidate_groups"] = sorted(groups.values(), key=lambda item: (-item["count"], item["group"]))
+    return result
 
 
 def stats() -> dict[str, Any]:
@@ -217,11 +369,20 @@ def main() -> int:
     add.add_argument("--evidence-json", default="[]")
     add.add_argument("--risk", choices=["low", "medium", "high"], default="")
     add.add_argument("--notes", default="")
+    add.add_argument("--auto-apply", action="store_true")
+    add.add_argument("--evidence-threshold", type=int, default=1)
+    add.add_argument("--mutation-scope", default="learning_overlay")
+    add.add_argument("--gate-results-json", default="{}")
+    add.add_argument("--patch-path", default="")
+    add.add_argument("--rollback-path", default="")
+    add.add_argument("--learner-eval-json", default="{}")
+    add.add_argument("--post-apply-monitor-json", default="{}")
 
     list_p = sub.add_parser("list")
     list_p.add_argument("--status", choices=sorted(STATUSES), default="")
     list_p.add_argument("--kind", choices=sorted(KINDS), default="")
     list_p.add_argument("--limit", type=int, default=100)
+    list_p.add_argument("--grouped", action="store_true")
 
     for name in ("approve", "reject", "expire", "needs-evidence"):
         p = sub.add_parser(name)

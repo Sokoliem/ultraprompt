@@ -71,6 +71,7 @@ def build_graph() -> dict[str, Any]:
     dream_jobs = load_json("source/dream-jobs.json", {}).get("jobs", [])
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
+    add_node(nodes, "policy:routing-policy", "routing_policy", "dist/routing-policy.json")
 
     for skill in skill_specs:
         add_node(
@@ -170,6 +171,7 @@ def build_graph() -> dict[str, Any]:
         "/api/panel-runs": ["panel-runs.py"],
         "/api/pathfind": ["pathfinder.py"],
         "/api/release-scorecard": ["release-scorecard.py"],
+        "/api/routing-effectiveness": ["audit-invocation-telemetry.py", "build-routing-policy.py", "replay-routing-events.py", "release-scorecard.py"],
     }
     for route, scripts in dashboard_routes.items():
         route_id = f"dashboard_route:{route}"
@@ -184,6 +186,8 @@ def build_graph() -> dict[str, Any]:
             "memory": "memory-store.py",
             "dream": "dream-runner.py",
             "pathfind": "pathfinder.py",
+            "route_trigger": "pathfinder.py",
+            "dispatch_advise": "routing_policy.py",
             "capability_graph": "build-capability-graph.py",
             "dashboard": "dashboard.py",
             "gap_ledger": "gap-ledger.py",
@@ -191,6 +195,7 @@ def build_graph() -> dict[str, Any]:
             "mission_state": "mission-state.py",
             "release_scorecard": "release-scorecard.py",
             "route_feedback": "learning-queue.py",
+            "route_trigger_plan": "pathfinder.py",
         }.items():
             prefix, script = script_name
             if tool["name"].startswith(prefix):
@@ -213,6 +218,8 @@ def build_graph() -> dict[str, Any]:
         "learning-queue.py",
         "memory-store.py",
         "pathfinder.py",
+        "routing_policy.py",
+        "build-routing-policy.py",
         "gap-ledger.py",
         "panel-runs.py",
         "run-hook-tests.py",
@@ -220,6 +227,7 @@ def build_graph() -> dict[str, Any]:
         "run-cognitive-tests.py",
         "run-router-bench.py",
         "audit-invocation-telemetry.py",
+        "replay-routing-events.py",
     ]
     for validator in validators:
         add_node(nodes, f"validator:{validator}", "validator", validator)

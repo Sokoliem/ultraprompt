@@ -5,7 +5,7 @@ argument-hint: "[--stop | --status]"
 
 # Ultraprompt Dashboard
 
-Launch the dashboard, surface the entire plugin ecosystem (31 agents, 54 skills, 42 MCP tools, 31 commands, 13 panels, 18 artifact schemas) with live invocation telemetry streaming from the evidence ledger.
+Launch the dashboard, surface the entire plugin ecosystem (31 agents, 55 skills, 46 MCP tools, 32 commands, 13 panels, 31 artifact schemas) with live invocation telemetry streaming from the evidence ledger.
 
 ## Usage
 

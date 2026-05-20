@@ -214,11 +214,89 @@ def smoke(panel_name: str, fixture: str | None = None) -> dict[str, Any]:
     return {
         "ok": bool(result.get("ok")),
         "panel": panel_name,
+        "proof_kind": "fixture",
+        "live_adoption": False,
         "fixture_or_run_id": str(fixture_path.relative_to(ROOT) if fixture_path.is_relative_to(ROOT) else fixture_path),
         "artifact_type": config["artifact_type"],
         "validator": "artifact-validate.py",
         "status": "passed" if result.get("ok") else "failed",
         "findings": result.get("high", []) + result.get("medium", []),
+        "recorded_at": now_iso(),
+    }
+
+
+def resolve_artifact_path(path_value: str) -> Path:
+    path = Path(path_value).expanduser()
+    if not path.is_absolute():
+        path = ROOT / path
+    return path
+
+
+def proof(panel_name: str) -> dict[str, Any]:
+    config = PANEL_SMOKE_FIXTURES.get(panel_name)
+    if not config:
+        return {
+            "ok": False,
+            "panel": panel_name,
+            "proof_kind": "live",
+            "live_adoption": False,
+            "error": "no_smoke_fixture_configured",
+            "available": sorted(PANEL_SMOKE_FIXTURES),
+        }
+    runs = [
+        run for run in latest_runs(read_records())
+        if run.get("panel_name") == panel_name and run.get("status") == "completed"
+    ]
+    validator = load_artifact_validator()
+    findings: list[dict[str, Any]] = []
+    for run in runs:
+        for artifact in run.get("artifact_paths") or []:
+            artifact_path = resolve_artifact_path(str(artifact))
+            if not artifact_path.exists():
+                findings.append({
+                    "severity": "high",
+                    "issue": "panel artifact path does not exist",
+                    "artifact_path": str(artifact_path),
+                    "run_id": run.get("run_id"),
+                })
+                continue
+            data, err = validator.load_artifact(artifact_path)
+            if err:
+                findings.append({
+                    "severity": "high",
+                    "issue": err,
+                    "artifact_path": str(artifact_path),
+                    "run_id": run.get("run_id"),
+                })
+                continue
+            result = validator.validate(str(config["artifact_type"]), data)
+            if result.get("ok"):
+                return {
+                    "ok": True,
+                    "panel": panel_name,
+                    "proof_kind": "live",
+                    "live_adoption": True,
+                    "fixture_or_run_id": run.get("run_id"),
+                    "run_id": run.get("run_id"),
+                    "repo": run.get("repo"),
+                    "artifact_path": str(artifact_path.relative_to(ROOT) if artifact_path.is_relative_to(ROOT) else artifact_path),
+                    "artifact_type": config["artifact_type"],
+                    "validator": "artifact-validate.py",
+                    "status": "passed",
+                    "findings": result.get("high", []) + result.get("medium", []),
+                    "recorded_at": now_iso(),
+                    "completed_at": run.get("completed_at"),
+                    "validation_summary": run.get("validation_summary") or [],
+                }
+            findings.extend(result.get("high", []) + result.get("medium", []))
+    return {
+        "ok": False,
+        "panel": panel_name,
+        "proof_kind": "live",
+        "live_adoption": False,
+        "status": "missing_live_proof",
+        "findings": findings[:10],
+        "completed_runs": len(runs),
         "recorded_at": now_iso(),
     }
 
@@ -262,6 +340,8 @@ def main() -> int:
     s_smoke = sub.add_parser("smoke")
     s_smoke.add_argument("--panel", required=True)
     s_smoke.add_argument("--fixture")
+    s_proof = sub.add_parser("proof")
+    s_proof.add_argument("--panel", required=True)
 
     args = parser.parse_args()
     if args.cmd == "start":
@@ -297,6 +377,10 @@ def main() -> int:
         return 0
     if args.cmd == "smoke":
         result = smoke(args.panel, args.fixture)
+        print(json.dumps(result, indent=2, default=str))
+        return 0 if result.get("ok") else 1
+    if args.cmd == "proof":
+        result = proof(args.panel)
         print(json.dumps(result, indent=2, default=str))
         return 0 if result.get("ok") else 1
     return 1

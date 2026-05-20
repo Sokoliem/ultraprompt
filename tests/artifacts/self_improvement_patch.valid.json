@@ -1,0 +1,15 @@
+{
+  "schema": "self_improvement_patch.v1",
+  "id": "improve_1-patch",
+  "run_id": "improve_1",
+  "created_at": "2026-05-16T00:00:00Z",
+  "mutation_scope": "any_repo_code_gated",
+  "operations": [
+    {
+      "operation": "learning_candidate",
+      "kind": "route_update",
+      "title": "Auto-improve explore_fallback"
+    }
+  ],
+  "patch_hash": "abc123"
+}

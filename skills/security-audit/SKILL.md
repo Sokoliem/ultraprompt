@@ -1,10 +1,11 @@
 ---
 name: "security-audit"
-description: "When user says 'security audit / check for vulnerabilities / find injection / auth audit / secrets in repo / SQLi/XSS/CSRF check / pen test / sensitive data exposure' — produces ranked vulnerabilities with CWE references, exploit scenarios, remediation. DEFAULT for technical security review. Different from /risk-and-controls-review (compliance/regulatory)."
+description: "**DEFAULT for AUTH / SECRETS / INJECTION / TENANT ISOLATION — deep security review: threat model + trust-boundary audit + severity-ranked findings (Critical/High/Medium/Low) with concrete exploit sketch and fix.** Different from /review (general PR review), /supply-chain-hardening (build/publish/transitive), /dependency-audit (CVE-driven). Triggers: 'is this secure, security review, auth issue, injection check, tenant isolation, secrets handling'."
 when_to_use: "Use for security-focused review of auth flows, secret handling, injection surfaces, tenant isolation, dependency security, or sensitive data handling. Kept as a core skill (auto-discoverable) because security work is too important to hide behind a flag."
 argument-hint: "[surface|flow|threat|focus]"
 tier: "core"
 aliases: ["security-audit"]
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -55,6 +56,40 @@ Apply a threat model: who is the adversary, what are they trying to do, what can
 Add tests for the security control (e.g., 'unauthenticated request returns 401', 'cross-tenant request returns 404'). Run dependency scanner if available (npm audit, pip-audit, cargo audit). Confirm secret-redaction tests cover the new log statements.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Threat Model
+    type: section
+    required: true
+    evidence_rule: "STRIDE category or named attacker class"
+  - field: Trust Boundaries Audited
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Findings
+    type: section
+    required: true
+    evidence_rule: "file:line + STRIDE/OWASP category + severity + confidence + exploit sketch"
+  - field: Autonomous Fixes Applied
+    type: section
+    required: true
+    evidence_rule: "files modified + diff summary + validation result"
+  - field: Policy Decisions Surfaced
+    type: section
+    required: true
+    evidence_rule: "rationale + alternative considered"
+  - field: Validation
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Recommendations
+    type: section
+    required: true
+    evidence_rule: "concrete action; no vague advice"
+```
 
 Threat Model | Trust Boundaries Audited | Findings (severity-ordered: Critical/High/Medium/Low + confidence) | Autonomous Fixes Applied | Policy Decisions Surfaced (Not Auto-Fixed) | Validation | Recommendations
 

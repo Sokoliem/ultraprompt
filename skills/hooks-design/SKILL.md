@@ -1,11 +1,12 @@
 ---
 name: "hooks-design"
-description: "When user says 'design hooks / hook architecture / PreToolUse hook / SessionStart hook / Stop hook / how should I structure plugin hooks / hook design' — dispatches reviewer/architect with plugin hooks focus. DEFAULT for plugin hook design."
+description: "**DEFAULT for plugin hook design: dispatches reviewer/architect with plugin hooks focus: runs the hooks-design discipline.**"
 when_to_use: "Manual-only. Invoke for hook design, hook auditing, or settings/permissions audit. Hooks are the riskiest plugin surface because they intercept tool calls."
 argument-hint: "[hook|surface]"
 tier: "ecosystem"
 aliases: ["hooks-automation-design", "settings-permissions-audit"]
 disable-model-invocation: true
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -50,6 +51,36 @@ Hooks are deterministic guards on tool calls. Three rules: (1) fail open on pars
 Run run-hook-tests.py with the new fixtures. Smoke-test: trigger the hook with intended input (should block/allow as expected). Trigger with malformed input (should not crash session). Set disable env var (should bypass).
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Hook Purpose
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Event + Matcher
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Script
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Fixture Tests Added
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Hooks.json Entry
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Settings/Permissions Recommendations
+    type: section
+    required: true
+    evidence_rule: "concrete action; no vague advice"
+```
 
 Hook Purpose | Event + Matcher | Script (with fail-open + disable handling) | Fixture Tests Added | Hooks.json Entry | Settings/Permissions Recommendations (if applicable)
 

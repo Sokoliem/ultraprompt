@@ -1,10 +1,11 @@
 ---
 name: "debug"
-description: "When user says 'this is failing / why is X broken / reproduce the error / debug this / what's causing the bug / failing test / runtime error / unexpected output / why does this crash' — runs the debugger discipline of failure-signature capture, smallest reproduction, bisection, confirmed root cause hypothesis with confidence label. DEFAULT for active debugging. Different from /test-gap-analysis (finds missing tests) and /review (PR-scope review)."
+description: "**DEFAULT for ACTIVE FAILURE DIAGNOSIS — symptom → reproduction → falsifiable root cause: captured failure signature, smallest reproduction, bisection trail, root-cause hypothesis with confidence label, and same-bug-elsewhere search.** Different from /test-gap-analysis (finds missing tests, not broken behavior), /review (PR scope), /ci-repair (pipeline-shape failures: matrix, env, cache). Triggers: 'this is failing, why is X broken, reproduce the error, debug this, failing test, runtime error'."
 when_to_use: "Use for concrete failures with a reproducible symptom or trace. Use `--flaky` for non-deterministic failures (handles flake-specific reasoning). Use `ci-repair` when failure is pipeline-shape (matrix, env, cache). Do not use for broad refactors or speculative cleanup."
 argument-hint: "[failure|error|test name|symptom|--flaky]"
 tier: "core"
 aliases: ["debug-fix", "flake-hunter"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -52,6 +53,44 @@ Symptom-to-root-cause traversal. The failing assertion is the symptom, not the c
 Run the originally-failing test/command first. Then run the broader suite that contains it. For flakes, run the failing test ≥10× to confirm stabilization (or document why that's not feasible).
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Symptom
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Reproduction
+    type: section
+    required: true
+    evidence_rule: "exact command + observed output"
+  - field: Root cause
+    type: section
+    required: true
+    evidence_rule: "file:line + minimal reproduction + falsifiable hypothesis"
+  - field: Same-bug-elsewhere check
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Fix Summary
+    type: section
+    required: true
+    evidence_rule: "files modified + scope justification"
+  - field: Regression Test Added
+    type: section
+    required: true
+    evidence_rule: "test name + command + before/after result"
+  - field: Validation Run
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Remaining Risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+```
 
 Symptom | Reproduction | Root cause (with evidence) | Same-bug-elsewhere check | Fix Summary (files, why localized) | Regression Test Added | Validation Run (commands + results, including stabilization runs for flakes) | Remaining Risks
 

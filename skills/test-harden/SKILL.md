@@ -1,10 +1,11 @@
 ---
 name: "test-harden"
-description: "When user says 'write tests for X / harden test coverage / add tests / improve test suite / implement test plan / write missing tests' — apply test code per a test plan (uses test-strategist output if provided). DEFAULT for actually writing test code. Different from /test-gap-analysis (finds gaps) and /test-strategist (designs plan)."
+description: "**DEFAULT for WRITING OR STRENGTHENING TESTS — author missing tests with behavior contracts: coverage-targeted test additions with behavior contracts, boundary cases, and removed change-detector tests.** Different from /test-gap-analysis (FINDS missing tests — run first), /debug (fix the bug, not add coverage), /build (new feature code, not test code). Triggers: 'write tests for <X>, add coverage for <Y>, strengthen these tests, harden the test suite'."
 when_to_use: "Use when confidence is low, coverage is shallow, regressions are likely, or a change needs durable behavioral tests. Do not use when the failure is concrete (use debug); do not use when the change is a feature delivery (use build)."
 argument-hint: "[path|module|behavior|changed feature]"
 tier: "core"
 aliases: ["test-harden"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -50,6 +51,36 @@ Coverage percentage is a weak signal. Test value comes from: (1) catching regres
 Run the new tests. Run the broader suite to confirm nothing else broke. If mutation testing is available (Stryker, mutmut, cargo-mutants), confirm the new tests kill mutants in the changed code.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Coverage Target
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Behavior Contracts Tested
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Boundary Cases Added
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Removed Change-Detector Tests
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Mutation-Test Result
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Remaining Gaps
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Coverage Target | Behavior Contracts Tested | Boundary Cases Added | Removed Change-Detector Tests | Mutation-Test Result (if run) | Remaining Gaps
 

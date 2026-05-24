@@ -33,6 +33,7 @@ HOOK_TO_SCRIPT = {
     "stop-validation-check": HOOKS_DIR / "stop-validation-check.py",
     "session-start-context": HOOKS_DIR / "session-start-context.py",
     "subagent-scaffold": HOOKS_DIR / "subagent-scaffold.py",
+    "user-prompt-route-suggest": HOOKS_DIR / "user-prompt-route-suggest.py",
 }
 
 

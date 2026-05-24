@@ -1,11 +1,12 @@
 ---
 name: "accessibility-review"
-description: "When user says 'a11y review / accessibility audit / WCAG check / screen reader compatibility / keyboard navigation review / color contrast audit / accessible component review' — dispatches auditor with a11y focus. DEFAULT for accessibility audits."
+description: "**DEFAULT for accessibility audits: dispatches auditor with a11y focus: runs the accessibility-review discipline.**"
 when_to_use: "Manual-only. Invoke for a11y-focused review of UI components, flows, or design-system fit. For general frontend review, see `_shared/playbooks/frontend-ux-checklist.md`."
 argument-hint: "[component|flow|page]"
 tier: "specialist"
 aliases: ["accessibility-review"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -55,6 +56,44 @@ WCAG provides the framework but not the answers. Screen reader experience, keybo
 Re-run automated tools. Manual keyboard test of changed flows. Manual screen reader test (NVDA, VoiceOver, JAWS) on critical paths.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Scope
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Automated Findings
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+  - field: Keyboard Navigation Findings
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+  - field: Focus Management Findings
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+  - field: Screen Reader Findings
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+  - field: Contrast Findings
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+  - field: Fixes Applied
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Remaining Issues
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Scope | Automated Findings | Keyboard Navigation Findings | Focus Management Findings | Screen Reader Findings | Contrast Findings | Fixes Applied | Remaining Issues
 

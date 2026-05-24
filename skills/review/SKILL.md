@@ -1,10 +1,11 @@
 ---
 name: "review"
-description: "When user says 'review this PR / code review / check this diff / look at these changes / review my code / does this look right / before-merge review / review for issues' — produces structured PR/diff review with severity-ranked findings (correctness, design, safety, maintainability, consistency). DEFAULT CHOICE for diff/PR review. Different from /repo-review (whole-repo audit) and /security-audit (security depth only)."
+description: "**DEFAULT for DIFF/PR REVIEW — produces structured findings with severity and merge verdict: PR understanding + severity-ranked findings (correctness/design/safety/maintainability/consistency) + merge verdict; --deep fans out to a panel for parallel perspectives.** Different from /repo-review (whole-repo audit, not one diff), /security-audit (security depth only), /release-readiness (ship/no-ship gate, not line-level review). Triggers: 'review this PR, code review, check this diff, look at these changes, before-merge review'."
 when_to_use: "Use for diff/branch/PR review. Use `--deep` for cross-cutting risk requiring multi-perspective review (invokes panel-run review-fanout). Use `--summarize` for PR summary or release-note blurb only. Do not use for non-diff architecture work (use architect) or for failing tests (use debug)."
 argument-hint: "[PR|branch|diff|path|--deep|--summarize]"
 tier: "core"
 aliases: ["pr-review", "pr-summarize", "coverage-impact", "agentic-deep-review"]
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -53,6 +54,44 @@ Diff-correctness and merge readiness. Evaluate the change in the context of what
 Targeted tests for affected behavior, then type-check/lint, then broader suite. Cite exact commands and results. If a needed validation cannot be run, name it.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: PR Understanding
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Autonomous Fix Summary
+    type: section
+    required: true
+    evidence_rule: "files modified + diff summary + validation result"
+  - field: Merge Recommendation
+    type: section
+    required: true
+    evidence_rule: "concrete action; no vague advice"
+  - field: Risk Assessment
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Remaining Findings
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+  - field: Validation Performed
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Final Diff Summary
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Questions/Follow-Ups
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 PR Understanding | Autonomous Fix Summary (table when multiple) | Merge Recommendation (Approve / Approve with minor comments / Request changes / Needs clarification) | Risk Assessment (correctness/compat/security/perf/coverage/ops/maintainability) | Remaining Findings (severity-ordered) | Validation Performed | Final Diff Summary | Questions/Follow-Ups
 

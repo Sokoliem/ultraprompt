@@ -222,6 +222,145 @@ def tool_explain_skill(args: dict[str, Any]) -> dict[str, Any]:
     return text_result(skill)
 
 
+def _skill_preview(skill_name: str) -> str:
+    """Extract a 2-3 line preview for a skill from its SKILL.md body.
+
+    Pulls `## Distinctive judgment` (first paragraph) + a one-line digest of
+    `## Output contract`. Used by the V8.7 interactive picker to populate the
+    `preview` field of an `AskUserQuestion` option without re-reading the spec.
+    Returns empty string on failure (preview is optional).
+    """
+    try:
+        path = PLUGIN_ROOT / "skills" / skill_name / "SKILL.md"
+        if not path.exists():
+            return ""
+        text = path.read_text(encoding="utf-8")
+    except Exception:
+        return ""
+
+    def _section(header: str) -> str:
+        marker = f"## {header}\n"
+        i = text.find(marker)
+        if i < 0:
+            return ""
+        start = i + len(marker)
+        next_h = text.find("\n## ", start)
+        chunk = text[start: next_h if next_h > 0 else len(text)].strip()
+        # First non-empty paragraph
+        for para in chunk.split("\n\n"):
+            para = para.strip()
+            if para and not para.startswith("```"):
+                return para
+        return ""
+
+    distinct = _section("Distinctive judgment")
+    if len(distinct) > 240:
+        distinct = distinct[:237].rstrip() + "..."
+
+    # Output contract first line (often the prose pipe-list) as a digest.
+    contract_section = ""
+    marker = "## Output contract\n"
+    i = text.find(marker)
+    if i >= 0:
+        start = i + len(marker)
+        next_h = text.find("\n## ", start)
+        chunk = text[start: next_h if next_h > 0 else len(text)]
+        # Skip YAML schema fence; keep the prose "Section order" line.
+        prose_marker = "Prose contract"
+        if prose_marker in chunk:
+            after = chunk.find(prose_marker)
+            tail = chunk[after:].split("\n", 2)
+            if len(tail) >= 3:
+                contract_section = tail[2].strip().split("\n", 1)[0].strip()
+        if not contract_section:
+            # Fallback: first non-fence line after the header
+            for line in chunk.splitlines():
+                line = line.strip()
+                if line and not line.startswith("```") and not line.lower().startswith("schema"):
+                    contract_section = line
+                    break
+
+    if contract_section and len(contract_section) > 240:
+        contract_section = contract_section[:237].rstrip() + "..."
+
+    parts: list[str] = []
+    if distinct:
+        parts.append(distinct)
+    if contract_section:
+        parts.append(f"Output: {contract_section}")
+    return "\n".join(parts)
+
+
+def tool_route_picker(args: dict[str, Any]) -> dict[str, Any]:
+    """V8.7: return top-N routing candidates + previews for the interactive picker.
+
+    Consumed by `skills/choose/SKILL.md` (and `commands/choose.md`). The picker
+    skill takes these candidates, generates 2 prompt rewrites (which it routes
+    again via `route_intent`), and surfaces a 3-4 option `AskUserQuestion`.
+    """
+    intent = str(args.get("intent", "")).strip()
+    if not intent:
+        return text_result({"error": "intent is required"}, is_error=True)
+    top_n = int(args.get("top_n", 3))
+    top_n = max(1, min(5, top_n))
+    include_previews = bool(args.get("include_previews", True))
+
+    routes = route_intent(load_index(PLUGIN_ROOT), intent, limit=top_n)
+    candidates: list[dict[str, Any]] = []
+    for route in routes:
+        skill_name = route.get("skill") or ""
+        entry: dict[str, Any] = {
+            "id": skill_name,
+            "skill": skill_name,
+            "command": route.get("command") or f"/ultraprompt:{skill_name}",
+            "confidence": route.get("confidence"),
+            "score": route.get("score"),
+            "tier": route.get("tier"),
+            "why": route.get("why"),
+            "manual_only": bool(route.get("manual_only")),
+        }
+        if include_previews and skill_name:
+            entry["preview"] = _skill_preview(skill_name)
+        candidates.append(entry)
+
+    gap = 1.0
+    if len(routes) >= 2:
+        s1 = float(routes[0].get("score") or 0.0)
+        s2 = float(routes[1].get("score") or 0.0)
+        if s1 > 0:
+            gap = max(0.0, (s1 - s2) / s1)
+    is_ambiguous = (gap < 0.15) or (
+        bool(routes) and str(routes[0].get("confidence", "")) == "medium"
+    )
+
+    # Telemetry: log the picker invocation alongside route_decision events.
+    try:
+        import importlib.util as _ilu_rp
+        _spec = _ilu_rp.spec_from_file_location(
+            "_led_rp", Path(__file__).resolve().parents[1] / "scripts" / "ledger-v2.py"
+        )
+        _led = _ilu_rp.module_from_spec(_spec)
+        _spec.loader.exec_module(_led)
+        _led.write_event(
+            "route_picker_query",
+            intent_excerpt=intent[:200],
+            top_skill=(candidates[0] or {}).get("skill") if candidates else None,
+            top_n=top_n,
+            gap=round(gap, 3),
+            is_ambiguous=is_ambiguous,
+        )
+    except Exception:
+        pass
+
+    return text_result({
+        "intent": intent,
+        "candidates": candidates,
+        "ambiguity": {"gap": round(gap, 3), "is_ambiguous": is_ambiguous},
+        "schema_version": "route_picker.v1",
+        "plugin_version": plugin_version(),
+    })
+
+
 def tool_list_agents(args: dict[str, Any]) -> dict[str, Any]:
     index = load_index(PLUGIN_ROOT)
     query = str(args.get("query", "")).strip().lower()
@@ -660,7 +799,7 @@ def tool_dispatch_advise(args):
 
 
 def tool_release_scorecard(args):
-    """V8.0.0: Generate plugin release scorecard."""
+    """V8.7.0: Generate plugin release scorecard."""
     import subprocess
     try:
         out = subprocess.run(
@@ -679,7 +818,7 @@ def tool_release_scorecard(args):
 
 
 def tool_panel_plan(args):
-    """V8.0.0: Return dispatch plan for a named panel.
+    """V8.7.0: Return dispatch plan for a named panel.
 
     Args:
         panel_name: name of the panel (e.g. 'repo-completeness-panel')
@@ -783,7 +922,7 @@ def tool_panel_plan(args):
 
 
 def tool_mission_state(args):
-    """V8.0.0: Mission Control unified state snapshot.
+    """V8.7.0: Mission Control unified state snapshot.
 
     Reads from repo capsule, worktree state, sessions, evidence ledger v2,
     WIP snapshots, gap ledger. Returns the V8 mission_state schema.
@@ -807,7 +946,7 @@ def tool_mission_state(args):
 
 
 def tool_gap_ledger_query(args):
-    """V8.0.0: Query gap ledger.
+    """V8.7.0: Query gap ledger.
 
     Args:
         repo: filter by repo name
@@ -829,7 +968,7 @@ def tool_gap_ledger_query(args):
 
 
 def tool_gap_ledger_write(args):
-    """V8.0.0: Write gap entry to persistent ledger.
+    """V8.7.0: Write gap entry to persistent ledger.
 
     Required fields: repo, category, severity, confidence, title, evidence
     Optional: affected_area, expected_behavior, actual_behavior, recommended_fix,
@@ -854,7 +993,7 @@ def tool_gap_ledger_write(args):
 
 
 def tool_gap_ledger_stats(args):
-    """V8.0.0: Gap ledger summary stats."""
+    """V8.7.0: Gap ledger summary stats."""
     import subprocess
     try:
         out = subprocess.run(
@@ -1316,6 +1455,22 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         },
         tool_route_intent,
     ),
+    "route_picker": (
+        "V8.7: Return top-N routing candidates + previews for the interactive picker. "
+        "Pair with the `ultraprompt:choose` skill — the skill body takes these candidates, "
+        "generates 2 prompt rewrites, and surfaces a 3-4 option AskUserQuestion. Sets "
+        "ambiguity.is_ambiguous when top-2 are within 15% or top is medium confidence.",
+        {
+            "type": "object",
+            "required": ["intent"],
+            "properties": {
+                "intent": {"type": "string", "description": "User's original prompt"},
+                "top_n": {"type": "integer", "minimum": 1, "maximum": 5, "default": 3},
+                "include_previews": {"type": "boolean", "default": True},
+            },
+        },
+        tool_route_picker,
+    ),
     "explain_skill": (
         "Return indexed metadata for one Ultraprompt skill. Resolves V4 aliases.",
         {"type": "object", "required": ["skill"], "properties": {"skill": {"type": "string"}}},
@@ -1380,7 +1535,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_evidence_diff,
     ),
     "team_plan": (
-        "V8.0.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
+        "V8.7.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
         {
             "type": "object",
             "properties": {
@@ -1463,7 +1618,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_ledger_query,
     ),
     "release_scorecard": (
-        "V8.0.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, conclusion (ready/risky/blocked).",
+        "V8.7.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, conclusion (ready/risky/blocked).",
         {
             "type": "object",
             "properties": {},
@@ -1471,7 +1626,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_release_scorecard,
     ),
     "panel_plan": (
-        "V8.0.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
+        "V8.7.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
         {
             "type": "object",
             "properties": {
@@ -1482,7 +1637,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_panel_plan,
     ),
     "mission_state": (
-        "V8.0.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
+        "V8.7.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
         {
             "type": "object",
             "properties": {
@@ -1493,7 +1648,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_mission_state,
     ),
     "gap_ledger_query": (
-        "V8.0.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Filter by repo, status, severity. Returns gap entries from current and prior sessions.",
+        "V8.7.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Filter by repo, status, severity. Returns gap entries from current and prior sessions.",
         {
             "type": "object",
             "properties": {
@@ -1506,7 +1661,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_gap_ledger_query,
     ),
     "gap_ledger_write": (
-        "V8.0.0: Persist a gap finding to the gap ledger. Used by repo-completeness audit skills (gap-analysis, feature-completeness, test-gap-analysis, dead-code-drift, release-readiness) to record findings beyond a single session.",
+        "V8.7.0: Persist a gap finding to the gap ledger. Used by repo-completeness audit skills (gap-analysis, feature-completeness, test-gap-analysis, dead-code-drift, release-readiness) to record findings beyond a single session.",
         {
             "type": "object",
             "properties": {
@@ -1530,7 +1685,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_gap_ledger_write,
     ),
     "gap_ledger_stats": (
-        "V8.0.0: Gap ledger summary stats â€” totals by status/severity/category/repo/auditor.",
+        "V8.7.0: Gap ledger summary stats â€” totals by status/severity/category/repo/auditor.",
         {"type": "object", "properties": {}},
         tool_gap_ledger_stats,
     ),

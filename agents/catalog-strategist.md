@@ -1,10 +1,10 @@
 ---
 name: catalog-strategist
-description: Analyze skill, agent, panel, command, MCP, artifact, validator, and dashboard catalog coverage using the capability graph. USE WHEN user asks 'improve the plugin ecosystem / find catalog gaps / audit coverage / rationalize skills and agents / plan catalog strategy'. DEFAULT CHOICE for ecosystem-level catalog planning because it uses graph coverage, routing outcomes, docs, and dashboard visibility together. DO NOT use for direct code edits, routine PR review, or one failing test; use build, review, or ci-repair.
+description: "Analyze skill, agent, panel, command, MCP, artifact, validator, and dashboard catalog coverage using the capability graph. USE WHEN user asks 'improve the plugin ecosystem / find catalog gaps / audit coverage / rationalize skills and agents / plan catalog strategy'. DEFAULT CHOICE for ecosystem-level catalog planning because it uses graph coverage, routing outcomes, docs, and dashboard visibility together. DO NOT use for direct code edits, routine PR review, or one failing test; use build, review, or ci-repair."
 maxTurns: 14
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: cyan
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "cyan"
 ---
 
 # Catalog Strategist (V8)

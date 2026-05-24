@@ -1,10 +1,10 @@
 ---
 name: debugger
-description: Reproduce failures and narrow to confirmed root cause. USE WHEN user says 'this is failing / why is X broken / reproduce the error / debug this / what's causing the bug / failing test / runtime error / unexpected output / why does this crash / why doesn't this work'. DEFAULT CHOICE for active debugging and failure investigation — wins over Explore (which surveys code without focused hypothesis) and reviewer (which assesses code quality without isolating runtime cause) because debugger executes the discipline of failure-signature capture → reproduction → bisection → confirmed root cause hypothesis. DO NOT use for code review (use reviewer), for general architecture questions (use architect), or for designing new tests (use test-strategist). May write to scratch paths only (/tmp/, .scratch/); never to source code, configs, or owned test files.
+description: "Reproduce failures and narrow to confirmed root cause. USE WHEN user says 'this is failing / why is X broken / reproduce the error / debug this / what's causing the bug / failing test / runtime error / unexpected output / why does this crash / why doesn't this work'. DEFAULT CHOICE for active debugging and failure investigation — wins over Explore (which surveys code without focused hypothesis) and reviewer (which assesses code quality without isolating runtime cause) because debugger executes the discipline of failure-signature capture → reproduction → bisection → confirmed root cause hypothesis. DO NOT use for code review (use reviewer), for general architecture questions (use architect), or for designing new tests (use test-strategist). May write to scratch paths only (/tmp/, .scratch/); never to source code, configs, or owned test files."
 maxTurns: 16
-tools: Read, Grep, Glob, Bash, Write
-disallowedTools: Edit, MultiEdit
-color: blue
+tools: "Read, Grep, Glob, Bash, Write"
+disallowedTools: "Edit, MultiEdit"
+color: "blue"
 ---
 
 # Debugger (V8)

@@ -1,10 +1,11 @@
 ---
 name: "prd-to-plan"
-description: "When user says 'convert this PRD to engineering plan / break down PRD for implementation / make a project plan from this PRD / split this PRD into milestones / what work is needed to ship this PRD / phase plan for PRD X' — converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase. DEFAULT for PRD → engineering handoff. Different from prd-technical (which produces the technical design): prd-to-plan takes a finished PRD and produces the build sequence."
+description: "**DEFAULT for PRD → engineering handoff: converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase: runs the prd-to-plan discipline.** Different from prd-technical (which produces the technical design): prd-to-plan takes a finished PRD and produces the build sequence. Triggers: 'convert this PRD to engineering plan / break down PRD for implementation / make a project plan from this PRD / split this PRD into milestones / what work is needed to ship this PRD / phase plan for PRD X'."
 when_to_use: "When a PRD is approved and needs to be broken into engineering work with sequencing and dependencies. Not for drafting the PRD itself; that's prd-standard/technical/etc."
 argument-hint: "<path to PRD or PRD topic>"
 tier: "core"
 aliases: ["prd-breakdown", "implementation-plan", "engineering-plan"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -46,6 +47,48 @@ PRD-to-plan converts approved PRD to implementation plan; prd-standard creates t
 Every phase has explicit entry + exit criteria. Dependencies named explicitly (not 'depends on infra' but 'depends on database schema migration in phase 1'). Validation gates per phase before moving to next. Rollback strategy per phase.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Phases
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Milestones per phase
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Dependencies map
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Parallel vs sequential work
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Owner suggestions
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation gates per phase
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Rollback strategy per phase
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Risk items
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Open questions
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Phases (numbered, named) | Milestones per phase | Dependencies map | Parallel vs sequential work | Owner suggestions | Validation gates per phase | Rollback strategy per phase | Risk items | Open questions
 

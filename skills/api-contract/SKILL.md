@@ -1,10 +1,11 @@
 ---
 name: "api-contract"
-description: "When user says 'API contract review / OpenAPI review / API design review / RESTful contract / GraphQL schema review / API versioning' — dispatches reviewer/integration-contract-reviewer with API contract focus. DEFAULT for API contract design and review."
+description: "**DEFAULT for API contract design and review: dispatches reviewer/integration-contract-reviewer with API contract focus: runs the api-contract discipline.**"
 when_to_use: "Use for any change that affects a public surface: API endpoints, schemas, CLI flags, config formats, events, package exports, wire formats. Use when planning a deprecation. Do not use for purely internal refactors with no external surface (use refactor)."
 argument-hint: "[surface|change description|consumer]"
 tier: "core"
 aliases: ["api-contract", "api-deprecation"]
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -53,6 +54,44 @@ Compatibility is asymmetric: producers can extend (add fields, add methods, add 
 Contract tests pass on both old and new behavior during deprecation window. Schema validation tools (json-schema, OpenAPI lint, GraphQL diff) confirm compatibility classification. Consumer integration tests where available.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Surface Affected
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Change Classification
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Consumer Impact Analysis
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Deprecation Path
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Contract Tests Added/Updated
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Changelog/Release Note Entry
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Version Bump Recommendation
+    type: section
+    required: true
+    evidence_rule: "concrete action; no vague advice"
+  - field: Migration Guidance for Consumers
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Surface Affected | Change Classification (additive/modifying/removing) | Consumer Impact Analysis | Deprecation Path (if not additive) | Contract Tests Added/Updated | Changelog/Release Note Entry | Version Bump Recommendation | Migration Guidance for Consumers
 

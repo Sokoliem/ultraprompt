@@ -1,11 +1,12 @@
 ---
 name: "dependency-audit"
-description: "When user says 'audit dependencies / dependency review / supply chain audit / package audit / npm audit / pip audit / outdated dependencies / vulnerable deps' — dispatches auditor with supply-chain focus. DEFAULT for dependency/supply-chain audits."
+description: "**DEFAULT for dependency/supply-chain audits: dispatches auditor with supply-chain focus: runs the dependency-audit discipline.**"
 when_to_use: "Manual-only. Invoke for dep-focused review: CVE scan, transitive analysis, license audit, abandonment risk. For supply-chain provenance and CI trust, use specialist `supply-chain-hardening`. For upgrade planning, use core `migrate --deps`."
 argument-hint: "[ecosystem|focus]"
 tier: "specialist"
 aliases: ["dependency-audit"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -52,6 +53,36 @@ Direct dependency count is small; transitive count is what matters. Known-CVE sc
 Re-run scanner after remediation. For upgrades: run full test matrix. For removed deps: confirm no remaining usage.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Dep Inventory
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: CVE Findings
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+  - field: Abandonment Risk
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: License Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Version Drift
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Risk-Ordered Recommendations
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+```
 
 Dep Inventory (direct + transitive count) | CVE Findings (severity, exposure, remediation) | Abandonment Risk (per direct dep) | License Audit | Version Drift | Risk-Ordered Recommendations
 

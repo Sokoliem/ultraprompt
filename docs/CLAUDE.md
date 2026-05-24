@@ -1,10 +1,10 @@
-# Ultraprompt V8.0.0 Plugin Repo Notes
+# Ultraprompt V8.7.0 Plugin Repo Notes
 
 This file governs work on the Ultraprompt plugin itself, not work done by it.
 
 ## Current Shape
 
-Ultraprompt is a Claude Code + Codex plugin with 48 skills, 29 agents, 30 commands, 42 MCP tools, 9 registered hooks, 12 panels, 17 artifact schemas, 2 output styles, live dashboard telemetry, local typed memory, safe dream jobs, governed learning, pathfinding, and capability graph release gates.
+Ultraprompt is a Claude Code + Codex plugin with 49 skills, 30 agents, 31 commands, 43 MCP tools, 10 registered hooks, 12 panels, 17 artifact schemas, 2 output styles, live dashboard telemetry, local typed memory, safe dream jobs, governed learning, pathfinding, capability graph release gates, V8.6 picker prerequisites (route_suggest hook, YAML output schemas, auto-attached output styles, dispatching `build` skill backed by the `builder` agent with required claim-check gate, de-collided gap-analysis cluster, personal-lanes injection from `~/.claude/ultraprompt-user.md`), and (V8.7) an **interactive routing picker**: the route_suggest hook detects ambiguity (top-2 within 15% or top medium-confidence) and emits a directive instructing the model to invoke the new `ultraprompt:choose` skill; the new `route_picker` MCP tool returns ranked candidates with previews; the picker skill surfaces 3-4 options via AskUserQuestion (top + 2nd candidate + 2 LLM-rewritten prompt variants paired with their best-matching skills) and dispatches the chosen skill with the chosen phrasing.
 
 ## Source Of Truth
 

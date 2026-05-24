@@ -1,11 +1,12 @@
 ---
 name: "contract-test-generate"
-description: "When user says 'generate contract tests / write contract tests for API X / consumer-driven contract / Pact test / OpenAPI contract test / event contract test' — dispatches test-strategist + test-harden with contract focus. DEFAULT for contract-test generation."
+description: "**DEFAULT for contract-test generation: dispatches test-strategist + test-harden with contract focus: runs the contract-test-generate discipline.**"
 when_to_use: "Manual-only. Invoke when a boundary needs contract-test coverage to prevent silent breakage. For API contract design or deprecation, use core `api-contract`."
 argument-hint: "[boundary|consumer|surface]"
 tier: "specialist"
 aliases: ["contract-test-generate"]
 disable-model-invocation: true
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -45,6 +46,36 @@ Contract tests pin the surface from the consumer's perspective. They differ from
 Run the new contract tests against current producer (should pass). Modify producer in a known-breaking way (in a branch); confirm contract test fails. Revert.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Boundary
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Consumers Captured
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Contract Cases
+    type: section
+    required: true
+    evidence_rule: "consumer + version + breaking-change classification"
+  - field: Framework + Test Files
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: CI Wiring
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Documentation
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Boundary | Consumers Captured | Contract Cases (request → expected response/behavior) | Framework + Test Files | CI Wiring | Documentation
 

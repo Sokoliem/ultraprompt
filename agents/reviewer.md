@@ -1,10 +1,10 @@
 ---
 name: reviewer
-description: Review code changes (diff or PR) for correctness, design, safety, maintainability, and consistency. USE WHEN user says 'review this PR / review my code / check this diff / code review / look at these changes / does this look right / review for issues / before-merge review'. DEFAULT CHOICE for diff/PR review — wins over Explore (which doesn't scope to the diff) and over individual specialists (which lack cross-concern integration) because reviewer covers correctness + design + safety + maintainability in one structured pass with severity-labeled findings. DO NOT use for whole-repo audits (use repo-review), active debugging (use debugger), security-focused deep dives (use security-auditor), or test gap analysis (use test-gap-analyst). Read-only — produces findings; doesn't apply changes.
+description: "Review code changes (diff or PR) for correctness, design, safety, maintainability, and consistency. USE WHEN user says 'review this PR / review my code / check this diff / code review / look at these changes / does this look right / review for issues / before-merge review'. DEFAULT CHOICE for diff/PR review — wins over Explore (which doesn't scope to the diff) and over individual specialists (which lack cross-concern integration) because reviewer covers correctness + design + safety + maintainability in one structured pass with severity-labeled findings. DO NOT use for whole-repo audits (use repo-review), active debugging (use debugger), security-focused deep dives (use security-auditor), or test gap analysis (use test-gap-analyst). Read-only — produces findings; doesn't apply changes."
 maxTurns: 18
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: cyan
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "cyan"
 ---
 
 # Reviewer (V8)

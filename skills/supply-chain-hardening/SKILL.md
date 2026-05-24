@@ -1,11 +1,12 @@
 ---
 name: "supply-chain-hardening"
-description: "When user says 'harden supply chain / supply chain security / dependency pinning / SLSA / SBOM / package integrity / supply chain attack defenses' — dispatches security-auditor + auditor with supply-chain focus. DEFAULT for supply-chain hardening work."
+description: "**DEFAULT for supply-chain hardening work: dispatches security-auditor + auditor with supply-chain focus: runs the supply-chain-hardening discipline.**"
 when_to_use: "Manual-only. Invoke for supply-chain integrity work: lockfile hygiene, install-script trust, CI publishing pipeline, SBOM generation, container image provenance, registry trust. For dep CVEs/abandonment, use specialist `dependency-audit`."
 argument-hint: "[surface|pipeline]"
 tier: "specialist"
 aliases: ["supply-chain-hardening"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -55,6 +56,44 @@ Supply chain attacks happen at install time and publish time, not just at consum
 Run the CI pipeline end-to-end after hardening. Verify SBOM is generated and contains expected components. Verify image digests are reproducible.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Lockfile Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Install-Script Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: CI Publishing Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Container Image Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: SBOM Status
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Signing Status
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Hardenings Applied
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Remaining Risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+```
 
 Lockfile Audit | Install-Script Audit | CI Publishing Audit | Container Image Audit | SBOM Status | Signing Status | Hardenings Applied | Remaining Risks
 

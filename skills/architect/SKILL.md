@@ -1,10 +1,11 @@
 ---
 name: "architect"
-description: "When user says 'architecture review / system design review / architectural decision / design this system / architecture for X / structural review / module boundary review' — dispatches reviewer with architecture focus. DEFAULT for architecture-scope tasks. Different from /review (diff-scope) and /repo-review (whole-repo audit)."
+description: "**DEFAULT for ARCHITECTURAL QUESTIONS — boundaries, contracts, and system design with tradeoffs: architectural question framing + current vs intended shape + gaps + cost-assessment with recommendation.** Different from /build (implements the architecture), /review (PR-scope), /repo-review (whole-repo audit without design recommendation). Triggers: 'should we use X or Y, how should we structure this, design tradeoffs, system boundaries'."
 when_to_use: "Use for module/package boundary questions, coupling concerns, dependency-direction analysis, or abstraction-quality review. Do not use for diff review (use review). Do not use for state-transition lifecycle work (use state-machine-review specialist). For monorepo-specific structure, see `_shared/playbooks/monorepo-architecture-checklist.md`."
 argument-hint: "[module|package|subsystem|architectural question]"
 tier: "core"
 aliases: ["architecture-review", "monorepo-architecture"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -53,6 +54,40 @@ Module boundaries, coupling, dependency direction, abstraction quality, long-ter
 No code changes; this skill is read-only. Validate findings by referring to recent commits/PRs that confirm or contradict the assessment.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Architectural Question
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Current Shape
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Intended Shape
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Gaps + Evidence
+    type: section
+    required: true
+    evidence_rule: "file:line citation, command output, or doc reference required"
+  - field: Cost Assessment
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Recommendations
+    type: section
+    required: true
+    evidence_rule: "concrete action; no vague advice"
+  - field: What Would Confirm/Refute
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Architectural Question | Current Shape | Intended Shape (from docs/ADRs) | Gaps + Evidence | Cost Assessment | Recommendations (incremental) | Recommendations (larger redesign, flagged) | What Would Confirm/Refute
 

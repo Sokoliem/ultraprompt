@@ -1,0 +1,4 @@
+{
+  "input": {"prompt": "thanks"},
+  "expected_exit": 0
+}

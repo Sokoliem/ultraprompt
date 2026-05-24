@@ -1,11 +1,12 @@
 ---
 name: "tui-design-innovate"
-description: "When user says 'design a TUI / terminal UI design / Bubble Tea component / Ink interface / TUI interaction pattern / CLI command design' — dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state). DEFAULT for terminal-UI design work."
+description: "**DEFAULT for terminal-UI design work: dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state): runs the tui-design-innovate discipline.**"
 when_to_use: "Manual-only. Invoke for TUI app or framework work: terminal-native interaction, focus management, layout, rendering, input routing, framework primitives. Do not default to browser/desktop GUI assumptions."
 argument-hint: "[surface|framework|interaction]"
 tier: "specialist"
 aliases: ["tui-design-innovate"]
 disable-model-invocation: true
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -53,6 +54,40 @@ The terminal is a native interaction medium with its own affordances: keyboard-f
 Snapshot tests of rendered layout at various terminal sizes. State-machine tests for focus transitions. Manual test on multiple terminals (kitty, alacritty, iTerm, Windows Terminal). Test with screen reader where applicable.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Surface
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Keyboard Interaction Model
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Layout + Focus Graph
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Terminal Reality Handling
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Framework Primitives
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Tests Added
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Cross-Terminal Notes
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Surface | Keyboard Interaction Model | Layout + Focus Graph | Terminal Reality Handling | Framework Primitives | Tests Added | Cross-Terminal Notes
 

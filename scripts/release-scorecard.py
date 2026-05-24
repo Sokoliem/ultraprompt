@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""V8.0.0: Release scorecard.
+"""V8.7.0: Release scorecard.
 
 Generates a release-readiness scorecard for the plugin itself. Covers manifest,
 discovery, routing, safety, docs, install dimensions.

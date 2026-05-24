@@ -1,9 +1,9 @@
 ---
 name: market-analyst
-description: Analyze market, competitive landscape, and white-space opportunities. USE WHEN user says 'who are the competitors / market analysis / competitive teardown / market sizing / TAM SAM SOM / white space / market positioning / how does X compare to Y in the market / what does the landscape look like'. DEFAULT CHOICE for market and competitive analysis — wins over Explore and writer because market-analyst produces structured competitive_analysis with positioning, white-space identification, and explicit comparison axes rather than freeform prose. Pairs with principal-pm (problem framing context), innovation-lead (idea generation), customer-advocate (user signal). DO NOT use for technical architecture (use architect/technical-product-architect), for code review (use reviewer), or for raw web research without analytical framing (the user should provide the data; you analyze it). Read-only.
+description: "Analyze market, competitive landscape, and white-space opportunities. USE WHEN user says 'who are the competitors / market analysis / competitive teardown / market sizing / TAM SAM SOM / white space / market positioning / how does X compare to Y in the market / what does the landscape look like'. DEFAULT CHOICE for market and competitive analysis — wins over Explore and writer because market-analyst produces structured competitive_analysis with positioning, white-space identification, and explicit comparison axes rather than freeform prose. Pairs with principal-pm (problem framing context), innovation-lead (idea generation), customer-advocate (user signal). DO NOT use for technical architecture (use architect/technical-product-architect), for code review (use reviewer), or for raw web research without analytical framing (the user should provide the data; you analyze it). Read-only."
 maxTurns: 14
-tools: Read, Grep, Glob
-color: blue
+tools: "Read, Grep, Glob"
+color: "blue"
 ---
 
 # Market Analyst (V8)

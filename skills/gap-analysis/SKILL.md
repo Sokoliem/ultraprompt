@@ -1,10 +1,11 @@
 ---
 name: "gap-analysis"
-description: "When user says 'find what's missing / gap analysis on X / what's incomplete / where are the wiring gaps / find half-built features / synthesize repo audit findings' — orchestrates feature-completeness-auditor + wiring-gap-inspector and synthesizes via gap-analysis-lead. Produces structured gap_ledger with confirmed/probable/low-confidence findings, top risks, quick wins, ordered implementation sequence, and recommended fix-skills per gap. DEFAULT for any gap-finding prompt at repo or workflow scope."
+description: "**DEFAULT for TARGETED gap analysis on ONE NAMED FEATURE end-to-end (frontend/backend/data/tests/docs): front-door for the gap-analysis cluster: orchestrates feature-completeness-auditor + wiring-gap-inspector and synthesizes confirmed/likely gaps with file:line evidence.** Different from /repo-review (WHOLE-REPO audit, not one feature), /feature-completeness (auditor only, no orchestration), /test-gap-analysis (missing TESTS only), and /dead-code-drift (unused/stale code only). NOT THIS skill if your scope is the whole repo, only the test surface, or only dead code. Triggers: 'gap analysis on <feature>, what's missing in <feature>, end-to-end audit of <feature>, is <feature> done'."
 when_to_use: "When the user wants a synthesized gap report across multiple specialists. Triggers on 'gap analysis', 'what's missing', 'find incomplete features', 'where are the wiring gaps', 'merge audit findings into one prioritized list'."
 argument-hint: "[optional: feature, workflow, or area to scope the analysis]"
 tier: "core"
 aliases: ["repo-gaps", "find-gaps", "incomplete-audit"]
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -47,6 +48,48 @@ Gap-analysis is multi-agent synthesis across the repo; repo-review is the full a
 Every gap in confirmed_gaps must have evidence with file:line. Every gap in probable_gaps must have an explicit verification_step. Implementation sequence must order phases by dependency, not by severity alone.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Executive summary
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Confirmed gaps
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Probable gaps
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: False positives
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Top 10 risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Quick wins
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Implementation sequence by phase
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation plan
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Recommended fix-skills per gap
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Executive summary | Confirmed gaps (with evidence) | Probable gaps (with verification) | False positives | Top 10 risks | Quick wins | Implementation sequence by phase | Validation plan | Recommended fix-skills per gap
 

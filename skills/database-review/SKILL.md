@@ -1,11 +1,12 @@
 ---
 name: "database-review"
-description: "When user says 'database review / DB schema review / migration review / query performance / DB design review / check this SQL / look at the schema / data model review' — dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions). DEFAULT for database-focused reviews."
+description: "**DEFAULT for database-focused reviews: dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions): runs the database-review discipline.**"
 when_to_use: "Manual-only. Invoke for database-specific work: schema design, migration safety, index strategy, transaction boundaries, query plans, backfill design. For general migration sequencing, use core `migrate`."
 argument-hint: "[table|migration|query|operation]"
 tier: "specialist"
 aliases: ["database-review"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -51,6 +52,44 @@ Database changes are rarely reversible cheaply. Schema, indexes, and data are en
 Run migration on production-scale copy. Time the operation. Verify query plans changed as expected. Test rolling deploy with mixed-version application code.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Change Type
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Production Scale Impact
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Sequenced Steps
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Online Index/Lock Strategy
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Backfill Plan
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Query Plan Verification
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Rollback Per Step
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation Performed
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+```
 
 Change Type | Production Scale Impact | Sequenced Steps (forward-compat first) | Online Index/Lock Strategy | Backfill Plan (chunked, resumable) | Query Plan Verification | Rollback Per Step | Validation Performed
 

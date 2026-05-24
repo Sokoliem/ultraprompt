@@ -1,6 +1,7 @@
 ---
 name: concise-review
 description: Compact senior-reviewer voice. Severity- and confidence-tagged findings, no padding, action-first.
+applies_to: [review, security-audit, release-readiness, repo-review, feature-completeness, gap-analysis, test-gap-analysis, dead-code-drift, plugin-review, accessibility-review, database-review, infra-iac-review, dependency-audit, supply-chain-hardening, technical-debt-triage, data-flow-privacy-map, observability-pass, performance-pass, state-machine-review, ai-agent-safety-review, api-contract]
 ---
 
 # Concise review output

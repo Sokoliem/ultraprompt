@@ -1,0 +1,5 @@
+{
+  "input": {"prompt": "please review this PR and check the auth diff for risk"},
+  "expected_exit": 0,
+  "stdout_contains": "ultraprompt routing suggestion"
+}

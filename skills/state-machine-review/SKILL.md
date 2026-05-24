@@ -1,11 +1,12 @@
 ---
 name: "state-machine-review"
-description: "When user says 'state machine review / state transition audit / FSM design review / workflow state review / event-sourced state review' — dispatches reviewer with state-machine focus. DEFAULT for state-machine design and review."
+description: "**DEFAULT for state-machine design and review: dispatches reviewer with state-machine focus: runs the state-machine-review discipline.**"
 when_to_use: "Manual-only. Invoke for state-machine, FSM, reducer, or protocol-lifecycle review. Different cognitive model from architecture review (which handles boundaries) and concurrency (which handles timing). For lock/race/async issues, see `_shared/playbooks/concurrency-patterns.md`."
 argument-hint: "[state machine|reducer|protocol]"
 tier: "specialist"
 aliases: ["state-machine-review"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -55,6 +56,44 @@ Explicit state machines are easier to reason about than implicit ones (booleans 
 Property-based tests on the transition table where feasible. Tests for each transition's pre-condition and post-condition. Tests for stuck-state detection. For persistence: test migration of stored state across version changes.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: State Machine
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Transition Table
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Invariants
+    type: section
+    required: true
+    evidence_rule: "stated as boolean; explain what falsifies it"
+  - field: Impossible States Found
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Stuck States Found
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Concurrent Transition Risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Fixes Applied
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Tests Added
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+```
 
 State Machine | Transition Table | Invariants | Impossible States Found | Stuck States Found | Concurrent Transition Risks | Fixes Applied | Tests Added
 

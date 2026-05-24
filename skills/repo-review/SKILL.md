@@ -1,10 +1,11 @@
 ---
 name: "repo-review"
-description: "When user says 'review this whole repo / what's incomplete / audit the codebase end-to-end / what gaps exist / find what's missing / is this ready to ship' — produces a structured repo review covering map (entrypoints, routes, data, jobs), confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence. DEFAULT for any whole-repo audit prompt. V8 panel-ready skill."
+description: "**DEFAULT for WHOLE-REPO end-to-end audit (map + gaps + drift + test gaps + release readiness in one pass): structured repo review covering map, confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence — V8 panel-ready.** Different from /gap-analysis (ONE feature end-to-end), /feature-completeness (single feature), /dead-code-drift (drift only), /test-gap-analysis (tests only), /release-readiness (ship/no-ship gate only). Triggers: 'audit the codebase, review the whole repo, what's incomplete across the repo, is this ready to ship overall, comprehensive repo audit'."
 when_to_use: "When the user wants a structured whole-repo audit covering map, gaps, contracts, test coverage, drift, and release readiness. Triggers on 'review this repo / what's incomplete / audit the codebase / find what's missing / is this ready to ship / repo health check'."
 argument-hint: "[optional: feature or area to focus on]"
 tier: "core"
 aliases: ["repo-audit", "codebase-review", "repo-health"]
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -46,6 +47,60 @@ Repo review is whole-repo audit; review is diff/PR scope; gap-analysis is one fe
 Every claim in 'confirmed_gaps' must cite a file path. Every claim in 'probable_gaps' must explain the verification step needed. 'release_readiness' status (ready/risky/blocked) must be backed by at least 3 evidence entries. No generic best-practice findings.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Executive summary
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Repo map summary
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Confirmed gaps
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Probable gaps
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Test gaps
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Contract gaps
+    type: section
+    required: true
+    evidence_rule: "consumer + version + breaking-change classification"
+  - field: Stale or dead code
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Release readiness
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Top risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Quick wins
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Recommended implementation sequence
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation plan
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+```
 
 Executive summary | Repo map summary | Confirmed gaps (with file evidence) | Probable gaps (with verification steps) | Test gaps (risk-weighted) | Contract gaps | Stale or dead code | Release readiness (ready/risky/blocked) | Top risks | Quick wins | Recommended implementation sequence | Validation plan
 

@@ -8,9 +8,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 METADATA = ROOT / "dist" / "catalog-metadata.json"
+_CLAUDE_MD = ROOT / "CLAUDE.md" if (ROOT / "CLAUDE.md").exists() else ROOT / "docs" / "CLAUDE.md"
 FILES = [
     ROOT / "README.md",
-    ROOT / "CLAUDE.md",
+    _CLAUDE_MD,
     ROOT / "commands" / "menu.md",
     ROOT / "commands" / "dashboard.md",
     ROOT / "mcp" / "ultraprompt_meta.py",
@@ -46,7 +47,7 @@ def main() -> int:
     for path in FILES:
         text = path.read_text(encoding="utf-8")
         rel = str(path.relative_to(ROOT))
-        if rel in ("README.md", "CLAUDE.md"):
+        if rel in ("README.md", "CLAUDE.md", "docs\\CLAUDE.md", "docs/CLAUDE.md"):
             for token in required:
                 if token not in text:
                     findings.append({"file": rel, "issue": "missing_current_metadata", "token": token})

@@ -1,10 +1,10 @@
 ---
 name: auditor
-description: Focused audit on a specific lane (privacy, a11y, observability, supply-chain, cost, performance, etc.) — single-concern deep dive. USE WHEN user says 'audit X for Y / sweep our code for Z / privacy audit / a11y audit / cost audit / observability audit / supply-chain audit / dependency audit / find all places where W'. DEFAULT CHOICE for single-concern lane audits where focus is named via $ARGUMENTS — wins over Explore (which lacks focus) and security-auditor (which is security-only) because auditor produces a structured concern-specific findings list with evidence per item and ranked severity. DO NOT use for whole-repo audits (use repo-review), code review (use reviewer), or active debugging (use debugger). Pass focus via $ARGUMENTS or skill argument. Read-only.
+description: "Focused audit on a specific lane (privacy, a11y, observability, supply-chain, cost, performance, etc.) — single-concern deep dive. USE WHEN user says 'audit X for Y / sweep our code for Z / privacy audit / a11y audit / cost audit / observability audit / supply-chain audit / dependency audit / find all places where W'. DEFAULT CHOICE for single-concern lane audits where focus is named via $ARGUMENTS — wins over Explore (which lacks focus) and security-auditor (which is security-only) because auditor produces a structured concern-specific findings list with evidence per item and ranked severity. DO NOT use for whole-repo audits (use repo-review), code review (use reviewer), or active debugging (use debugger). Pass focus via $ARGUMENTS or skill argument. Read-only."
 maxTurns: 16
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: orange
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "orange"
 ---
 
 # Auditor (V8)

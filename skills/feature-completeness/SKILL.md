@@ -1,10 +1,11 @@
 ---
 name: "feature-completeness"
-description: "When user says 'is feature X complete / audit this feature end-to-end / does this workflow actually work / find missing pieces of feature W / is the UI wired to the backend / does feature Y persist correctly' — runs end-to-end completeness audit on ONE named feature. Dispatches feature-completeness-auditor with the feature scope. Produces structured incomplete_features findings with file-level evidence, missing parts list, confidence labels, validation plan. DEFAULT for single-feature audits — wins over repo-review (whole repo) and over manual investigation because the auditor knows the layer-by-layer gap patterns."
+description: "**DEFAULT for AUDITOR-ONLY single-feature completeness check (when you already know which feature and do not want orchestration): structured completeness audit for one feature with confirmed/likely/missing controls and file:line evidence; no cross-feature orchestration.** Different from /gap-analysis (orchestrates this auditor + wiring-gap-inspector — use that for cross-cutting feature gaps), /repo-review (whole repo), /test-gap-analysis (missing tests only). Triggers: 'is <feature> complete, audit <feature> for completeness, does <feature> handle <case>'."
 when_to_use: "When the user names ONE feature, workflow, or user journey and wants end-to-end completeness verified. Triggers on 'is X complete', 'audit feature Y', 'does workflow Z work end-to-end', 'find missing pieces of W'."
 argument-hint: "<feature name or workflow description>"
 tier: "core"
 aliases: ["feature-audit", "is-this-complete", "e2e-audit"]
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -46,6 +47,40 @@ Feature-completeness is single-feature scope (UI → API → backend → DB). Re
 Auditor must trace at least: UI entry, API client call, backend route, handler, service, data persistence, response render. Every layer's presence/absence/wiring must have file:line evidence. confidence labels mandatory.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Feature surface map
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Confirmed gaps
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Likely gaps
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Missing tests for the feature
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Likely user impact
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Recommended next steps ordered by dependency
+    type: section
+    required: true
+    evidence_rule: "package + version + source"
+  - field: Validation commands
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+```
 
 Feature surface map | Confirmed gaps (with file:line evidence) | Likely gaps (with verification) | Missing tests for the feature | Likely user impact | Recommended next steps ordered by dependency | Validation commands
 

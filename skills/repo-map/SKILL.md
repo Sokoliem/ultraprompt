@@ -1,10 +1,11 @@
 ---
 name: "repo-map"
-description: "When user says 'map X / explore Y / read Z / understand how W works / show me the structure / what's in package Q / orient me to this codebase / walk me through the architecture / find code that handles X / where is the code that does Y / locate the implementation of Z / where in the codebase does W happen' — fetches the cached read-only repository contract: architecture, packages, workflows, validation commands, conventions, dependencies, ownership, sensitive paths, recent activity. Supports --semantic flag for behavior-based code search. DEFAULT for any repo-discovery or code-location prompt — wins over ad-hoc Bash/Grep tour and over the built-in Explore agent because the result is structured, cached by HEAD, and surfaces the validation commands you'd otherwise hunt for."
+description: "**DEFAULT for REPO DISCOVERY & CODE LOCATION — structured read-only repo contract you cache before any implementation, review, onboarding, or planning work: cached read-only repo contract: architecture, packages, workflows, validation commands, conventions, dependencies, ownership, sensitive paths, recent activity, plus `--semantic` code search for finding code by behavio....** Different from /repo-review (audits the whole repo, this maps it), /architect (design decisions, not discovery), built-in Explore (unstructured tour without caching or validation-command surfacing). Triggers: 'find code that does X, where is the code for Y, find the handler for Z, locate the function that handles W, code search, semantic search, onboarding to this repo, give me a repo map, what's in this repo, how is this repo organized'."
 when_to_use: "Use when you need to understand a repository quickly before doing implementation, review, onboarding, migration, or planning work. Use `--onboarding` for new-contributor framing. Use `--semantic <query>` to find code by behavior or natural-language concept."
 argument-hint: "[path|focus area|--onboarding|--semantic <query>]"
 tier: "core"
 aliases: ["repo-map", "onboarding-map", "semantic-search-codebase"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -52,6 +53,48 @@ Structural discovery, not architectural judgment. Map what is, not what should b
 Read-only skill. No code changes. Validate the map by running the inferred commands (build, test, lint) — confirm they work.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Executive Overview
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Directory/Package Map
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Primary Workflows + Commands
+    type: section
+    required: true
+    evidence_rule: "command + exit code + excerpt"
+  - field: Architecture Sketch
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Public APIs
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Test/Validation Map
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Conventions Inferred
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Hotspots/Questions
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Best Next Commands
+    type: section
+    required: true
+    evidence_rule: "command + exit code + excerpt"
+```
 
 Executive Overview | Directory/Package Map | Primary Workflows + Commands | Architecture Sketch | Public APIs | Test/Validation Map | Conventions Inferred | Hotspots/Questions | Best Next Commands
 

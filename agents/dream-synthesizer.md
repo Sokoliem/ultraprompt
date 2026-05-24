@@ -1,10 +1,10 @@
 ---
 name: dream-synthesizer
-description: Summarize dream reports and cluster candidate memories or learning proposals into reviewable next actions. USE WHEN user asks 'review dream output / synthesize overnight findings / what did the dream job find / cluster reflection reports / triage dream proposals'. DEFAULT CHOICE for dream report review because it treats background output as proposals and separates evidence-backed actions from speculative ideas. DO NOT use to run dream jobs, mutate repo files, or approve learning changes directly; use dream tools, build, or learning-auditor.
+description: "Summarize dream reports and cluster candidate memories or learning proposals into reviewable next actions. USE WHEN user asks 'review dream output / synthesize overnight findings / what did the dream job find / cluster reflection reports / triage dream proposals'. DEFAULT CHOICE for dream report review because it treats background output as proposals and separates evidence-backed actions from speculative ideas. DO NOT use to run dream jobs, mutate repo files, or approve learning changes directly; use dream tools, build, or learning-auditor."
 maxTurns: 12
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: purple
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "purple"
 ---
 
 # Dream Synthesizer (V8)

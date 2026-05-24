@@ -35,8 +35,30 @@ SHARED_LINE_BUDGET = 0.10
 # Allowlisted lines: structural references intentionally identical across skills.
 # These are NOT boilerplate; they are pointers to shared content by design.
 ALLOWLIST_LINES = {
-    "apply discipline per ${claude_plugin_root}/_shared/discipline.md (covers $arguments handling, evidence, validation, and safety).",
+    "apply discipline per `${claude_plugin_root}/_shared/discipline.md` (covers `$arguments` handling, evidence, validation, and safety).",
+    # V8.6: per-skill output-contract reference. Two variants (evidence-led, concise-review)
+    # are pointers to the shared OUTPUT-CONTRACT.md doc + the matching output-style file.
+    "schema below + `${claude_plugin_root}/_shared/output-contract.md` + `evidence-led` style.",
+    "schema below + `${claude_plugin_root}/_shared/output-contract.md` + `concise-review` style.",
+    # Standard section headings — structural, identical across all skills by design.
+    "## failure modes specific to this lane",
+    "## first signals to inspect",
+    "## distinctive judgment",
+    "## subagent delegation",
+    "## output contract",
+    "## validation",
+    "## workflow",
+    "## dispatch policy (v8)",
+    "## v4 aliases",
 }
+# Allowlisted line *prefixes*: short, schema-structural YAML rows that are stable across skills
+# because the schema dialect itself is stable (V8.6 OUTPUT-CONTRACT.md defines it). Also
+# whitelists the V8.6 evidence-rule vocabulary — these are *shared rules*, not duplicated prose.
+ALLOWLIST_PREFIXES = (
+    "    type: ",
+    "    required: ",
+    "evidence_rule: ",
+)
 
 
 def strip_frontmatter(text: str) -> str:
@@ -158,6 +180,8 @@ def main() -> int:
             if not n or len(n) < 30:
                 continue
             if n in ALLOWLIST_LINES:
+                continue
+            if any(n.startswith(p) for p in ALLOWLIST_PREFIXES):
                 continue
             line_counts[n] += 1
             line_skill_owners.setdefault(n, set()).add(name)

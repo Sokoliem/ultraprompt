@@ -1,10 +1,11 @@
 ---
 name: "dead-code-drift"
-description: "When user says 'find dead code / what's stale / unused exports / clean up the repo / find drift / what's deprecated / what's safe to delete / orphaned utilities / find duplicates' — produces a structured drift_findings list with safe-to-remove labels (yes/likely/needs_review/no) and migration plans. DEFAULT for cleanup audits. Different from refactor (applies changes) — dead-code-drift produces the report; user/refactor applies."
+description: "**DEFAULT for UNUSED, STALE, OR DRIFTED CODE ONLY — exports/imports/configs/migrations/fixtures with no live reference: ranked drift findings (safe-to-remove vs needs-review) with reference evidence and quick wins.** Different from /gap-analysis (missing features, not unused code), /feature-completeness (single-feature completeness), /technical-debt-triage (debt with risk×leverage scoring, not drift), /repo-review (whole-repo audit). Triggers: 'dead code, unused exports, stale fixtures, drift, what can we delete'."
 when_to_use: "When the user wants stale/dead/duplicate code identified with safe-to-remove labels."
 argument-hint: "[optional: subdirectory or module to scope the audit]"
 tier: "core"
 aliases: ["cleanup-audit", "find-stale", "drift-hunt"]
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -47,6 +48,36 @@ Dead-code-drift finds and labels stale code; refactor applies cleanup; reviewer 
 Every drift finding must show evidence (grep results or file:line). Safe-to-remove label must have explicit justification. needs_review items must explain the uncertainty.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Drift findings by type
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+  - field: Safe-to-remove distribution
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Quick wins
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Needs-review items requiring human decision
+    type: section
+    required: true
+    evidence_rule: "rationale + alternative considered"
+  - field: Cleanup migration plans
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation commands
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+```
 
 Drift findings by type | Safe-to-remove distribution | Quick wins (label=yes) | Needs-review items requiring human decision | Cleanup migration plans | Validation commands
 

@@ -2,6 +2,7 @@
   "agents": [
     "adversarial",
     "auditor",
+    "builder",
     "catalog-strategist",
     "customer-advocate",
     "dead-code-and-drift-hunter",
@@ -31,18 +32,18 @@
     "writer"
   ],
   "counts": {
-    "agent_specs": 29,
-    "agents": 29,
+    "agent_specs": 30,
+    "agents": 30,
     "artifact_schemas": 17,
-    "commands": 30,
-    "mcp_tools": 42,
+    "commands": 31,
+    "mcp_tools": 43,
     "output_styles": 2,
     "panels": 12,
-    "registered_hooks": 9,
-    "skill_specs": 48,
-    "skills": 48
+    "registered_hooks": 10,
+    "skill_specs": 49,
+    "skills": 49
   },
-  "plugin_version": "8.0.0",
+  "plugin_version": "8.7.0",
   "schema_version": 1,
   "skills": [
     "review",
@@ -92,11 +93,12 @@
     "idea-triage",
     "concept-brief",
     "mvp-scope",
-    "problem-framing"
+    "problem-framing",
+    "choose"
   ],
-  "source_hash": "c2198c63eec27e8fd188968bc7fe84c9187124afc5c956233a3560bef42eb688",
+  "source_hash": "246732f0457f68b9af6b3f9fdff5779f948eca74cd80facdae8922a044392aea",
   "tiers": {
-    "core": 28,
+    "core": 29,
     "ecosystem": 5,
     "specialist": 15
   }

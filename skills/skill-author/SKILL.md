@@ -1,11 +1,12 @@
 ---
 name: "skill-author"
-description: "When user says 'author a new skill / write a skill / design a skill / new skill for X / skill description / skill spec' — produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation). DEFAULT for skill authoring."
+description: "**DEFAULT for skill authoring: produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation): runs the skill-author discipline.**"
 when_to_use: "Manual-only. Invoke for new skill authoring or refining an existing skill body. Also handles CLAUDE.md / AGENTS.md / repo guidance file optimization."
 argument-hint: "[skill name|target]"
 tier: "ecosystem"
 aliases: ["skill-authoring", "claude-md-optimize"]
 disable-model-invocation: true
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -51,6 +52,36 @@ A good skill is mostly unique specialty content with a single discipline referen
 Run validate-plugin.py and audit-duplication.py. Confirm the skill activates on its target intents (router bench positive case). Confirm it doesn't activate on adjacent intents (router bench negative case).
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Skill Frontmatter
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Body Sections
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Aliases Mapped
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Tier Justification
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validator + Duplication Audit Result
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Router Bench Cases Added
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Skill Frontmatter | Body Sections (with rationale per section) | Aliases Mapped | Tier Justification | Validator + Duplication Audit Result | Router Bench Cases Added (positive + negative)
 

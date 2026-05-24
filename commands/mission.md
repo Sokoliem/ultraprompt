@@ -1,6 +1,6 @@
 ---
-description: V8. Mission Control — unified state snapshot. Repo + worktree + sessions + evidence + WIP snapshots + gap ledger + available panels in one view.
-argument-hint: [--write] [--path <worktree>]
+description: "V8. Mission Control — unified state snapshot. Repo + worktree + sessions + evidence + WIP snapshots + gap ledger + available panels in one view."
+argument-hint: "[--write] [--path <worktree>]"
 ---
 
 # Mission Control

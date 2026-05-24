@@ -1,10 +1,11 @@
 ---
 name: "prd-technical"
-description: "When user says 'technical PRD for X / engineering spec / technical product doc / infrastructure PRD / platform feature spec / heavy-tech feature requirements' — produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry. DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk. Combines principal-pm and technical-product-architect outputs."
+description: "**DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk: produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry: runs the prd-technical discipline.**"
 when_to_use: "When the product change is technical-heavy — infrastructure, platform, dev tools, APIs, data pipelines. Less time on customer journey; more time on system shape."
 argument-hint: "<technical feature or platform name>"
 tier: "core"
 aliases: ["tech-prd", "engineering-spec", "infra-prd"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -46,6 +47,76 @@ PRD-technical is for engineering-heavy features; prd-standard is general product
 Product requirements traceable to technical decisions. Every technical change has a product driver OR is flagged as technical-only. At least 5 failure modes. Telemetry for product validation included. Rollback strategy explicit.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Problem statement + evidence
+    type: section
+    required: true
+    evidence_rule: "file:line citation, command output, or doc reference required"
+  - field: Users + jobs-to-be-done
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Goals + non-goals
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Must/should/won't-have requirements
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Scope
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Technical design: data model
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Technical design: API surface
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Technical design: integration points
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Technical design: sequence flows + failure modes
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Technical design: feature flags + telemetry events + metrics
+    type: section
+    required: true
+    evidence_rule: "named metric + sampled value"
+  - field: Performance considerations + security_and_privacy + rollout_technical_plan
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Acceptance criteria
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Rollout plan with phase gates
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation plan
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Open product questions + open technical questions
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design: data model (entities, fields, indexes, migrations) | Technical design: API surface (endpoints, request/response shapes, deprecations) | Technical design: integration points (upstream, downstream, third-party) | Technical design: sequence flows + failure modes (≥5) | Technical design: feature flags + telemetry events + metrics | Performance considerations + security_and_privacy + rollout_technical_plan | Risks (severity × likelihood) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open product questions + open technical questions
 

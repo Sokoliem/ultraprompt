@@ -1,10 +1,11 @@
 ---
 name: "migrate"
-description: "When user says 'migrate from X to Y / breaking change / version upgrade / library swap / framework migration / convert this codebase / move to new API / deprecate old approach' — produces migration plan with phases, compatibility, rollback, validation. DEFAULT for intentional breaking changes. Different from /refactor (behavior-preserving) and /build (new code)."
+description: "**DEFAULT for INTENTIONAL BREAKING CHANGE with explicit migration plan (data, API, or framework): phased migration with pre/action/validate/rollback per step and consumer notification plan.** Different from /refactor (NO behavior change), /build (no migration of existing state/API), /database-review (reviews DB changes but does not own the sequence). Triggers: 'migrate <X> to <Y>, breaking change rollout, deprecate <thing>, upgrade <framework>'."
 when_to_use: "Use for migrations that span multiple steps and require rollback planning. Use `--deps` for dependency upgrade migrations specifically. Do not use for one-shot config changes (just edit them). Do not use for API contract changes (use api-contract for the design; use migrate for the rollout)."
 argument-hint: "[migration scope|--deps]"
 tier: "core"
 aliases: ["migration-plan", "deps-upgrade"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -49,6 +50,44 @@ Migrations must be reversible at each step until the point of no return, which s
 Dry-run on a copy of production-scale data where possible. For schema migrations, time the migration on production-scale dataset. For deps, run the full test matrix. After each step, validate observable behavior matches expectations.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Current State
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Target State
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Constraints
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Sequenced Steps
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Point of No Return
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Estimated Duration
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation Plan
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Rollback Plan
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Current State | Target State | Constraints | Sequenced Steps (each with pre/action/validate/rollback) | Point of No Return | Estimated Duration | Validation Plan | Rollback Plan
 

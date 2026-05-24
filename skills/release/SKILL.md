@@ -1,10 +1,11 @@
 ---
 name: "release"
-description: "When user says 'release notes / write changelog / draft release announcement / document this release / what to ship in release notes / what changed in version X' — dispatches writer for structured release notes / changelog artifact. DEFAULT for release communication artifacts. Different from /release-readiness (audits shipability — separate skill)."
+description: "**DEFAULT for release communication artifacts: dispatches writer for structured release notes / changelog artifact: separate skill).** Different from /release-readiness (audits shipability — separate skill). Triggers: 'release notes / write changelog / draft release announcement / document this release / what to ship in release notes / what changed in version X'."
 when_to_use: "Use for go/no-go assessment, release notes, or changelog drafts. Use `--notes-only` to produce just the notes/changelog without readiness assessment. Do not use mid-development for status updates (use review --summarize)."
 argument-hint: "[version|tag|range|--notes-only]"
 tier: "core"
 aliases: ["release-readiness", "release-notes-changelog", "pr-summarize"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -52,6 +53,40 @@ Release readiness is a checklist + judgment call. The checklist covers tests, br
 Readiness: confirm CI green, confirm migration tested, confirm observability deployed. Notes: cross-check against actual diff to ensure nothing user-facing is missing.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: If readiness: Readiness Checklist
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Risk Assessment
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Go/No-Go Recommendation
+    type: section
+    required: true
+    evidence_rule: "concrete action; no vague advice"
+  - field: Conditions on Go
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Changelog
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Migration Guidance
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Known Issues.
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 If readiness: Readiness Checklist | Risk Assessment | Go/No-Go Recommendation | Conditions on Go (if any). If notes: User-Facing Summary | Changelog (grouped) | Migration Guidance | Known Issues.
 

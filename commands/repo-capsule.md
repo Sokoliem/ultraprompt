@@ -1,7 +1,7 @@
 ---
-description: When entering an unfamiliar repo or starting cross-cutting work, fetch a cached read-only contract: validation commands, configs, ownership, sensitive paths, recent activity. Faster than manual ls/cat tour. Cached by HEAD.
+description: "When entering an unfamiliar repo or starting cross-cutting work, fetch a cached read-only contract: validation commands, configs, ownership, sensitive paths, recent activity. Faster than manual ls/cat tour. Cached by HEAD."
 disable-model-invocation: true
-argument-hint: [path] [--diff-since <ref>] [--force-refresh]
+argument-hint: "[path] [--diff-since <ref>] [--force-refresh]"
 ---
 
 # Repo Capsule (V8)

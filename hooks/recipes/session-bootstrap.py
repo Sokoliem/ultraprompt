@@ -15,6 +15,31 @@ def _imp(n, p):
         return None
 
 
+def _personal_lanes(cfg, config) -> str | None:
+    """Read the user's personal dispatch-bias file and return it as additionalContext,
+    truncated to max_chars. Returns None when disabled or absent."""
+    try:
+        if cfg and not cfg.get(config, "hooks.personal_lanes_enabled", True):
+            return None
+        raw_path = (cfg.get(config, "personal_lanes.file", "~/.claude/ultraprompt-user.md")
+                    if cfg else "~/.claude/ultraprompt-user.md") or "~/.claude/ultraprompt-user.md"
+        path = Path(os.path.expanduser(str(raw_path)))
+        if not path.exists() or not path.is_file():
+            return None
+        max_chars = int((cfg.get(config, "personal_lanes.max_chars", 4000) if cfg else 4000) or 4000)
+        text = path.read_text(encoding="utf-8", errors="replace").strip()
+        if not text:
+            return None
+        if len(text) > max_chars:
+            text = text[:max_chars].rstrip() + "\n... (truncated; raise personal_lanes.max_chars to include more)"
+        return (
+            "ultraprompt personal lanes (`~/.claude/ultraprompt-user.md`) — apply these dispatch biases "
+            "as the first arbitration signal:\n\n" + text
+        )
+    except Exception:
+        return None
+
+
 def main():
     if os.environ.get("ULTRAPROMPT_DISABLE_HOOKS") == "1": return 0
     try: sys.stdin.read()
@@ -25,6 +50,8 @@ def main():
     if not (cfg and ws): return 0
     config = cfg.load_config()
     if not cfg.get(config, "hooks.session_bootstrap_enabled", True): return 0
+
+    personal = _personal_lanes(cfg, config)
     if not cfg.get(config, "ledger.enabled", True): led = None
     repo_root = ws.find_repo_root()
     if repo_root is None: return 0
@@ -54,12 +81,19 @@ def main():
     if dirty >= dt: warns.append(f"{dirty} dirty files (threshold {dt})")
     if unpushed >= upt: warns.append(f"{unpushed} unpushed commits (threshold {upt})")
     if others: warns.append(f"{len(others)} concurrent session(s) active")
-    if not warns: return 0
+    if not warns and not personal:
+        return 0
     branch = state.get("branch") or "(detached)"
-    lines = [f"ultraprompt session bootstrap",
-             f"  repo: {repo_n} · worktree: {cwd.name} · branch: {branch}"]
-    for w in warns: lines.append(f"  ⚠️  {w}")
-    lines.append(f"  run /ultraprompt:status for full picture")
+    lines: list[str] = []
+    if warns:
+        lines.append("ultraprompt session bootstrap")
+        lines.append(f"  repo: {repo_n} · worktree: {cwd.name} · branch: {branch}")
+        for w in warns: lines.append(f"  ⚠️  {w}")
+        lines.append(f"  run /ultraprompt:status for full picture")
+    if personal:
+        if lines:
+            lines.append("")
+        lines.append(personal)
     print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart",
                                               "additionalContext": "\n".join(lines)}}))
     return 0

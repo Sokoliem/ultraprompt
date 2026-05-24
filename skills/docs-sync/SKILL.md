@@ -1,11 +1,12 @@
 ---
 name: "docs-sync"
-description: "When user says 'docs are out of sync / update documentation / fix the README / docs don't match code / sync docs to recent changes / update docs after refactor' — produces documentation update plan + drafts. DEFAULT for documentation drift correction."
+description: "**DEFAULT for documentation drift correction: produces documentation update plan + drafts: runs the docs-sync discipline.**"
 when_to_use: "Manual-only. Invoke when docs may have drifted from code: stale examples, outdated install instructions, removed flags still documented, screenshots showing old UI. For ADR/design doc creation, see `_shared/playbooks/adr-template.md` and `_shared/playbooks/design-doc-template.md`."
 argument-hint: "[doc|surface|version range]"
 tier: "specialist"
 aliases: ["docs-sync"]
 disable-model-invocation: true
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -49,6 +50,40 @@ Documentation drift is silent: nothing fails when README says `npm install` but 
 Run install + quickstart from scratch (clean checkout). Run every code example. Verify CLI help matches documented flags. Verify config schema matches documented config.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Docs Inventory
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Drift Found
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Fixes Applied
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Code-Wrong Findings
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+  - field: Validation: Quickstart Run
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Validation: Examples Run
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Remaining Drift
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Docs Inventory | Drift Found | Fixes Applied (per file) | Code-Wrong Findings (separate fix) | Validation: Quickstart Run | Validation: Examples Run | Remaining Drift
 

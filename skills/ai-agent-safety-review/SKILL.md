@@ -1,11 +1,12 @@
 ---
 name: "ai-agent-safety-review"
-description: "When user says 'AI safety review / agent safety / prompt injection check / LLM safety / agent permissions audit / tool use safety / agentic system review' — dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus. DEFAULT for AI agent safety reviews."
+description: "**DEFAULT for AI agent safety reviews: dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus: runs the ai-agent-safety-review discipline.**"
 when_to_use: "Manual-only. Invoke for AI/LLM safety review: tool-calling boundaries, prompt injection vectors, retrieval trust, memory/context handling, autonomy controls, or prompt hardening for a specific prompt or skill body."
 argument-hint: "[system|tool|prompt|focus]"
 tier: "specialist"
 aliases: ["ai-agent-safety-review", "prompt-hardening"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -57,6 +58,44 @@ LLM systems have a unique attack surface: prompts and retrieved content are mixe
 Run prompt-injection eval cases (test corpus of known injection strings). Test tool argument validation with adversarial inputs. Test memory isolation across simulated users. For prompts: run before/after eval suite if available.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Scope
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Trust Boundary Map
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Tool Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Retrieval Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Memory/Context Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Autonomy Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Hardenings Applied
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Remaining Risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+```
 
 Scope | Trust Boundary Map | Tool Audit (per tool: side effect, confirmation gate, hardening) | Retrieval Audit | Memory/Context Audit | Autonomy Audit | Hardenings Applied | Remaining Risks
 

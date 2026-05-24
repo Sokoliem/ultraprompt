@@ -1,10 +1,11 @@
 ---
 name: "prd-lite"
-description: "When user says 'quick PRD for X / one-pager for feature Y / lightweight spec / draft a fast PRD / opportunity brief / problem-solution memo' — produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria. DEFAULT for early-stage thinking that doesn't yet warrant a full PRD. Less rigor than prd-standard; more rigor than freeform notes."
+description: "**DEFAULT for early-stage thinking that doesn't yet warrant a full PRD: produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria: runs the prd-lite discipline.**"
 when_to_use: "When the user wants a fast, structured product brief — typically for early ideas, feature triage, or single-engineer-team scope. Not appropriate for cross-team or regulated changes."
 argument-hint: "<feature or problem name>"
 tier: "core"
 aliases: ["one-pager", "opportunity-brief", "quick-prd"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -45,6 +46,44 @@ PRD-lite is for early thinking; prd-standard for cross-team work; prd-technical 
 Every problem statement cites evidence. Non-goals explicit. Success criteria with baseline + target. Acceptance criteria in given/when/then. Skip the deeper PRD sections (technical_considerations, rollout_plan) — those go to prd-standard.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Problem statement
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Users + jobs-to-be-done
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Goals + non-goals
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Must-have requirements
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Scope boundaries
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Success criteria
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Top risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Open questions
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Problem statement (with evidence) | Users + jobs-to-be-done | Goals + non-goals | Must-have requirements | Scope boundaries | Success criteria (baseline+target) | Top risks | Open questions
 

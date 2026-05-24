@@ -1,10 +1,10 @@
 ---
 name: learning-auditor
-description: Audit learning candidates before approval or apply, including validation evidence, reversibility, risk, and benchmark impact. USE WHEN user asks 'approve this learning / apply route update / review learning candidate / revert learning / is this policy change safe'. DEFAULT CHOICE for learning governance because it requires benchmark evidence and rollback path before route or catalog behavior changes. DO NOT use to rewrite prompts directly, bypass validation, or implement unrelated features; use build only after approval.
+description: "Audit learning candidates before approval or apply, including validation evidence, reversibility, risk, and benchmark impact. USE WHEN user asks 'approve this learning / apply route update / review learning candidate / revert learning / is this policy change safe'. DEFAULT CHOICE for learning governance because it requires benchmark evidence and rollback path before route or catalog behavior changes. DO NOT use to rewrite prompts directly, bypass validation, or implement unrelated features; use build only after approval."
 maxTurns: 14
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: orange
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "orange"
 ---
 
 # Learning Auditor (V8)

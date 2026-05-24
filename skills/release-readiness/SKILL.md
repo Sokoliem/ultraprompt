@@ -1,10 +1,11 @@
 ---
 name: "release-readiness"
-description: "When user says 'is this ready to ship / release readiness / ship/no-ship / can we deploy / pre-release audit / production-ready check / what's blocking release' — produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence. DEFAULT for shipability assessment. Different from release (writes notes/changelog) — release-readiness audits whether the codebase is shippable."
+description: "**DEFAULT for shipability assessment: produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence: release-readiness audits whether the codebase is shippable.** Different from release (writes notes/changelog) — release-readiness audits whether the codebase is shippable."
 when_to_use: "When the user wants a ship/no-ship verdict with blockers and remediation sequence."
 argument-hint: "[optional: target environment or release version]"
 tier: "core"
 aliases: ["ship-readiness", "release-check", "production-audit"]
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -47,6 +48,40 @@ Release-readiness assesses shipability; release writes release notes; release-sc
 Every blocker and warning must cite file:line evidence (or absence-of-file). Verdict follows verdict rules: 0 blockers + acceptable warnings = ready; 0 blockers + many warnings = risky; ≥1 blocker = blocked.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Verdict
+    type: section
+    required: true
+    evidence_rule: "Approve|Approve with comments|Request changes|Needs clarification"
+  - field: Blockers with evidence
+    type: section
+    required: true
+    evidence_rule: "file:line or system reference + why it blocks"
+  - field: Warnings ranked
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Missing operational controls
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Required validation commands
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Rollback concerns
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Phased release sequence with gate criteria
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Verdict (ready/risky/blocked) | Blockers with evidence | Warnings ranked | Missing operational controls | Required validation commands | Rollback concerns | Phased release sequence with gate criteria
 

@@ -11,20 +11,31 @@ SPECS = ROOT / "source" / "agent-specs.json"
 AGENTS = ROOT / "agents"
 
 
+def yaml_quote(value: str) -> str:
+    """Emit a value as a strict-YAML double-quoted scalar.
+
+    `description` lines routinely contain colons, em-dashes, single quotes, and
+    backticks. Strict YAML parsers (e.g., Claude Code's `plugin validate`) reject
+    unquoted scalars with `: ` in them. Double-quote and escape with backslashes.
+    """
+    s = str(value).replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{s}"'
+
+
 def build_agent(spec: dict) -> str:
     front = [
         "---",
         f"name: {spec['name']}",
-        f"description: {spec['description']}",
+        f"description: {yaml_quote(spec['description'])}",
     ]
     if spec.get("max_turns"):
         front.append(f"maxTurns: {spec['max_turns']}")
     if spec.get("tools"):
-        front.append(f"tools: {spec['tools']}")
+        front.append(f"tools: {yaml_quote(spec['tools'])}")
     if spec.get("disallowed_tools"):
-        front.append(f"disallowedTools: {spec['disallowed_tools']}")
+        front.append(f"disallowedTools: {yaml_quote(spec['disallowed_tools'])}")
     if spec.get("color"):
-        front.append(f"color: {spec['color']}")
+        front.append(f"color: {yaml_quote(spec['color'])}")
     front.append("---")
     return "\n".join(front) + "\n" + spec["body"].rstrip() + "\n"
 

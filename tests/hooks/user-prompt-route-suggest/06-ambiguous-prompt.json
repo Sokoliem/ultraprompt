@@ -1,0 +1,5 @@
+{
+  "input": {"prompt": "audit my dependencies and find dead code"},
+  "expected_exit": 0,
+  "stdout_contains": "ultraprompt:choose"
+}

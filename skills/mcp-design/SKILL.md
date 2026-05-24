@@ -1,11 +1,12 @@
 ---
 name: "mcp-design"
-description: "When user says 'design an MCP server / MCP tool design / MCP architecture / how should I expose this as MCP / MCP capability design' — dispatches reviewer/architect with MCP focus. DEFAULT for MCP design tasks."
+description: "**DEFAULT for MCP design tasks: dispatches reviewer/architect with MCP focus: runs the mcp-design discipline.**"
 when_to_use: "Manual-only. Invoke for MCP server design, audit, or tool-boundary review. Combines V4's mcp-integration-design and mcp-server-audit."
 argument-hint: "[server|tool|surface]"
 tier: "ecosystem"
 aliases: ["mcp-integration-design", "mcp-server-audit"]
 disable-model-invocation: true
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -52,6 +53,36 @@ MCP tools are model-callable functions with structured I/O. The interface is the
 Run --self-test (returns tools/list JSON). Run JSON-RPC smoke test (initialize + tools/list + tools/call for each tool). Test error cases (missing required fields, invalid types).
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Server Purpose
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Tool Inventory
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Self-Test Result
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: JSON-RPC Smoke Test Result
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Plugin Integration
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Recommendations
+    type: section
+    required: true
+    evidence_rule: "concrete action; no vague advice"
+```
 
 Server Purpose | Tool Inventory (per tool: side effect class, schema, output) | Self-Test Result | JSON-RPC Smoke Test Result | Plugin Integration | Recommendations
 

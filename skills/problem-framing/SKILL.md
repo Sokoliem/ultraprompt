@@ -1,10 +1,11 @@
 ---
 name: "problem-framing"
-description: "When user says 'reframe this problem / what's the real problem / problem statement / different ways to think about this / am I framing this right / what are we actually solving / job-to-be-done framing' — produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications. DEFAULT for problem-framing decisions. Helps avoid solving the wrong problem."
+description: "**DEFAULT for problem-framing decisions: produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications: runs the problem-framing discipline.**"
 when_to_use: "When the user has a problem statement but suspects it might be framed wrong, or wants to explore alternative framings before locking in a direction. Critical pre-PRD step if problem framing affects what to build."
 argument-hint: "<problem statement or topic>"
 tier: "core"
 aliases: ["reframe-problem", "problem-statement", "job-framing"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -48,6 +49,32 @@ Problem-framing reframes a known problem; opportunity-map explores opportunity s
 Minimum 3 reframings produced. Each names its lens. Each has explicit implications. Each names what it excludes. Recommended framing has reasoning.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Original problem statement
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: 3-5 reframings
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Recommended framing with reasoning
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Key assumptions in recommended framing
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Open questions
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Original problem statement | 3-5 reframings (with lens + rephrased problem + implications + what-it-excludes) | Recommended framing with reasoning | Key assumptions in recommended framing | Open questions
 

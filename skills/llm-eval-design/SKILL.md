@@ -1,11 +1,12 @@
 ---
 name: "llm-eval-design"
-description: "When user says 'how do we evaluate this LLM feature / eval plan for AI / measure model quality / offline eval / online eval / LLM benchmarks for our use case / agent evaluation strategy' — dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency). DEFAULT for LLM/agent eval design."
+description: "**DEFAULT for LLM/agent eval design: dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency): runs the llm-eval-design discipline.**"
 when_to_use: "Manual-only. Invoke for eval suite design: rubrics, golden cases, graders, thresholds. For runtime safety review of an LLM system, use specialist `ai-agent-safety-review`."
 argument-hint: "[system|capability|prompt under test]"
 tier: "specialist"
 aliases: ["llm-eval-design"]
 disable-model-invocation: true
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -49,6 +50,40 @@ Evals are tests for stochastic systems. Three-tier structure: (1) golden cases (
 Run the eval against the current system to establish baseline. Run against a known-broken version to confirm the eval catches it. Validate grader against human labels on a sample.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Capability Under Test
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Failure Modes Targeted
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Three-Tier Case Set
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Grader Implementation + Validation
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Baseline + Thresholds
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: CI Wiring
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Variance Notes
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Capability Under Test | Failure Modes Targeted | Three-Tier Case Set | Grader Implementation + Validation | Baseline + Thresholds | CI Wiring | Variance Notes
 

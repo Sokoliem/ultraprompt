@@ -1,4 +1,4 @@
-# Ultraprompt Discipline (V5)
+# Ultraprompt Discipline (V8.6)
 
 Read this once at session start. All Ultraprompt skills assume this file governs your behavior. Do not repeat its contents in your responses or in skill bodies.
 
@@ -33,9 +33,11 @@ Prioritize observed issues with concrete impact. Avoid speculative findings unle
 
 Before producing a final answer, you may call `claim_check` (MCP tool) to scan your draft for unbacked claims. The Stop hook is a backstop, not the primary check.
 
-## 4. Subagent and orchestration strategy (V6.4)
+**Build-skill requirement (V8.6):** `/ultraprompt:build` and the `ultraprompt:builder` agent MUST call `claim_check` before declaring success. Failing or unresolved claims block the ship verdict and surface in the `Claim-check result` section of the output.
 
-**Default for skills with a corresponding specialist agent: dispatch.** The 18 skills with `dispatch_to` in their spec ship with explicit Task templates in their SKILL.md body. Follow them.
+## 4. Subagent and orchestration strategy (V8.6)
+
+**Default for skills with a corresponding specialist agent: dispatch.** Skills with `dispatch_to` in their spec ship with explicit Task templates in their SKILL.md body. Follow them. The `UserPromptSubmit` `route_suggest` hook (V8.6) may inject a high-confidence dispatch nudge into context — when present, treat it as the first arbitration signal unless a personal-lanes bias in `~/.claude/ultraprompt-user.md` says otherwise.
 
 The reason: specialist agents run with clean context windows and persona-locked system prompts. The main thread accumulates tool history that pollutes context for subsequent turns. Dispatching to `ultraprompt:reviewer` (or `:security-auditor`, `:debugger`, etc.) keeps the main thread's context budget intact and lets the specialist persona steer the actual work.
 
@@ -50,7 +52,9 @@ Otherwise: dispatch. Context hygiene is the default; inline is the exception.
 
 **For panel patterns** — when the work benefits from parallel specialists (cross-cutting review, multi-cause debug, multi-surface migration assessment), use `/ultraprompt:panel-run <pattern>` instead of dispatching a single agent. The panel synthesizes findings across N parallel subagents.
 
-**For interactive multi-step work** (build, refactor, migrate, ci-repair) — these skills are inline-only because the user iterates with the model on each step. The skill bodies don't include a dispatch policy section. If the analysis phase of an interactive skill is itself bounded (e.g., debugging root-cause analysis before fix application), you may dispatch the analysis phase only — see the relevant skill body.
+**For interactive multi-step work** (refactor, migrate, ci-repair) — these skills are inline-only because the user iterates with the model on each step. The skill bodies don't include a dispatch policy section. If the analysis phase of an interactive skill is itself bounded (e.g., debugging root-cause analysis before fix application), you may dispatch the analysis phase only — see the relevant skill body.
+
+**Build is dispatch-capable (V8.6).** `/ultraprompt:build` dispatches to `ultraprompt:builder` when scope is multi-file or introduces a new public surface and stays inline for single-function tweaks. Either path requires `claim_check` before declaring success.
 
 **Cost trade-off**: dispatching costs roundtrips and a separate context window. Defensible only when the work is consequential. Don't dispatch a subagent to answer "what does this function do?" — that's inline by definition. Do dispatch when the user asks for an audit, review, root-cause analysis, or scope-bounded specialist sweep.
 

@@ -1,5 +1,62 @@
 # Changelog
 
+## [8.7.0] - 2026-05-23
+
+**V8.7.0 — interactive routing picker.** Replaces the silent ambient nudge on
+ambiguous prompts with a deliberate, visible selection moment: `AskUserQuestion`
+with side-by-side previews of skill options and LLM-rewritten prompt variants,
+followed by automatic dispatch of the chosen skill. Clear high-confidence
+prompts keep the V8.6 silent nudge — no added friction.
+
+### Added
+
+- **Ambiguity branch** in `hooks/recipes/user-prompt-route-suggest.py` — calls `route_intent` with `limit=3`, computes top-1 vs top-2 score gap, and (a) when the gap is < `ambiguity_gap` (default `0.15`) or (b) when the top match is `medium` confidence, emits a directive instructing the model to invoke `ultraprompt:choose` before answering. Carries the top-3 candidate JSON inline so the picker skill doesn't have to re-score.
+- **`route_picker` MCP tool** (`mcp/ultraprompt_meta.py`) — ranked candidates + previews extracted from each candidate's `## Distinctive judgment` + `## Output contract` sections, plus ambiguity metadata (`{gap, is_ambiguous}`).
+- **`ultraprompt:choose` skill** (`skills/choose/SKILL.md`, tier=core, aliases: `pick`, `route-interactive`) — orchestrator skill. Calls `route_picker`, generates 2 LLM-rewritten prompt variants (re-routes each via `route_intent` to pair with their best-matching skill), builds an `AskUserQuestion` with up to 4 options (top + 2nd + 2 rewrites), and dispatches the chosen skill with the chosen phrasing. Handles `manual_only` skills by surfacing the slash command for the user to run.
+- **`/ultraprompt:choose <intent>` slash command** (`commands/choose.md`) — manual invocation alongside the auto-trigger.
+- **Telemetry**: `route_picker_triggered` (hook) and `route_picker_query` (MCP tool) and `route_picker_choice` (skill body) events flow through the existing `ledger-v2.py` to `/ultraprompt:dashboard` and `/ultraprompt:usage`. Feeds the learning queue with signal when users systematically prefer non-top routes.
+- **Hook fixtures**: `06-ambiguous-prompt.json`, `07-picker-carries-inline-candidates.json`, `08-high-confidence-keeps-nudge.json` lock in both branches.
+
+### Changed
+
+- Version bumped to `8.7.0` across `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, `marketplace.json`, `README.md`, `docs/CLAUDE.md`, MCP tool descriptions, agent header markers, and the session-start banner.
+- `audit-doc-metadata.py` now finds `CLAUDE.md` at the plugin root OR under `docs/` (CLAUDE.md was relocated to `docs/` to satisfy the `claude plugin validate` advisory about root CLAUDE.md not being loaded as project context).
+- Counts: 48 → **49 skills** (new `choose`), 42 → **43 MCP tools** (new `route_picker`), 29 → **30 commands** (new `/ultraprompt:choose`).
+
+### Configuration
+
+New `[route_suggest]` flags: `picker_enabled` (default `true`), `ambiguity_gap` (default `0.15`), `ambiguity_medium_confidence` (default `true`). All existing V8.6 flags still apply.
+
+## [8.6.0] - 2026-05-23
+
+**V8.6.0 — dispatch & quality discipline.** Closes the gap surfaced by the V8.0
+adoption audit: dispatch policy and output discipline lived in docs the parent
+session never loaded at decision time. V8.6 puts those decisions in front of
+the model at arbitration time and makes every skill's output contract
+machine-checkable.
+
+### Added
+
+- **UserPromptSubmit `route_suggest` hook** (`hooks/recipes/user-prompt-route-suggest.py`) — on each prompt, scores against the V8 skill index; when a specialist scores `high` and the prompt is not already routed, injects a single-line dispatch nudge into context. Fail-open, respects `ULTRAPROMPT_DISABLE_HOOKS=1`, configurable via `[route_suggest]` config block.
+- **YAML output schemas** in every SKILL.md — `output_schema` field on each spec emits a structured `schema:` YAML block above the prose contract; each field declares `type`, `required`, and `evidence_rule`. Schema is authoritative for structure; output style is additive.
+- **Output styles auto-attached** via skill frontmatter — every skill now declares `output_style: evidence-led` (default) or `output_style: concise-review` (review-shaped skills). Regenerator emits the binding in frontmatter and adds an "Output style" body section pointing to the matching `output-styles/<name>.md` file.
+- **`ultraprompt:builder` agent** (`agents/builder.md`) — implements the build skill's discipline with a hard `claim_check` gate before declaring success. Returns files-changed, tests-added, validation-runs, claim-check-result, and remaining-assumptions.
+- **Personal-lanes injection** — when `~/.claude/ultraprompt-user.md` exists, `session-bootstrap.py` injects its contents as the first arbitration signal. Template ships at `docs/personal-lanes-template.md`.
+- **`migrate-skill-specs-v8-6.py`** — one-shot, idempotent migration that derives `output_schema` from existing pipe contracts, assigns `output_style`, and rewrites `description` to lead with the DEFAULT claim + name competing skills.
+
+### Changed
+
+- **Skill descriptions rewritten** — every skill's `description` now leads with `**DEFAULT for <X>: <verb-phrase>.**`, names competing slash commands explicitly (`/refactor`, `/migrate`, `/test-harden`, etc.), and pushes trigger phrases to the end. First seven words now carry the differentiator instead of `When user says 'X / Y / Z' —`.
+- **Build skill rewritten** — dispatches to `ultraprompt:builder` for multi-file scope, stays inline for single-function tweaks, and gates success behind `claim_check` (no longer "may call" — required).
+- **Gap-analysis cluster de-collided** — `gap-analysis` (ONE NAMED FEATURE end-to-end front door), `feature-completeness` (auditor only), `dead-code-drift` (drift only), `test-gap-analysis` (tests only), `repo-review` (whole repo) — each now leads with its disambiguator and an explicit "NOT THIS skill if …" pointer to its siblings.
+- **`/route` and `/menu` auto-invokable** — removed `disable-model-invocation: true` so Claude can fall back to routing autonomously when the right specialist is ambiguous.
+- **Session-start banner** rewritten to surface V8.6 dispatch defaults (including the new `build → builder` row) and the new inline-only list.
+- Version bumped to `8.6.0` across `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, `marketplace.json`, `README.md`, `CLAUDE.md`, MCP tool descriptions, and agent header markers.
+
+### Configuration
+
+New `[hooks]` flags: `route_suggest_enabled`, `output_style_inject_enabled`, `personal_lanes_enabled`. New `[route_suggest]` block (`min_tokens`, `min_score`, `accept_medium`, `only_unrouted`). New `[output_style].default = "evidence-led"`. New `[personal_lanes].file` and `max_chars`.
+
 ## [8.0.0] - 2026-05-11
 
 **V8.0.0 - cognitive control plane.** Ships the full V8 local-first cognitive layer and renames the public project identity to `ultraprompt`.

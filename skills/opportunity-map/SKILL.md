@@ -1,10 +1,11 @@
 ---
 name: "opportunity-map"
-description: "When user says 'opportunity map / what opportunities exist / market opportunity analysis / where are the openings / strategic opportunity assessment / opportunity space / what should we explore' — produces structured opportunity map with market/competitive/customer/internal axes, sized opportunities, evidence per zone, and recommended focus. DEFAULT for opportunity space exploration. Different from /idea-triage (ranks existing ideas) and /concept-brief (drafts one chosen concept)."
+description: "**DEFAULT for opportunity space exploration: produces structured opportunity map with market/competitive/customer/internal axes, sized opportunities, evidence per zone, and recommended focus: runs the opportunity-map discipline.** Different from /idea-triage (ranks existing ideas) and /concept-brief (drafts one chosen concept). Triggers: 'opportunity map / what opportunities exist / market opportunity analysis / where are the openings / strategic opportunity assessment / opportunity space / what should we explore'."
 when_to_use: "When the user wants a structured view of where opportunities exist across market, competitive, customer, and internal strategic axes. Triggers on opportunity space exploration, strategic planning, white-space identification, and pre-roadmap thinking."
 argument-hint: "[optional: domain or market area to focus on]"
 tier: "core"
 aliases: ["white-space-analysis", "opportunity-space", "market-opportunities"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -46,6 +47,44 @@ Opportunity-map explores the opportunity space (broad); concept-brief drafts one
 Every opportunity zone has evidence (customer signal, market gap, competitive weakness). Every recommendation has reasoning. No 'pursue everything' outputs.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Market axes
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Occupied zones
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Underserved zones with evidence
+    type: section
+    required: true
+    evidence_rule: "file:line citation, command output, or doc reference required"
+  - field: Sized opportunities
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Barriers to entry per zone
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Our fit per zone
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Recommended focus
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation plan per recommended zone
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+```
 
 Market axes | Occupied zones (who serves which) | Underserved zones with evidence | Sized opportunities (where data available) | Barriers to entry per zone | Our fit per zone | Recommended focus (2-3) with rationale | Validation plan per recommended zone
 

@@ -1,10 +1,11 @@
 ---
 name: "concept-brief"
-description: "When user says 'concept brief for X / one-pager for this concept / quick concept doc / concept summary / explain this idea in a page / concept-stage spec / pre-PRD concept' — produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required). DEFAULT for concept-stage thinking. Lighter than prd-lite; richer than a freeform notes."
+description: "**DEFAULT for concept-stage thinking: produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required): runs the concept-brief discipline.**"
 when_to_use: "When the user has chosen one concept and wants a structured one-page brief that captures the concept clearly enough for stakeholder review or pre-PRD validation."
 argument-hint: "<concept name or topic>"
 tier: "core"
 aliases: ["concept-doc", "concept-one-pager"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -45,6 +46,44 @@ Concept-brief is concept-stage (one chosen idea, not yet PRD); prd-lite is fast 
 Differentiator explicit (what makes this approach different). Top risks named (3-5). Validation plan present. Decision-required statement explicit.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Problem statement
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Target users + jobs
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Proposed approach summary
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Key differentiator
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Success criteria sketch
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Top risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Validation plan
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Decision required from stakeholders
+    type: section
+    required: true
+    evidence_rule: "rationale + alternative considered"
+```
 
 Problem statement | Target users + jobs | Proposed approach summary | Key differentiator | Success criteria sketch | Top risks (3-5) | Validation plan | Decision required from stakeholders
 

@@ -21,8 +21,14 @@ SUPPORTED_SKILL_FIELDS = {
     "disable-model-invocation", "user-invocable", "allowed-tools",
     "model", "effort", "context", "agent", "hooks", "paths", "shell",
     "tier", "aliases",
+    # V8.6: skill -> output-style binding (auto-attach via frontmatter).
+    "output_style",
 }
-SUPPORTED_OUTPUT_STYLE_FIELDS = {"name", "description", "keep-coding-instructions"}
+SUPPORTED_OUTPUT_STYLE_FIELDS = {
+    "name", "description", "keep-coding-instructions",
+    # V8.6: output-style -> skill binding for tooling that wires styles to skills.
+    "applies_to",
+}
 SUPPORTED_TIERS = {"core", "specialist", "ecosystem"}
 REQUIRED_AGENT_FIELDS = {"name", "description"}
 VALID_NAME = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")

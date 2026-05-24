@@ -1,11 +1,12 @@
 ---
 name: "technical-debt-triage"
-description: "When user says 'triage tech debt / which debt to pay down / debt prioritization / what should we refactor first / debt impact assessment / tech debt audit' — produces ranked tech debt list with impact + effort + recommended sequencing. DEFAULT for tech debt prioritization."
+description: "**DEFAULT for tech debt prioritization: produces ranked tech debt list with impact + effort + recommended sequencing: runs the technical-debt-triage discipline.**"
 when_to_use: "Manual-only. Invoke for maintenance-backlog work: debt inventory, modernization sequencing, 30/60/90-day plans, contributor friction, build/test speed audit. Consolidates V4's tech-debt-triage, codebase-health, developer-experience-audit, build-test-optimizer."
 argument-hint: "[scope|focus: debt|dx|build-speed|health]"
 tier: "specialist"
 aliases: ["technical-debt-triage", "codebase-health", "developer-experience-audit"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -51,6 +52,36 @@ Maintenance backlog is shaped like an inventory + sequencing problem. The invent
 No code changes. Validate by referring to recent incidents and contributor pain that confirm the items in the inventory.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Scope + Focus
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Inventory
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Risk × Leverage / Cost Scoring
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: 30/60/90 Sequenced Plan
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Measurement Targets per Bucket
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Specific Build/DX Bottlenecks
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Scope + Focus | Inventory (file-level when possible) | Risk × Leverage / Cost Scoring | 30/60/90 Sequenced Plan | Measurement Targets per Bucket | Specific Build/DX Bottlenecks (if applicable)
 

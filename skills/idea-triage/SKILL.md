@@ -1,10 +1,11 @@
 ---
 name: "idea-triage"
-description: "When user says 'triage ideas / which ideas to pursue / rank these features / prioritize backlog / decide which ideas to build / idea evaluation / sort the idea list / must-kill / should we build X or Y' — runs structured triage of existing ideas with weighted criteria (customer impact, strategic fit, effort, evidence strength, risk). Produces ranked list with pursue/validate/defer/reject recommendations. DEFAULT for deciding what to build from a known set of options."
+description: "**DEFAULT for deciding what to build from a known set of options: runs structured triage of existing ideas with weighted criteria (customer impact, strategic fit, effort, evidence strength, risk): runs the idea-triage discipline.**"
 when_to_use: "When the user has a list of ideas/features/options and needs ranked recommendations. Triggers on backlog prioritization, post-brainstorm triage, options narrowing, must-kill decisions."
 argument-hint: "[idea list path or topic]"
 tier: "core"
 aliases: ["prioritize-ideas", "backlog-triage", "feature-prioritization"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -47,6 +48,40 @@ Idea-triage ranks existing ideas; opportunity-map explores the space; problem-fr
 Triage criteria weighted (not uniform). Every idea has per-criterion breakdown. Must-kill recommendations have specific reason. Pursue recommendations capped at ~30% of total or have explicit justification for higher rates.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Triage criteria with weights
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Ranked ideas with scores
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Per-criterion breakdown per idea
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Recommendations
+    type: section
+    required: true
+    evidence_rule: "concrete action; no vague advice"
+  - field: Must-kill list with reasons
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Must-pursue list with reasons
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation steps for 'validate-first' items
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+```
 
 Triage criteria with weights | Ranked ideas with scores | Per-criterion breakdown per idea | Recommendations (pursue/validate/defer/reject) | Must-kill list with reasons | Must-pursue list with reasons | Validation steps for 'validate-first' items
 

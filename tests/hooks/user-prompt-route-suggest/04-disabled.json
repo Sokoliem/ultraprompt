@@ -1,0 +1,5 @@
+{
+  "input": {"prompt": "please review this PR and check the auth diff for risk"},
+  "env": {"ULTRAPROMPT_DISABLE_HOOKS": "1"},
+  "expected_exit": 0
+}

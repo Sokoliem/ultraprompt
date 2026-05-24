@@ -1,0 +1,5 @@
+{
+  "input": {"prompt": "please review this PR for injection risk in auth diff"},
+  "expected_exit": 0,
+  "stdout_contains": "routing suggestion (high)"
+}

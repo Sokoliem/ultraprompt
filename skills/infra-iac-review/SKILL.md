@@ -1,11 +1,12 @@
 ---
 name: "infra-iac-review"
-description: "When user says 'IaC review / Terraform review / CloudFormation / Pulumi review / infrastructure code review / Helm review / k8s manifest review' — dispatches reviewer with infrastructure-as-code focus. DEFAULT for IaC reviews."
+description: "**DEFAULT for IaC reviews: dispatches reviewer with infrastructure-as-code focus: runs the infra-iac-review discipline.**"
 when_to_use: "Manual-only. Invoke for IaC review (Terraform, Pulumi, CloudFormation), Kubernetes manifests, Docker/compose, IAM policies, secret management, runtime config drift, or scheduled job audit. For supply-chain image provenance, use specialist `supply-chain-hardening`."
 argument-hint: "[surface|module|cluster|policy]"
 tier: "specialist"
 aliases: ["infra-iac-review", "cron-job-audit"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -56,6 +57,44 @@ Infrastructure changes have blast radius. IAM is least-privilege by intent, ofte
 Run `terraform plan` (or equivalent) — should be clean after changes. Run any IaC test framework (terratest, kitchen-terraform). Trigger scheduled jobs in a test environment to confirm alerting fires on failure.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Scope
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: IAM Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Secret Handling Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Scheduled Job Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Drift Status
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Container/K8s Hardening
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Fixes Applied
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Remaining Risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+```
 
 Scope | IAM Audit | Secret Handling Audit | Scheduled Job Audit | Drift Status | Container/K8s Hardening | Fixes Applied | Remaining Risks
 

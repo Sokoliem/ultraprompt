@@ -1,5 +1,5 @@
 ---
-description: Query and govern Ultraprompt V8 typed memory: candidates, promotion, lifecycle, export, forget, and stats.
+description: "Query and govern Ultraprompt V8 typed memory: candidates, promotion, lifecycle, export, forget, and stats."
 argument-hint: "[query|write-candidate|promote|forget|stats|export] [filters]"
 ---
 

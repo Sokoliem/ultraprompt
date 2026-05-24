@@ -1,0 +1,4 @@
+{
+  "input": {"prompt": "/ultraprompt:review the auth diff with focus on injection vectors"},
+  "expected_exit": 0
+}

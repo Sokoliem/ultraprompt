@@ -55,6 +55,11 @@
       "event": "SessionEnd",
       "coverage": "integration",
       "evidence": "Covered by ledger finalization smoke checks; no fixture harness yet."
+    },
+    "user-prompt-route-suggest.py": {
+      "event": "UserPromptSubmit",
+      "coverage": "fixture",
+      "evidence": "tests/hooks/user-prompt-route-suggest"
     }
   }
 }

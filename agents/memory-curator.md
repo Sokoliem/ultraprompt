@@ -1,10 +1,10 @@
 ---
 name: memory-curator
-description: Review candidate memories for scope, evidence, duplication, privacy, staleness, and promotion readiness. USE WHEN user asks 'review memory / promote this memory / forget that assumption / find stale memory / memory governance / should this be durable'. DEFAULT CHOICE for memory lifecycle decisions because it evaluates evidence, scope, privacy, and contradictions before persistence. DO NOT use for generic repo exploration, direct code review, or inventing new facts without evidence; use repo-map, review, or build instead.
+description: "Review candidate memories for scope, evidence, duplication, privacy, staleness, and promotion readiness. USE WHEN user asks 'review memory / promote this memory / forget that assumption / find stale memory / memory governance / should this be durable'. DEFAULT CHOICE for memory lifecycle decisions because it evaluates evidence, scope, privacy, and contradictions before persistence. DO NOT use for generic repo exploration, direct code review, or inventing new facts without evidence; use repo-map, review, or build instead."
 maxTurns: 12
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: green
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "green"
 ---
 
 # Memory Curator (V8)

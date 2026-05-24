@@ -1,11 +1,12 @@
 ---
 name: "agent-author"
-description: "When user says 'author a new agent / write an agent / design an agent / new subagent / create an agent for X / agent description' — produces a new agent definition (.md with frontmatter + body) following the V8 quality bar (USE WHEN/DEFAULT/DO NOT triggers + required output contract + lane boundaries + anti-patterns). DEFAULT for agent authoring."
+description: "**DEFAULT for agent authoring: produces a new agent definition (: runs the agent-author discipline.**"
 when_to_use: "Manual-only. Invoke for new agent authoring or refining an existing agent. Also covers agent orchestration patterns and team-style invocation design."
 argument-hint: "[agent name|target]"
 tier: "ecosystem"
 aliases: ["agent-authoring", "agent-orchestration-plan", "agent-team-playbook"]
 disable-model-invocation: true
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -46,6 +47,36 @@ A good agent has tight tool permissions (least-privilege), a sharp body that exp
 Run validate-plugin.py. Smoke-test: dispatch the agent from a parent skill in a test scenario; confirm it returns the expected structured output.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Agent Frontmatter
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Tool Permission Justification
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Body Sections
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Return Contract
+    type: section
+    required: true
+    evidence_rule: "consumer + version + breaking-change classification"
+  - field: Orchestration Update
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validator Result
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Agent Frontmatter | Tool Permission Justification | Body Sections | Return Contract | Orchestration Update | Validator Result
 

@@ -44,6 +44,31 @@ def bulleted_list(items: list[str]) -> str:
     return "\n".join(f"- {item}" for item in items)
 
 
+def render_output_schema(schema: list[dict[str, Any]] | None) -> str:
+    """Render the structured output schema as a YAML block.
+
+    Each entry is `{field, type, required, evidence_rule, description}`. Schema is
+    authoritative for output structure; an output style adds tone/formatting on top.
+    """
+    if not schema:
+        return ""
+    parts = ["```yaml", "schema:"]
+    for entry in schema:
+        field = entry.get("field", "")
+        ftype = entry.get("type", "string")
+        required = bool(entry.get("required", True))
+        ev = entry.get("evidence_rule") or "none"
+        desc = entry.get("description") or ""
+        parts.append(f"  - field: {field}")
+        parts.append(f"    type: {ftype}")
+        parts.append(f"    required: {'true' if required else 'false'}")
+        parts.append(f"    evidence_rule: {yaml_quote(ev)}")
+        if desc:
+            parts.append(f"    description: {yaml_quote(desc)}")
+    parts.append("```")
+    return "\n".join(parts)
+
+
 def build_skill(spec: dict[str, Any]) -> str:
     name = spec["name"]
     tier = spec["tier"]
@@ -60,6 +85,8 @@ def build_skill(spec: dict[str, Any]) -> str:
         front["aliases"] = aliases
     if tier in ("specialist", "ecosystem"):
         front["disable-model-invocation"] = True
+    if spec.get("output_style"):
+        front["output_style"] = spec["output_style"]
     if spec.get("editing"):
         front["allowed-tools"] = "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
     else:
@@ -128,6 +155,16 @@ def build_skill(spec: dict[str, Any]) -> str:
 
     lines.append("## Output contract")
     lines.append("")
+    schema_block = render_output_schema(spec.get("output_schema"))
+    style = spec.get("output_style")
+    if schema_block:
+        style_ref = f" + `{style}` style" if style else ""
+        lines.append(
+            f"Schema below + `${{CLAUDE_PLUGIN_ROOT}}/_shared/OUTPUT-CONTRACT.md`{style_ref}."
+        )
+        lines.append("")
+        lines.append(schema_block)
+        lines.append("")
     lines.append(spec["output_contract"])
     lines.append("")
 

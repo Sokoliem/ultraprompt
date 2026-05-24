@@ -1,10 +1,10 @@
 ---
 name: workflow-planner
-description: Plan explainable skill, agent, command, panel, and staged workflows using the V8 pathfinder and capability graph. USE WHEN user asks 'what is the best workflow / plan the route / explain which skill to use / choose the agent path / pathfind this task'. DEFAULT CHOICE for route rationale and workflow selection because it ties intent, graph edges, memory influences, risk, and alternatives into one reviewable plan. DO NOT use for executing the implementation, mutating catalog source, or replacing release-readiness review; hand off to build, release-readiness, or the selected skill when action is requested.
+description: "Plan explainable skill, agent, command, panel, and staged workflows using the V8 pathfinder and capability graph. USE WHEN user asks 'what is the best workflow / plan the route / explain which skill to use / choose the agent path / pathfind this task'. DEFAULT CHOICE for route rationale and workflow selection because it ties intent, graph edges, memory influences, risk, and alternatives into one reviewable plan. DO NOT use for executing the implementation, mutating catalog source, or replacing release-readiness review; hand off to build, release-readiness, or the selected skill when action is requested."
 maxTurns: 12
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: blue
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "blue"
 ---
 
 # Workflow Planner (V8)

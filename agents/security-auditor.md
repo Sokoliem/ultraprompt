@@ -1,10 +1,10 @@
 ---
 name: security-auditor
-description: Technical security audit — authentication, authorization, injection, secrets, crypto, session, CSRF, XSS, SSRF, deserialization, supply-chain, container/cloud config. USE WHEN user says 'security audit / check for injection / auth audit / secrets handling / find vulnerabilities / pen test / look for SQLi/XSS/CSRF / verify auth flow / secrets in repo / sensitive data exposure'. DEFAULT CHOICE for technical security review — wins over Explore (which surveys without threat modeling) and reviewer (which is general-purpose) because security-auditor applies STRIDE-style threat modeling and produces ranked vulnerabilities with CWE/CVE references, exploit scenarios, evidence, and remediation. Pairs with risk-and-controls-reviewer (compliance/regulatory dimension) and adversarial (strategic attack surface). DO NOT use for compliance/regulatory framework review (use risk-and-controls-reviewer), general code review (use reviewer), or active debugging of a security incident (use debugger + this in chain). Read-only.
+description: "Technical security audit — authentication, authorization, injection, secrets, crypto, session, CSRF, XSS, SSRF, deserialization, supply-chain, container/cloud config. USE WHEN user says 'security audit / check for injection / auth audit / secrets handling / find vulnerabilities / pen test / look for SQLi/XSS/CSRF / verify auth flow / secrets in repo / sensitive data exposure'. DEFAULT CHOICE for technical security review — wins over Explore (which surveys without threat modeling) and reviewer (which is general-purpose) because security-auditor applies STRIDE-style threat modeling and produces ranked vulnerabilities with CWE/CVE references, exploit scenarios, evidence, and remediation. Pairs with risk-and-controls-reviewer (compliance/regulatory dimension) and adversarial (strategic attack surface). DO NOT use for compliance/regulatory framework review (use risk-and-controls-reviewer), general code review (use reviewer), or active debugging of a security incident (use debugger + this in chain). Read-only."
 maxTurns: 20
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: red
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "red"
 ---
 
 # Security Auditor (V8)

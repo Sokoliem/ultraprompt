@@ -1,10 +1,11 @@
 ---
 name: "prd-standard"
-description: "When user says 'full PRD for X / product requirements doc / write the PRD / comprehensive product spec / standard PRD' — produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions. DEFAULT for any product change crossing teams or with meaningful complexity. Use prd-lite for early-stage; prd-technical for heavily technical features."
+description: "**DEFAULT for any product change crossing teams or with meaningful complexity: produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions: runs the prd-standard discipline.**"
 when_to_use: "When the user wants a complete PRD for a meaningful product change — cross-team scope, non-trivial complexity, or pre-engineering-kickoff documentation."
 argument-hint: "<feature or product change name>"
 tier: "core"
 aliases: ["prd", "full-prd", "product-spec"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -47,6 +48,60 @@ PRD-standard is the default PRD; prd-lite for fast/lightweight; prd-technical fo
 Every problem claim cites evidence. Non-goals explicit (3-5). All metrics have baseline + target + measurement method. Acceptance criteria in given/when/then. Rollout plan with phase gate criteria. Risks ranked by severity × likelihood with mitigations.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Problem statement with evidence
+    type: section
+    required: true
+    evidence_rule: "file:line citation, command output, or doc reference required"
+  - field: Users + jobs-to-be-done
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Goals + non-goals
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Requirements
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Scope
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Technical considerations
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+  - field: Metrics
+    type: section
+    required: true
+    evidence_rule: "named metric + sampled value"
+  - field: Acceptance criteria
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Rollout plan with phase gates
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Validation plan
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+  - field: Open questions ranked by blocking-priority
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Problem statement with evidence | Users + jobs-to-be-done | Goals + non-goals (3-5) | Requirements (must/should/won't-have) | Scope (in/out) | Technical considerations | Risks (severity × likelihood + mitigations) | Metrics (leading/lagging/guardrails with baselines+targets) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open questions ranked by blocking-priority
 

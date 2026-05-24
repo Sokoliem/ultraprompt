@@ -1,6 +1,5 @@
 ---
-description: Route a free-form intent to the best Ultraprompt skill or small set of skills using the V8 generated index.
-disable-model-invocation: true
+description: Route a free-form intent to the best Ultraprompt skill or small set of skills using the V8 generated index. Auto-invokable as a routing fallback when the right specialist is ambiguous.
 argument-hint: <what you want to do>
 ---
 

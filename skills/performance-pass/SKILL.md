@@ -1,11 +1,12 @@
 ---
 name: "performance-pass"
-description: "When user says 'performance audit / find slow code / hot path review / perf optimization / performance issues / latency review / throughput audit' — dispatches reviewer with performance focus. DEFAULT for performance audits. Different from /debug (active perf bug)."
+description: "**DEFAULT for performance audits: dispatches reviewer with performance focus: runs the performance-pass discipline.** Different from /debug (active perf bug). Triggers: 'performance audit / find slow code / hot path review / perf optimization / performance issues / latency review / throughput audit'."
 when_to_use: "Manual-only. Invoke for performance investigation or benchmark design. Do not use for general code review (use review). Do not use for CI build speed (see `_shared/playbooks/build-test-optimizer.md`)."
 argument-hint: "[hot path|operation|target metric]"
 tier: "specialist"
 aliases: ["performance-pass"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -53,6 +54,40 @@ Optimize what matters, measured. Profile before optimizing; profile after to con
 Benchmark before/after on representative workload. Confirm no regression in adjacent code. Profile after to confirm the hot path moved.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Performance Goal
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Profile Evidence
+    type: section
+    required: true
+    evidence_rule: "file:line citation required"
+  - field: Bottleneck Classification
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Optimization Applied
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Before/After Numbers
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Benchmark Added
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Remaining Bottlenecks
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Performance Goal | Profile Evidence (where the time/allocation actually goes) | Bottleneck Classification | Optimization Applied | Before/After Numbers | Benchmark Added | Remaining Bottlenecks
 

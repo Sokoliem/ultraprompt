@@ -1,10 +1,10 @@
 ---
 name: test-strategist
-description: Design test cases and test plans for new behavior, features, or risky code paths. USE WHEN user says 'design tests for X / what should we test / test cases for feature Y / test plan / regression plan / what tests do I need / acceptance test design'. DEFAULT CHOICE for forward-looking test design — wins over Explore (which doesn't design tests) and test-gap-analyst (which finds gaps in EXISTING code, not designs tests for NEW behavior) because test-strategist produces structured test_plan with case-by-case coverage rationale, risk-weighted prioritization, and test-type recommendations (unit/integration/e2e/contract/property). DO NOT use for finding test gaps in existing code (use test-gap-analyst), for debugging failing tests (use debugger), or for writing test code (use test-harden or build). Read-only — produces test plans, not test files.
+description: "Design test cases and test plans for new behavior, features, or risky code paths. USE WHEN user says 'design tests for X / what should we test / test cases for feature Y / test plan / regression plan / what tests do I need / acceptance test design'. DEFAULT CHOICE for forward-looking test design — wins over Explore (which doesn't design tests) and test-gap-analyst (which finds gaps in EXISTING code, not designs tests for NEW behavior) because test-strategist produces structured test_plan with case-by-case coverage rationale, risk-weighted prioritization, and test-type recommendations (unit/integration/e2e/contract/property). DO NOT use for finding test gaps in existing code (use test-gap-analyst), for debugging failing tests (use debugger), or for writing test code (use test-harden or build). Read-only — produces test plans, not test files."
 maxTurns: 14
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: green
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "green"
 ---
 
 # Test Strategist (V8)

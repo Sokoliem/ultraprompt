@@ -1,6 +1,5 @@
 ---
-description: Show the Ultraprompt V8 menu and recommend the best next routes for the current task.
-disable-model-invocation: true
+description: Show the Ultraprompt V8 menu and recommend the best next routes for the current task. Auto-invokable when listing or comparing routes would help.
 argument-hint: [optional: current task or goal]
 ---
 

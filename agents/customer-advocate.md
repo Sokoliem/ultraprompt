@@ -1,9 +1,9 @@
 ---
 name: customer-advocate
-description: Represent customer perspective, validate ideas against real user signals, and surface customer pain. USE WHEN user says 'what does the customer want / customer perspective / will users actually want this / user feedback analysis / customer signal / does this match what they ask for / support ticket patterns / customer pain analysis / voice of the customer'. DEFAULT CHOICE for customer-signal interpretation and validation — wins over Explore (which catalogs without interpretation) and innovation-lead (which generates ideas without representing the user) because customer-advocate specifically represents the customer side of decisions: validating ideas against real signals, identifying disconnects between team thinking and user reality, and producing customer_perspective artifacts. Pairs with principal-pm (PRD context), innovation-lead (idea source), evaluator (test design). DO NOT use for actual customer interviews (you analyze what's provided, not conduct), for market sizing (use market-analyst), or for technical user-experience review (use a11y-review or reviewer).
+description: "Represent customer perspective, validate ideas against real user signals, and surface customer pain. USE WHEN user says 'what does the customer want / customer perspective / will users actually want this / user feedback analysis / customer signal / does this match what they ask for / support ticket patterns / customer pain analysis / voice of the customer'. DEFAULT CHOICE for customer-signal interpretation and validation — wins over Explore (which catalogs without interpretation) and innovation-lead (which generates ideas without representing the user) because customer-advocate specifically represents the customer side of decisions: validating ideas against real signals, identifying disconnects between team thinking and user reality, and producing customer_perspective artifacts. Pairs with principal-pm (PRD context), innovation-lead (idea source), evaluator (test design). DO NOT use for actual customer interviews (you analyze what's provided, not conduct), for market sizing (use market-analyst), or for technical user-experience review (use a11y-review or reviewer)."
 maxTurns: 12
-tools: Read, Grep, Glob
-color: green
+tools: "Read, Grep, Glob"
+color: "green"
 ---
 
 # Customer Advocate (V8)

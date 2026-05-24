@@ -1,9 +1,10 @@
 ---
 name: "ci-repair"
-description: "When user says 'CI is failing / fix the build / failing pipeline / GitHub Actions broken / lint errors blocking / type-check failing / build red' — runs debugger discipline scoped to CI/build failure. DEFAULT for CI/build failure investigation. Reads CI logs, reproduces locally, narrows to root cause. Different from /debug (general runtime) — ci-repair specializes in build/CI/pipeline failure patterns."
+description: "**DEFAULT for BUILD/LINT/TYPECHECK/PIPELINE FAILURE — fix the pipeline, not the symptom: layered failure analysis (workflow|cache|deps|env|code), last-successful-run diff, fix, and green-run command.** Different from /debug (runtime/test failures in code), /dependency-audit (CVE-driven, not failure-driven), /release (release notes, not pipeline repair). Triggers: 'CI is red, pipeline broken, build is failing, lint failure, typecheck failure, cache miss'."
 when_to_use: "Use when the failure is in the pipeline (matrix, cache, env, dependencies, runner image, workflow file) rather than the code under test. If the same test fails locally, use `debug` instead. If the failure mode is non-determinism, use `debug --flaky`."
 argument-hint: "[workflow|job|step name|error excerpt]"
 tier: "core"
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -51,6 +52,56 @@ CI failures decompose into: (1) pipeline configuration (workflow YAML, matrix, r
 Reproduce the failing step locally with the same command and env. If using GitHub Actions, `act` can run jobs locally. After fixing, watch the CI run end-to-end on a branch before merging.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Failure Layer
+    type: section
+    required: true
+    evidence_rule: "log excerpt that proves the layer"
+  - field: cache
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: deps
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: env
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: code)
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Evidence
+    type: section
+    required: true
+    evidence_rule: "file:line citation, command output, or doc reference required"
+  - field: Last Successful Run Comparison
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Fix
+    type: section
+    required: true
+    evidence_rule: "diff summary + green run command"
+  - field: Why Not a Code Bug
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Local Reproduction
+    type: section
+    required: true
+    evidence_rule: "exact command + observed output"
+  - field: Remaining Risks
+    type: section
+    required: true
+    evidence_rule: "named risk + likelihood + impact"
+```
 
 Failure Layer (workflow|cache|deps|env|code) | Evidence | Last Successful Run Comparison | Fix (file + lines) | Why Not a Code Bug | Local Reproduction | Remaining Risks (e.g., 'cache key change will force one slow rebuild')
 

@@ -1,10 +1,11 @@
 ---
 name: "refactor"
-description: "When user says 'refactor X / clean up Y / improve the structure of / extract this / consolidate / simplify / restructure this code / improve readability without changing behavior' — apply behavior-preserving improvements with tests as the safety net. DEFAULT for refactoring tasks. Different from /build (writes new code) and /migrate (intentional behavior change)."
+description: "**DEFAULT for BEHAVIOR-PRESERVING cleanup — restructure existing code without changing observable behavior: refactor plan + diffs that preserve invariants, with before/after test parity and a behavior-invariants checklist.** Different from /build (NEW feature/behavior), /migrate (intentional breaking change), /technical-debt-triage (picks WHAT to refactor). Triggers: 'refactor this, clean this up without changing behavior, extract this, rename across the codebase'."
 when_to_use: "Use for behavior-preserving cleanup. Use `--types` for type-strengthening focus. Do not use for new features (use build). Do not use for bug fixes (use debug). If behavior change is required to fix a bug, use debug and call out the behavior change."
 argument-hint: "[path|module|function|--types]"
 tier: "core"
 aliases: ["refactor-hardening", "types-strengthen"]
+output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -47,6 +48,40 @@ Behavior preservation is the core invariant. Tests that pass before must pass af
 Full test suite (or scoped suite if monorepo). Type-check. If perf-sensitive, run benchmark before and after. Diff observable outputs (snapshot tests, golden files) and confirm equivalence.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `evidence-led` style.
+
+```yaml
+schema:
+  - field: Refactor Target
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Behavior Invariants Preserved
+    type: section
+    required: true
+    evidence_rule: "stated as boolean; explain what falsifies it"
+  - field: Steps Taken
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Tests Status
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Type-Check Status
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Diff Summary
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: What Changed Observably
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Refactor Target | Behavior Invariants Preserved | Steps Taken | Tests Status | Type-Check Status | Diff Summary | What Changed Observably (should be 'nothing')
 

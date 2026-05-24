@@ -1,11 +1,12 @@
 ---
 name: "observability-pass"
-description: "When user says 'observability audit / logging review / metrics review / tracing audit / monitoring gaps / SLO design / observability gaps' — dispatches auditor with observability focus. DEFAULT for observability-specific audits."
+description: "**DEFAULT for observability-specific audits: dispatches auditor with observability focus: runs the observability-pass discipline.**"
 when_to_use: "Manual-only. Invoke for observability gaps: insufficient logs, missing metrics, broken traces, ineffective alerting, or SLO design. For incident reconstruction, see `_shared/playbooks/incident-postmortem-template.md`."
 argument-hint: "[surface|operation|signal]"
 tier: "specialist"
 aliases: ["observability-pass"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -56,6 +57,44 @@ Observability is for the unknown unknown: logs, metrics, and traces should help 
 Trigger the operation; confirm logs/metrics/traces appear as expected. Trigger known-failure scenarios; confirm alerts fire. Check dashboard answers 'is it healthy?' in 30s.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Scope
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Logging Audit + Fixes
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Metrics Audit + Fixes
+    type: section
+    required: true
+    evidence_rule: "named metric + sampled value"
+  - field: Tracing Audit + Fixes
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Alerting Audit + Retunes
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: SLO Status
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Dashboard Quality
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Remaining Gaps
+    type: section
+    required: true
+    evidence_rule: "none"
+```
 
 Scope | Logging Audit + Fixes | Metrics Audit + Fixes | Tracing Audit + Fixes | Alerting Audit + Retunes | SLO Status | Dashboard Quality | Remaining Gaps
 

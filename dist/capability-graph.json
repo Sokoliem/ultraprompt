@@ -1544,8 +1544,19 @@
       "target": "artifact:structured_output"
     },
     {
+      "phase": "full",
+      "relation": "dispatches_to",
+      "source": "skill:build",
+      "target": "agent:builder"
+    },
+    {
       "relation": "emits",
       "source": "skill:build",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:choose",
       "target": "artifact:structured_output"
     },
     {
@@ -1938,6 +1949,13 @@
       "kind": "agent",
       "label": "auditor",
       "risk": "low"
+    },
+    {
+      "color": "magenta",
+      "id": "agent:builder",
+      "kind": "agent",
+      "label": "builder",
+      "risk": "medium"
     },
     {
       "color": "cyan",
@@ -2412,6 +2430,11 @@
       "label": "checkpoint"
     },
     {
+      "id": "command:choose",
+      "kind": "command",
+      "label": "choose"
+    },
+    {
       "id": "command:claim-check",
       "kind": "command",
       "label": "claim-check"
@@ -2652,6 +2675,11 @@
       "label": "subagent-scaffold.sh"
     },
     {
+      "id": "hook:user-prompt-route-suggest.py",
+      "kind": "hook",
+      "label": "user-prompt-route-suggest.py"
+    },
+    {
       "id": "ledger:cognitive-events",
       "kind": "ledger",
       "label": "cognitive-events"
@@ -2766,19 +2794,19 @@
       "label": "explain_skill"
     },
     {
-      "description": "V8.0.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Filter by repo, status, severity. Returns gap entries from current and prior sessions.",
+      "description": "V8.7.0: Query persistent gap ledger at ~/.ultraprompt/gaps/<repo>/gap-ledger.jsonl. Filter by repo, status, severity. Returns gap entries from current and prior sessions.",
       "id": "mcp:gap_ledger_query",
       "kind": "mcp_tool",
       "label": "gap_ledger_query"
     },
     {
-      "description": "V8.0.0: Gap ledger summary stats \u00e2\u20ac\u201d totals by status/severity/category/repo/auditor.",
+      "description": "V8.7.0: Gap ledger summary stats \u00e2\u20ac\u201d totals by status/severity/category/repo/auditor.",
       "id": "mcp:gap_ledger_stats",
       "kind": "mcp_tool",
       "label": "gap_ledger_stats"
     },
     {
-      "description": "V8.0.0: Persist a gap finding to the gap ledger. Used by repo-completeness audit skills (gap-analysis, feature-completeness, test-gap-analysis, dead-code-drift, release-readiness) to record findings beyond a single session.",
+      "description": "V8.7.0: Persist a gap finding to the gap ledger. Used by repo-completeness audit skills (gap-analysis, feature-completeness, test-gap-analysis, dead-code-drift, release-readiness) to record findings beyond a single session.",
       "id": "mcp:gap_ledger_write",
       "kind": "mcp_tool",
       "label": "gap_ledger_write"
@@ -2844,13 +2872,13 @@
       "label": "memory_write_candidate"
     },
     {
-      "description": "V8.0.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
+      "description": "V8.7.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
       "id": "mcp:mission_state",
       "kind": "mcp_tool",
       "label": "mission_state"
     },
     {
-      "description": "V8.0.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
+      "description": "V8.7.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
       "id": "mcp:panel_plan",
       "kind": "mcp_tool",
       "label": "panel_plan"
@@ -2868,7 +2896,7 @@
       "label": "query_ledger"
     },
     {
-      "description": "V8.0.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, conclusion (ready/risky/blocked).",
+      "description": "V8.7.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, conclusion (ready/risky/blocked).",
       "id": "mcp:release_scorecard",
       "kind": "mcp_tool",
       "label": "release_scorecard"
@@ -2898,13 +2926,19 @@
       "label": "route_intent"
     },
     {
+      "description": "V8.7: Return top-N routing candidates + previews for the interactive picker. Pair with the `ultraprompt:choose` skill \u2014 the skill body takes these candidates, generates 2 prompt rewrites, and surfaces a 3-4 option AskUserQuestion. Sets ambiguity.is_ambiguous when top-2 are within 15% or top is medium confidence.",
+      "id": "mcp:route_picker",
+      "kind": "mcp_tool",
+      "label": "route_picker"
+    },
+    {
       "description": "V8: Find Claude Code / Codex sessions currently active in a worktree path.",
       "id": "mcp:session_lookup",
       "kind": "mcp_tool",
       "label": "session_lookup"
     },
     {
-      "description": "V8.0.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
+      "description": "V8.7.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
       "id": "mcp:team_plan",
       "kind": "mcp_tool",
       "label": "team_plan"
@@ -3592,6 +3626,15 @@
       "tier": "core"
     },
     {
+      "confirmation": "interactive",
+      "id": "skill:choose",
+      "kind": "skill",
+      "label": "choose",
+      "mode": "read_only",
+      "risk": "low",
+      "tier": "core"
+    },
+    {
       "confirmation": "required_for_repo_mutation",
       "id": "skill:ci-repair",
       "kind": "skill",
@@ -4051,7 +4094,7 @@
       "label": "validate-plugin.py"
     }
   ],
-  "plugin_version": "8.0.0",
+  "plugin_version": "8.7.0",
   "schema": "capability_graph.v1",
-  "source_hash": "c2afe05c8ef464fadc68b935f02236952f68c3d5b063486296164c943ec3a9b7"
+  "source_hash": "f21fbb5045308cefe332ae2abb82863ddcc8c9f545136737c8e99d281413e7f9"
 }

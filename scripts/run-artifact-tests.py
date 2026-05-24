@@ -99,7 +99,7 @@ def main() -> int:
 
     graph = {
         "schema": "capability_graph.v1",
-        "plugin_version": "8.0.0",
+        "plugin_version": "8.7.0",
         "nodes": [{"id": "skill:build", "kind": "skill"}],
         "edges": [{"source": "skill:build", "target": "agent:reviewer", "relation": "dispatches_to"}],
         "health": {"ok": True},

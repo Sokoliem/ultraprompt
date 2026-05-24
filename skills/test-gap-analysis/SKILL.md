@@ -1,10 +1,11 @@
 ---
 name: "test-gap-analysis"
-description: "When user says 'find test gaps / where's the missing coverage / risk-weighted test plan / what should we test / find untested paths / regression coverage review / what edge cases am I missing' — finds critical behavior with weak/missing validation. Risk-weights findings (critical for auth/payment/data-deletion lanes; medium for UI rendering; low for admin). DEFAULT for test-gap detection. Different from test-harden (designs new tests) — test-gap-analysis specifically finds the gaps."
+description: "**DEFAULT for MISSING TEST COVERAGE ONLY — uncovered behaviors, lanes, boundary cases, and risky paths without tests: risk-weighted list of missing test coverage with critical lanes, missing test types, and regression-test priorities.** Different from /test-harden (WRITE the missing tests — use this AFTER test-gap-analysis), /gap-analysis (whole-feature gaps incl. wiring/docs), /feature-completeness (single-feature completeness). Triggers: 'missing test coverage, untested paths, what needs a test, where are we test-blind'."
 when_to_use: "When the user wants risk-weighted analysis of where existing tests are missing, weak, or only happy-path. Triggers on test-coverage prep, pre-release confidence checks, post-feature hardening passes, audit asks like 'where are we under-tested', or stress tests against the test suite itself."
 argument-hint: "[optional: specific feature, lane, or risk area]"
 tier: "core"
 aliases: ["test-coverage-audit", "find-test-gaps", "untested-paths"]
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
 
@@ -47,6 +48,36 @@ Test-gap-analysis finds risky behavior with weak coverage; test-harden designs t
 Every gap must cite specific file:line for both the behavior and the absence-of-test evidence. Risk weighting must use the lane-based heuristic, not be uniform across findings.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Risk-weighted test gaps
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Critical lanes uncovered
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Existing test summary
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Missing test types per gap
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Suggested test cases
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Validation commands
+    type: section
+    required: true
+    evidence_rule: "exact commands run + exit codes + stdout/stderr excerpts"
+```
 
 Risk-weighted test gaps | Critical lanes uncovered | Existing test summary | Missing test types per gap | Suggested test cases | Validation commands
 

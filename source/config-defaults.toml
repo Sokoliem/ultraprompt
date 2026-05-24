@@ -43,6 +43,37 @@ session_bootstrap_enabled = true
 auto_wip_save_enabled = true
 session_finalize_enabled = true
 stop_validation_check_enabled = false
+route_suggest_enabled = true
+output_style_inject_enabled = true
+personal_lanes_enabled = true
+
+[route_suggest]
+# UserPromptSubmit nudge: when a free-form prompt scores high against the V8
+# index and no ultraprompt command/skill is already invoked, inject a single-line
+# suggestion. Tune the threshold to taste; raise to silence false positives.
+min_tokens = 4
+min_score = 18.0
+accept_medium = false
+only_unrouted = true
+# V8.7 interactive picker: when the top-2 scores are within `ambiguity_gap`
+# (relative to top score) OR the top match is medium-confidence, the hook
+# emits a directive telling the model to invoke `ultraprompt:choose` for an
+# AskUserQuestion-driven picker instead of the silent nudge. Set
+# `picker_enabled = false` to keep V8.6 behavior.
+picker_enabled = true
+ambiguity_gap = 0.15
+ambiguity_medium_confidence = true
+
+[output_style]
+# Default style applied when a skill does not declare its own `output_style`.
+default = "evidence-led"
+
+[personal_lanes]
+# Personal preferences layer. The session-bootstrap hook injects the contents of
+# `~/.claude/ultraprompt-user.md` (when present) so per-user dispatch biases
+# become the first arbitration signal.
+file = "~/.claude/ultraprompt-user.md"
+max_chars = 4000
 
 [claim_check]
 enabled = true

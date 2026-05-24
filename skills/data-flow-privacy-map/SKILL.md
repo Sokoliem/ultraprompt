@@ -1,11 +1,12 @@
 ---
 name: "data-flow-privacy-map"
-description: "When user says 'map the data flow / where does PII go / privacy data flow / data lineage for privacy / track sensitive data / data flow diagram for compliance' — dispatches auditor with privacy + data-flow focus. DEFAULT for privacy data-flow mapping."
+description: "**DEFAULT for privacy data-flow mapping: dispatches auditor with privacy + data-flow focus: runs the data-flow-privacy-map discipline.**"
 when_to_use: "Manual-only. Invoke when the task is privacy-specific: data lineage, PII flows, retention, deletion/export rights, third-party sharing, or sensitive log redaction. For general security, use core `security-audit`."
 argument-hint: "[surface|data type|flow]"
 tier: "specialist"
 aliases: ["data-flow-privacy-map", "log-redaction-pass"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -55,6 +56,44 @@ PII is a property of data, not a property of variables. Track where it enters, w
 Test deletion completeness (delete request → search for residual PII). Test export completeness (export request → cross-check with inventory). Run log scanner on test fixtures with PII payloads; confirm redaction.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: PII Inventory
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Data Flow Map
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Storage Retention Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Egress Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Logging Audit + Redactions Applied
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Deletion Test Result
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Export Test Result
+    type: section
+    required: true
+    evidence_rule: "test name + run command + result"
+  - field: Findings + Recommendations
+    type: section
+    required: true
+    evidence_rule: "file:line citation + severity + confidence label"
+```
 
 PII Inventory | Data Flow Map | Storage Retention Audit | Egress Audit | Logging Audit + Redactions Applied | Deletion Test Result | Export Test Result | Findings + Recommendations
 

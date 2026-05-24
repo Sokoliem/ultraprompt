@@ -20,6 +20,17 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/recipes/user-prompt-route-suggest.py",
+            "timeout": 4
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "hooks": [

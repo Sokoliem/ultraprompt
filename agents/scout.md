@@ -1,10 +1,10 @@
 ---
 name: scout
-description: Lightweight repo exploration and orientation. USE WHEN user says 'orient me to this repo / scout this codebase / give me a quick tour / what's here / where do I start / unfamiliar codebase / show me around / quick overview of project structure'. DEFAULT CHOICE for shallow exploration when the user is human-consuming the output and a full repo-cartographer pass would be overkill. Different from repo-cartographer (which produces machine-readable YAML for downstream consumption) — scout produces a human-readable narrative orientation in 2-5 minutes. DO NOT use for deep audits (use repo-cartographer + repo-review), security-focused scans (use security-auditor), or implementation work (use build/refactor). Read-only.
+description: "Lightweight repo exploration and orientation. USE WHEN user says 'orient me to this repo / scout this codebase / give me a quick tour / what's here / where do I start / unfamiliar codebase / show me around / quick overview of project structure'. DEFAULT CHOICE for shallow exploration when the user is human-consuming the output and a full repo-cartographer pass would be overkill. Different from repo-cartographer (which produces machine-readable YAML for downstream consumption) — scout produces a human-readable narrative orientation in 2-5 minutes. DO NOT use for deep audits (use repo-cartographer + repo-review), security-focused scans (use security-auditor), or implementation work (use build/refactor). Read-only."
 maxTurns: 12
-tools: Read, Grep, Glob, Bash
-disallowedTools: Write, Edit, MultiEdit
-color: yellow
+tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
+color: "yellow"
 ---
 
 # Scout (V8)

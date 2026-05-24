@@ -1,11 +1,12 @@
 ---
 name: "plugin-review"
-description: "When user says 'review my plugin / Claude Code plugin review / Codex plugin review / plugin structure check / plugin best practices / plugin design review' — dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks). DEFAULT for plugin review tasks."
+description: "**DEFAULT for plugin review tasks: dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks): runs the plugin-review discipline.**"
 when_to_use: "Manual-only. Invoke for ecosystem-level review of a Claude Code plugin package. For authoring a new skill or agent, use ecosystem skills `skill-author` or `agent-author`."
 argument-hint: "[plugin path|focus]"
 tier: "ecosystem"
 aliases: ["claude-code-plugin-review"]
 disable-model-invocation: true
+output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
 
@@ -54,6 +55,48 @@ A Claude Code plugin is a structured package: skills (with frontmatter and bodie
 Run the plugin's bundled validator and doctor commands if present. Smoke test: load the plugin in a test repo, exercise each surface, confirm hooks block expected destructive commands, confirm MCP server self-test passes.
 
 ## Output contract
+
+Schema below + `${CLAUDE_PLUGIN_ROOT}/_shared/OUTPUT-CONTRACT.md` + `concise-review` style.
+
+```yaml
+schema:
+  - field: Plugin Manifest Status
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Skills Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Agents Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Hooks Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Commands Audit
+    type: section
+    required: true
+    evidence_rule: "command + exit code + excerpt"
+  - field: MCP Server Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Marketplace Metadata Audit
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Fixes Applied
+    type: section
+    required: true
+    evidence_rule: "none"
+  - field: Recommendations
+    type: section
+    required: true
+    evidence_rule: "concrete action; no vague advice"
+```
 
 Plugin Manifest Status | Skills Audit (per skill) | Agents Audit | Hooks Audit | Commands Audit | MCP Server Audit | Marketplace Metadata Audit | Fixes Applied | Recommendations
 

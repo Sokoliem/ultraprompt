@@ -34,14 +34,15 @@ def _catalog_counts() -> dict[str, int]:
 def _v8_banner() -> str:
     c = _catalog_counts()
     return (
-        f"Ultraprompt V8.7.0 active - interactive routing picker. Catalog: "
+        f"Ultraprompt V8.9.0 active. Catalog: "
         f"{c['skills']} skills, {c['agents']} agents, {c['mcp_tools']} MCP tools, "
         f"{c['commands']} commands, {c['panels']} panels, {c['artifact_schemas']} artifact schemas, "
         f"{c['output_styles']} output styles.\n\n"
-        "**V8.7 adds (on top of V8.6):**\n"
-        "- **Interactive routing picker.** UserPromptSubmit hook detects ambiguity (top-2 within 15% or top medium-confidence) and emits a directive instructing the model to invoke `ultraprompt:choose`.\n"
-        "- New `route_picker` MCP tool: ranked candidates + previews + ambiguity metadata.\n"
-        "- New `ultraprompt:choose` skill (tier=core).\n\n"
+        "**V8.9 adds (on top of V8.7):**\n"
+        "- 6 new skills: incident-response, adr-author, runbook-author, cost-audit, git-workflow, onboarding-doc.\n"
+        "- 4 new agents: incident-commander, prompt-engineer, release-manager, data-analyst.\n"
+        "- 2 new commands: /ultraprompt:dispatch (manual agent dispatch), /ultraprompt:rollback (restore wip-save / checkpoint).\n"
+        "- V8.8 hardening: description lint with CI gate, read-only enforcement via disallowedTools on 14 agents, protected-file-guard extended (service-account/p12/pfx/aws-creds), catalog templating eliminates count drift, bash safety denylist (chmod, package installs) in destructive-command-guard.\n\n"
         "**FIRST RULE:** when uncertain how to handle a request, follow the V8.7 picker directive if one is injected (call `ultraprompt:choose` Skill).\n\n"
         "**Dispatch defaults:** see `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md`.\n\n"
         "**Safety:** write evidence for validation claims, use `/ultraprompt:wip-save` before risky work, "

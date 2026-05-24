@@ -2,7 +2,7 @@
 
 Ultraprompt is a local-first Claude Code and Codex plugin for senior engineering workflows. V8 adds a cognitive control plane on top of the proven catalog: typed memory, safe dream jobs, governed learning, workflow pathfinding, capability graph health, and a Mission Control dashboard.
 
-**Version 8.7.0** | **55 skills** | **34 agents** | **42 MCP tools** | **33 commands** | **10 registered hooks** | **17 artifact schemas** | **12 panels** | **2 output styles**
+**Version 8.9.0** | **55 skills** | **34 agents** | **42 MCP tools** | **33 commands** | **9 registered hooks** | **17 artifact schemas** | **12 panels** | **2 output styles**
 
 ## What It Does
 

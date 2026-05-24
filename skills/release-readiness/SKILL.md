@@ -1,6 +1,6 @@
 ---
 name: "release-readiness"
-description: "**DEFAULT for shipability assessment: produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence: release-readiness audits whether the codebase is shippable.** Different from release (writes notes/changelog) — release-readiness audits whether the codebase is shippable."
+description: "**DEFAULT for shipability assessment — produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence.** Different from /release (writes the release notes / changelog), /review (single-diff review, not whole-tree shipability), /security-audit (security-only, not shipability). Triggers: 'is this ready to ship, release readiness, can we deploy, pre-release audit, ship/no-ship, release scorecard, blocking issues for release, production-ready check'."
 when_to_use: "When the user wants a ship/no-ship verdict with blockers and remediation sequence."
 argument-hint: "[optional: target environment or release version]"
 tier: "core"

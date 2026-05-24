@@ -1,5 +1,6 @@
 ---
 description: Triage assistant for dirty trees. Groups uncommitted changes by path, size, age, and file type. Suggests actions per group.
+disable-model-invocation: true
 ---
 
 Triage the current worktree's dirty state.

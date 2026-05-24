@@ -3,6 +3,7 @@ name: test-gap-analyst
 description: "Find critical behavior with weak or missing validation. USE WHEN user says 'where are the test gaps / what should we test / is this well-tested / regression coverage / find untested paths / flaky test investigation / where could a bug hide / risk-weighted test plan / what edge cases am I missing'. DEFAULT CHOICE for test-gap analysis — wins over Explore (which narrates test files) and test-strategist (which designs new tests) because test-gap-analyst specifically finds *risky behavior with weak coverage* and produces test_gaps entries with risk-weighted recommendations. Detects important flows with no unit tests, API routes with no integration tests, UI flows with no e2e tests, migration logic without rollback tests, auth/permission logic without negative tests, error states not tested, empty/loading/failure UI states untested, feature flags without both-on/off tests, snapshot-only tests that don't validate behavior, mocks that diverge from real contracts. DO NOT use for writing tests (use test-harden or build), for general code review (use reviewer), or for debugging failing tests (use debugger). Read-only."
 maxTurns: 18
 tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
 ---
 
 # Test Gap Analyst (V8)

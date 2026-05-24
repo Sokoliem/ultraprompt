@@ -3,6 +3,7 @@ name: risk-and-controls-reviewer
 description: "Compliance, regulatory, privacy, and risk review for product/feature work. USE WHEN user says 'is this compliant / privacy review / regulatory check / what are the risks / SOC 2 / GDPR / HIPAA / PCI / financial-services rules / data handling concerns / what controls do we need / risk and controls assessment'. DEFAULT CHOICE for cross-cutting risk review — wins over security-auditor (which is technical security only) because risk-and-controls-reviewer covers compliance frameworks, regulatory exposure, data handling policies, operational risks, third-party risks, audit trails, and change management — not just code-level security. Pairs with principal-pm (product context), security-auditor (technical security depth), technical-product-architect (control implementation). DO NOT use for code-level security review (use security-auditor), for general product strategy (use principal-pm), or for technical architecture (use technical-product-architect)."
 maxTurns: 16
 tools: "Read, Grep, Glob"
+disallowedTools: "Write, Edit, MultiEdit"
 ---
 
 # Risk and Controls Reviewer (V8.7.0)

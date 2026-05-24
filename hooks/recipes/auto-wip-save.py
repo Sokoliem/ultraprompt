@@ -40,11 +40,13 @@ def main():
             if recent and time.time() - max(e.get("ts", 0) for e in recent) < cool * 60:
                 return 0
         except Exception: pass
+    timeout_seconds = cfg.get(config, "auto_wip_save.timeout_seconds", 30)
+
     def _run(extra_args=()):
         return subprocess.run(
             [sys.executable, str(PR / "scripts" / "wip-save.py"),
              "--worktree", str(cwd), "--trigger", "hook-stop", *extra_args],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=timeout_seconds,
         )
 
     try:
@@ -60,7 +62,26 @@ def main():
                     badge = "verified" if impl == "verified" else "legacy-fallback"
                     print(json.dumps({"systemMessage": f"ultraprompt: auto-saved {sr.get('files_saved', dirty)} dirty files to {sr['branch_created']} ({badge})"}))
             except json.JSONDecodeError: pass
-    except (subprocess.TimeoutExpired, OSError): pass
+    except subprocess.TimeoutExpired:
+        # V8.8 (PRD S3 / §9.5): record hook-timeout event + surface a stderr warning so
+        # the user knows their work was NOT auto-saved.
+        if led and cfg.get(config, "ledger.enabled", True):
+            try:
+                led.write_event(
+                    "hook-timeout",
+                    hook="auto-wip-save",
+                    duration_ms=int(timeout_seconds * 1000),
+                    bypass_active=os.environ.get("ULTRAPROMPT_DISABLE_HOOKS") == "1",
+                )
+            except Exception:
+                pass
+        print(
+            f"[Ultraprompt auto-wip-save] Timed out after {timeout_seconds}s. "
+            "Your changes are NOT saved. Run /ultraprompt:wip-save manually.",
+            file=sys.stderr,
+        )
+    except OSError:
+        pass
     return 0
 
 

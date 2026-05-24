@@ -1,10 +1,10 @@
 ---
 name: "ai-agent-safety-review"
-description: "**DEFAULT for AI agent safety reviews: dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus: runs the ai-agent-safety-review discipline.**"
+description: "**DEFAULT for AI agent safety reviews — dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus.**"
 when_to_use: "Manual-only. Invoke for AI/LLM safety review: tool-calling boundaries, prompt injection vectors, retrieval trust, memory/context handling, autonomy controls, or prompt hardening for a specific prompt or skill body."
 argument-hint: "[system|tool|prompt|focus]"
 tier: "specialist"
-aliases: ["ai-agent-safety-review", "prompt-hardening"]
+aliases: ["prompt-hardening"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -105,4 +105,4 @@ Dispatch `auditor` with focus=ai-safety. See `_shared/playbooks/prompt-injection
 
 ## V4 aliases
 
-This skill answers to V4 names: `ai-agent-safety-review`, `prompt-hardening`. The router resolves them to `ai-agent-safety-review` and notes the alias in its response.
+This skill answers to V4 names: `prompt-hardening`. The router resolves them to `ai-agent-safety-review` and notes the alias in its response.

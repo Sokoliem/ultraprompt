@@ -1,6 +1,6 @@
 ---
 name: "prd-standard"
-description: "**DEFAULT for any product change crossing teams or with meaningful complexity: produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions: runs the prd-standard discipline.**"
+description: "**DEFAULT for any product change crossing teams or with meaningful complexity — produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions.** Different from /prd-lite (1-2 page early-stage), /prd-technical (infra-heavy), /prd-ai-feature (LLM/agentic feature)."
 when_to_use: "When the user wants a complete PRD for a meaningful product change — cross-team scope, non-trivial complexity, or pre-engineering-kickoff documentation."
 argument-hint: "<feature or product change name>"
 tier: "core"

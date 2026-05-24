@@ -1,6 +1,6 @@
 ---
 name: "concept-brief"
-description: "**DEFAULT for concept-stage thinking: produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required): runs the concept-brief discipline.**"
+description: "**DEFAULT for concept-stage thinking — produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required).** Different from /prd-lite (early-stage PRD), /idea-triage (multi-idea ranking), /problem-framing (problem definition only)."
 when_to_use: "When the user has chosen one concept and wants a structured one-page brief that captures the concept clearly enough for stakeholder review or pre-PRD validation."
 argument-hint: "<concept name or topic>"
 tier: "core"

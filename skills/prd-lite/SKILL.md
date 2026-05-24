@@ -1,6 +1,6 @@
 ---
 name: "prd-lite"
-description: "**DEFAULT for early-stage thinking that doesn't yet warrant a full PRD: produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria: runs the prd-lite discipline.**"
+description: "**DEFAULT for early-stage thinking that doesn't yet warrant a full PRD — produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria.** Different from /prd-standard (full PRD with users + scope + risks), /prd-technical (infra-heavy PRD), /concept-brief (single concept, not yet a product)."
 when_to_use: "When the user wants a fast, structured product brief — typically for early ideas, feature triage, or single-engineer-team scope. Not appropriate for cross-team or regulated changes."
 argument-hint: "<feature or problem name>"
 tier: "core"

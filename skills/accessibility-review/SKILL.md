@@ -1,10 +1,9 @@
 ---
 name: "accessibility-review"
-description: "**DEFAULT for accessibility audits: dispatches auditor with a11y focus: runs the accessibility-review discipline.**"
+description: "**DEFAULT for accessibility audits — dispatches auditor with a11y focus.**"
 when_to_use: "Manual-only. Invoke for a11y-focused review of UI components, flows, or design-system fit. For general frontend review, see `_shared/playbooks/frontend-ux-checklist.md`."
 argument-hint: "[component|flow|page]"
 tier: "specialist"
-aliases: ["accessibility-review"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -100,7 +99,3 @@ Scope | Automated Findings | Keyboard Navigation Findings | Focus Management Fin
 ## Subagent delegation
 
 Dispatch `auditor` with focus=a11y for second perspective. See `_shared/playbooks/frontend-ux-checklist.md` for broader UX review.
-
-## V4 aliases
-
-This skill answers to V4 names: `accessibility-review`. The router resolves them to `accessibility-review` and notes the alias in its response.

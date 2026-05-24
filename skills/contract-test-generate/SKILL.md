@@ -1,10 +1,9 @@
 ---
 name: "contract-test-generate"
-description: "**DEFAULT for contract-test generation: dispatches test-strategist + test-harden with contract focus: runs the contract-test-generate discipline.**"
+description: "**DEFAULT for contract-test generation — dispatches test-strategist + test-harden with contract focus.**"
 when_to_use: "Manual-only. Invoke when a boundary needs contract-test coverage to prevent silent breakage. For API contract design or deprecation, use core `api-contract`."
 argument-hint: "[boundary|consumer|surface]"
 tier: "specialist"
-aliases: ["contract-test-generate"]
 disable-model-invocation: true
 output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -82,7 +81,3 @@ Boundary | Consumers Captured | Contract Cases (request → expected response/be
 ## Subagent delegation
 
 Dispatch `reviewer` with focus=contract for second perspective. See `_shared/playbooks/contract-test-patterns.md`.
-
-## V4 aliases
-
-This skill answers to V4 names: `contract-test-generate`. The router resolves them to `contract-test-generate` and notes the alias in its response.

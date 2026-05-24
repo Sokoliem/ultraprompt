@@ -30,7 +30,23 @@ if isinstance(edits, list):
         if isinstance(e, dict) and isinstance(e.get("file_path"), str):
             paths.append(e["file_path"])
 
-PROTECTED = re.compile(r"(^|/)(\.env($|\.)|.*\.pem$|.*\.key$|id_rsa$|id_ed25519$|secrets?\.(json|ya?ml|toml)$)")
+PROTECTED = re.compile(
+    r"(^|/)("
+    r"\.env($|\.)"
+    r"|.*\.pem$"
+    r"|.*\.key$"
+    r"|id_rsa$"
+    r"|id_ed25519$"
+    r"|secrets?\.(json|ya?ml|toml)$"
+    # V8.8: additional credential families
+    r"|service[-_]?account.*\.json$"
+    r"|.*\.p12$"
+    r"|.*\.pfx$"
+    r"|aws[-_]?credentials\.json$"
+    r"|accessKeys\.csv$"
+    r")",
+    re.IGNORECASE,
+)
 
 
 def record_block(reason: str) -> None:

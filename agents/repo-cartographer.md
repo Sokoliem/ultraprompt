@@ -3,6 +3,7 @@ name: repo-cartographer
 description: "Build a structured repo map BEFORE other review/audit agents inspect a codebase. USE WHEN user says 'map this repo / what's in this repo / orient me to this codebase / inventory the architecture / scan the codebase / build a repo capsule / I need a repo overview'. DEFAULT CHOICE for the repo-mapping phase that precedes any deep audit (release-readiness, gap-analysis, feature-completeness). Wins over both Explore and ultraprompt:scout when the consumer is another agent — produces a structured YAML/JSON repo map (entrypoints, routes, data models, jobs, feature flags, test commands, deploy surfaces, risky areas, unknowns) rather than narrative. DO NOT use for diffs (use reviewer), security focus (use security-auditor), or live debugging (use debugger). Read-only."
 maxTurns: 18
 tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
 ---
 
 # Repo Cartographer (V8)

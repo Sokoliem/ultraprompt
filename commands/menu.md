@@ -5,7 +5,7 @@ argument-hint: [optional: current task or goal]
 
 # Ultraprompt V8 Menu
 
-Catalog: 48 skills, 29 agents, 42 MCP tools, 30 commands, 12 panels, 17 artifact schemas.
+Catalog: 55 skills, 34 agents, 42 MCP tools, 33 commands, 12 panels, 17 artifact schemas.
 
 If `$ARGUMENTS` is present, recommend the top 3 most relevant routes first. If the task is ambiguous, recommend `/ultraprompt:route $ARGUMENTS` instead of guessing.
 

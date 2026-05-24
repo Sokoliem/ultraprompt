@@ -54,13 +54,16 @@ def _is_trivial(prompt: str, min_tokens: int) -> bool:
     return len(stripped.split()) < min_tokens
 
 
+_OPT_OUT_HINT = " (disable via `ULTRAPROMPT_DISABLE_HOOKS=1`)"
+
+
 def _emit_nudge(skill: str, confidence: str, why: str) -> None:
     cmd = f"/ultraprompt:{skill}"
     text = (
         f"ultraprompt routing suggestion ({confidence}): this prompt matches `{cmd}`. "
         "Invoke via the Skill tool (or run the slash command) unless you have a clear reason "
         "to handle it inline. See `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md` for the "
-        "dispatch decision tree."
+        f"dispatch decision tree.{_OPT_OUT_HINT}"
     )
     if why:
         text += f"\nWhy: {why}"
@@ -94,7 +97,7 @@ def _emit_picker_directive(prompt: str, candidates: list[dict], gap: float, reas
         "**Before answering, invoke the `ultraprompt:choose` Skill with the user's prompt as "
         "`$ARGUMENTS`.** It will present an interactive picker (AskUserQuestion) with previews "
         "and 2 LLM-rewritten prompt variants paired with their best-matching skills, then "
-        "dispatch to the chosen skill.\n\n"
+        f"dispatch to the chosen skill.{_OPT_OUT_HINT}\n\n"
         f"Inline candidates (use these directly; do not re-score):\n```json\n{json.dumps(inline)}\n```"
     )
     _print_additional_context(text)

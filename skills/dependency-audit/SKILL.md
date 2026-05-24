@@ -1,10 +1,9 @@
 ---
 name: "dependency-audit"
-description: "**DEFAULT for dependency/supply-chain audits: dispatches auditor with supply-chain focus: runs the dependency-audit discipline.**"
+description: "**DEFAULT for dependency/supply-chain audits — dispatches auditor with supply-chain focus.**"
 when_to_use: "Manual-only. Invoke for dep-focused review: CVE scan, transitive analysis, license audit, abandonment risk. For supply-chain provenance and CI trust, use specialist `supply-chain-hardening`. For upgrade planning, use core `migrate --deps`."
 argument-hint: "[ecosystem|focus]"
 tier: "specialist"
-aliases: ["dependency-audit"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
@@ -89,7 +88,3 @@ Dep Inventory (direct + transitive count) | CVE Findings (severity, exposure, re
 ## Subagent delegation
 
 Dispatch `auditor` with focus=dependencies. For provenance and supply-chain trust, dispatch specialist `supply-chain-hardening`.
-
-## V4 aliases
-
-This skill answers to V4 names: `dependency-audit`. The router resolves them to `dependency-audit` and notes the alias in its response.

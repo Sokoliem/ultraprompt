@@ -4,7 +4,6 @@ description: "**DEFAULT for performance audits: dispatches reviewer with perform
 when_to_use: "Manual-only. Invoke for performance investigation or benchmark design. Do not use for general code review (use review). Do not use for CI build speed (see `_shared/playbooks/build-test-optimizer.md`)."
 argument-hint: "[hot path|operation|target metric]"
 tier: "specialist"
-aliases: ["performance-pass"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -94,7 +93,3 @@ Performance Goal | Profile Evidence (where the time/allocation actually goes) | 
 ## Subagent delegation
 
 Dispatch `reviewer` with focus=performance for second-perspective profile interpretation.
-
-## V4 aliases
-
-This skill answers to V4 names: `performance-pass`. The router resolves them to `performance-pass` and notes the alias in its response.

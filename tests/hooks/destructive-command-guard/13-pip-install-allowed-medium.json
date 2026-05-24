@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"command": "pip install requests"}},
+  "expected_exit": 0
+}

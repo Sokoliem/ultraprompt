@@ -34,7 +34,17 @@ def mcp_tools() -> list[dict[str, Any]]:
     candidates = [ROOT / "mcp" / "ultraprompt_meta.py", ROOT / "mcp" / "ultraprompt_meta.py"]
     path = next((p for p in candidates if p.exists()), candidates[0])
     module = load_module("ultraprompt_meta_graph", path)
-    return [{"name": name, "description": desc, "input_schema": schema} for name, (desc, schema, _handler) in sorted(module.TOOLS.items())]
+    out: list[dict[str, Any]] = []
+    for name, entry in sorted(module.TOOLS.items()):
+        desc, schema = entry[0], entry[1]
+        annotations = entry[3] if len(entry) > 3 else None
+        item: dict[str, Any] = {"name": name, "description": desc, "input_schema": schema}
+        if annotations:
+            item["annotations"] = annotations
+            if annotations.get("readOnlyHint"):
+                item["readonly"] = True
+        out.append(item)
+    return out
 
 
 def artifact_schemas() -> list[str]:

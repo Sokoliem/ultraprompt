@@ -1,10 +1,9 @@
 ---
 name: "docs-sync"
-description: "**DEFAULT for documentation drift correction: produces documentation update plan + drafts: runs the docs-sync discipline.**"
+description: "**DEFAULT for documentation drift correction — produces documentation update plan + drafts.**"
 when_to_use: "Manual-only. Invoke when docs may have drifted from code: stale examples, outdated install instructions, removed flags still documented, screenshots showing old UI. For ADR/design doc creation, see `_shared/playbooks/adr-template.md` and `_shared/playbooks/design-doc-template.md`."
 argument-hint: "[doc|surface|version range]"
 tier: "specialist"
-aliases: ["docs-sync"]
 disable-model-invocation: true
 output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -90,7 +89,3 @@ Docs Inventory | Drift Found | Fixes Applied (per file) | Code-Wrong Findings (s
 ## Subagent delegation
 
 Dispatch `writer` for changelog synthesis from raw commit log. See `_shared/playbooks/release-notes-format.md`.
-
-## V4 aliases
-
-This skill answers to V4 names: `docs-sync`. The router resolves them to `docs-sync` and notes the alias in its response.

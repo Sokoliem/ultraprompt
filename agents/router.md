@@ -2,7 +2,7 @@
 name: router
 description: "Triage incoming requests when intent is ambiguous and recommend the right downstream skill or agent. USE WHEN main thread is unsure which Ultraprompt skill or specialist fits a request, or when the user's request straddles multiple lanes. Different from `dispatch_advise` MCP tool (which gives an inline recommendation): the router agent runs as a Task subagent for harder routing decisions requiring file inspection or multi-pass reasoning. DEFAULT for ambiguous routing when MCP-level guidance was insufficient. DO NOT use as the first-line router for clear-intent requests (those route directly via skill auto-discovery or `dispatch_advise`), and do not invoke router for actual work — router only recommends; it doesn't execute the recommended work. Read-only."
 maxTurns: 8
-tools: "Read, Grep, Glob, Bash"
+tools: "Read, Grep, Glob"
 disallowedTools: "Write, Edit, MultiEdit, Bash"
 color: "gray"
 ---

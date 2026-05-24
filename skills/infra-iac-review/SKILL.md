@@ -1,10 +1,10 @@
 ---
 name: "infra-iac-review"
-description: "**DEFAULT for IaC reviews: dispatches reviewer with infrastructure-as-code focus: runs the infra-iac-review discipline.**"
+description: "**DEFAULT for IaC reviews — dispatches reviewer with infrastructure-as-code focus.**"
 when_to_use: "Manual-only. Invoke for IaC review (Terraform, Pulumi, CloudFormation), Kubernetes manifests, Docker/compose, IAM policies, secret management, runtime config drift, or scheduled job audit. For supply-chain image provenance, use specialist `supply-chain-hardening`."
 argument-hint: "[surface|module|cluster|policy]"
 tier: "specialist"
-aliases: ["infra-iac-review", "cron-job-audit"]
+aliases: ["cron-job-audit"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -104,4 +104,4 @@ Dispatch `auditor` with focus=infra for cross-cutting review. See `_shared/playb
 
 ## V4 aliases
 
-This skill answers to V4 names: `infra-iac-review`, `cron-job-audit`. The router resolves them to `infra-iac-review` and notes the alias in its response.
+This skill answers to V4 names: `cron-job-audit`. The router resolves them to `infra-iac-review` and notes the alias in its response.

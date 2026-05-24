@@ -1,6 +1,6 @@
 ---
 name: "skill-author"
-description: "**DEFAULT for skill authoring: produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation): runs the skill-author discipline.**"
+description: "**DEFAULT for skill authoring — produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation).**"
 when_to_use: "Manual-only. Invoke for new skill authoring or refining an existing skill body. Also handles CLAUDE.md / AGENTS.md / repo guidance file optimization."
 argument-hint: "[skill name|target]"
 tier: "ecosystem"

@@ -1,6 +1,6 @@
 ---
 name: "mcp-design"
-description: "**DEFAULT for MCP design tasks: dispatches reviewer/architect with MCP focus: runs the mcp-design discipline.**"
+description: "**DEFAULT for MCP design tasks — dispatches reviewer/architect with MCP focus.**"
 when_to_use: "Manual-only. Invoke for MCP server design, audit, or tool-boundary review. Combines V4's mcp-integration-design and mcp-server-audit."
 argument-hint: "[server|tool|surface]"
 tier: "ecosystem"

@@ -1,6 +1,6 @@
 ---
 name: "problem-framing"
-description: "**DEFAULT for problem-framing decisions: produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications: runs the problem-framing discipline.**"
+description: "**DEFAULT for problem-framing decisions — produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications.** Different from /idea-triage (ranks ideas, not frames problems), /concept-brief (after problem is framed), /innovation-lead (idea generation)."
 when_to_use: "When the user has a problem statement but suspects it might be framed wrong, or wants to explore alternative framings before locking in a direction. Critical pre-PRD step if problem framing affects what to build."
 argument-hint: "<problem statement or topic>"
 tier: "core"

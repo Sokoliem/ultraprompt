@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"command": "chmod +x install.sh"}},
+  "expected_exit": 2
+}

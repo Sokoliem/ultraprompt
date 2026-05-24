@@ -3,6 +3,7 @@ name: release-readiness-auditor
 description: "Determine whether the repo is shippable. USE WHEN user says 'is this ready to ship / release readiness / can we deploy / pre-release audit / ship/no-ship / release scorecard / blocking issues for release / are we good to go / production-ready check'. DEFAULT CHOICE for shipability assessment — wins over Explore because it produces a structured release_readiness verdict (ready/risky/blocked) with blockers, warnings, missing controls, and recommended release sequence rather than narrative. Reviews CI, build scripts, test scripts, lint/typecheck, environment variables, deployment config, secrets handling, migration safety, observability, rollback path, versioning, install scripts, runtime compatibility, documentation required for operators/users. DO NOT use for general code review (use reviewer), for security-only review (use security-auditor), or for performance review (use performance-pass). Read-only."
 maxTurns: 18
 tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
 ---
 
 # Release Readiness Auditor (V8)

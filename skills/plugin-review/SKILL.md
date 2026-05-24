@@ -1,6 +1,6 @@
 ---
 name: "plugin-review"
-description: "**DEFAULT for plugin review tasks: dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks): runs the plugin-review discipline.**"
+description: "**DEFAULT for plugin review tasks — dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks).**"
 when_to_use: "Manual-only. Invoke for ecosystem-level review of a Claude Code plugin package. For authoring a new skill or agent, use ecosystem skills `skill-author` or `agent-author`."
 argument-hint: "[plugin path|focus]"
 tier: "ecosystem"

@@ -4,7 +4,7 @@ description: "**DEFAULT for AUTH / SECRETS / INJECTION / TENANT ISOLATION — de
 when_to_use: "Use for security-focused review of auth flows, secret handling, injection surfaces, tenant isolation, dependency security, or sensitive data handling. Kept as a core skill (auto-discoverable) because security work is too important to hide behind a flag."
 argument-hint: "[surface|flow|threat|focus]"
 tier: "core"
-aliases: ["security-audit"]
+aliases: ["secure-review", "auth-audit", "threat-model"]
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
@@ -99,4 +99,4 @@ Dispatch `security-auditor` for an independent perspective on threat model and t
 
 ## V4 aliases
 
-This skill answers to V4 names: `security-audit`. The router resolves them to `security-audit` and notes the alias in its response.
+This skill answers to V4 names: `secure-review`, `auth-audit`, `threat-model`. The router resolves them to `security-audit` and notes the alias in its response.

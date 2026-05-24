@@ -1,10 +1,9 @@
 ---
 name: "database-review"
-description: "**DEFAULT for database-focused reviews: dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions): runs the database-review discipline.**"
+description: "**DEFAULT for database-focused reviews — dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions).**"
 when_to_use: "Manual-only. Invoke for database-specific work: schema design, migration safety, index strategy, transaction boundaries, query plans, backfill design. For general migration sequencing, use core `migrate`."
 argument-hint: "[table|migration|query|operation]"
 tier: "specialist"
-aliases: ["database-review"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -96,7 +95,3 @@ Change Type | Production Scale Impact | Sequenced Steps (forward-compat first) |
 ## Subagent delegation
 
 Dispatch `auditor` with focus=db for a second perspective on production safety.
-
-## V4 aliases
-
-This skill answers to V4 names: `database-review`. The router resolves them to `database-review` and notes the alias in its response.

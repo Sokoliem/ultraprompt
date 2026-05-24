@@ -40,12 +40,23 @@ VALIDATION_COMMAND_PATTERNS = [
     r"\bdotnet\s+test\b",
     r"\bmvn\s+test\b",
     r"\bgradle\s+test\b",
-    r"\bmake\s+(test|lint|check|build)\b",
+    r"\bmake\s+(test|lint|check|build|validate)\b",
     r"\bctest\b",
     r"\bterraform\s+(validate|plan)\b",
     r"\bxcodebuild\s+test\b",
     r"\bswift\s+test\b",
     r"\bbazel\s+test\b",
+    # V8.8: Ultraprompt's own validation scripts (plugin self-validation)
+    r"\bvalidate-descriptions\.py\b",
+    r"\baudit-catalog-consistency\.py\b",
+    r"\bvalidate-plugin\.py\b",
+    r"\brun-hook-tests\.py\b",
+    r"\brun-router-bench\.py\b",
+    r"\brun-pathfinder-tests\.py\b",
+    r"\brun-cognitive-tests\.py\b",
+    r"\brun-artifact-tests\.py\b",
+    r"\brun-config-tests\.py\b",
+    r"\brelease-scorecard\.py\b",
 ]
 
 # V8 boost rules. Names map to canonical skill names, with legacy aliases handled by alias resolver.

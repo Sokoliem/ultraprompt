@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"command": "chmod 777 /var/data"}},
+  "expected_exit": 2
+}

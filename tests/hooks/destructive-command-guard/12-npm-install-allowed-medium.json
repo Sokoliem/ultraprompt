@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"command": "npm install lodash"}},
+  "expected_exit": 0
+}

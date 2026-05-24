@@ -1,10 +1,10 @@
 ---
 name: "api-contract"
-description: "**DEFAULT for API contract design and review: dispatches reviewer/integration-contract-reviewer with API contract focus: runs the api-contract discipline.**"
+description: "**DEFAULT for API contract design and review — dispatches reviewer/integration-contract-reviewer with API contract focus.** Different from /migrate (intentional breaking change), /architect (system architecture, not contract review), /integration-contract-reviewer agent (used by this skill)."
 when_to_use: "Use for any change that affects a public surface: API endpoints, schemas, CLI flags, config formats, events, package exports, wire formats. Use when planning a deprecation. Do not use for purely internal refactors with no external surface (use refactor)."
 argument-hint: "[surface|change description|consumer]"
 tier: "core"
-aliases: ["api-contract", "api-deprecation"]
+aliases: ["api-deprecation"]
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
@@ -101,4 +101,4 @@ Use `reviewer` with focus=contract for a compatibility second opinion. Use `_sha
 
 ## V4 aliases
 
-This skill answers to V4 names: `api-contract`, `api-deprecation`. The router resolves them to `api-contract` and notes the alias in its response.
+This skill answers to V4 names: `api-deprecation`. The router resolves them to `api-contract` and notes the alias in its response.

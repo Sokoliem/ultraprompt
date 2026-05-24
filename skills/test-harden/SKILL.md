@@ -4,7 +4,6 @@ description: "**DEFAULT for WRITING OR STRENGTHENING TESTS — author missing te
 when_to_use: "Use when confidence is low, coverage is shallow, regressions are likely, or a change needs durable behavioral tests. Do not use when the failure is concrete (use debug); do not use when the change is a feature delivery (use build)."
 argument-hint: "[path|module|behavior|changed feature]"
 tier: "core"
-aliases: ["test-harden"]
 output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
 ---
@@ -87,7 +86,3 @@ Coverage Target | Behavior Contracts Tested | Boundary Cases Added | Removed Cha
 ## Subagent delegation
 
 Use `test-strategist` to design test plans for unfamiliar areas.
-
-## V4 aliases
-
-This skill answers to V4 names: `test-harden`. The router resolves them to `test-harden` and notes the alias in its response.

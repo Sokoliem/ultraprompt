@@ -3,6 +3,7 @@ name: wiring-gap-inspector
 description: "Find code that exists but is not connected end-to-end. USE WHEN user says 'find disconnected code / what's not wired up / find dead handlers / unmounted routes / unregistered jobs / orphaned components / what's defined but never called'. DEFAULT CHOICE for wiring-gap detection — wins over Explore because it produces structured gap_ledger entries (producer/consumer/expected_connection/actual_state) with file-level evidence, not narrative. Detects unmounted routes, defined-but-uncalled API clients, ORM models without services, declared-but-unenforced permissions, env vars read without documentation, workers without queues, emitted events without listeners, exposed-but-unconfigured webhooks, CLI commands not registered. DO NOT use for general dead-code detection (use dead-code-and-drift-hunter), security gaps (use security-auditor), or test gaps (use test-gap-analyst). Read-only."
 maxTurns: 16
 tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
 ---
 
 # Wiring Gap Inspector (V8)

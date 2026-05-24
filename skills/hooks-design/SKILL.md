@@ -1,6 +1,6 @@
 ---
 name: "hooks-design"
-description: "**DEFAULT for plugin hook design: dispatches reviewer/architect with plugin hooks focus: runs the hooks-design discipline.**"
+description: "**DEFAULT for plugin hook design — dispatches reviewer/architect with plugin hooks focus.**"
 when_to_use: "Manual-only. Invoke for hook design, hook auditing, or settings/permissions audit. Hooks are the riskiest plugin surface because they intercept tool calls."
 argument-hint: "[hook|surface]"
 tier: "ecosystem"

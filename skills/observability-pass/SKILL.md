@@ -1,10 +1,9 @@
 ---
 name: "observability-pass"
-description: "**DEFAULT for observability-specific audits: dispatches auditor with observability focus: runs the observability-pass discipline.**"
+description: "**DEFAULT for observability-specific audits — dispatches auditor with observability focus.**"
 when_to_use: "Manual-only. Invoke for observability gaps: insufficient logs, missing metrics, broken traces, ineffective alerting, or SLO design. For incident reconstruction, see `_shared/playbooks/incident-postmortem-template.md`."
 argument-hint: "[surface|operation|signal]"
 tier: "specialist"
-aliases: ["observability-pass"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -101,7 +100,3 @@ Scope | Logging Audit + Fixes | Metrics Audit + Fixes | Tracing Audit + Fixes | 
 ## Subagent delegation
 
 Dispatch `auditor` with focus=observability.
-
-## V4 aliases
-
-This skill answers to V4 names: `observability-pass`. The router resolves them to `observability-pass` and notes the alias in its response.

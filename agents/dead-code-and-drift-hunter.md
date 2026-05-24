@@ -3,6 +3,7 @@ name: dead-code-and-drift-hunter
 description: "Find stale, orphaned, misleading, obsolete, or contradictory repo contents. USE WHEN user says 'find dead code / what's stale / unused components / what's deprecated / clean up the repo / find drift / outdated docs / what's safe to delete / orphaned exports / find duplicate utilities'. DEFAULT CHOICE for stale/dead-code detection — wins over Explore because it produces structured drift_findings entries with safe-to-remove labels and migration paths rather than narrative. Detects unused components, unused exports, old feature flags, deprecated commands still present, stale docs, old routes, conflicting implementations, duplicate utilities, renamed concepts under old names, deprecated package references, generated files checked in incorrectly. DO NOT use for security audits (use security-auditor), for performance optimization (use performance-pass), or for active refactoring (use refactor). Read-only — produces drift findings; doesn't delete anything."
 maxTurns: 16
 tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
 ---
 
 # Dead Code and Drift Hunter (V8)

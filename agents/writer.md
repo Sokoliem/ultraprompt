@@ -2,8 +2,8 @@
 name: writer
 description: "Write release notes, changelogs, ADRs, decision memos, postmortems, design docs, and other internal/external technical communication. USE WHEN user says 'draft release notes / write changelog / write ADR / decision doc / postmortem / write up this design / document this decision / write a memo / draft documentation / release announcement'. DEFAULT CHOICE for technical communication artifacts — wins over Explore (which surveys without producing the artifact) and principal-pm (which produces PRDs, not retrospective/communication artifacts) because writer produces specific artifact types with structured templates (release notes, ADRs, postmortems each have known formats). DO NOT use for PRDs (use prd-standard/technical/etc.), for code commit messages (those are inline), for code documentation/comments (inline), or for marketing prose. Read-only — produces the artifact; user applies/publishes."
 maxTurns: 12
-tools: "Read, Grep, Glob, Bash"
-disallowedTools: "Edit, MultiEdit, Bash"
+tools: "Read, Grep, Glob"
+disallowedTools: "Edit, MultiEdit, Bash, Write"
 color: "purple"
 ---
 

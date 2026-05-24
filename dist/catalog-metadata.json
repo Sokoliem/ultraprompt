@@ -5,18 +5,22 @@
     "builder",
     "catalog-strategist",
     "customer-advocate",
+    "data-analyst",
     "dead-code-and-drift-hunter",
     "debugger",
     "dream-synthesizer",
     "evaluator",
     "feature-completeness-auditor",
     "gap-analysis-lead",
+    "incident-commander",
     "innovation-lead",
     "integration-contract-reviewer",
     "learning-auditor",
     "market-analyst",
     "memory-curator",
     "principal-pm",
+    "prompt-engineer",
+    "release-manager",
     "release-readiness-auditor",
     "repo-cartographer",
     "reviewer",
@@ -32,16 +36,16 @@
     "writer"
   ],
   "counts": {
-    "agent_specs": 30,
-    "agents": 30,
+    "agent_specs": 34,
+    "agents": 34,
     "artifact_schemas": 17,
-    "commands": 31,
-    "mcp_tools": 43,
+    "commands": 33,
+    "mcp_tools": 42,
     "output_styles": 2,
     "panels": 12,
-    "registered_hooks": 10,
-    "skill_specs": 49,
-    "skills": 49
+    "registered_hooks": 9,
+    "skill_specs": 55,
+    "skills": 55
   },
   "plugin_version": "8.7.0",
   "schema_version": 1,
@@ -94,12 +98,18 @@
     "concept-brief",
     "mvp-scope",
     "problem-framing",
-    "choose"
+    "choose",
+    "incident-response",
+    "adr-author",
+    "runbook-author",
+    "cost-audit",
+    "git-workflow",
+    "onboarding-doc"
   ],
-  "source_hash": "246732f0457f68b9af6b3f9fdff5779f948eca74cd80facdae8922a044392aea",
+  "source_hash": "d139b378fd15a3d3f214d71a28455e84eae920a6e178d21a7e2aa463c853c79e",
   "tiers": {
     "core": 29,
     "ecosystem": 5,
-    "specialist": 15
+    "specialist": 21
   }
 }

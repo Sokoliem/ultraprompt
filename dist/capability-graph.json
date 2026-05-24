@@ -1507,6 +1507,11 @@
     },
     {
       "relation": "emits",
+      "source": "skill:adr-author",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "emits",
       "source": "skill:agent-author",
       "target": "artifact:structured_output"
     },
@@ -1586,6 +1591,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "emits",
+      "source": "skill:cost-audit",
+      "target": "artifact:structured_output"
+    },
+    {
       "focus": "privacy",
       "relation": "dispatches_to",
       "source": "skill:data-flow-privacy-map",
@@ -1659,6 +1669,11 @@
     },
     {
       "relation": "emits",
+      "source": "skill:git-workflow",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "emits",
       "source": "skill:hooks-design",
       "target": "artifact:structured_output"
     },
@@ -1670,6 +1685,11 @@
     {
       "relation": "emits",
       "source": "skill:idea-triage",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:incident-response",
       "target": "artifact:structured_output"
     },
     {
@@ -1717,6 +1737,11 @@
     {
       "relation": "emits",
       "source": "skill:observability-pass",
+      "target": "artifact:structured_output"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:onboarding-doc",
       "target": "artifact:structured_output"
     },
     {
@@ -1863,6 +1888,11 @@
       "target": "artifact:structured_output"
     },
     {
+      "relation": "emits",
+      "source": "skill:runbook-author",
+      "target": "artifact:structured_output"
+    },
+    {
       "relation": "dispatches_to",
       "source": "skill:security-audit",
       "target": "agent:security-auditor"
@@ -1972,6 +2002,13 @@
       "risk": "low"
     },
     {
+      "color": "blue",
+      "id": "agent:data-analyst",
+      "kind": "agent",
+      "label": "data-analyst",
+      "risk": "low"
+    },
+    {
       "id": "agent:dead-code-and-drift-hunter",
       "kind": "agent",
       "label": "dead-code-and-drift-hunter",
@@ -2007,6 +2044,13 @@
       "id": "agent:gap-analysis-lead",
       "kind": "agent",
       "label": "gap-analysis-lead",
+      "risk": "low"
+    },
+    {
+      "color": "red",
+      "id": "agent:incident-commander",
+      "kind": "agent",
+      "label": "incident-commander",
       "risk": "low"
     },
     {
@@ -2047,6 +2091,20 @@
       "id": "agent:principal-pm",
       "kind": "agent",
       "label": "principal-pm",
+      "risk": "low"
+    },
+    {
+      "color": "cyan",
+      "id": "agent:prompt-engineer",
+      "kind": "agent",
+      "label": "prompt-engineer",
+      "risk": "low"
+    },
+    {
+      "color": "green",
+      "id": "agent:release-manager",
+      "kind": "agent",
+      "label": "release-manager",
       "risk": "low"
     },
     {
@@ -2455,6 +2513,11 @@
       "label": "dashboard"
     },
     {
+      "id": "command:dispatch",
+      "kind": "command",
+      "label": "dispatch"
+    },
+    {
       "id": "command:doctor",
       "kind": "command",
       "label": "doctor"
@@ -2543,6 +2606,11 @@
       "id": "command:resume",
       "kind": "command",
       "label": "resume"
+    },
+    {
+      "id": "command:rollback",
+      "kind": "command",
+      "label": "rollback"
     },
     {
       "id": "command:route",
@@ -2655,11 +2723,6 @@
       "label": "session-finalize.py"
     },
     {
-      "id": "hook:session-start-context.sh",
-      "kind": "hook",
-      "label": "session-start-context.sh"
-    },
-    {
       "id": "hook:skill-agent-telemetry.py",
       "kind": "hook",
       "label": "skill-agent-telemetry.py"
@@ -2734,13 +2797,7 @@
       "label": "claim_check"
     },
     {
-      "description": "[DEPRECATED; use team_plan] Compose a small sequential workflow from named skills.",
-      "id": "mcp:compose_workflow",
-      "kind": "mcp_tool",
-      "label": "compose_workflow"
-    },
-    {
-      "description": "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (29 agents, 48 skills, 12 panels, 42 MCP tools, 30 commands, 17 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent \u00e2\u20ac\u201d if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
+      "description": "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (29 agents, 48 skills, 12 panels, 42 MCP tools, 30 commands, 17 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent \u2014 if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
       "id": "mcp:dashboard_launch",
       "kind": "mcp_tool",
       "label": "dashboard_launch"
@@ -2800,7 +2857,7 @@
       "label": "gap_ledger_query"
     },
     {
-      "description": "V8.7.0: Gap ledger summary stats \u00e2\u20ac\u201d totals by status/severity/category/repo/auditor.",
+      "description": "V8.7.0: Gap ledger summary stats \u2014 totals by status/severity/category/repo/auditor.",
       "id": "mcp:gap_ledger_stats",
       "kind": "mcp_tool",
       "label": "gap_ledger_stats"
@@ -3581,6 +3638,15 @@
       "tier": "specialist"
     },
     {
+      "confirmation": "not_required_read_only",
+      "id": "skill:adr-author",
+      "kind": "skill",
+      "label": "adr-author",
+      "mode": "read_only",
+      "risk": "low",
+      "tier": "specialist"
+    },
+    {
       "confirmation": "required_for_repo_mutation",
       "id": "skill:agent-author",
       "kind": "skill",
@@ -3663,6 +3729,15 @@
       "tier": "specialist"
     },
     {
+      "confirmation": "not_required_read_only",
+      "id": "skill:cost-audit",
+      "kind": "skill",
+      "label": "cost-audit",
+      "mode": "read_only",
+      "risk": "low",
+      "tier": "specialist"
+    },
+    {
       "confirmation": "required_for_repo_mutation",
       "id": "skill:data-flow-privacy-map",
       "kind": "skill",
@@ -3738,6 +3813,15 @@
       "tier": "core"
     },
     {
+      "confirmation": "not_required_read_only",
+      "id": "skill:git-workflow",
+      "kind": "skill",
+      "label": "git-workflow",
+      "mode": "read_only",
+      "risk": "low",
+      "tier": "specialist"
+    },
+    {
       "confirmation": "required_for_repo_mutation",
       "id": "skill:hooks-design",
       "kind": "skill",
@@ -3755,6 +3839,15 @@
       "mode": "read_only",
       "risk": "low",
       "tier": "core"
+    },
+    {
+      "confirmation": "not_required_read_only",
+      "id": "skill:incident-response",
+      "kind": "skill",
+      "label": "incident-response",
+      "mode": "read_only",
+      "risk": "low",
+      "tier": "specialist"
     },
     {
       "confirmation": "required_for_repo_mutation",
@@ -3809,6 +3902,15 @@
       "label": "observability-pass",
       "mode": "write_capable",
       "risk": "medium",
+      "tier": "specialist"
+    },
+    {
+      "confirmation": "not_required_read_only",
+      "id": "skill:onboarding-doc",
+      "kind": "skill",
+      "label": "onboarding-doc",
+      "mode": "read_only",
+      "risk": "low",
       "tier": "specialist"
     },
     {
@@ -3956,6 +4058,15 @@
       "tier": "core"
     },
     {
+      "confirmation": "not_required_read_only",
+      "id": "skill:runbook-author",
+      "kind": "skill",
+      "label": "runbook-author",
+      "mode": "read_only",
+      "risk": "low",
+      "tier": "specialist"
+    },
+    {
       "confirmation": "required_for_repo_mutation",
       "id": "skill:security-audit",
       "kind": "skill",
@@ -4096,5 +4207,5 @@
   ],
   "plugin_version": "8.7.0",
   "schema": "capability_graph.v1",
-  "source_hash": "f21fbb5045308cefe332ae2abb82863ddcc8c9f545136737c8e99d281413e7f9"
+  "source_hash": "d6044e0b38851e2509f1f617ce83587187ca9ddc9f8b1f4ec408a22b7f0720f5"
 }

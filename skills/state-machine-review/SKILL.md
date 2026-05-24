@@ -1,10 +1,9 @@
 ---
 name: "state-machine-review"
-description: "**DEFAULT for state-machine design and review: dispatches reviewer with state-machine focus: runs the state-machine-review discipline.**"
+description: "**DEFAULT for state-machine design and review — dispatches reviewer with state-machine focus.**"
 when_to_use: "Manual-only. Invoke for state-machine, FSM, reducer, or protocol-lifecycle review. Different cognitive model from architecture review (which handles boundaries) and concurrency (which handles timing). For lock/race/async issues, see `_shared/playbooks/concurrency-patterns.md`."
 argument-hint: "[state machine|reducer|protocol]"
 tier: "specialist"
-aliases: ["state-machine-review"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -100,7 +99,3 @@ State Machine | Transition Table | Invariants | Impossible States Found | Stuck 
 ## Subagent delegation
 
 Dispatch `reviewer` with focus=architecture for boundary questions. See `_shared/playbooks/concurrency-patterns.md` for concurrent transition concerns.
-
-## V4 aliases
-
-This skill answers to V4 names: `state-machine-review`. The router resolves them to `state-machine-review` and notes the alias in its response.

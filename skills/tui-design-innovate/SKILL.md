@@ -1,10 +1,9 @@
 ---
 name: "tui-design-innovate"
-description: "**DEFAULT for terminal-UI design work: dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state): runs the tui-design-innovate discipline.**"
+description: "**DEFAULT for terminal-UI design work — dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state).**"
 when_to_use: "Manual-only. Invoke for TUI app or framework work: terminal-native interaction, focus management, layout, rendering, input routing, framework primitives. Do not default to browser/desktop GUI assumptions."
 argument-hint: "[surface|framework|interaction]"
 tier: "specialist"
-aliases: ["tui-design-innovate"]
 disable-model-invocation: true
 output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -94,7 +93,3 @@ Surface | Keyboard Interaction Model | Layout + Focus Graph | Terminal Reality H
 ## Subagent delegation
 
 Dispatch `reviewer` with focus=architecture for framework structure. See `_shared/playbooks/frontend-ux-checklist.md` for general UX overlap.
-
-## V4 aliases
-
-This skill answers to V4 names: `tui-design-innovate`. The router resolves them to `tui-design-innovate` and notes the alias in its response.

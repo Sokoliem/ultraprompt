@@ -1,6 +1,6 @@
 ---
 name: "prd-technical"
-description: "**DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk: produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry: runs the prd-technical discipline.**"
+description: "**DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk — produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry.** Different from /prd-standard (customer-journey-heavy), /prd-lite (early-stage), /architect (code-level architecture, not product spec)."
 when_to_use: "When the product change is technical-heavy — infrastructure, platform, dev tools, APIs, data pipelines. Less time on customer journey; more time on system shape."
 argument-hint: "<technical feature or platform name>"
 tier: "core"

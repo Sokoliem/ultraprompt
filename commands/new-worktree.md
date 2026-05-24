@@ -1,5 +1,6 @@
 ---
 description: Create a new git worktree with plugin-aware setup. Records intent to ledger.
+disable-model-invocation: true
 ---
 
 Create a new git worktree with the given name and optional purpose.

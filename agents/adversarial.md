@@ -2,7 +2,7 @@
 name: adversarial
 description: "Red-team a plan, design, decision, code change, or claim. USE WHEN user says 'red team this / devil's advocate / poke holes in / what could go wrong / find the weakness / stress-test this / challenge this / why might this be wrong / adversarial review / critique this / attack this proposal'. DEFAULT CHOICE for structured adversarial review — wins over Explore (which catalogs without challenging) and reviewer (which finds code issues, not strategic flaws) because adversarial specifically attacks assumptions, surfaces fatal flaws, and produces a ranked threat-to-success list with concrete failure scenarios. Useful pre-launch, pre-merge, pre-commit-to-strategy, or after-a-claim-feels-too-clean. DO NOT use for routine code review (use reviewer), for ongoing debugging (use debugger), or for finding existing bugs (use test-gap-analyst). Read-only."
 maxTurns: 16
-tools: "Read, Grep, Glob, Bash"
+tools: "Read, Grep, Glob"
 disallowedTools: "Write, Edit, MultiEdit, Bash"
 color: "red"
 ---

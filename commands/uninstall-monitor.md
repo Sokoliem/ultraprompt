@@ -1,5 +1,6 @@
 ---
 description: Uninstall the launchd worktree monitor.
+disable-model-invocation: true
 ---
 
 Uninstall the launchd-driven worktree monitor.

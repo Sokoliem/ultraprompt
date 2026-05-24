@@ -54,40 +54,40 @@ MCP_INSTRUCTIONS = """## ultraprompt-meta (V8)
 
 V8: dispatch-first architecture with trust-consolidated release gates and live dashboard telemetry.
 
-**FIRST CALL when uncertain: `dispatch_advise`** â€” pass intent + estimated_files_to_read + is_interactive. Returns dispatch-vs-inline recommendation with specific agent and Task brief. Cost: one MCP call. Benefit: prevents wrong-tool dispatches before they happen.
+**FIRST CALL when uncertain: `dispatch_advise`** — pass intent + estimated_files_to_read + is_interactive. Returns dispatch-vs-inline recommendation with specific agent and Task brief. Cost: one MCP call. Benefit: prevents wrong-tool dispatches before they happen.
 
 **Routing:**
-- `dispatch_advise` â€” dispatch vs inline decision 
-- `route_intent` â€” top-3 skill matches when lane is unclear
+- `dispatch_advise` — dispatch vs inline decision
+- `route_intent` — top-3 skill matches when lane is unclear
 
 **Evidence:**
-- `claim_check` â€” call on draft BEFORE asserting "tests pass" / "build succeeds"
-- `repo_capsule` â€” cached read-only contract for unfamiliar repos
+- `claim_check` — call on draft BEFORE asserting "tests pass" / "build succeeds"
+- `repo_capsule` — cached read-only contract for unfamiliar repos
 
 **Multi-session safety:**
-- `worktree_state` â€” state of all worktrees in current repo
-- `session_lookup` â€” detect concurrent sessions
-- `wip_save_advise` â€” recommend wip-save based on threshold + cooldown
+- `worktree_state` — state of all worktrees in current repo
+- `session_lookup` — detect concurrent sessions
+- `wip_save_advise` — recommend wip-save based on threshold + cooldown
 
 **Panel:**
-- `team_plan` â€” preview panel-run plan BEFORE paying NÃ—baseline cost
+- `team_plan` — preview panel-run plan BEFORE paying N×baseline cost
 
 ### V8 dispatch defaults
 
-Skills with specialist agents dispatch via Task by default. Follow each skill body's DISPATCH POLICY. Inline override only when trivial (â‰¤5 reads), user asked for fast-path, OR context is already loaded.
+Skills with specialist agents dispatch via Task by default. Follow each skill body's DISPATCH POLICY. Inline override only when trivial (≤5 reads), user asked for fast-path, OR context is already loaded.
 
 ### Anti-patterns vs built-in Explore
 
-- "map X / explore Y / read Z / show me W" â†’ `ultraprompt:scout`, NOT Explore
-- "audit X for Y" â†’ `ultraprompt:auditor` with focus, NOT Explore
-- "draft release notes / write ADR" â†’ `ultraprompt:writer`, NOT Explore
-- "red-team / critique / find weakness" â†’ `ultraprompt:adversarial`, NOT Explore"""
+- "map X / explore Y / read Z / show me W" → `ultraprompt:scout`, NOT Explore
+- "audit X for Y" → `ultraprompt:auditor` with focus, NOT Explore
+- "draft release notes / write ADR" → `ultraprompt:writer`, NOT Explore
+- "red-team / critique / find weakness" → `ultraprompt:adversarial`, NOT Explore"""
 
 
 def _ledger_write_call(tool_name: str, args: dict, dur_ms: int, ok: bool, extra: dict = None) -> None:
     """Append mcp_tool_call event to ledger v2. Fail-open.
 
-    V8: `extra` dict merged into the event for outcome telemetry â€” e.g.,
+    V8: `extra` dict merged into the event for outcome telemetry — e.g.,
     claim_check passes 'passed' + 'fail_count', dispatch_advise passes 'recommend' + 'agent'.
     """
     try:
@@ -693,7 +693,7 @@ def tool_wip_save_advise(args: dict[str, Any]) -> dict[str, Any]:
               "cooldown_minutes": cooldown, "in_progress": state.get("in_progress")}
     if state.get("in_progress"):
         advise["recommend"] = "no"
-        advise["reason"] = f"in-progress {state['in_progress']} â€” refusing"
+        advise["reason"] = f"in-progress {state['in_progress']} — refusing"
     elif dirty == 0:
         advise["recommend"] = "no"
         advise["reason"] = "nothing to save"
@@ -1442,6 +1442,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_list_skills,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "route_intent": (
         "Route a free-form task intent to the best 1-3 Ultraprompt skills.",
@@ -1454,6 +1455,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_route_intent,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "route_picker": (
         "V8.7: Return top-N routing candidates + previews for the interactive picker. "
@@ -1470,32 +1472,25 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_route_picker,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "explain_skill": (
         "Return indexed metadata for one Ultraprompt skill. Resolves V4 aliases.",
         {"type": "object", "required": ["skill"], "properties": {"skill": {"type": "string"}}},
         tool_explain_skill,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "list_agents": (
         "List Ultraprompt plugin subagents from the generated index. Read-only.",
         {"type": "object", "properties": {"query": {"type": "string"}}},
         tool_list_agents,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "validate_plugin": (
         "Run the bundled Ultraprompt validator and return stdout. Read-only.",
         {"type": "object", "properties": {}},
         tool_validate_plugin,
-    ),
-    "compose_workflow": (
-        "[DEPRECATED; use team_plan] Compose a small sequential workflow from named skills.",
-        {
-            "type": "object",
-            "required": ["skills"],
-            "properties": {
-                "skills": {"type": "array", "items": {"type": "string"}},
-            },
-        },
-        tool_compose_workflow,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "claim_check": (
         "Scan draft answer text for unbacked validation claims. Returns warnings if claims like 'tests passed' have no supporting validation event in the evidence ledger.",
@@ -1505,6 +1500,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             "properties": {"text": {"type": "string", "description": "Draft answer text to scan"}},
         },
         tool_claim_check,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "query_ledger": (
         "Return evidence ledger events matching the given filter. Read-only.",
@@ -1519,11 +1515,13 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_query_ledger,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "validation_status": (
         "Return aggregate session status: validation_seen, edits_seen, summary.",
         {"type": "object", "properties": {}},
         tool_validation_status,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "evidence_diff": (
         "Return events recorded since a timestamp.",
@@ -1533,6 +1531,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             "properties": {"since": {"type": "string"}},
         },
         tool_evidence_diff,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "team_plan": (
         "V8.7.0: aliased to panel_plan (preferred). Return a parallel-agent orchestration plan for a panel-run pattern. Patterns: review-fanout, debug-t...",
@@ -1558,6 +1557,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_team_plan,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "repo_capsule": (
         "Return a compact repository contract capsule. Cached by repo_root + git HEAD; pass force_refresh=true to bypass cache.",
@@ -1569,6 +1569,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_repo_capsule,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "repo_capsule_diff": (
         "Return contract drift between current capsule and a prior commit's capsule. Reveals package-manager changes, validation-command changes, new sensitive paths, etc.",
@@ -1581,6 +1582,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_repo_capsule_diff,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "worktree_state": (
         "V8: Return state of all worktrees in the current repo. Includes branch, dirty/untracked counts, stash count, unpushed count, in-progress operations, last activity timestamp.",
@@ -1591,6 +1593,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_worktree_state,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "session_lookup": (
         "V8: Find Claude Code / Codex sessions currently active in a worktree path.",
@@ -1602,6 +1605,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_session_lookup,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "ledger_query": (
         "V8: Query the always-on evidence ledger v2 with filters (days, event types, repo, worktree).",
@@ -1616,6 +1620,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_ledger_query,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "release_scorecard": (
         "V8.7.0: Generate a release-readiness scorecard for the plugin: manifest validity (claude + codex), discovery counts, routing accuracy, safety hooks, docs drift, conclusion (ready/risky/blocked).",
@@ -1624,6 +1629,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             "properties": {},
         },
         tool_release_scorecard,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "panel_plan": (
         "V8.7.0: Return dispatch plan for a named expert panel from source/panel-specs.json. Without panel_name returns the catalog. With panel_name returns phased dispatch plan including mode, risk, confirmation, inputs, success criteria, cognitive policies, phase contracts, parallel/sequential strategy, agent task briefs, and synthesis approach. Pass scope as the panel's focus argument (feature name, area, version, etc.).",
@@ -1635,6 +1641,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_panel_plan,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "mission_state": (
         "V8.7.0: Mission Control unified state snapshot. Reads repo capsule, worktree state, sessions, ledger, WIP snapshots, gap ledger. Returns single view of repo + worktree + sessions + evidence + recovery + gaps + panels.",
@@ -1659,6 +1666,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_gap_ledger_query,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "gap_ledger_write": (
         "V8.7.0: Persist a gap finding to the gap ledger. Used by repo-completeness audit skills (gap-analysis, feature-completeness, test-gap-analysis, dead-code-drift, release-readiness) to record findings beyond a single session.",
@@ -1685,9 +1693,10 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         tool_gap_ledger_write,
     ),
     "gap_ledger_stats": (
-        "V8.7.0: Gap ledger summary stats â€” totals by status/severity/category/repo/auditor.",
+        "V8.7.0: Gap ledger summary stats — totals by status/severity/category/repo/auditor.",
         {"type": "object", "properties": {}},
         tool_gap_ledger_stats,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "artifact_validate": (
         "V8: Validate structured artifact against schema. Catches the 'fluffy artifact' failure mode. Known artifact types: prd_lite, prd_standard, prd_technical, prd_ai_feature, gap_ledger_entry, repo_review_report, release_readiness_report, contract_drift_report, opportunity_map, idea_triage, concept_brief, mvp_scope, problem_framing. Without artifact_type: returns schema list. With type but no artifact: returns schema. With both: validates and returns findings.",
@@ -1699,14 +1708,16 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_artifact_validate,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "catalog_audit": (
         "V8: Run catalog robustness audit (PRD Â§27.4). Scans all agents and skills for: short descriptions, missing trigger phrasing (USE WHEN), missing lane boundaries, missing output contracts, anti-patterns, duplicate descriptions, dispatch_to references resolving, panel references resolving. Returns findings by severity (critical/high/medium/low). Used in CI and pre-release governance.",
         {"type": "object", "properties": {}},
         tool_catalog_audit,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "dashboard_launch": (
-        "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (29 agents, 48 skills, 12 panels, 42 MCP tools, 30 commands, 17 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent â€” if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
+        "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (29 agents, 48 skills, 12 panels, 42 MCP tools, 30 commands, 17 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent — if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
         {
             "type": "object",
             "properties": {
@@ -1720,6 +1731,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         "V8: Check if the Ultraprompt dashboard is running. Returns pid, port, URL, log path.",
         {"type": "object", "properties": {}},
         tool_dashboard_status,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "dashboard_stop": (
         "V8: Stop the Ultraprompt dashboard process. Sends SIGTERM and cleans up pid/port files.",
@@ -1743,6 +1755,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_memory_query,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "memory_write_candidate": (
         "V8: Write a candidate memory after schema, scope, privacy, and secret checks.",
@@ -1788,6 +1801,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         "V8: Return memory store counts by kind, scope, and status.",
         {"type": "object", "properties": {}},
         tool_memory_stats,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "dream_run": (
         "V8: Run a safe read-only dream job manually. Jobs write reports, candidate memories, and learning proposals only.",
@@ -1806,11 +1820,13 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         "V8: Return dream report, lock, and scheduler status.",
         {"type": "object", "properties": {}},
         tool_dream_status,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "dream_review": (
         "V8: Return recent dream reports for governance review.",
         {"type": "object", "properties": {"limit": {"type": "integer", "minimum": 1, "maximum": 100, "default": 10}}},
         tool_dream_review,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "pathfind_workflow": (
         "V8: Recommend and explain the skill/agent/command/panel path for an intent, including memory influences, alternatives, graph hash, risk, and cost.",
@@ -1825,11 +1841,13 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_pathfind_workflow,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "capability_graph": (
         "V8: Return capability graph health, source hash, node counts, and optionally full graph JSON.",
         {"type": "object", "properties": {"include_graph": {"type": "boolean", "default": False}}},
         tool_capability_graph,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "learning_candidates": (
         "V8: List governed learning candidates by status or kind.",
@@ -1842,6 +1860,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_learning_candidates,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "learning_apply": (
         "V8: Approve, reject, apply, or revert a learning candidate. Apply validates graph, pathfinder, and router gates first.",
@@ -1883,6 +1902,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             "required": ["intent"],
         },
         tool_dispatch_advise,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "wip_save_advise": (
         "V8: Recommend whether to wip-save the current worktree based on dirty count, threshold, cooldown, and in-progress state.",
@@ -1893,6 +1913,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
             },
         },
         tool_wip_save_advise,
+        {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
 }
 
@@ -1916,10 +1937,17 @@ def handle(request: dict[str, Any]) -> dict[str, Any] | None:
     if method == "ping":
         return {"jsonrpc": "2.0", "id": request_id, "result": {}}
     if method == "tools/list":
-        tools = [
-            {"name": name, "description": description, "inputSchema": schema}
-            for name, (description, schema, _h) in sorted(TOOLS.items())
-        ]
+        tools = []
+        for name, entry in sorted(TOOLS.items()):
+            description, schema, _handler = entry[0], entry[1], entry[2]
+            annotations = entry[3] if len(entry) > 3 else None
+            tool_def: dict[str, Any] = {"name": name, "description": description, "inputSchema": schema}
+            if annotations:
+                tool_def["annotations"] = annotations
+                # V8.8: expose top-level readonly flag for clients that don't read annotations
+                if annotations.get("readOnlyHint"):
+                    tool_def["readonly"] = True
+            tools.append(tool_def)
         return {"jsonrpc": "2.0", "id": request_id, "result": {"tools": tools}}
     if method == "tools/call":
         import time as _time

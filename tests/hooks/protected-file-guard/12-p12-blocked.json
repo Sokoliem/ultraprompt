@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"file_path": "/repo/certs/client.p12"}},
+  "expected_exit": 2
+}

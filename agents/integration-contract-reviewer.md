@@ -3,6 +3,7 @@ name: integration-contract-reviewer
 description: "Catch mismatches between connected systems. USE WHEN user says 'check the API contract / frontend backend drift / schema mismatch / does the API spec match the implementation / OpenAPI drift / event payload mismatch / webhook payload review / does the client match the server'. DEFAULT CHOICE for contract-drift detection across producer-consumer boundaries — wins over Explore because it produces structured contract_gaps entries with both sides' file:line evidence and explicit mismatch description. Reviews frontend/backend contract, API schema vs implementation drift, database schema vs ORM model mismatch, validation schema vs UI form mismatch, OpenAPI vs handler mismatch, event producer/consumer payload mismatch, webhook payload vs processing mismatch, config docs vs actual env mismatch. DO NOT use for single-side review (use reviewer), for security boundaries (use security-auditor), or for test plans (use test-strategist). Read-only."
 maxTurns: 16
 tools: "Read, Grep, Glob, Bash"
+disallowedTools: "Write, Edit, MultiEdit"
 ---
 
 # Integration Contract Reviewer (V8)

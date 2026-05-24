@@ -1,18 +1,18 @@
 ---
-description: Open the V8 Mission Control dashboard with catalog, live telemetry, memory, dreams, pathfinder, learning, graph, and governance health.
+description: Alias for /ultraprompt:dashboard. Opens the V8 Mission Control dashboard (catalog browser + live telemetry + memory + dreams + pathfinder + learning + graph + governance health).
 argument-hint: "[--status|--stop|--port N]"
 ---
 
-# Ultraprompt Mission Control
+# Ultraprompt Mission Control (alias)
 
-Open the localhost dashboard focused on V8 cognitive governance.
+This command is preserved for backward compatibility. The Mission Control dashboard is now opened by `/ultraprompt:dashboard`.
 
-## Usage
-
-- `/ultraprompt:mission-control`
-- `/ultraprompt:mission-control --status`
-- `/ultraprompt:mission-control --stop`
+Run `/ultraprompt:dashboard` (or `/ultraprompt:dashboard --status` / `--stop`) — it surfaces the same Mission Control panes (catalog, live invocation telemetry, memory, dreams, pathfinder, learning, graph, governance health) plus the cognitive endpoints at `/api/cognitive/health`.
 
 ## Dispatch
 
-Use `dashboard_launch`, `dashboard_status`, or `dashboard_stop`. The dashboard exposes `/api/cognitive/health` plus memory, dreams, pathfinder, learning, and graph endpoints.
+When invoked directly, dispatch to the same MCP tools `/ultraprompt:dashboard` uses:
+
+- No args: `dashboard_launch`
+- `--status`: `dashboard_status`
+- `--stop`: `dashboard_stop`

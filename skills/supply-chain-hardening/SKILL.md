@@ -1,10 +1,9 @@
 ---
 name: "supply-chain-hardening"
-description: "**DEFAULT for supply-chain hardening work: dispatches security-auditor + auditor with supply-chain focus: runs the supply-chain-hardening discipline.**"
+description: "**DEFAULT for supply-chain hardening work — dispatches security-auditor + auditor with supply-chain focus.**"
 when_to_use: "Manual-only. Invoke for supply-chain integrity work: lockfile hygiene, install-script trust, CI publishing pipeline, SBOM generation, container image provenance, registry trust. For dep CVEs/abandonment, use specialist `dependency-audit`."
 argument-hint: "[surface|pipeline]"
 tier: "specialist"
-aliases: ["supply-chain-hardening"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -100,7 +99,3 @@ Lockfile Audit | Install-Script Audit | CI Publishing Audit | Container Image Au
 ## Subagent delegation
 
 Dispatch `auditor` with focus=supply-chain. For container-specific concerns, dispatch `auditor` with focus=infra.
-
-## V4 aliases
-
-This skill answers to V4 names: `supply-chain-hardening`. The router resolves them to `supply-chain-hardening` and notes the alias in its response.

@@ -1,6 +1,6 @@
 ---
 name: "idea-triage"
-description: "**DEFAULT for deciding what to build from a known set of options: runs structured triage of existing ideas with weighted criteria (customer impact, strategic fit, effort, evidence strength, risk): runs the idea-triage discipline.**"
+description: "**DEFAULT for deciding what to build from a known set of options: runs structured triage of existing ideas with weighted criteria (customer impact, strategic fit, effort, evidence strength, risk).** Different from /innovation-lead (idea generation), /concept-brief (single concept polish), /opportunity-map (landscape framing, not triage)."
 when_to_use: "When the user has a list of ideas/features/options and needs ranked recommendations. Triggers on backlog prioritization, post-brainstorm triage, options narrowing, must-kill decisions."
 argument-hint: "[idea list path or topic]"
 tier: "core"

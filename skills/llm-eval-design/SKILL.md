@@ -1,10 +1,9 @@
 ---
 name: "llm-eval-design"
-description: "**DEFAULT for LLM/agent eval design: dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency): runs the llm-eval-design discipline.**"
+description: "**DEFAULT for LLM/agent eval design — dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency).**"
 when_to_use: "Manual-only. Invoke for eval suite design: rubrics, golden cases, graders, thresholds. For runtime safety review of an LLM system, use specialist `ai-agent-safety-review`."
 argument-hint: "[system|capability|prompt under test]"
 tier: "specialist"
-aliases: ["llm-eval-design"]
 disable-model-invocation: true
 output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -90,7 +89,3 @@ Capability Under Test | Failure Modes Targeted | Three-Tier Case Set | Grader Im
 ## Subagent delegation
 
 Dispatch `auditor` with focus=ai-safety for grader robustness review. See `_shared/playbooks/contract-test-patterns.md` for adjacent contract-test design.
-
-## V4 aliases
-
-This skill answers to V4 names: `llm-eval-design`. The router resolves them to `llm-eval-design` and notes the alias in its response.

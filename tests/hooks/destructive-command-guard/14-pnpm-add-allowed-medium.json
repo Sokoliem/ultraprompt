@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": {"command": "pnpm add react"}},
+  "expected_exit": 0
+}

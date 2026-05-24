@@ -1,5 +1,6 @@
 ---
 description: Safely snapshot dirty state to a wip/<repo>/<worktree>/<timestamp> branch without affecting current work. Always recoverable.
+disable-model-invocation: true
 ---
 
 Save the current worktree's dirty state to a recoverable WIP branch.

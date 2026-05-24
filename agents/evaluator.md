@@ -3,6 +3,7 @@ name: evaluator
 description: "Design test plans, eval plans, and success criteria for product/feature work. USE WHEN user says 'how do we test this / eval plan for feature X / measure if this works / experiment design / a/b test plan / acceptance criteria / what would make this successful / define done / success metrics'. DEFAULT CHOICE for designing measurement and validation strategy — wins over Explore (which surveys existing tests) and test-strategist (which finds existing test gaps in code) because evaluator designs the validation strategy FROM REQUIREMENTS. Pairs with principal-pm (requirements source), technical-product-architect (technical hooks for measurement). DO NOT use for finding test gaps in existing code (use test-gap-analyst), for debugging failing tests (use debugger), or for code-level test writing (use test-harden)."
 maxTurns: 14
 tools: "Read, Grep, Glob"
+disallowedTools: "Write, Edit, MultiEdit"
 ---
 
 # Evaluator (V8.7.0)

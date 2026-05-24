@@ -4,7 +4,7 @@ description: "**DEFAULT for REPO DISCOVERY & CODE LOCATION — structured read-o
 when_to_use: "Use when you need to understand a repository quickly before doing implementation, review, onboarding, migration, or planning work. Use `--onboarding` for new-contributor framing. Use `--semantic <query>` to find code by behavior or natural-language concept."
 argument-hint: "[path|focus area|--onboarding|--semantic <query>]"
 tier: "core"
-aliases: ["repo-map", "onboarding-map", "semantic-search-codebase"]
+aliases: ["onboarding-map", "semantic-search-codebase"]
 output_style: "evidence-led"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
 ---
@@ -104,4 +104,4 @@ Use `scout` for a fresh-context structural sweep when the repo is large or unfam
 
 ## V4 aliases
 
-This skill answers to V4 names: `repo-map`, `onboarding-map`, `semantic-search-codebase`. The router resolves them to `repo-map` and notes the alias in its response.
+This skill answers to V4 names: `onboarding-map`, `semantic-search-codebase`. The router resolves them to `repo-map` and notes the alias in its response.

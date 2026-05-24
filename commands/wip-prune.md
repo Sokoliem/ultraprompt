@@ -1,5 +1,6 @@
 ---
 description: List or delete old wip/* branches. Default retention 90 days.
+disable-model-invocation: true
 ---
 
 List or delete WIP branches older than the retention threshold.

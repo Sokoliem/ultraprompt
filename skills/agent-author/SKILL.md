@@ -1,6 +1,6 @@
 ---
 name: "agent-author"
-description: "**DEFAULT for agent authoring: produces a new agent definition (: runs the agent-author discipline.**"
+description: "**DEFAULT for authoring or refining an Ultraprompt agent — produces a new agent definition with frontmatter, body, tool permissions, and orchestration plan.** Different from /skill-author (authors a skill, not an agent), /plugin-review (audits an existing agent, not authors), /hooks-design (designs a hook, not an agent). Triggers: 'new agent, author an agent, refine this agent, agent definition, design a subagent, add a specialist'."
 when_to_use: "Manual-only. Invoke for new agent authoring or refining an existing agent. Also covers agent orchestration patterns and team-style invocation design."
 argument-hint: "[agent name|target]"
 tier: "ecosystem"

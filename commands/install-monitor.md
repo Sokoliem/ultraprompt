@@ -1,5 +1,6 @@
 ---
 description: Install the launchd-driven worktree monitor. Scans every 30 min, daily digest at 9 AM, macOS notifications on urgent state.
+disable-model-invocation: true
 ---
 
 Install the launchd worktree monitor for between-session safety.

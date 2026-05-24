@@ -1,6 +1,6 @@
 ---
 name: "release"
-description: "**DEFAULT for release communication artifacts: dispatches writer for structured release notes / changelog artifact: separate skill).** Different from /release-readiness (audits shipability — separate skill). Triggers: 'release notes / write changelog / draft release announcement / document this release / what to ship in release notes / what changed in version X'."
+description: "**DEFAULT for release communication artifacts — dispatches writer for structured release notes and changelog drafting.** Different from /release-readiness (audits whether the codebase is shippable, not the notes), /review (PR-level review, not release-scope), /docs-sync (post-merge doc sync, not release artifact). Triggers: 'release notes, write changelog, draft release announcement, document this release, what to ship in release notes, what changed in version X'."
 when_to_use: "Use for go/no-go assessment, release notes, or changelog drafts. Use `--notes-only` to produce just the notes/changelog without readiness assessment. Do not use mid-development for status updates (use review --summarize)."
 argument-hint: "[version|tag|range|--notes-only]"
 tier: "core"

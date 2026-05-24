@@ -89,3 +89,19 @@ builder_report:
 
 YAML per schema. Files ordered by change magnitude (lines_added + lines_removed) descending. End with
 claim_check_result + a one-sentence ship verdict (`ready` | `ready-with-followups` | `needs-rework`).
+
+## Bash command safety (V8.8)
+
+You have Bash but the following commands are DENIED by policy. The `hooks/recipes/destructive-command-guard.py` PreToolUse hook blocks them on dispatch; an `ULTRAPROMPT_ALLOW_HIGH_RISK=0` env var bypasses with a stderr warning (audited).
+
+| Pattern | Reason |
+|---|---|
+| `rm -rf <path>` | Irrecoverable destruction. |
+| `git push --force[-with-lease]` | Rewriting remote history. |
+| `git reset --hard` | Discards uncommitted work. |
+| `git clean -fdx` | Removes untracked + ignored files. |
+| `chmod +x` / `chmod 7??` | Privilege escalation surface. |
+| `curl ... | sh` / `wget ... | sh` | Network-piped shell execution. |
+| `pip install`, `npm install`, `pnpm add`, `yarn add` | New dependency without `design_decision` log. |
+
+If a feature genuinely requires one of these, document the justification in `design_decision`, propose a narrower alternative, and let the user choose to set `ULTRAPROMPT_ALLOW_HIGH_RISK=0` for the run.

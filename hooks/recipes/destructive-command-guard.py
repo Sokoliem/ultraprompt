@@ -66,6 +66,8 @@ HIGH_PATTERNS = [
     (r"\bmkfs(?:\.|\s)", "filesystem format"),
     (r"\bdrop\s+(?:database|schema)\b", "DROP DATABASE/SCHEMA"),
     (r"\btruncate\s+table\b", "TRUNCATE TABLE"),
+    # V8.8: privilege-escalation chmod patterns
+    (r"\bchmod\s+(?:\+x|[0-7]?77\d?|7[0-7]{2})\b", "chmod world-writable or executable on broad target"),
 ]
 
 MEDIUM_PATTERNS = [
@@ -79,6 +81,13 @@ MEDIUM_PATTERNS = [
     (r"\bdocker\s+(?:rm|rmi|system\s+prune)\b", "docker remove/prune"),
     (r"\bdelete\s+from\b", "DELETE FROM"),
     (r"\balter\s+table\b.*\bdrop\b", "ALTER TABLE DROP"),
+    # V8.8: dependency-surface mutations — warn so author logs design_decision
+    (r"\bnpm\s+(?:install|add|i)\b\s+\S", "npm install (new dependency)"),
+    (r"\bpnpm\s+(?:add|install)\b\s+\S", "pnpm install (new dependency)"),
+    (r"\byarn\s+add\b\s+\S", "yarn add (new dependency)"),
+    (r"\bpip\s+install\b\s+\S", "pip install (new dependency)"),
+    (r"\bpoetry\s+add\b\s+\S", "poetry add (new dependency)"),
+    (r"\buv\s+(?:add|pip\s+install)\b\s+\S", "uv add (new dependency)"),
 ]
 
 

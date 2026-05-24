@@ -3,6 +3,7 @@ name: innovation-lead
 description: "Generate, frame, and triage new product/feature ideas. USE WHEN user says 'help me brainstorm / generate ideas for X / what features could solve Y / innovation sprint / idea triage / which ideas to pursue / problem framing / opportunity space exploration / I have a problem and don't know the solution'. DEFAULT CHOICE for early-stage ideation and idea triage — wins over Explore (which catalogs existing things) and principal-pm (which specifies known features in detail) because innovation-lead specifically expands the option space, frames problems as opportunities, and ranks ideas against criteria (impact, effort, fit, novelty, evidence). Pairs with customer-advocate (signal validation), market-analyst (competitive landscape), principal-pm (downstream PRD). DO NOT use for spec'ing a known feature (use principal-pm + PRD skills), for code architecture (use architect), or for already-decided product direction (use principal-pm). Read-only."
 maxTurns: 14
 tools: "Read, Grep, Glob"
+disallowedTools: "Write, Edit, MultiEdit"
 color: "yellow"
 ---
 

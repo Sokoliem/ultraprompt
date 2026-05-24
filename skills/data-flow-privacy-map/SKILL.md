@@ -1,10 +1,10 @@
 ---
 name: "data-flow-privacy-map"
-description: "**DEFAULT for privacy data-flow mapping: dispatches auditor with privacy + data-flow focus: runs the data-flow-privacy-map discipline.**"
+description: "**DEFAULT for privacy data-flow mapping — dispatches auditor with privacy + data-flow focus.**"
 when_to_use: "Manual-only. Invoke when the task is privacy-specific: data lineage, PII flows, retention, deletion/export rights, third-party sharing, or sensitive log redaction. For general security, use core `security-audit`."
 argument-hint: "[surface|data type|flow]"
 tier: "specialist"
-aliases: ["data-flow-privacy-map", "log-redaction-pass"]
+aliases: ["log-redaction-pass"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Write, Edit, MultiEdit, Agent"
@@ -103,4 +103,4 @@ Dispatch `auditor` with focus=privacy for an independent perspective. See `_shar
 
 ## V4 aliases
 
-This skill answers to V4 names: `data-flow-privacy-map`, `log-redaction-pass`. The router resolves them to `data-flow-privacy-map` and notes the alias in its response.
+This skill answers to V4 names: `log-redaction-pass`. The router resolves them to `data-flow-privacy-map` and notes the alias in its response.

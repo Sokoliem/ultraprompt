@@ -1,10 +1,10 @@
 ---
 name: "technical-debt-triage"
-description: "**DEFAULT for tech debt prioritization: produces ranked tech debt list with impact + effort + recommended sequencing: runs the technical-debt-triage discipline.**"
+description: "**DEFAULT for tech debt prioritization — produces ranked tech debt list with impact + effort + recommended sequencing.**"
 when_to_use: "Manual-only. Invoke for maintenance-backlog work: debt inventory, modernization sequencing, 30/60/90-day plans, contributor friction, build/test speed audit. Consolidates V4's tech-debt-triage, codebase-health, developer-experience-audit, build-test-optimizer."
 argument-hint: "[scope|focus: debt|dx|build-speed|health]"
 tier: "specialist"
-aliases: ["technical-debt-triage", "codebase-health", "developer-experience-audit"]
+aliases: ["codebase-health", "developer-experience-audit", "build-test-optimizer"]
 disable-model-invocation: true
 output_style: "concise-review"
 allowed-tools: "Read, Grep, Glob, Bash, Agent"
@@ -91,4 +91,4 @@ Dispatch `auditor` with focus=infra for build pipeline depth. See `_shared/playb
 
 ## V4 aliases
 
-This skill answers to V4 names: `technical-debt-triage`, `codebase-health`, `developer-experience-audit`. The router resolves them to `technical-debt-triage` and notes the alias in its response.
+This skill answers to V4 names: `codebase-health`, `developer-experience-audit`, `build-test-optimizer`. The router resolves them to `technical-debt-triage` and notes the alias in its response.

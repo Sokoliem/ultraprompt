@@ -6,15 +6,10 @@
       "coverage": "integration",
       "evidence": "Covered by catalog and dashboard smoke checks; no fixture harness yet."
     },
-    "session-start-context.sh": {
-      "event": "SessionStart",
+    "post-tool-use-ledger.py": {
+      "event": "PostToolUse",
       "coverage": "fixture",
-      "evidence": "tests/hooks/session-start-context"
-    },
-    "session-start-context.py": {
-      "event": "SessionStart",
-      "coverage": "fixture",
-      "evidence": "tests/hooks/session-start-context"
+      "evidence": "tests/hooks/post-tool-use-ledger"
     },
     "skill-agent-telemetry.py": {
       "event": "PreToolUse",

@@ -111,6 +111,42 @@ def check_trust_gates():
     }
 
 
+def check_mcp_risk_annotations():
+    """V9.0 R6 + M8: count MCP tools that declare all 4 MCP-spec annotation keys."""
+    required = {"readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"}
+    try:
+        import importlib.util as _iu
+        spec = _iu.spec_from_file_location("_um", ROOT / "mcp" / "ultraprompt_meta.py")
+        if not spec or not spec.loader:
+            return {"coverage": "0/0", "fully_annotated": 0, "total": 0}
+        mod = _iu.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        tools = getattr(mod, "TOOLS", {})
+        total = len(tools)
+        full = sum(1 for entry in tools.values() if len(entry) > 3 and set(entry[3].keys()) >= required)
+        return {"coverage": f"{full}/{total}", "fully_annotated": full, "total": total}
+    except Exception:
+        return {"coverage": "0/0", "fully_annotated": 0, "total": 0, "error": "load failed"}
+
+
+def check_safety_policy():
+    """V9.0 R6 + M8: report safety-policy version + pattern counts."""
+    p = ROOT / "_shared" / "safety-policy.json"
+    if not p.exists():
+        return {"present": False, "version": None}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        return {
+            "present": True,
+            "version": data.get("version"),
+            "critical_count": len(data.get("critical_patterns", [])),
+            "high_count": len(data.get("high_patterns", [])),
+            "medium_count": len(data.get("medium_patterns", [])),
+        }
+    except Exception as exc:
+        return {"present": True, "version": None, "error": str(exc)[:120]}
+
+
 def check_cognitive_gates():
     gates = {
         "capability_graph": run([sys.executable, str(ROOT / "scripts/build-capability-graph.py"), "--check"]),
@@ -136,6 +172,8 @@ def main():
             "docs": check_docs(),
             "trust_gates": check_trust_gates(),
             "cognitive_gates": check_cognitive_gates(),
+            "mcp_risk_annotations": check_mcp_risk_annotations(),
+            "safety_policy": check_safety_policy(),
             "conclusion": None,
         }
     }
@@ -174,6 +212,10 @@ def main():
     print(f"Docs:            stale_refs={s['docs']['stale_version_refs']}")
     print(f"Trust gates:     {sum(1 for g in s['trust_gates'].values() if g['ok'])}/{len(s['trust_gates'])}")
     print(f"Cognitive gates: {sum(1 for g in s['cognitive_gates'].values() if g['ok'])}/{len(s['cognitive_gates'])}")
+    print(f"MCP risk-annotations: {s['mcp_risk_annotations']['coverage']} tools fully annotated")
+    sp = s['safety_policy']
+    sp_summary = f"v{sp.get('version')} ({sp.get('critical_count', 0)}C/{sp.get('high_count', 0)}H/{sp.get('medium_count', 0)}M)" if sp.get('present') else "missing"
+    print(f"Safety policy:   {sp_summary}")
     print()
     print(f"CONCLUSION:      {s['conclusion'].upper()}")
     if s.get("blockers"): print(f"  Blockers: {s['blockers']}")

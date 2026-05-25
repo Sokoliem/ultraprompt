@@ -1,0 +1,3 @@
+Router bench (positive): 56 cases
+- top-1: 56/56 (100.0%; target >=90%)
+- top-3: 56/56 (100.0%; target 100%)

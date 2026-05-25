@@ -1,7 +1,7 @@
 {
   "name": "ultraprompt",
-  "version": "8.9.0",
-  "description": "Ultraprompt V8.9 cognitive control-plane plugin for Claude Code and Codex: 55 skills, 34 agents, 42 MCP tools, 33 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V8.8 hardens the plugin (description lint, read-only enforcement, protected-file-guard, catalog templating, CI gate). V8.9 adds incident-response, adr-author, runbook-author, cost-audit, git-workflow, onboarding-doc skills; incident-commander, prompt-engineer, release-manager, data-analyst agents; /ultraprompt:dispatch and /ultraprompt:rollback commands.",
+  "version": "9.0.0",
+  "description": "Ultraprompt V9.0 cognitive control-plane plugin for Claude Code and Codex: 55 skills, 34 agents, 42 MCP tools, 33 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V9.0 completes the trust-completeness pass: 42/42 MCP tools carry full risk metadata; destructive-command policy is a single _shared/safety-policy.json source loaded by hook + agent; PostToolUse evidence-ledger hook makes claim_check reliable; CONTRIBUTING.md onboards external contributors.",
   "author": {
     "name": "Ultraprompt Toolkit"
   },
@@ -25,7 +25,7 @@
     "output_styles": false
   },
   "compatibility_notes": [
-    "V8.9.0 preserves the native Codex manifest. Installer does not copy the Claude manifest over Codex metadata.",
+    "V9.0.0 preserves the native Codex manifest. Installer does not copy the Claude manifest over Codex metadata.",
     "Hooks may require feature detection depending on Codex runtime version.",
     "Subagents supported via Task tool; agent definitions shared with Claude runtime.",
     "Cognitive memory, dreams, learning, and pathfinding are local-first and governed by release gates."

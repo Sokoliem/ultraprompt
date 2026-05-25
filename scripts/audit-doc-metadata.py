@@ -15,7 +15,8 @@ FILES = [
     ROOT / "commands" / "menu.md",
     ROOT / "commands" / "dashboard.md",
     ROOT / "mcp" / "ultraprompt_meta.py",
-    ROOT / "hooks" / "recipes" / "session-start-context.sh",
+    # V9.0 R4: session-start-context.sh removed; banner now in session-bootstrap.py
+    ROOT / "hooks" / "recipes" / "session-bootstrap.py",
 ]
 
 

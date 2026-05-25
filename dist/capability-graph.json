@@ -2708,6 +2708,11 @@
       "label": "destructive-command-guard.py"
     },
     {
+      "id": "hook:post-tool-use-ledger.py",
+      "kind": "hook",
+      "label": "post-tool-use-ledger.py"
+    },
+    {
       "id": "hook:protected-file-guard.py",
       "kind": "hook",
       "label": "protected-file-guard.py"
@@ -4205,7 +4210,7 @@
       "label": "validate-plugin.py"
     }
   ],
-  "plugin_version": "8.9.0",
+  "plugin_version": "9.0.0",
   "schema": "capability_graph.v1",
-  "source_hash": "35a61a7fcc62a3b874c2303730fd939390fb52bb0495289beb4563cbc53084cc"
+  "source_hash": "a1cdef2e2098ac17c064cd62319f114e29b14c2fc0177bc5b4654229707b7064"
 }

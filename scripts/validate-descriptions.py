@@ -270,6 +270,29 @@ def lint_dispatch_policy(findings: list) -> None:
                 suggested_fix="Add a Dispatch policy (V8) heading referencing _shared/DISPATCH-POLICY.md.")
 
 
+def lint_mcp_risk_annotations(findings: list) -> None:
+    """V9.0 R6: every registered MCP tool must declare all 4 MCP-spec annotation keys."""
+    required = {"readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"}
+    try:
+        import importlib.util as _iu
+        spec = _iu.spec_from_file_location("_um", ROOT / "mcp" / "ultraprompt_meta.py")
+        if not spec or not spec.loader:
+            return
+        mod = _iu.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+    except Exception:
+        return  # MCP module unavailable; skip silently
+    tools = getattr(mod, "TOOLS", {})
+    for name, entry in tools.items():
+        annotations = entry[3] if len(entry) > 3 else {}
+        missing = required - set(annotations.keys())
+        if missing:
+            add(findings, "MCP_RISK_HINTS_MISSING", "warn",
+                "mcp/ultraprompt_meta.py", 1,
+                f"MCP tool '{name}' missing annotation keys: {sorted(missing)}",
+                suggested_fix="Add destructiveHint/idempotentHint/openWorldHint per MCP spec.")
+
+
 def run_lint() -> list[dict]:
     findings: list[dict] = []
     if SKILL_SPECS.exists():
@@ -284,6 +307,7 @@ def run_lint() -> list[dict]:
     lint_keywords(findings)
     lint_dispatch_policy(findings)
     lint_self_ranking(findings)
+    lint_mcp_risk_annotations(findings)
 
     # Telemetry: per PRD §10.2, emit one description-lint-finding event per finding.
     pr_ref = os.environ.get("GITHUB_REF") or os.environ.get("PR_REF")

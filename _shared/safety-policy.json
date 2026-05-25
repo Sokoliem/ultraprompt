@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "last_updated": "2026-05-25",
+  "schema_doc": "Each pattern is a re.IGNORECASE-compiled regex matched against the full Bash command. Classification order: critical \u2192 high \u2192 medium \u2192 low. First match wins.",
+  "critical_patterns": [
+    {
+      "pattern": "\\brm\\s+-r?f?\\s+/(?:\\s|$)",
+      "description": "rm -rf at filesystem root"
+    },
+    {
+      "pattern": "\\brm\\s+-r?f?\\s+~",
+      "description": "rm -rf in home directory"
+    },
+    {
+      "pattern": "\\brm\\s+-r?f?\\s+\\$HOME",
+      "description": "rm -rf with $HOME"
+    },
+    {
+      "pattern": "\\bsudo\\s+rm\\s+-r?f?\\s+/",
+      "description": "sudo rm at root"
+    },
+    {
+      "pattern": ":\\(\\)\\s*\\{[^}]*:\\s*\\|\\s*:",
+      "description": "fork bomb pattern"
+    },
+    {
+      "pattern": ":\\|:&",
+      "description": "fork bomb shorthand"
+    },
+    {
+      "pattern": "curl[^|]*\\|\\s*bash",
+      "description": "remote-fetched script piped to shell"
+    },
+    {
+      "pattern": "wget[^|]*\\|\\s*sh",
+      "description": "remote-fetched script piped to shell"
+    },
+    {
+      "pattern": "(?:cat|tail)\\s+(?:~/\\.ssh/|~/.aws/credentials|/etc/shadow)",
+      "description": "credentials read"
+    },
+    {
+      "pattern": "&&\\s*rm\\s+-r?f?\\s+/",
+      "description": "rm -rf at root in chain"
+    },
+    {
+      "pattern": ";\\s*rm\\s+-r?f?\\s+/",
+      "description": "rm -rf at root in chain"
+    }
+  ],
+  "high_patterns": [
+    {
+      "pattern": "\\brm\\s+-(?:rf|fr|r[a-z]*f|f[a-z]*r)\\s+\\S+",
+      "description": "rm -rf with target"
+    },
+    {
+      "pattern": "\\bfind\\b[^|]*-delete",
+      "description": "find -delete"
+    },
+    {
+      "pattern": "\\bxargs\\b[^|]*rm\\s",
+      "description": "xargs rm"
+    },
+    {
+      "pattern": "\\bgit\\s+clean\\s+-[a-z]*[fdx]",
+      "description": "git clean -fdx variants"
+    },
+    {
+      "pattern": "\\bgit\\s+reset\\s+--hard\\b",
+      "description": "git reset --hard"
+    },
+    {
+      "pattern": "\\bgit\\s+push\\s+(?:--force(?!-with-lease)|-f\\b)",
+      "description": "git push --force without --force-with-lease"
+    },
+    {
+      "pattern": "\\bdd\\s+if=\\S+\\s+of=/dev/",
+      "description": "dd to device"
+    },
+    {
+      "pattern": "\\bmkfs(?:\\.|\\s)",
+      "description": "filesystem format"
+    },
+    {
+      "pattern": "\\bdrop\\s+(?:database|schema)\\b",
+      "description": "DROP DATABASE/SCHEMA"
+    },
+    {
+      "pattern": "\\btruncate\\s+table\\b",
+      "description": "TRUNCATE TABLE"
+    },
+    {
+      "pattern": "\\bchmod\\s+(?:\\+x|[0-7]?77\\d?|7[0-7]{2})\\b",
+      "description": "chmod world-writable or executable on broad target"
+    }
+  ],
+  "medium_patterns": [
+    {
+      "pattern": "\\brm\\s+\\S+",
+      "description": "rm (without -rf)"
+    },
+    {
+      "pattern": "\\bgit\\s+stash\\s+drop\\b",
+      "description": "git stash drop"
+    },
+    {
+      "pattern": "\\bgit\\s+branch\\s+-D\\b",
+      "description": "git branch -D"
+    },
+    {
+      "pattern": "\\bgit\\s+tag\\s+-d\\b",
+      "description": "git tag -d"
+    },
+    {
+      "pattern": "\\bgit\\s+push\\s+--force-with-lease\\b",
+      "description": "git push --force-with-lease"
+    },
+    {
+      "pattern": "\\bnpm\\s+(?:uninstall|remove)\\b",
+      "description": "npm uninstall"
+    },
+    {
+      "pattern": "\\bpip\\s+uninstall\\b",
+      "description": "pip uninstall"
+    },
+    {
+      "pattern": "\\bdocker\\s+(?:rm|rmi|system\\s+prune)\\b",
+      "description": "docker remove/prune"
+    },
+    {
+      "pattern": "\\bdelete\\s+from\\b",
+      "description": "DELETE FROM"
+    },
+    {
+      "pattern": "\\balter\\s+table\\b.*\\bdrop\\b",
+      "description": "ALTER TABLE DROP"
+    },
+    {
+      "pattern": "\\bnpm\\s+(?:install|add|i)\\b\\s+\\S",
+      "description": "npm install (new dependency)"
+    },
+    {
+      "pattern": "\\bpnpm\\s+(?:add|install)\\b\\s+\\S",
+      "description": "pnpm install (new dependency)"
+    },
+    {
+      "pattern": "\\byarn\\s+add\\b\\s+\\S",
+      "description": "yarn add (new dependency)"
+    },
+    {
+      "pattern": "\\bpip\\s+install\\b\\s+\\S",
+      "description": "pip install (new dependency)"
+    },
+    {
+      "pattern": "\\bpoetry\\s+add\\b\\s+\\S",
+      "description": "poetry add (new dependency)"
+    },
+    {
+      "pattern": "\\buv\\s+(?:add|pip\\s+install)\\b\\s+\\S",
+      "description": "uv add (new dependency)"
+    }
+  ]
+}

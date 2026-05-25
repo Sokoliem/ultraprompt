@@ -1,4 +1,4 @@
 {
-  "input": {},
+  "input": "not-a-dict",
   "expected_exit": 0
 }

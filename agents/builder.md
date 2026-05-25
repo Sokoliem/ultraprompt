@@ -94,14 +94,45 @@ claim_check_result + a one-sentence ship verdict (`ready` | `ready-with-followup
 
 You have Bash but the following commands are DENIED by policy. The `hooks/recipes/destructive-command-guard.py` PreToolUse hook blocks them on dispatch; an `ULTRAPROMPT_ALLOW_HIGH_RISK=0` env var bypasses with a stderr warning (audited).
 
-| Pattern | Reason |
-|---|---|
-| `rm -rf <path>` | Irrecoverable destruction. |
-| `git push --force[-with-lease]` | Rewriting remote history. |
-| `git reset --hard` | Discards uncommitted work. |
-| `git clean -fdx` | Removes untracked + ignored files. |
-| `chmod +x` / `chmod 7??` | Privilege escalation surface. |
-| `curl ... | sh` / `wget ... | sh` | Network-piped shell execution. |
-| `pip install`, `npm install`, `pnpm add`, `yarn add` | New dependency without `design_decision` log. |
+| Severity | Pattern | Reason |
+|---|---|---|
+| CRITICAL | `\brm\s+-r?f?\s+/(?:\s|$)` | rm -rf at filesystem root |
+| CRITICAL | `\brm\s+-r?f?\s+~` | rm -rf in home directory |
+| CRITICAL | `\brm\s+-r?f?\s+\$HOME` | rm -rf with $HOME |
+| CRITICAL | `\bsudo\s+rm\s+-r?f?\s+/` | sudo rm at root |
+| CRITICAL | `:\(\)\s*\{[^}]*:\s*\|\s*:` | fork bomb pattern |
+| CRITICAL | `:\|:&` | fork bomb shorthand |
+| CRITICAL | `curl[^|]*\|\s*bash` | remote-fetched script piped to shell |
+| CRITICAL | `wget[^|]*\|\s*sh` | remote-fetched script piped to shell |
+| CRITICAL | `(?:cat|tail)\s+(?:~/\.ssh/|~/.aws/credentials|/etc/shadow)` | credentials read |
+| CRITICAL | `&&\s*rm\s+-r?f?\s+/` | rm -rf at root in chain |
+| CRITICAL | `;\s*rm\s+-r?f?\s+/` | rm -rf at root in chain |
+| HIGH | `\brm\s+-(?:rf|fr|r[a-z]*f|f[a-z]*r)\s+\S+` | rm -rf with target |
+| HIGH | `\bfind\b[^|]*-delete` | find -delete |
+| HIGH | `\bxargs\b[^|]*rm\s` | xargs rm |
+| HIGH | `\bgit\s+clean\s+-[a-z]*[fdx]` | git clean -fdx variants |
+| HIGH | `\bgit\s+reset\s+--hard\b` | git reset --hard |
+| HIGH | `\bgit\s+push\s+(?:--force(?!-with-lease)|-f\b)` | git push --force without --force-with-lease |
+| HIGH | `\bdd\s+if=\S+\s+of=/dev/` | dd to device |
+| HIGH | `\bmkfs(?:\.|\s)` | filesystem format |
+| HIGH | `\bdrop\s+(?:database|schema)\b` | DROP DATABASE/SCHEMA |
+| HIGH | `\btruncate\s+table\b` | TRUNCATE TABLE |
+| HIGH | `\bchmod\s+(?:\+x|[0-7]?77\d?|7[0-7]{2})\b` | chmod world-writable or executable on broad target |
+| MEDIUM | `\brm\s+\S+` | rm (without -rf) |
+| MEDIUM | `\bgit\s+stash\s+drop\b` | git stash drop |
+| MEDIUM | `\bgit\s+branch\s+-D\b` | git branch -D |
+| MEDIUM | `\bgit\s+tag\s+-d\b` | git tag -d |
+| MEDIUM | `\bgit\s+push\s+--force-with-lease\b` | git push --force-with-lease |
+| MEDIUM | `\bnpm\s+(?:uninstall|remove)\b` | npm uninstall |
+| MEDIUM | `\bpip\s+uninstall\b` | pip uninstall |
+| MEDIUM | `\bdocker\s+(?:rm|rmi|system\s+prune)\b` | docker remove/prune |
+| MEDIUM | `\bdelete\s+from\b` | DELETE FROM |
+| MEDIUM | `\balter\s+table\b.*\bdrop\b` | ALTER TABLE DROP |
+| MEDIUM | `\bnpm\s+(?:install|add|i)\b\s+\S` | npm install (new dependency) |
+| MEDIUM | `\bpnpm\s+(?:add|install)\b\s+\S` | pnpm install (new dependency) |
+| MEDIUM | `\byarn\s+add\b\s+\S` | yarn add (new dependency) |
+| MEDIUM | `\bpip\s+install\b\s+\S` | pip install (new dependency) |
+| MEDIUM | `\bpoetry\s+add\b\s+\S` | poetry add (new dependency) |
+| MEDIUM | `\buv\s+(?:add|pip\s+install)\b\s+\S` | uv add (new dependency) |
 
 If a feature genuinely requires one of these, document the justification in `design_decision`, propose a narrower alternative, and let the user choose to set `ULTRAPROMPT_ALLOW_HIGH_RISK=0` for the run.

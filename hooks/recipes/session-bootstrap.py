@@ -34,15 +34,16 @@ def _catalog_counts() -> dict[str, int]:
 def _v8_banner() -> str:
     c = _catalog_counts()
     return (
-        f"Ultraprompt V8.9.0 active. Catalog: "
+        f"Ultraprompt V9.0.0 active. Catalog: "
         f"{c['skills']} skills, {c['agents']} agents, {c['mcp_tools']} MCP tools, "
         f"{c['commands']} commands, {c['panels']} panels, {c['artifact_schemas']} artifact schemas, "
         f"{c['output_styles']} output styles.\n\n"
-        "**V8.9 adds (on top of V8.7):**\n"
-        "- 6 new skills: incident-response, adr-author, runbook-author, cost-audit, git-workflow, onboarding-doc.\n"
-        "- 4 new agents: incident-commander, prompt-engineer, release-manager, data-analyst.\n"
-        "- 2 new commands: /ultraprompt:dispatch (manual agent dispatch), /ultraprompt:rollback (restore wip-save / checkpoint).\n"
-        "- V8.8 hardening: description lint with CI gate, read-only enforcement via disallowedTools on 14 agents, protected-file-guard extended (service-account/p12/pfx/aws-creds), catalog templating eliminates count drift, bash safety denylist (chmod, package installs) in destructive-command-guard.\n\n"
+        "**V9.0 adds (on top of V8.9):**\n"
+        "- All 42 MCP tools declare full risk metadata (readOnlyHint, destructiveHint, idempotentHint, openWorldHint).\n"
+        "- Single safety-policy source: `_shared/safety-policy.json` loaded by both the destructive-command-guard hook and the builder agent body table.\n"
+        "- New PostToolUse evidence-ledger hook records every tool call → claim_check now has reliable signal.\n"
+        "- Dead-code cleanup: session-start-context.{sh,py} removed.\n"
+        "- CONTRIBUTING.md added: new contributors can land their first skill in <10 minutes.\n\n"
         "**FIRST RULE:** when uncertain how to handle a request, follow the V8.7 picker directive if one is injected (call `ultraprompt:choose` Skill).\n\n"
         "**Dispatch defaults:** see `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md`.\n\n"
         "**Safety:** write evidence for validation claims, use `/ultraprompt:wip-save` before risky work, "

@@ -1,0 +1,4 @@
+{
+  "input": {"tool_name": "Bash", "tool_input": {"command": "ls -la"}},
+  "expected_exit": 0
+}

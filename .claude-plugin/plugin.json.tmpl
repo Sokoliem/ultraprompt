@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ultraprompt",
-  "version": "8.9.0",
-  "description": "Ultraprompt V8.9 cognitive control-plane plugin for Claude Code and Codex: ${catalog.skills} skills, ${catalog.agents} agents, ${catalog.mcp_tools} MCP tools, ${catalog.commands} commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V8.8 hardens the plugin (description lint, read-only enforcement via disallowedTools, protected-file-guard, mojibake fix, catalog templating, CI gate). V8.9 adds incident-response, adr-author, runbook-author, cost-audit, git-workflow, onboarding-doc skills; incident-commander, prompt-engineer, release-manager, data-analyst agents; /ultraprompt:dispatch and /ultraprompt:rollback commands.",
+  "version": "9.0.0",
+  "description": "Ultraprompt V9.0 cognitive control-plane plugin for Claude Code and Codex: ${catalog.skills} skills, ${catalog.agents} agents, ${catalog.mcp_tools} MCP tools, ${catalog.commands} commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V9.0 completes the trust-completeness pass: all 42 MCP tools declare full risk metadata (readOnlyHint, destructiveHint, idempotentHint, openWorldHint); destructive-command policy lives in a single _shared/safety-policy.json source loaded by both the hook and the builder agent; PostToolUse evidence-ledger hook gives claim_check real signal across every tool call; new CONTRIBUTING.md guides external contributors through the source → regenerate → validate flow.",
   "author": {
     "name": "Ultraprompt Toolkit"
   },

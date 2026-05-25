@@ -1,0 +1,4 @@
+{
+  "input": {"tool_name": "Write", "tool_input": {"file_path": "/repo/src/new.ts", "content": "hello"}},
+  "expected_exit": 0
+}

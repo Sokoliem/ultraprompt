@@ -43,11 +43,11 @@
     "mcp_tools": 42,
     "output_styles": 2,
     "panels": 12,
-    "registered_hooks": 9,
+    "registered_hooks": 10,
     "skill_specs": 55,
     "skills": 55
   },
-  "plugin_version": "8.9.0",
+  "plugin_version": "9.0.0",
   "schema_version": 1,
   "skills": [
     "review",
@@ -106,7 +106,7 @@
     "git-workflow",
     "onboarding-doc"
   ],
-  "source_hash": "d139b378fd15a3d3f214d71a28455e84eae920a6e178d21a7e2aa463c853c79e",
+  "source_hash": "d40cd04c57bb5273b4682757d35470b0711831515b697b5ba162c33b7a2634fa",
   "tiers": {
     "core": 29,
     "ecosystem": 5,

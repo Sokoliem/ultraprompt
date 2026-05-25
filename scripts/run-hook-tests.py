@@ -31,9 +31,9 @@ HOOK_TO_SCRIPT = {
     "destructive-command-guard": HOOKS_DIR / "destructive-command-guard.py",
     "protected-file-guard": HOOKS_DIR / "protected-file-guard.py",
     "stop-validation-check": HOOKS_DIR / "stop-validation-check.py",
-    "session-start-context": HOOKS_DIR / "session-start-context.py",
     "subagent-scaffold": HOOKS_DIR / "subagent-scaffold.py",
     "user-prompt-route-suggest": HOOKS_DIR / "user-prompt-route-suggest.py",
+    "post-tool-use-ledger": HOOKS_DIR / "post-tool-use-ledger.py",
 }
 
 

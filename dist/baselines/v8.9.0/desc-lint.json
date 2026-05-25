@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "findings": [
+    {
+      "rule": "WEAK_SELF_RANKING",
+      "severity": "warn",
+      "file": "skills/debug/SKILL.md",
+      "line": 3,
+      "message": "Skill 'debug' trigger phrase 'this is failing' ranks outside top-2 (top-1='ci-repair'). Tighten description to match its declared triggers.",
+      "suggested_fix": "Use `prompt-engineer` agent to rewrite the description for routing precision."
+    }
+  ],
+  "summary": {
+    "errors": 0,
+    "warnings": 1,
+    "total": 1
+  }
+}

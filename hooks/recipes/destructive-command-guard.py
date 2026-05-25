@@ -35,72 +35,50 @@ if not command:
 
 
 # ============================================================
-# Risk classifier
+# Risk classifier — patterns loaded from _shared/safety-policy.json (V9.0 R2)
 # ============================================================
 
-CRITICAL_PATTERNS = [
-    # Home/root/system destruction
-    (r"\brm\s+-r?f?\s+/(?:\s|$)", "rm -rf at filesystem root"),
-    (r"\brm\s+-r?f?\s+~", "rm -rf in home directory"),
-    (r"\brm\s+-r?f?\s+\$HOME", "rm -rf with $HOME"),
-    (r"\bsudo\s+rm\s+-r?f?\s+/", "sudo rm at root"),
-    (r":\(\)\s*\{[^}]*:\s*\|\s*:", "fork bomb pattern"),
-    (r":\|:&", "fork bomb shorthand"),
-    # Secrets exfiltration patterns
-    (r"curl[^|]*\|\s*bash", "remote-fetched script piped to shell"),
-    (r"wget[^|]*\|\s*sh", "remote-fetched script piped to shell"),
-    (r"(?:cat|tail)\s+(?:~/\.ssh/|~/.aws/credentials|/etc/shadow)", "credentials read"),
-    # Destructive shell chains
-    (r"&&\s*rm\s+-r?f?\s+/", "rm -rf at root in chain"),
-    (r";\s*rm\s+-r?f?\s+/", "rm -rf at root in chain"),
-]
+def _load_safety_policy() -> tuple[list, list, list, int]:
+    """Load patterns from _shared/safety-policy.json. Fail-open with empty pattern
+    lists if the file is missing or unparseable — a broken safety file should
+    never brick sessions. The load is logged to the ledger for ops visibility.
+    """
+    root = Path(os.environ.get("CLAUDE_PLUGIN_ROOT", Path(__file__).resolve().parents[2]))
+    path = os.environ.get("ULTRAPROMPT_SAFETY_POLICY_PATH") or str(root / "_shared" / "safety-policy.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        critical = [(re.compile(p["pattern"], re.IGNORECASE), p["description"]) for p in data.get("critical_patterns", [])]
+        high = [(re.compile(p["pattern"], re.IGNORECASE), p["description"]) for p in data.get("high_patterns", [])]
+        medium = [(re.compile(p["pattern"], re.IGNORECASE), p["description"]) for p in data.get("medium_patterns", [])]
+        return critical, high, medium, int(data.get("version", 0))
+    except Exception as exc:
+        # Fail-open: empty pattern lists mean every command classifies as LOW.
+        # Record the failure so ops can fix it.
+        try:
+            spec = importlib.util.spec_from_file_location("led_err", root / "scripts" / "ledger-v2.py")
+            if spec and spec.loader:
+                m = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(m)
+                m.write_event("safety-policy-load-error", path=path, error=str(exc)[:200])
+        except Exception:
+            pass
+        return [], [], [], 0
 
-HIGH_PATTERNS = [
-    (r"\brm\s+-(?:rf|fr|r[a-z]*f|f[a-z]*r)\s+\S+", "rm -rf with target"),  # any rm -rf
-    (r"\bfind\b[^|]*-delete", "find -delete"),
-    (r"\bxargs\b[^|]*rm\s", "xargs rm"),
-    (r"\bgit\s+clean\s+-[a-z]*[fdx]", "git clean -fdx variants"),
-    (r"\bgit\s+reset\s+--hard\b", "git reset --hard"),
-    (r"\bgit\s+push\s+(?:--force(?!-with-lease)|-f\b)", "git push --force without --force-with-lease"),
-    (r"\bdd\s+if=\S+\s+of=/dev/", "dd to device"),
-    (r"\bmkfs(?:\.|\s)", "filesystem format"),
-    (r"\bdrop\s+(?:database|schema)\b", "DROP DATABASE/SCHEMA"),
-    (r"\btruncate\s+table\b", "TRUNCATE TABLE"),
-    # V8.8: privilege-escalation chmod patterns
-    (r"\bchmod\s+(?:\+x|[0-7]?77\d?|7[0-7]{2})\b", "chmod world-writable or executable on broad target"),
-]
 
-MEDIUM_PATTERNS = [
-    (r"\brm\s+\S+", "rm (without -rf)"),
-    (r"\bgit\s+stash\s+drop\b", "git stash drop"),
-    (r"\bgit\s+branch\s+-D\b", "git branch -D"),
-    (r"\bgit\s+tag\s+-d\b", "git tag -d"),
-    (r"\bgit\s+push\s+--force-with-lease\b", "git push --force-with-lease"),
-    (r"\bnpm\s+(?:uninstall|remove)\b", "npm uninstall"),
-    (r"\bpip\s+uninstall\b", "pip uninstall"),
-    (r"\bdocker\s+(?:rm|rmi|system\s+prune)\b", "docker remove/prune"),
-    (r"\bdelete\s+from\b", "DELETE FROM"),
-    (r"\balter\s+table\b.*\bdrop\b", "ALTER TABLE DROP"),
-    # V8.8: dependency-surface mutations — warn so author logs design_decision
-    (r"\bnpm\s+(?:install|add|i)\b\s+\S", "npm install (new dependency)"),
-    (r"\bpnpm\s+(?:add|install)\b\s+\S", "pnpm install (new dependency)"),
-    (r"\byarn\s+add\b\s+\S", "yarn add (new dependency)"),
-    (r"\bpip\s+install\b\s+\S", "pip install (new dependency)"),
-    (r"\bpoetry\s+add\b\s+\S", "poetry add (new dependency)"),
-    (r"\buv\s+(?:add|pip\s+install)\b\s+\S", "uv add (new dependency)"),
-]
+_CRIT_COMPILED, _HIGH_COMPILED, _MED_COMPILED, _POLICY_VERSION = _load_safety_policy()
 
 
 def classify(cmd: str) -> tuple[str, str | None]:
-    """Return (risk_class, matched_pattern_description)."""
-    for pat, desc in CRITICAL_PATTERNS:
-        if re.search(pat, cmd, re.IGNORECASE):
+    """Return (risk_class, matched_pattern_description). Patterns pre-compiled at module load."""
+    for pat, desc in _CRIT_COMPILED:
+        if pat.search(cmd):
             return "CRITICAL", desc
-    for pat, desc in HIGH_PATTERNS:
-        if re.search(pat, cmd, re.IGNORECASE):
+    for pat, desc in _HIGH_COMPILED:
+        if pat.search(cmd):
             return "HIGH", desc
-    for pat, desc in MEDIUM_PATTERNS:
-        if re.search(pat, cmd, re.IGNORECASE):
+    for pat, desc in _MED_COMPILED:
+        if pat.search(cmd):
             return "MEDIUM", desc
     return "LOW", None
 

@@ -1,0 +1,5 @@
+{
+  "input": {"tool_name": "Bash", "tool_input": {"command": "ls"}},
+  "env": {"ULTRAPROMPT_DISABLE_POST_TOOL_LEDGER": "1"},
+  "expected_exit": 0
+}

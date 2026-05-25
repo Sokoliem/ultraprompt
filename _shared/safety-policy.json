@@ -1,7 +1,7 @@
 {
   "version": 1,
   "last_updated": "2026-05-25",
-  "schema_doc": "Each pattern is a re.IGNORECASE-compiled regex matched against the full Bash command. Classification order: critical \u2192 high \u2192 medium \u2192 low. First match wins.",
+  "schema_doc": "Each pattern is a re.IGNORECASE-compiled regex matched against the full Bash command. Classification order: critical \u2192 high \u2192 medium \u2192 low. Within a severity class, patterns are evaluated in array order; first match within a class returns its severity + description. Validate-plugin.py asserts minimum counts per class (9C/10H/10M) so a refactor cannot accidentally empty the policy.",
   "critical_patterns": [
     {
       "pattern": "\\brm\\s+-r?f?\\s+/(?:\\s|$)",

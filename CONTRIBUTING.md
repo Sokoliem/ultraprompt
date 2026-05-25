@@ -20,8 +20,8 @@ Generated files live alongside their sources. **Never edit `skills/*/SKILL.md`, 
 |---|---|---|
 | `source/skill-specs.json` | `python3 scripts/regenerate-skills.py` | `skills/*/SKILL.md`, `dist/skill-index.json` |
 | `source/agent-specs.json` | `python3 scripts/regenerate-agents.py` | `agents/*.md`, `dist/capability-graph.json` |
-| `source/panel-specs.json` | (no regenerator yet — edit + commit) | `dist/capability-graph.json` |
-| `source/dream-jobs.json` | (no regenerator) | `dist/capability-graph.json` |
+| `source/panel-specs.json` | `python3 scripts/build-capability-graph.py` (no skill/agent regenerator) | `dist/capability-graph.json` |
+| `source/dream-jobs.json` | `python3 scripts/build-capability-graph.py` | `dist/capability-graph.json` |
 | `_shared/safety-policy.json` | `python3 scripts/regenerate-agents.py` | `agents/builder.md` (Bash safety table region) + reloaded at hook startup |
 | `.claude-plugin/plugin.json.tmpl` | `python3 scripts/render-manifest-template.py` | `.claude-plugin/plugin.json` |
 | `.claude-plugin/marketplace.json.tmpl` | same | `.claude-plugin/marketplace.json` |

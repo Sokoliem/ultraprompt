@@ -54,7 +54,8 @@ def _load_safety_policy() -> tuple[list, list, list, int]:
         return critical, high, medium, int(data.get("version", 0))
     except Exception as exc:
         # Fail-open: empty pattern lists mean every command classifies as LOW.
-        # Record the failure so ops can fix it.
+        # Loud about it: ledger event + stderr warning so a broken policy file
+        # does not silently disable safety (v9.0 F-001 hardening).
         try:
             spec = importlib.util.spec_from_file_location("led_err", root / "scripts" / "ledger-v2.py")
             if spec and spec.loader:
@@ -63,6 +64,12 @@ def _load_safety_policy() -> tuple[list, list, list, int]:
                 m.write_event("safety-policy-load-error", path=path, error=str(exc)[:200])
         except Exception:
             pass
+        print(
+            f"[Ultraprompt destructive-guard] WARNING: safety-policy.json unreadable at {path} ({exc}). "
+            "Destructive-command classification DEGRADED — every command will pass through as LOW. "
+            "Fix the file and restart the session, or set ULTRAPROMPT_SAFETY_POLICY_PATH to a working copy.",
+            file=sys.stderr,
+        )
         return [], [], [], 0
 
 

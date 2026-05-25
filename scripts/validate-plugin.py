@@ -259,6 +259,42 @@ def validate_mcp(errors: list[str], warnings: list[str]) -> int:
     return len(data.get("mcpServers") or {})
 
 
+def validate_safety_policy(errors: list[str], warnings: list[str]) -> dict[str, int]:
+    """V9.0 F-001 gate: assert safety-policy.json is loadable and not degenerate.
+
+    A corrupt safety-policy.json silently disables destructive-command-guard at
+    runtime (fail-open invariant). This gate catches the corruption at release
+    time so production never ships with empty patterns.
+    """
+    path = ROOT / "_shared" / "safety-policy.json"
+    if not path.exists():
+        errors.append("_shared/safety-policy.json: missing (required since V9.0)")
+        return {}
+    data = load_json(path, errors)
+    if not data:
+        return {}
+    critical = data.get("critical_patterns", []) or []
+    high = data.get("high_patterns", []) or []
+    medium = data.get("medium_patterns", []) or []
+    # Hard-coded minimums match the v8.9-baseline pattern counts. If a refactor
+    # shrinks the policy below these floors, treat it as a regression.
+    if len(critical) < 9:
+        errors.append(f"_shared/safety-policy.json: critical_patterns count {len(critical)} < 9 baseline")
+    if len(high) < 10:
+        errors.append(f"_shared/safety-policy.json: high_patterns count {len(high)} < 10 baseline")
+    if len(medium) < 10:
+        errors.append(f"_shared/safety-policy.json: medium_patterns count {len(medium)} < 10 baseline")
+    # Compile every regex — catches malformed patterns at release time.
+    for severity, entries in (("critical", critical), ("high", high), ("medium", medium)):
+        for entry in entries:
+            pattern = entry.get("pattern", "") if isinstance(entry, dict) else ""
+            try:
+                re.compile(pattern, re.IGNORECASE)
+            except re.error as exc:
+                errors.append(f"_shared/safety-policy.json: {severity} pattern {pattern!r} fails to compile: {exc}")
+    return {"critical": len(critical), "high": len(high), "medium": len(medium), "version": data.get("version", 0)}
+
+
 def validate_index(errors: list[str], warnings: list[str]) -> bool:
     path = ROOT / "dist" / "skill-index.json"
     if not path.exists():
@@ -297,6 +333,7 @@ def main() -> int:
     hook_count = validate_hooks(errors, warnings)
     market = validate_marketplace(errors, warnings)
     mcp_count = validate_mcp(errors, warnings)
+    safety_policy = validate_safety_policy(errors, warnings)
     has_index = validate_index(errors, warnings)
     validate_generated_artifacts(errors, warnings)
 
@@ -309,6 +346,9 @@ def main() -> int:
     print(f"- Registered hooks: {hook_count}")
     print(f"- Marketplace: {'yes' if market else 'no'}")
     print(f"- MCP servers: {mcp_count}")
+    if safety_policy:
+        print(f"- Safety policy: v{safety_policy.get('version', '?')} "
+              f"({safety_policy.get('critical', 0)}C / {safety_policy.get('high', 0)}H / {safety_policy.get('medium', 0)}M patterns)")
     print(f"- Skill index: {'yes' if has_index else 'no'}")
     print(f"- Warnings: {len(warnings)}")
     print(f"- Errors: {len(errors)}")

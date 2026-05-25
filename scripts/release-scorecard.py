@@ -191,6 +191,14 @@ def main():
     for gate, result in s["cognitive_gates"].items():
         if not result["ok"]:
             blockers.append(f"{gate} failed")
+    # V9.0 F-007: surface MCP risk-annotation load failure as a blocker.
+    mra = s.get("mcp_risk_annotations") or {}
+    if mra.get("error") or mra.get("total", 0) == 0:
+        blockers.append("mcp risk annotations unloadable or empty")
+    # V9.0 F-001 companion: surface safety-policy load failure as a blocker.
+    sp = s.get("safety_policy") or {}
+    if not sp.get("present") or sp.get("error"):
+        blockers.append("safety policy missing or unparseable")
 
     if blockers:
         s["conclusion"] = "blocked"

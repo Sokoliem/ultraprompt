@@ -121,10 +121,23 @@ def summarize_payload(event: str, payload: dict[str, Any]) -> dict[str, Any]:
     return summary
 
 
+LEDGER_ROTATION_SIZE_BYTES = 10 * 1024 * 1024  # 10MB; V9.0 F-002 unbounded-growth mitigation
+
+
 def append_event(event: str, payload: dict[str, Any]) -> None:
     try:
         path = ledger_path()
         path.parent.mkdir(parents=True, exist_ok=True)
+        # V9.0 F-002: rotate before write if the active ledger has crossed the
+        # size threshold. PostToolUse fires on every tool call so unbounded
+        # growth is a real concern over weeks of use.
+        try:
+            if path.exists() and path.stat().st_size > LEDGER_ROTATION_SIZE_BYTES:
+                stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+                rotated = path.with_name(f"{path.stem}.{stamp}{path.suffix}")
+                path.rename(rotated)
+        except Exception:
+            pass  # rotation failure must not block the write
         record = summarize_payload(event, payload)
         record["ts"] = now_iso()
         with path.open("a", encoding="utf-8") as fh:

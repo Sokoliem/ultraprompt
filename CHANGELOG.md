@@ -1,5 +1,40 @@
 # Changelog
 
+## [9.1.0] - 2026-05-26
+
+**V9.1.0 — vibe coding picker + SessionStart banner fix.** Turns open-ended
+intents into a two-stage `AskUserQuestion` picker (lane → path) over a typed
+`prompt_path_set.v1` artifact, then expands the chosen seed into a full
+ready-to-run prompt. Ports the genesis vibe-coding pattern (`OptionTemplate`
+schema, fingerprint dedup, char-limited fields) to the ultraprompt dispatch
+architecture.
+
+### Added
+
+- **`skills/vibe/SKILL.md`** (tier=core, aliases: `vibe-coding`, `pick-direction`) — orchestrator. Dispatches `vibe-curator`, validates the artifact via `artifact_validate`, runs lane-then-path picker (collapses to one stage when only one lane has paths), expands the picked seed in evidence-led style. Never auto-executes.
+- **`agents/vibe-curator.md`** (read-only, `maxTurns: 12`, tools: `Read, Grep, Glob`) — generates 4–8 paths across 2–4 lanes from the fixed taxonomy (`new-feature`, `refactor-or-cleanup`, `bug-fix-or-investigate`, `explore-or-prototype`). Each path carries lane, label, preview, seed, rationale, confidence, expected_files, expected_risk, and a deterministic 12-char fingerprint.
+- **`hooks/recipes/vibe-detect.py`** (UserPromptSubmit) — phrase library + short-open-ended heuristic emits an `additionalContext` directive telling the model to invoke `/ultraprompt:vibe`. Honors `ULTRAPROMPT_DISABLE_HOOKS=1` and `hooks.vibe_detect_enabled`. Registered in both `hooks/hooks.json` and `hooks/hooks.windows.json`.
+- **`artifact-schemas/prompt-path.schema.json`** — strict JSON Schema (draft 2020-12) with lane/confidence/risk enums and char caps matching genesis (`label≤80`, `preview≤120`, `seed≤200`, `rationale≤200`).
+- **`scripts/artifact-validate.py`** — registered `prompt_path_set` schema; `scripts/run-artifact-tests.py` covers valid + invalid-missing-intent cases.
+- **8 hook fixtures** under `tests/hooks/vibe-detect/` cover empty / trivial / already-routed / disabled / vibe-phrase / vibe-keyword / imperative-stays-silent / short-open-ended.
+- **Config** in `source/config-defaults.toml`: `hooks.vibe_detect_enabled = true` and a new `[vibe]` section with `min_tokens`, `short_open_ended_max_tokens`, `min_paths`, `max_paths`, and the canonical `lanes` list.
+
+### Fixed
+
+- **SessionStart banner counts** in `hooks/recipes/session-bootstrap.py`: counts now correctly read from `dist/catalog-metadata.json["counts"]` instead of trying `data["skills"]` (a list of names) at the top level and silently falling back to hard-coded defaults. The banner had been stuck on `49 skills, 30 agents, 31 commands` regardless of catalog growth.
+
+### Changed
+
+- Counts: 55 → **56 skills** (new `vibe`), 34 → **35 agents** (new `vibe-curator`), 10 → **11 registered hooks** (new `vibe-detect.py`).
+- Version bumped to `9.1.0` across `.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `README.md`, `docs/CLAUDE.md`, and the session-start banner.
+
+### Validation
+
+- `scripts/run-hook-tests.py` → 57/57 fixtures pass (8 new).
+- `scripts/run-artifact-tests.py` → all cases pass including the new prompt_path_set ones.
+- `scripts/validate-plugin.py` → 0 errors.
+- `scripts/audit-catalog-consistency.py` → 14/14 OK.
+
 ## [8.7.0] - 2026-05-23
 
 **V8.7.0 — interactive routing picker.** Replaces the silent ambient nudge on

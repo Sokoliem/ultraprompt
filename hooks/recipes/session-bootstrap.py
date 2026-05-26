@@ -13,20 +13,21 @@ PR = Path(os.environ.get("CLAUDE_PLUGIN_ROOT", Path(__file__).resolve().parents[
 
 
 def _catalog_counts() -> dict[str, int]:
-    """Read dist/catalog-metadata.json for dynamic counts; falls back to defaults."""
-    defaults = {"skills": 49, "agents": 30, "mcp_tools": 42, "commands": 31,
+    """Read dist/catalog-metadata.json for dynamic counts; falls back to defaults.
+
+    Counts live under data["counts"]; the top-level "skills"/"agents" keys are
+    lists of names. Reading those at the top level used to throw on int(list)
+    and silently fall back to defaults — leaving the SessionStart banner stuck
+    on stale numbers regardless of catalog growth. (Bug fixed in V9.1.)
+    """
+    defaults = {"skills": 56, "agents": 35, "mcp_tools": 42, "commands": 33,
                 "panels": 12, "artifact_schemas": 17, "output_styles": 2}
     try:
         data = json.loads((PR / "dist" / "catalog-metadata.json").read_text(encoding="utf-8"))
-        return {
-            "skills": int(data.get("skills_total", data.get("skills", defaults["skills"]))),
-            "agents": int(data.get("agents_total", data.get("agents", defaults["agents"]))),
-            "mcp_tools": int(data.get("mcp_tools_total", data.get("mcp_tools", defaults["mcp_tools"]))),
-            "commands": int(data.get("commands_total", data.get("commands", defaults["commands"]))),
-            "panels": int(data.get("panels_total", data.get("panels", defaults["panels"]))),
-            "artifact_schemas": int(data.get("artifact_schemas_total", data.get("artifact_schemas", defaults["artifact_schemas"]))),
-            "output_styles": int(data.get("output_styles_total", data.get("output_styles", defaults["output_styles"]))),
-        }
+        counts = data.get("counts") if isinstance(data, dict) else None
+        if not isinstance(counts, dict):
+            return defaults
+        return {key: int(counts.get(key, defaults[key])) for key in defaults}
     except Exception:
         return defaults
 
@@ -34,16 +35,18 @@ def _catalog_counts() -> dict[str, int]:
 def _v8_banner() -> str:
     c = _catalog_counts()
     return (
-        f"Ultraprompt V9.0.0 active. Catalog: "
+        f"Ultraprompt V9.1.0 active. Catalog: "
         f"{c['skills']} skills, {c['agents']} agents, {c['mcp_tools']} MCP tools, "
         f"{c['commands']} commands, {c['panels']} panels, {c['artifact_schemas']} artifact schemas, "
         f"{c['output_styles']} output styles.\n\n"
-        "**V9.0 adds (on top of V8.9):**\n"
+        "**V9.1 adds (on top of V9.0):**\n"
+        "- New `ultraprompt:vibe` skill + `vibe-curator` agent + `vibe-detect` UserPromptSubmit hook: vibe-flavored prompts ('not sure what to build', 'vibe with me', 'any ideas?') auto-trigger a two-stage AskUserQuestion picker (lane → path) over a typed `prompt_path_set.v1` artifact, then expand the chosen seed into a full prompt.\n"
+        "- Fixed SessionStart banner: catalog counts now correctly read from `dist/catalog-metadata.json[\"counts\"]` instead of silently falling back to hard-coded defaults.\n\n"
+        "**V9.0 baseline:**\n"
         "- All 42 MCP tools declare full risk metadata (readOnlyHint, destructiveHint, idempotentHint, openWorldHint).\n"
         "- Single safety-policy source: `_shared/safety-policy.json` loaded by both the destructive-command-guard hook and the builder agent body table.\n"
-        "- New PostToolUse evidence-ledger hook records every tool call → claim_check now has reliable signal.\n"
-        "- Dead-code cleanup: session-start-context.{sh,py} removed.\n"
-        "- CONTRIBUTING.md added: new contributors can land their first skill in <10 minutes.\n\n"
+        "- PostToolUse evidence-ledger hook records every tool call → claim_check has reliable signal.\n"
+        "- CONTRIBUTING.md guides new contributors through the source → regenerate → validate flow.\n\n"
         "**FIRST RULE:** when uncertain how to handle a request, follow the V8.7 picker directive if one is injected (call `ultraprompt:choose` Skill).\n\n"
         "**Dispatch defaults:** see `${CLAUDE_PLUGIN_ROOT}/_shared/DISPATCH-POLICY.md`.\n\n"
         "**Safety:** write evidence for validation claims, use `/ultraprompt:wip-save` before risky work, "

@@ -1,0 +1,5 @@
+{
+  "input": {"prompt": "vibe with me for a bit on this codebase"},
+  "expected_exit": 0,
+  "stdout_contains": "ultraprompt:vibe"
+}

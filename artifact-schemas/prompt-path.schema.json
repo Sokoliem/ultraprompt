@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prompt-path.schema.json",
+  "title": "Ultraprompt Vibe Prompt-Path Set",
+  "type": "object",
+  "required": ["schema", "intent", "paths"],
+  "properties": {
+    "schema": {"const": "prompt_path_set.v1"},
+    "intent": {"type": "string", "minLength": 1},
+    "paths": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["lane", "label", "preview", "seed", "rationale", "confidence", "expected_files", "expected_risk", "fingerprint"],
+        "additionalProperties": false,
+        "properties": {
+          "lane": {"enum": ["new-feature", "refactor-or-cleanup", "bug-fix-or-investigate", "explore-or-prototype"]},
+          "label": {"type": "string", "minLength": 1, "maxLength": 80},
+          "preview": {"type": "string", "minLength": 1, "maxLength": 120},
+          "seed": {"type": "string", "minLength": 1, "maxLength": 200},
+          "rationale": {"type": "string", "minLength": 1, "maxLength": 200},
+          "confidence": {"enum": ["high", "medium", "low"]},
+          "expected_files": {"type": "array", "items": {"type": "string"}},
+          "expected_risk": {"enum": ["safe", "caution", "destructive"]},
+          "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{12}$"}
+        }
+      }
+    }
+  }
+}

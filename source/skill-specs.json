@@ -3,7 +3,7 @@
     "name": "review",
     "title": "Review",
     "tier": "core",
-    "description": "**DEFAULT for DIFF/PR REVIEW — produces structured findings with severity and merge verdict: PR understanding + severity-ranked findings (correctness/design/safety/maintainability/consistency) + merge verdict; --deep fans out to a panel for parallel perspectives.** Different from /repo-review (whole-repo audit, not one diff), /security-audit (security depth only), /release-readiness (ship/no-ship gate, not line-level review). Triggers: 'review this PR, code review, check this diff, look at these changes, before-merge review'.",
+    "description": "**DEFAULT for DIFF/PR REVIEW \u2014 produces structured findings with severity and merge verdict: PR understanding + severity-ranked findings (correctness/design/safety/maintainability/consistency) + merge verdict; --deep fans out to a panel for parallel perspectives.** Different from /repo-review (whole-repo audit, not one diff), /security-audit (security depth only), /release-readiness (ship/no-ship gate, not line-level review). Triggers: 'review this PR, code review, check this diff, look at these changes, before-merge review'.",
     "when_to_use": "Use for diff/branch/PR review. Use `--deep` for cross-cutting risk requiring multi-perspective review (invokes panel-run review-fanout). Use `--summarize` for PR summary or release-note blurb only. Do not use for non-diff architecture work (use architect) or for failing tests (use debug).",
     "argument_hint": "[PR|branch|diff|path|--deep|--summarize]",
     "editing": true,
@@ -118,7 +118,7 @@
     ],
     "output_style": "concise-review",
     "description_meta": {
-      "default_for": "DIFF/PR REVIEW — produces structured findings with severity and merge verdict",
+      "default_for": "DIFF/PR REVIEW \u2014 produces structured findings with severity and merge verdict",
       "produces": "PR understanding + severity-ranked findings (correctness/design/safety/maintainability/consistency) + merge verdict; --deep fans out to a panel for parallel perspectives",
       "different_from": "/repo-review (whole-repo audit, not one diff), /security-audit (security depth only), /release-readiness (ship/no-ship gate, not line-level review).",
       "triggers": "review this PR, code review, check this diff, look at these changes, before-merge review"
@@ -128,7 +128,7 @@
     "name": "debug",
     "title": "Debug",
     "tier": "core",
-    "description": "**DEFAULT for ACTIVE FAILURE DIAGNOSIS — symptom → reproduction → falsifiable root cause: captured failure signature, smallest reproduction, bisection trail, root-cause hypothesis with confidence label, and same-bug-elsewhere search.** Different from /test-gap-analysis (finds missing tests, not broken behavior), /review (PR scope), /ci-repair (pipeline-shape failures: matrix, env, cache). Triggers: 'this is failing, why is X broken, reproduce the error, debug this, failing test, runtime error'.",
+    "description": "**DEFAULT for ACTIVE FAILURE DIAGNOSIS \u2014 symptom \u2192 reproduction \u2192 falsifiable root cause: captured failure signature, smallest reproduction, bisection trail, root-cause hypothesis with confidence label, and same-bug-elsewhere search.** Different from /test-gap-analysis (finds missing tests, not broken behavior), /review (PR scope), /ci-repair (pipeline-shape failures: matrix, env, cache). Triggers: 'this is failing, why is X broken, reproduce the error, debug this, failing test, runtime error'.",
     "when_to_use": "Use for concrete failures with a reproducible symptom or trace. Use `--flaky` for non-deterministic failures (handles flake-specific reasoning). Use `ci-repair` when failure is pipeline-shape (matrix, env, cache). Do not use for broad refactors or speculative cleanup.",
     "argument_hint": "[failure|error|test name|symptom|--flaky]",
     "editing": true,
@@ -136,7 +136,7 @@
       "debug-fix",
       "flake-hunter"
     ],
-    "distinctive_judgment": "Symptom-to-root-cause traversal. The failing assertion is the symptom, not the cause. Trace through call sites, data flow, recent changes, invariants, and shared state. For non-deterministic failures, the variable is usually time, randomness, order dependence, network, or shared state — not 'bad luck'. Retry-masking is not repair.",
+    "distinctive_judgment": "Symptom-to-root-cause traversal. The failing assertion is the symptom, not the cause. Trace through call sites, data flow, recent changes, invariants, and shared state. For non-deterministic failures, the variable is usually time, randomness, order dependence, network, or shared state \u2014 not 'bad luck'. Retry-masking is not repair.",
     "first_signals": [
       "Exact error message, stack trace, test name, and reproduction command",
       "git log on touched files since last known-good (last passing CI, last release)",
@@ -154,14 +154,14 @@
     "workflow_steps": [
       "Reproduce or localize the failure. Capture exact command and output.",
       "For `--flaky`: characterize the non-determinism (frequency, conditions). Identify the variable.",
-      "Trace from symptom backward: failing assertion → state at failure → input/conditions → root cause.",
+      "Trace from symptom backward: failing assertion \u2192 state at failure \u2192 input/conditions \u2192 root cause.",
       "Identify the narrowest correct fix. Reject 'works around it' fixes.",
       "Search for the same bug elsewhere by pattern.",
       "Apply fix. Add or update a regression test that would have caught it.",
       "Validate the focused failure first, then adjacent suites.",
       "Re-review the final diff for unintended behavior changes."
     ],
-    "validation_strategy": "Run the originally-failing test/command first. Then run the broader suite that contains it. For flakes, run the failing test ≥10× to confirm stabilization (or document why that's not feasible).",
+    "validation_strategy": "Run the originally-failing test/command first. Then run the broader suite that contains it. For flakes, run the failing test \u226510\u00d7 to confirm stabilization (or document why that's not feasible).",
     "output_contract": "Symptom | Reproduction | Root cause (with evidence) | Same-bug-elsewhere check | Fix Summary (files, why localized) | Regression Test Added | Validation Run (commands + results, including stabilization runs for flakes) | Remaining Risks",
     "subagent_delegation": "For unfamiliar code paths, dispatch `scout` first. For competing root-cause hypotheses, invoke `panel-run debug-triangulate`. For test design after the fix, dispatch `test-strategist`.",
     "dispatch_to": {
@@ -239,7 +239,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "ACTIVE FAILURE DIAGNOSIS — symptom → reproduction → falsifiable root cause",
+      "default_for": "ACTIVE FAILURE DIAGNOSIS \u2014 symptom \u2192 reproduction \u2192 falsifiable root cause",
       "produces": "captured failure signature, smallest reproduction, bisection trail, root-cause hypothesis with confidence label, and same-bug-elsewhere search",
       "different_from": "/test-gap-analysis (finds missing tests, not broken behavior), /review (PR scope), /ci-repair (pipeline-shape failures: matrix, env, cache).",
       "triggers": "this is failing, why is X broken, reproduce the error, debug this, failing test, runtime error"
@@ -249,7 +249,7 @@
     "name": "ci-repair",
     "title": "CI Repair",
     "tier": "core",
-    "description": "**DEFAULT for BUILD/LINT/TYPECHECK/PIPELINE FAILURE — fix the pipeline, not the symptom: layered failure analysis (workflow|cache|deps|env|code), last-successful-run diff, fix, and green-run command.** Different from /debug (runtime/test failures in code), /dependency-audit (CVE-driven, not failure-driven), /release (release notes, not pipeline repair). Triggers: 'CI is red, pipeline broken, build is failing, lint failure, typecheck failure, cache miss'.",
+    "description": "**DEFAULT for BUILD/LINT/TYPECHECK/PIPELINE FAILURE \u2014 fix the pipeline, not the symptom: layered failure analysis (workflow|cache|deps|env|code), last-successful-run diff, fix, and green-run command.** Different from /debug (runtime/test failures in code), /dependency-audit (CVE-driven, not failure-driven), /release (release notes, not pipeline repair). Triggers: 'CI is red, pipeline broken, build is failing, lint failure, typecheck failure, cache miss'.",
     "when_to_use": "Use when the failure is in the pipeline (matrix, cache, env, dependencies, runner image, workflow file) rather than the code under test. If the same test fails locally, use `debug` instead. If the failure mode is non-determinism, use `debug --flaky`.",
     "argument_hint": "[workflow|job|step name|error excerpt]",
     "editing": true,
@@ -376,7 +376,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "BUILD/LINT/TYPECHECK/PIPELINE FAILURE — fix the pipeline, not the symptom",
+      "default_for": "BUILD/LINT/TYPECHECK/PIPELINE FAILURE \u2014 fix the pipeline, not the symptom",
       "produces": "layered failure analysis (workflow|cache|deps|env|code), last-successful-run diff, fix, and green-run command",
       "different_from": "/debug (runtime/test failures in code), /dependency-audit (CVE-driven, not failure-driven), /release (release notes, not pipeline repair).",
       "triggers": "CI is red, pipeline broken, build is failing, lint failure, typecheck failure, cache miss"
@@ -386,7 +386,7 @@
     "name": "build",
     "title": "Build",
     "tier": "core",
-    "description": "**DEFAULT for WRITING NEW CODE — minimum-diff implementation with explicit tests + claim-check before declaring success: feature-scoped implementation with files-changed, tests-added, validation-runs, and a claim-check result; dispatches to the ultraprompt:builder agent for multi-file scope and stays inline for single-function tweaks.** Different from /refactor (behavior-preserving cleanup — no new feature), /migrate (intentional breaking change with migration plan), anthropic-skills:frontend-studio (UI design artifact, not code), anthropic-skills:plan-mode (plans, not implementations). Triggers: 'build this, implement <feature>, write the code for <X>, scaffold this, add a function that <Y>, create the feature, make a new component'.",
+    "description": "**DEFAULT for WRITING NEW CODE \u2014 minimum-diff implementation with explicit tests + claim-check before declaring success: feature-scoped implementation with files-changed, tests-added, validation-runs, and a claim-check result; dispatches to the ultraprompt:builder agent for multi-file scope and stays inline for single-function tweaks.** Different from /refactor (behavior-preserving cleanup \u2014 no new feature), /migrate (intentional breaking change with migration plan), anthropic-skills:frontend-studio (UI design artifact, not code), anthropic-skills:plan-mode (plans, not implementations). Triggers: 'build this, implement <feature>, write the code for <X>, scaffold this, add a function that <Y>, create the feature, make a new component'.",
     "when_to_use": "Use when the user has specified a feature or user story and wants implementation. Do not use for open-ended module improvement (use refactor or technical-debt-triage). Do not use for bug fixes (use debug).",
     "argument_hint": "[feature|issue|user story|acceptance criteria]",
     "editing": true,
@@ -495,9 +495,9 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "WRITING NEW CODE — minimum-diff implementation with explicit tests + claim-check before declaring success",
+      "default_for": "WRITING NEW CODE \u2014 minimum-diff implementation with explicit tests + claim-check before declaring success",
       "produces": "feature-scoped implementation with files-changed, tests-added, validation-runs, and a claim-check result; dispatches to the ultraprompt:builder agent for multi-file scope and stays inline for single-function tweaks",
-      "different_from": "/refactor (behavior-preserving cleanup — no new feature), /migrate (intentional breaking change with migration plan), anthropic-skills:frontend-studio (UI design artifact, not code), anthropic-skills:plan-mode (plans, not implementations).",
+      "different_from": "/refactor (behavior-preserving cleanup \u2014 no new feature), /migrate (intentional breaking change with migration plan), anthropic-skills:frontend-studio (UI design artifact, not code), anthropic-skills:plan-mode (plans, not implementations).",
       "triggers": "build this, implement <feature>, write the code for <X>, scaffold this, add a function that <Y>, create the feature, make a new component"
     },
     "dispatch_to": {
@@ -510,7 +510,7 @@
     "name": "refactor",
     "title": "Refactor",
     "tier": "core",
-    "description": "**DEFAULT for BEHAVIOR-PRESERVING cleanup — restructure existing code without changing observable behavior: refactor plan + diffs that preserve invariants, with before/after test parity and a behavior-invariants checklist.** Different from /build (NEW feature/behavior), /migrate (intentional breaking change), /technical-debt-triage (picks WHAT to refactor). Triggers: 'refactor this, clean this up without changing behavior, extract this, rename across the codebase'.",
+    "description": "**DEFAULT for BEHAVIOR-PRESERVING cleanup \u2014 restructure existing code without changing observable behavior: refactor plan + diffs that preserve invariants, with before/after test parity and a behavior-invariants checklist.** Different from /build (NEW feature/behavior), /migrate (intentional breaking change), /technical-debt-triage (picks WHAT to refactor). Triggers: 'refactor this, clean this up without changing behavior, extract this, rename across the codebase'.",
     "when_to_use": "Use for behavior-preserving cleanup. Use `--types` for type-strengthening focus. Do not use for new features (use build). Do not use for bug fixes (use debug). If behavior change is required to fix a bug, use debug and call out the behavior change.",
     "argument_hint": "[path|module|function|--types]",
     "editing": true,
@@ -611,7 +611,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "BEHAVIOR-PRESERVING cleanup — restructure existing code without changing observable behavior",
+      "default_for": "BEHAVIOR-PRESERVING cleanup \u2014 restructure existing code without changing observable behavior",
       "produces": "refactor plan + diffs that preserve invariants, with before/after test parity and a behavior-invariants checklist",
       "different_from": "/build (NEW feature/behavior), /migrate (intentional breaking change), /technical-debt-triage (picks WHAT to refactor).",
       "triggers": "refactor this, clean this up without changing behavior, extract this, rename across the codebase"
@@ -621,7 +621,7 @@
     "name": "test-harden",
     "title": "Test Harden",
     "tier": "core",
-    "description": "**DEFAULT for WRITING OR STRENGTHENING TESTS — author missing tests with behavior contracts: coverage-targeted test additions with behavior contracts, boundary cases, and removed change-detector tests.** Different from /test-gap-analysis (FINDS missing tests — run first), /debug (fix the bug, not add coverage), /build (new feature code, not test code). Triggers: 'write tests for <X>, add coverage for <Y>, strengthen these tests, harden the test suite'.",
+    "description": "**DEFAULT for WRITING OR STRENGTHENING TESTS \u2014 author missing tests with behavior contracts: coverage-targeted test additions with behavior contracts, boundary cases, and removed change-detector tests.** Different from /test-gap-analysis (FINDS missing tests \u2014 run first), /debug (fix the bug, not add coverage), /build (new feature code, not test code). Triggers: 'write tests for <X>, add coverage for <Y>, strengthen these tests, harden the test suite'.",
     "when_to_use": "Use when confidence is low, coverage is shallow, regressions are likely, or a change needs durable behavioral tests. Do not use when the failure is concrete (use debug); do not use when the change is a feature delivery (use build).",
     "argument_hint": "[path|module|behavior|changed feature]",
     "editing": true,
@@ -714,9 +714,9 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "WRITING OR STRENGTHENING TESTS — author missing tests with behavior contracts",
+      "default_for": "WRITING OR STRENGTHENING TESTS \u2014 author missing tests with behavior contracts",
       "produces": "coverage-targeted test additions with behavior contracts, boundary cases, and removed change-detector tests",
-      "different_from": "/test-gap-analysis (FINDS missing tests — run first), /debug (fix the bug, not add coverage), /build (new feature code, not test code).",
+      "different_from": "/test-gap-analysis (FINDS missing tests \u2014 run first), /debug (fix the bug, not add coverage), /build (new feature code, not test code).",
       "triggers": "write tests for <X>, add coverage for <Y>, strengthen these tests, harden the test suite"
     }
   },
@@ -724,7 +724,7 @@
     "name": "repo-map",
     "title": "Repo Map",
     "tier": "core",
-    "description": "**DEFAULT for REPO DISCOVERY & CODE LOCATION — structured read-only repo contract you cache before any implementation, review, onboarding, or planning work: cached read-only repo contract: architecture, packages, workflows, validation commands, conventions, dependencies, ownership, sensitive paths, recent activity, plus `--semantic` code search for finding code by behavio....** Different from /repo-review (audits the whole repo, this maps it), /architect (design decisions, not discovery), built-in Explore (unstructured tour without caching or validation-command surfacing). Triggers: 'find code that does X, where is the code for Y, find the handler for Z, locate the function that handles W, code search, semantic search, onboarding to this repo, give me a repo map, what's in this repo, how is this repo organized'.",
+    "description": "**DEFAULT for REPO DISCOVERY & CODE LOCATION \u2014 structured read-only repo contract you cache before any implementation, review, onboarding, or planning work: cached read-only repo contract: architecture, packages, workflows, validation commands, conventions, dependencies, ownership, sensitive paths, recent activity, plus `--semantic` code search for finding code by behavio....** Different from /repo-review (audits the whole repo, this maps it), /architect (design decisions, not discovery), built-in Explore (unstructured tour without caching or validation-command surfacing). Triggers: 'find code that does X, where is the code for Y, find the handler for Z, locate the function that handles W, code search, semantic search, onboarding to this repo, give me a repo map, what's in this repo, how is this repo organized'.",
     "when_to_use": "Use when you need to understand a repository quickly before doing implementation, review, onboarding, migration, or planning work. Use `--onboarding` for new-contributor framing. Use `--semantic <query>` to find code by behavior or natural-language concept.",
     "argument_hint": "[path|focus area|--onboarding|--semantic <query>]",
     "editing": false,
@@ -757,7 +757,7 @@
       "If `--onboarding`: frame for a new contributor (where to read first, what to install, how to run things).",
       "Produce a concise navigable map. Stay read-only."
     ],
-    "validation_strategy": "Read-only skill. No code changes. Validate the map by running the inferred commands (build, test, lint) — confirm they work.",
+    "validation_strategy": "Read-only skill. No code changes. Validate the map by running the inferred commands (build, test, lint) \u2014 confirm they work.",
     "output_contract": "Executive Overview | Directory/Package Map | Primary Workflows + Commands | Architecture Sketch | Public APIs | Test/Validation Map | Conventions Inferred | Hotspots/Questions | Best Next Commands",
     "subagent_delegation": "Use `scout` for a fresh-context structural sweep when the repo is large or unfamiliar. Use `auditor` with focus=infra for IaC/deployment specifics.",
     "dispatch_to": {
@@ -841,7 +841,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "REPO DISCOVERY & CODE LOCATION — structured read-only repo contract you cache before any implementation, review, onboarding, or planning work",
+      "default_for": "REPO DISCOVERY & CODE LOCATION \u2014 structured read-only repo contract you cache before any implementation, review, onboarding, or planning work",
       "produces": "cached read-only repo contract: architecture, packages, workflows, validation commands, conventions, dependencies, ownership, sensitive paths, recent activity, plus `--semantic` code search for finding code by behavio...",
       "different_from": "/repo-review (audits the whole repo, this maps it), /architect (design decisions, not discovery), built-in Explore (unstructured tour without caching or validation-command surfacing).",
       "triggers": "find code that does X, where is the code for Y, find the handler for Z, locate the function that handles W, code search, semantic search, onboarding to this repo, give me a repo map, what's in this repo, how is this repo organized"
@@ -851,7 +851,7 @@
     "name": "architect",
     "title": "Architect",
     "tier": "core",
-    "description": "**DEFAULT for ARCHITECTURAL QUESTIONS — boundaries, contracts, and system design with tradeoffs: architectural question framing + current vs intended shape + gaps + cost-assessment with recommendation.** Different from /build (implements the architecture), /review (PR-scope), /repo-review (whole-repo audit without design recommendation). Triggers: 'should we use X or Y, how should we structure this, design tradeoffs, system boundaries'.",
+    "description": "**DEFAULT for ARCHITECTURAL QUESTIONS \u2014 boundaries, contracts, and system design with tradeoffs: architectural question framing + current vs intended shape + gaps + cost-assessment with recommendation.** Different from /build (implements the architecture), /review (PR-scope), /repo-review (whole-repo audit without design recommendation). Triggers: 'should we use X or Y, how should we structure this, design tradeoffs, system boundaries'.",
     "when_to_use": "Use for module/package boundary questions, coupling concerns, dependency-direction analysis, or abstraction-quality review. Do not use for diff review (use review). Do not use for state-transition lifecycle work (use state-machine-review specialist). For monorepo-specific structure, see `_shared/playbooks/monorepo-architecture-checklist.md`.",
     "argument_hint": "[module|package|subsystem|architectural question]",
     "editing": false,
@@ -958,7 +958,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "ARCHITECTURAL QUESTIONS — boundaries, contracts, and system design with tradeoffs",
+      "default_for": "ARCHITECTURAL QUESTIONS \u2014 boundaries, contracts, and system design with tradeoffs",
       "produces": "architectural question framing + current vs intended shape + gaps + cost-assessment with recommendation",
       "different_from": "/build (implements the architecture), /review (PR-scope), /repo-review (whole-repo audit without design recommendation).",
       "triggers": "should we use X or Y, how should we structure this, design tradeoffs, system boundaries"
@@ -968,14 +968,14 @@
     "name": "api-contract",
     "title": "API Contract",
     "tier": "core",
-    "description": "**DEFAULT for API contract design and review — dispatches reviewer/integration-contract-reviewer with API contract focus.** Different from /migrate (intentional breaking change), /architect (system architecture, not contract review), /integration-contract-reviewer agent (used by this skill).",
+    "description": "**DEFAULT for API contract design and review \u2014 dispatches reviewer/integration-contract-reviewer with API contract focus.** Different from /migrate (intentional breaking change), /architect (system architecture, not contract review), /integration-contract-reviewer agent (used by this skill).",
     "when_to_use": "Use for any change that affects a public surface: API endpoints, schemas, CLI flags, config formats, events, package exports, wire formats. Use when planning a deprecation. Do not use for purely internal refactors with no external surface (use refactor).",
     "argument_hint": "[surface|change description|consumer]",
     "editing": false,
     "aliases": [
       "api-deprecation"
     ],
-    "distinctive_judgment": "Compatibility is asymmetric: producers can extend (add fields, add methods, add optional flags) more freely than they can change or remove. Identify what consumers depend on — including undocumented behavior — before declaring something safe to change. Deprecation is a process, not an event: announce, warn, sunset.",
+    "distinctive_judgment": "Compatibility is asymmetric: producers can extend (add fields, add methods, add optional flags) more freely than they can change or remove. Identify what consumers depend on \u2014 including undocumented behavior \u2014 before declaring something safe to change. Deprecation is a process, not an event: announce, warn, sunset.",
     "first_signals": [
       "Public surface inventory: exports, endpoints, CLI flags, config keys, event names, message formats",
       "Versioning scheme: SemVer? CalVer? Internal stability tiers?",
@@ -996,7 +996,7 @@
       "Identify the public surface affected by the proposed change.",
       "Classify the change: additive (new field/method/flag), modifying (changes existing behavior), removing.",
       "Identify consumers and how they use the surface (search for callers; check changelog feedback; ask about telemetry).",
-      "For modifying/removing: design the deprecation path. Announce → warn → sunset.",
+      "For modifying/removing: design the deprecation path. Announce \u2192 warn \u2192 sunset.",
       "Update or add contract tests that pin the new behavior.",
       "Document the change in changelog/release notes following project conventions.",
       "If it's a breaking change, confirm version bump and migration guide."
@@ -1209,7 +1209,7 @@
     "name": "release",
     "title": "Release",
     "tier": "core",
-    "description": "**DEFAULT for release communication artifacts — dispatches writer for structured release notes and changelog drafting.** Different from /release-readiness (audits whether the codebase is shippable, not the notes), /review (PR-level review, not release-scope), /docs-sync (post-merge doc sync, not release artifact). Triggers: 'release notes, write changelog, draft release announcement, document this release, what to ship in release notes, what changed in version X'.",
+    "description": "**DEFAULT for release communication artifacts \u2014 dispatches writer for structured release notes and changelog drafting.** Different from /release-readiness (audits whether the codebase is shippable, not the notes), /review (PR-level review, not release-scope), /docs-sync (post-merge doc sync, not release artifact). Triggers: 'release notes, write changelog, draft release announcement, document this release, what to ship in release notes, what changed in version X'.",
     "when_to_use": "Use for go/no-go assessment, release notes, or changelog drafts. Use `--notes-only` to produce just the notes/changelog without readiness assessment. Do not use mid-development for status updates (use review --summarize).",
     "argument_hint": "[version|tag|range|--notes-only]",
     "editing": false,
@@ -1316,7 +1316,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "release communication artifacts — dispatches writer for structured release notes and changelog drafting",
+      "default_for": "release communication artifacts \u2014 dispatches writer for structured release notes and changelog drafting",
       "produces": "release notes and changelog artifact",
       "different_from": "/release-readiness (audits whether the codebase is shippable, not the notes), /review (PR-level review, not release-scope), /docs-sync (post-merge doc sync, not release artifact)",
       "triggers": "release notes, write changelog, draft release announcement, document this release, what to ship in release notes, what changed in version X"
@@ -1326,7 +1326,7 @@
     "name": "security-audit",
     "title": "Security Audit",
     "tier": "core",
-    "description": "**DEFAULT for AUTH / SECRETS / INJECTION / TENANT ISOLATION — deep security review: threat model + trust-boundary audit + severity-ranked findings (Critical/High/Medium/Low) with concrete exploit sketch and fix.** Different from /review (general PR review), /supply-chain-hardening (build/publish/transitive), /dependency-audit (CVE-driven). Triggers: 'is this secure, security review, auth issue, injection check, tenant isolation, secrets handling'.",
+    "description": "**DEFAULT for AUTH / SECRETS / INJECTION / TENANT ISOLATION \u2014 deep security review: threat model + trust-boundary audit + severity-ranked findings (Critical/High/Medium/Low) with concrete exploit sketch and fix.** Different from /review (general PR review), /supply-chain-hardening (build/publish/transitive), /dependency-audit (CVE-driven). Triggers: 'is this secure, security review, auth issue, injection check, tenant isolation, secrets handling'.",
     "when_to_use": "Use for security-focused review of auth flows, secret handling, injection surfaces, tenant isolation, dependency security, or sensitive data handling. Kept as a core skill (auto-discoverable) because security work is too important to hide behind a flag.",
     "argument_hint": "[surface|flow|threat|focus]",
     "editing": true,
@@ -1335,7 +1335,7 @@
       "auth-audit",
       "threat-model"
     ],
-    "distinctive_judgment": "Apply a threat model: who is the adversary, what are they trying to do, what can they reach. Auth (who is this user?) and authorization (what can they do?) are different and both must be checked. Secrets in logs, error messages, and crash dumps are common leaks. Tenant isolation requires every query, cache, and rate-limit to scope by tenant. Trust boundaries are crossings of input from a less-trusted source to a more-trusted one — that's where validation must be explicit.",
+    "distinctive_judgment": "Apply a threat model: who is the adversary, what are they trying to do, what can they reach. Auth (who is this user?) and authorization (what can they do?) are different and both must be checked. Secrets in logs, error messages, and crash dumps are common leaks. Tenant isolation requires every query, cache, and rate-limit to scope by tenant. Trust boundaries are crossings of input from a less-trusted source to a more-trusted one \u2014 that's where validation must be explicit.",
     "first_signals": [
       "Auth/authorization layer: where is identity established? Where is authorization checked?",
       "Trust boundaries: HTTP input, deserialization, file paths, SQL, shell, eval, template rendering",
@@ -1435,7 +1435,7 @@
     ],
     "output_style": "concise-review",
     "description_meta": {
-      "default_for": "AUTH / SECRETS / INJECTION / TENANT ISOLATION — deep security review",
+      "default_for": "AUTH / SECRETS / INJECTION / TENANT ISOLATION \u2014 deep security review",
       "produces": "threat model + trust-boundary audit + severity-ranked findings (Critical/High/Medium/Low) with concrete exploit sketch and fix",
       "different_from": "/review (general PR review), /supply-chain-hardening (build/publish/transitive), /dependency-audit (CVE-driven).",
       "triggers": "is this secure, security review, auth issue, injection check, tenant isolation, secrets handling"
@@ -1445,7 +1445,7 @@
     "name": "data-flow-privacy-map",
     "title": "Data Flow + Privacy Map",
     "tier": "specialist",
-    "description": "**DEFAULT for privacy data-flow mapping — dispatches auditor with privacy + data-flow focus.**",
+    "description": "**DEFAULT for privacy data-flow mapping \u2014 dispatches auditor with privacy + data-flow focus.**",
     "when_to_use": "Manual-only. Invoke when the task is privacy-specific: data lineage, PII flows, retention, deletion/export rights, third-party sharing, or sensitive log redaction. For general security, use core `security-audit`.",
     "argument_hint": "[surface|data type|flow]",
     "editing": true,
@@ -1472,14 +1472,14 @@
     ],
     "workflow_steps": [
       "Inventory PII fields. Confirm classification with policy if uncertain.",
-      "Map data flow: entry → storage → processing → egress.",
+      "Map data flow: entry \u2192 storage \u2192 processing \u2192 egress.",
       "For each storage: retention policy in place? Implementation matches?",
       "For each egress: documented in privacy notice? DPA in place? Third-party retention bounded?",
       "Audit logs: scan for log statements with user-controlled fields. Add redaction.",
       "Validate deletion: trigger deletion in test, confirm absence in all storage layers including backups.",
       "Validate export: trigger export, confirm completeness against the inventory."
     ],
-    "validation_strategy": "Test deletion completeness (delete request → search for residual PII). Test export completeness (export request → cross-check with inventory). Run log scanner on test fixtures with PII payloads; confirm redaction.",
+    "validation_strategy": "Test deletion completeness (delete request \u2192 search for residual PII). Test export completeness (export request \u2192 cross-check with inventory). Run log scanner on test fixtures with PII payloads; confirm redaction.",
     "output_contract": "PII Inventory | Data Flow Map | Storage Retention Audit | Egress Audit | Logging Audit + Redactions Applied | Deletion Test Result | Export Test Result | Findings + Recommendations",
     "subagent_delegation": "Dispatch `auditor` with focus=privacy for an independent perspective. See `_shared/playbooks/log-redaction-checklist.md` for redaction patterns.",
     "dispatch_to": {
@@ -1568,7 +1568,7 @@
     "name": "dependency-audit",
     "title": "Dependency Audit",
     "tier": "specialist",
-    "description": "**DEFAULT for dependency/supply-chain audits — dispatches auditor with supply-chain focus.**",
+    "description": "**DEFAULT for dependency/supply-chain audits \u2014 dispatches auditor with supply-chain focus.**",
     "when_to_use": "Manual-only. Invoke for dep-focused review: CVE scan, transitive analysis, license audit, abandonment risk. For supply-chain provenance and CI trust, use specialist `supply-chain-hardening`. For upgrade planning, use core `migrate --deps`.",
     "argument_hint": "[ecosystem|focus]",
     "editing": false,
@@ -1673,7 +1673,7 @@
     "name": "supply-chain-hardening",
     "title": "Supply Chain Hardening",
     "tier": "specialist",
-    "description": "**DEFAULT for supply-chain hardening work — dispatches security-auditor + auditor with supply-chain focus.**",
+    "description": "**DEFAULT for supply-chain hardening work \u2014 dispatches security-auditor + auditor with supply-chain focus.**",
     "when_to_use": "Manual-only. Invoke for supply-chain integrity work: lockfile hygiene, install-script trust, CI publishing pipeline, SBOM generation, container image provenance, registry trust. For dep CVEs/abandonment, use specialist `dependency-audit`.",
     "argument_hint": "[surface|pipeline]",
     "editing": true,
@@ -1690,7 +1690,7 @@
     "failure_modes": [
       "Install scripts running unreviewed code from transitive deps",
       "CI uses a long-lived deploy token instead of OIDC short-lived credentials",
-      "Container image pinned by tag (`:latest` or `:v1.0`) — mutable",
+      "Container image pinned by tag (`:latest` or `:v1.0`) \u2014 mutable",
       "Lockfile committed but `npm install` used in CI instead of `npm ci` (lockfile not enforced)",
       "Publishing pipeline triggered by tag, but tag-creation isn't gated",
       "SBOM generated but not stored alongside the artifact"
@@ -1801,7 +1801,7 @@
     "first_signals": [
       "Profile output (CPU profile, allocation profile, flamegraph)",
       "Slow query logs / APM traces / span timing",
-      "Hot path call frequency (sampling counters, request rate × per-request cost)",
+      "Hot path call frequency (sampling counters, request rate \u00d7 per-request cost)",
       "Memory allocation patterns (GC frequency, allocation rate)",
       "Cache hit rate (where caches exist)",
       "Lock contention metrics where applicable"
@@ -1905,7 +1905,7 @@
     "name": "accessibility-review",
     "title": "Accessibility Review",
     "tier": "specialist",
-    "description": "**DEFAULT for accessibility audits — dispatches auditor with a11y focus.**",
+    "description": "**DEFAULT for accessibility audits \u2014 dispatches auditor with a11y focus.**",
     "when_to_use": "Manual-only. Invoke for a11y-focused review of UI components, flows, or design-system fit. For general frontend review, see `_shared/playbooks/frontend-ux-checklist.md`.",
     "argument_hint": "[component|flow|page]",
     "editing": true,
@@ -2025,14 +2025,14 @@
     "name": "database-review",
     "title": "Database Review",
     "tier": "specialist",
-    "description": "**DEFAULT for database-focused reviews — dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions).**",
+    "description": "**DEFAULT for database-focused reviews \u2014 dispatches reviewer with database focus (schema, migrations, query patterns, indexing, transactions).**",
     "when_to_use": "Manual-only. Invoke for database-specific work: schema design, migration safety, index strategy, transaction boundaries, query plans, backfill design. For general migration sequencing, use core `migrate`.",
     "argument_hint": "[table|migration|query|operation]",
     "editing": true,
     "distinctive_judgment": "Database changes are rarely reversible cheaply. Schema, indexes, and data are entangled with application code, replicas, and backups. Migration safety has two dimensions: (1) the migration completes without breaking the live system, (2) the new schema works correctly under production load. Both must be verified before commit.",
     "first_signals": [
       "Schema migration tool and convention (Alembic, Flyway, Liquibase, Rails, Prisma migrate)",
-      "Production data scale (rows, GB) of affected tables — migration time is a function of size",
+      "Production data scale (rows, GB) of affected tables \u2014 migration time is a function of size",
       "Indexes on affected columns; query plans for affected queries",
       "Foreign key relationships and cascade behavior",
       "Replication topology: primary/replica, lag tolerance",
@@ -2141,7 +2141,7 @@
     "name": "infra-iac-review",
     "title": "Infra + IaC Review",
     "tier": "specialist",
-    "description": "**DEFAULT for IaC reviews — dispatches reviewer with infrastructure-as-code focus.**",
+    "description": "**DEFAULT for IaC reviews \u2014 dispatches reviewer with infrastructure-as-code focus.**",
     "when_to_use": "Manual-only. Invoke for IaC review (Terraform, Pulumi, CloudFormation), Kubernetes manifests, Docker/compose, IAM policies, secret management, runtime config drift, or scheduled job audit. For supply-chain image provenance, use specialist `supply-chain-hardening`.",
     "argument_hint": "[surface|module|cluster|policy]",
     "editing": true,
@@ -2176,7 +2176,7 @@
       "Apply concrete fixes: tighten IAM, add alerting, fix drift.",
       "For container/k8s: confirm non-root, dropped capabilities, resource limits."
     ],
-    "validation_strategy": "Run `terraform plan` (or equivalent) — should be clean after changes. Run any IaC test framework (terratest, kitchen-terraform). Trigger scheduled jobs in a test environment to confirm alerting fires on failure.",
+    "validation_strategy": "Run `terraform plan` (or equivalent) \u2014 should be clean after changes. Run any IaC test framework (terratest, kitchen-terraform). Trigger scheduled jobs in a test environment to confirm alerting fires on failure.",
     "output_contract": "Scope | IAM Audit | Secret Handling Audit | Scheduled Job Audit | Drift Status | Container/K8s Hardening | Fixes Applied | Remaining Risks",
     "subagent_delegation": "Dispatch `auditor` with focus=infra for cross-cutting review. See `_shared/playbooks/cron-job-audit-checklist.md` for scheduled-job specifics.",
     "dispatch_to": {
@@ -2265,7 +2265,7 @@
     "name": "observability-pass",
     "title": "Observability Pass",
     "tier": "specialist",
-    "description": "**DEFAULT for observability-specific audits — dispatches auditor with observability focus.**",
+    "description": "**DEFAULT for observability-specific audits \u2014 dispatches auditor with observability focus.**",
     "when_to_use": "Manual-only. Invoke for observability gaps: insufficient logs, missing metrics, broken traces, ineffective alerting, or SLO design. For incident reconstruction, see `_shared/playbooks/incident-postmortem-template.md`.",
     "argument_hint": "[surface|operation|signal]",
     "editing": true,
@@ -2386,7 +2386,7 @@
     "name": "ai-agent-safety-review",
     "title": "AI Agent Safety Review",
     "tier": "specialist",
-    "description": "**DEFAULT for AI agent safety reviews — dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus.**",
+    "description": "**DEFAULT for AI agent safety reviews \u2014 dispatches security-auditor + risk-and-controls-reviewer with AI/agent safety focus.**",
     "when_to_use": "Manual-only. Invoke for AI/LLM safety review: tool-calling boundaries, prompt injection vectors, retrieval trust, memory/context handling, autonomy controls, or prompt hardening for a specific prompt or skill body.",
     "argument_hint": "[system|tool|prompt|focus]",
     "editing": true,
@@ -2511,7 +2511,7 @@
     "name": "llm-eval-design",
     "title": "LLM Eval Design",
     "tier": "specialist",
-    "description": "**DEFAULT for LLM/agent eval design — dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency).**",
+    "description": "**DEFAULT for LLM/agent eval design \u2014 dispatches evaluator for AI/LLM-specific evaluation design (offline + online metrics, groundedness, hallucination, drift, cost, latency).**",
     "when_to_use": "Manual-only. Invoke for eval suite design: rubrics, golden cases, graders, thresholds. For runtime safety review of an LLM system, use specialist `ai-agent-safety-review`.",
     "argument_hint": "[system|capability|prompt under test]",
     "editing": true,
@@ -2619,11 +2619,11 @@
     "name": "contract-test-generate",
     "title": "Contract Test Generate",
     "tier": "specialist",
-    "description": "**DEFAULT for contract-test generation — dispatches test-strategist + test-harden with contract focus.**",
+    "description": "**DEFAULT for contract-test generation \u2014 dispatches test-strategist + test-harden with contract focus.**",
     "when_to_use": "Manual-only. Invoke when a boundary needs contract-test coverage to prevent silent breakage. For API contract design or deprecation, use core `api-contract`.",
     "argument_hint": "[boundary|consumer|surface]",
     "editing": true,
-    "distinctive_judgment": "Contract tests pin the surface from the consumer's perspective. They differ from unit tests (which test the producer's internal logic) and integration tests (which test the live integration). A contract test should fail when the producer changes the surface in a way that breaks consumers — even if the producer's own tests still pass.",
+    "distinctive_judgment": "Contract tests pin the surface from the consumer's perspective. They differ from unit tests (which test the producer's internal logic) and integration tests (which test the live integration). A contract test should fail when the producer changes the surface in a way that breaks consumers \u2014 even if the producer's own tests still pass.",
     "first_signals": [
       "Boundary type: REST API, GraphQL, gRPC, message queue, CLI, file format, package export",
       "Consumer list: who depends on this surface?",
@@ -2638,14 +2638,14 @@
     ],
     "workflow_steps": [
       "Identify the boundary and its consumers.",
-      "Capture consumer expectations as concrete cases (request → expected response shape).",
+      "Capture consumer expectations as concrete cases (request \u2192 expected response shape).",
       "Generate tests using a contract-test framework (Pact, Spring Cloud Contract, custom).",
       "Run tests against the producer to confirm current behavior matches.",
       "Wire into producer's CI so producer-side changes that break consumers fail.",
       "Document the contract for future consumer onboarding."
     ],
     "validation_strategy": "Run the new contract tests against current producer (should pass). Modify producer in a known-breaking way (in a branch); confirm contract test fails. Revert.",
-    "output_contract": "Boundary | Consumers Captured | Contract Cases (request → expected response/behavior) | Framework + Test Files | CI Wiring | Documentation",
+    "output_contract": "Boundary | Consumers Captured | Contract Cases (request \u2192 expected response/behavior) | Framework + Test Files | CI Wiring | Documentation",
     "subagent_delegation": "Dispatch `reviewer` with focus=contract for second perspective. See `_shared/playbooks/contract-test-patterns.md`.",
     "primary_agent": "test-strategist",
     "secondary_agents": [],
@@ -2717,7 +2717,7 @@
     "name": "state-machine-review",
     "title": "State Machine Review",
     "tier": "specialist",
-    "description": "**DEFAULT for state-machine design and review — dispatches reviewer with state-machine focus.**",
+    "description": "**DEFAULT for state-machine design and review \u2014 dispatches reviewer with state-machine focus.**",
     "when_to_use": "Manual-only. Invoke for state-machine, FSM, reducer, or protocol-lifecycle review. Different cognitive model from architecture review (which handles boundaries) and concurrency (which handles timing). For lock/race/async issues, see `_shared/playbooks/concurrency-patterns.md`.",
     "argument_hint": "[state machine|reducer|protocol]",
     "editing": true,
@@ -2740,7 +2740,7 @@
     ],
     "workflow_steps": [
       "Identify the state machine. If implicit, make it explicit (enumerate states from code).",
-      "Build the transition table: state × event → new state | rejected.",
+      "Build the transition table: state \u00d7 event \u2192 new state | rejected.",
       "Identify invariants and confirm they're enforced (type, validation, or assertion).",
       "Look for impossible states and unreachable states.",
       "Look for stuck states (no transition out).",
@@ -2837,7 +2837,7 @@
     "name": "tui-design-innovate",
     "title": "TUI Design + Innovate",
     "tier": "specialist",
-    "description": "**DEFAULT for terminal-UI design work — dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state).**",
+    "description": "**DEFAULT for terminal-UI design work \u2014 dispatches reviewer/architect with TUI design focus (information density, keyboard nav, color, layout, state).**",
     "when_to_use": "Manual-only. Invoke for TUI app or framework work: terminal-native interaction, focus management, layout, rendering, input routing, framework primitives. Do not default to browser/desktop GUI assumptions.",
     "argument_hint": "[surface|framework|interaction]",
     "editing": true,
@@ -2949,7 +2949,7 @@
     "name": "docs-sync",
     "title": "Docs Sync",
     "tier": "specialist",
-    "description": "**DEFAULT for documentation drift correction — produces documentation update plan + drafts.**",
+    "description": "**DEFAULT for documentation drift correction \u2014 produces documentation update plan + drafts.**",
     "when_to_use": "Manual-only. Invoke when docs may have drifted from code: stale examples, outdated install instructions, removed flags still documented, screenshots showing old UI. For ADR/design doc creation, see `_shared/playbooks/adr-template.md` and `_shared/playbooks/design-doc-template.md`.",
     "argument_hint": "[doc|surface|version range]",
     "editing": true,
@@ -3057,7 +3057,7 @@
     "name": "technical-debt-triage",
     "title": "Technical Debt Triage",
     "tier": "specialist",
-    "description": "**DEFAULT for tech debt prioritization — produces ranked tech debt list with impact + effort + recommended sequencing.**",
+    "description": "**DEFAULT for tech debt prioritization \u2014 produces ranked tech debt list with impact + effort + recommended sequencing.**",
     "when_to_use": "Manual-only. Invoke for maintenance-backlog work: debt inventory, modernization sequencing, 30/60/90-day plans, contributor friction, build/test speed audit. Consolidates V4's tech-debt-triage, codebase-health, developer-experience-audit, build-test-optimizer.",
     "argument_hint": "[scope|focus: debt|dx|build-speed|health]",
     "editing": false,
@@ -3066,15 +3066,15 @@
       "developer-experience-audit",
       "build-test-optimizer"
     ],
-    "distinctive_judgment": "Maintenance backlog is shaped like an inventory + sequencing problem. The inventory is what's broken or rotting; the sequencing is what to fix first given finite engineering time. Risk × leverage × cost. DX friction and build speed are debt with compounding interest: every day of delay costs more time per contributor.",
+    "distinctive_judgment": "Maintenance backlog is shaped like an inventory + sequencing problem. The inventory is what's broken or rotting; the sequencing is what to fix first given finite engineering time. Risk \u00d7 leverage \u00d7 cost. DX friction and build speed are debt with compounding interest: every day of delay costs more time per contributor.",
     "first_signals": [
       "Recent pain points: PRs that took unusually long, recent incidents, contributor complaints",
       "Build/test/lint times locally and in CI",
       "Test flakiness rate",
       "Onboarding time for new contributors",
       "Areas with high churn + high bug rate (correlation often = debt)",
-      "Versions: language, framework, deps — how stale?",
-      "Tooling: linter, formatter, type checker — config drift, ignored rules"
+      "Versions: language, framework, deps \u2014 how stale?",
+      "Tooling: linter, formatter, type checker \u2014 config drift, ignored rules"
     ],
     "failure_modes": [
       "Listing every imperfection without prioritizing (overwhelming, no action taken)",
@@ -3086,15 +3086,15 @@
     "workflow_steps": [
       "Identify scope and focus (debt / DX / build-speed / health).",
       "Inventory: enumerate the items. Concrete, file-level when possible.",
-      "Score each: risk (likelihood × impact), leverage (how much friction it removes), cost (engineering time).",
-      "Sequence into 30/60/90 buckets. Highest risk × leverage / cost first.",
+      "Score each: risk (likelihood \u00d7 impact), leverage (how much friction it removes), cost (engineering time).",
+      "Sequence into 30/60/90 buckets. Highest risk \u00d7 leverage / cost first.",
       "For build/test speed: profile the current pipeline. Identify the dominant cost.",
       "For DX: enumerate friction points concretely (this command takes 3 min, that error is unclear).",
       "Produce the plan with measurable targets per bucket.",
       "Stay read-only; this skill produces a plan, not the fixes."
     ],
     "validation_strategy": "No code changes. Validate by referring to recent incidents and contributor pain that confirm the items in the inventory.",
-    "output_contract": "Scope + Focus | Inventory (file-level when possible) | Risk × Leverage / Cost Scoring | 30/60/90 Sequenced Plan | Measurement Targets per Bucket | Specific Build/DX Bottlenecks (if applicable)",
+    "output_contract": "Scope + Focus | Inventory (file-level when possible) | Risk \u00d7 Leverage / Cost Scoring | 30/60/90 Sequenced Plan | Measurement Targets per Bucket | Specific Build/DX Bottlenecks (if applicable)",
     "subagent_delegation": "Dispatch `auditor` with focus=infra for build pipeline depth. See `_shared/playbooks/codebase-health-signals.md`, `_shared/playbooks/developer-experience-friction-list.md`, `_shared/playbooks/build-test-optimizer-patterns.md`.",
     "primary_agent": "reviewer",
     "secondary_agents": [],
@@ -3130,7 +3130,7 @@
         "evidence_rule": "none"
       },
       {
-        "field": "Risk × Leverage / Cost Scoring",
+        "field": "Risk \u00d7 Leverage / Cost Scoring",
         "type": "section",
         "required": true,
         "evidence_rule": "named risk + likelihood + impact"
@@ -3166,7 +3166,7 @@
     "name": "plugin-review",
     "title": "Plugin Review",
     "tier": "ecosystem",
-    "description": "**DEFAULT for plugin review tasks — dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks).**",
+    "description": "**DEFAULT for plugin review tasks \u2014 dispatches reviewer/architect with Claude/Codex plugin focus (manifest, skills, agents, MCP, hooks).**",
     "when_to_use": "Manual-only. Invoke for ecosystem-level review of a Claude Code plugin package. For authoring a new skill or agent, use ecosystem skills `skill-author` or `agent-author`.",
     "argument_hint": "[plugin path|focus]",
     "editing": true,
@@ -3175,7 +3175,7 @@
     ],
     "distinctive_judgment": "A Claude Code plugin is a structured package: skills (with frontmatter and bodies), agents (with tool permissions), hooks (deterministic), commands, MCP servers, output styles, marketplace metadata. Each surface has its own review criteria. Hooks are the riskiest because they intercept tool calls; MCP servers run as subprocesses; skills are passive but cumulative.",
     "first_signals": [
-      "Plugin manifest: `.claude-plugin/plugin.json` — schema, version, declared surfaces",
+      "Plugin manifest: `.claude-plugin/plugin.json` \u2014 schema, version, declared surfaces",
       "Skills: frontmatter validity, body shape, when_to_use clarity, tier",
       "Agents: tool permissions, body clarity, intended use",
       "Hooks: matchers, scripts, fail-open behavior, env-var disable",
@@ -3294,7 +3294,7 @@
     "name": "skill-author",
     "title": "Skill Author",
     "tier": "ecosystem",
-    "description": "**DEFAULT for skill authoring — produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation).**",
+    "description": "**DEFAULT for skill authoring \u2014 produces a new skill spec with full V8 schema (when_to_use, distinctive_judgment, first_signals, failure_modes, workflow_steps, validation_strategy, output_contract, subagent_delegation).**",
     "when_to_use": "Manual-only. Invoke for new skill authoring or refining an existing skill body. Also handles CLAUDE.md / AGENTS.md / repo guidance file optimization.",
     "argument_hint": "[skill name|target]",
     "editing": true,
@@ -3402,7 +3402,7 @@
     "name": "agent-author",
     "title": "Agent Author",
     "tier": "ecosystem",
-    "description": "**DEFAULT for authoring or refining an Ultraprompt agent — produces a new agent definition with frontmatter, body, tool permissions, and orchestration plan.** Different from /skill-author (authors a skill, not an agent), /plugin-review (audits an existing agent, not authors), /hooks-design (designs a hook, not an agent). Triggers: 'new agent, author an agent, refine this agent, agent definition, design a subagent, add a specialist'.",
+    "description": "**DEFAULT for authoring or refining an Ultraprompt agent \u2014 produces a new agent definition with frontmatter, body, tool permissions, and orchestration plan.** Different from /skill-author (authors a skill, not an agent), /plugin-review (audits an existing agent, not authors), /hooks-design (designs a hook, not an agent). Triggers: 'new agent, author an agent, refine this agent, agent definition, design a subagent, add a specialist'.",
     "when_to_use": "Manual-only. Invoke for new agent authoring or refining an existing agent. Also covers agent orchestration patterns and team-style invocation design.",
     "argument_hint": "[agent name|target]",
     "editing": true,
@@ -3415,7 +3415,7 @@
     "first_signals": [
       "Agent fleet in this plugin (29 agents in V8; for shape reference)",
       "Tool permission patterns (Read/Grep/Glob for read-only; +Bash for discovery; Write only for narrow scratch use)",
-      "Existing parameterized agents (reviewer, auditor) — could the new agent be a focus arg instead?",
+      "Existing parameterized agents (reviewer, auditor) \u2014 could the new agent be a focus arg instead?",
       "Orchestration: when is this agent dispatched? By which skills?"
     ],
     "failure_modes": [
@@ -3496,7 +3496,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "authoring or refining an Ultraprompt agent — produces a new agent definition with frontmatter, body, tool permissions, and orchestration plan",
+      "default_for": "authoring or refining an Ultraprompt agent \u2014 produces a new agent definition with frontmatter, body, tool permissions, and orchestration plan",
       "produces": "agent definition (frontmatter + body + orchestration update)",
       "different_from": "/skill-author (authors a skill, not an agent), /plugin-review (audits an existing agent, not authors), /hooks-design (designs a hook, not an agent)",
       "triggers": "new agent, author an agent, refine this agent, agent definition, design a subagent, add a specialist"
@@ -3506,7 +3506,7 @@
     "name": "hooks-design",
     "title": "Hooks Design",
     "tier": "ecosystem",
-    "description": "**DEFAULT for plugin hook design — dispatches reviewer/architect with plugin hooks focus.**",
+    "description": "**DEFAULT for plugin hook design \u2014 dispatches reviewer/architect with plugin hooks focus.**",
     "when_to_use": "Manual-only. Invoke for hook design, hook auditing, or settings/permissions audit. Hooks are the riskiest plugin surface because they intercept tool calls.",
     "argument_hint": "[hook|surface]",
     "editing": true,
@@ -3613,7 +3613,7 @@
     "name": "mcp-design",
     "title": "MCP Design",
     "tier": "ecosystem",
-    "description": "**DEFAULT for MCP design tasks — dispatches reviewer/architect with MCP focus.**",
+    "description": "**DEFAULT for MCP design tasks \u2014 dispatches reviewer/architect with MCP focus.**",
     "when_to_use": "Manual-only. Invoke for MCP server design, audit, or tool-boundary review. Combines V4's mcp-integration-design and mcp-server-audit.",
     "argument_hint": "[server|tool|surface]",
     "editing": true,
@@ -3645,7 +3645,7 @@
       "Design the tool surface: minimal, read-only by default, named clearly.",
       "Define input schema (JSON Schema) and output shape per tool.",
       "Implement the server: protocol methods, error handling, self-test mode.",
-      "Add tool-level tests (input → expected output).",
+      "Add tool-level tests (input \u2192 expected output).",
       "Smoke-test JSON-RPC end-to-end without Claude Code.",
       "Wire into plugin via .mcp.json."
     ],
@@ -3722,7 +3722,7 @@
     "name": "repo-review",
     "title": "Repo Review",
     "tier": "core",
-    "description": "**DEFAULT for WHOLE-REPO end-to-end audit (map + gaps + drift + test gaps + release readiness in one pass): structured repo review covering map, confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence — V8 panel-ready.** Different from /gap-analysis (ONE feature end-to-end), /feature-completeness (single feature), /dead-code-drift (drift only), /test-gap-analysis (tests only), /release-readiness (ship/no-ship gate only). Triggers: 'audit the codebase, review the whole repo, what's incomplete across the repo, is this ready to ship overall, comprehensive repo audit'.",
+    "description": "**DEFAULT for WHOLE-REPO end-to-end audit (map + gaps + drift + test gaps + release readiness in one pass): structured repo review covering map, confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence \u2014 V8 panel-ready.** Different from /gap-analysis (ONE feature end-to-end), /feature-completeness (single feature), /dead-code-drift (drift only), /test-gap-analysis (tests only), /release-readiness (ship/no-ship gate only). Triggers: 'audit the codebase, review the whole repo, what's incomplete across the repo, is this ready to ship overall, comprehensive repo audit'.",
     "dispatch_to": {
       "agent": "repo-cartographer",
       "phase": "analysis"
@@ -3754,7 +3754,7 @@
       "Identify the 3-5 highest-leverage specialist passes for this repo (offer to dispatch them; do not chain automatically).",
       "Synthesize findings into the repo_review_report contract with file-level evidence.",
       "Label every gap with confidence (confirmed/likely/possible).",
-      "End with recommended implementation sequence ordered by risk × effort."
+      "End with recommended implementation sequence ordered by risk \u00d7 effort."
     ],
     "validation_strategy": "Every claim in 'confirmed_gaps' must cite a file path. Every claim in 'probable_gaps' must explain the verification step needed. 'release_readiness' status (ready/risky/blocked) must be backed by at least 3 evidence entries. No generic best-practice findings.",
     "output_contract": "Executive summary | Repo map summary | Confirmed gaps (with file evidence) | Probable gaps (with verification steps) | Test gaps (risk-weighted) | Contract gaps | Stale or dead code | Release readiness (ready/risky/blocked) | Top risks | Quick wins | Recommended implementation sequence | Validation plan",
@@ -3856,7 +3856,7 @@
     "output_style": "concise-review",
     "description_meta": {
       "default_for": "WHOLE-REPO end-to-end audit (map + gaps + drift + test gaps + release readiness in one pass)",
-      "produces": "structured repo review covering map, confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence — V8 panel-ready",
+      "produces": "structured repo review covering map, confirmed gaps, probable gaps, test gaps, contract drift, stale code, release readiness, top risks, quick wins, and implementation sequence \u2014 V8 panel-ready",
       "different_from": "/gap-analysis (ONE feature end-to-end), /feature-completeness (single feature), /dead-code-drift (drift only), /test-gap-analysis (tests only), /release-readiness (ship/no-ship gate only).",
       "triggers": "audit the codebase, review the whole repo, what's incomplete across the repo, is this ready to ship overall, comprehensive repo audit"
     }
@@ -3896,7 +3896,7 @@
       "Then dispatch gap-analysis-lead with all upstream findings.",
       "Synthesis output goes to .ultraprompt/gaps/gap-ledger.jsonl when --write specified.",
       "Final report cites evidence per gap; no gap claimed without file:line citation.",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "Recommend follow-up fix-skills per gap (build, refactor, migrate, test-harden, etc.)."
     ],
     "validation_strategy": "Every gap in confirmed_gaps must have evidence with file:line. Every gap in probable_gaps must have an explicit verification_step. Implementation sequence must order phases by dependency, not by severity alone.",
@@ -3990,7 +3990,7 @@
     "name": "feature-completeness",
     "title": "Feature Completeness Audit",
     "tier": "core",
-    "description": "**DEFAULT for AUDITOR-ONLY single-feature completeness check (when you already know which feature and do not want orchestration): structured completeness audit for one feature with confirmed/likely/missing controls and file:line evidence; no cross-feature orchestration.** Different from /gap-analysis (orchestrates this auditor + wiring-gap-inspector — use that for cross-cutting feature gaps), /repo-review (whole repo), /test-gap-analysis (missing tests only). Triggers: 'is <feature> complete, audit <feature> for completeness, does <feature> handle <case>'.",
+    "description": "**DEFAULT for AUDITOR-ONLY single-feature completeness check (when you already know which feature and do not want orchestration): structured completeness audit for one feature with confirmed/likely/missing controls and file:line evidence; no cross-feature orchestration.** Different from /gap-analysis (orchestrates this auditor + wiring-gap-inspector \u2014 use that for cross-cutting feature gaps), /repo-review (whole repo), /test-gap-analysis (missing tests only). Triggers: 'is <feature> complete, audit <feature> for completeness, does <feature> handle <case>'.",
     "dispatch_to": {
       "agent": "feature-completeness-auditor",
       "focus_from": "argument"
@@ -4005,7 +4005,7 @@
       "is-this-complete",
       "e2e-audit"
     ],
-    "distinctive_judgment": "Feature-completeness is single-feature scope (UI → API → backend → DB). Repo-review is whole-repo scope. Gap-analysis is synthesis across multiple sources. Architect is design review, not implementation completeness.",
+    "distinctive_judgment": "Feature-completeness is single-feature scope (UI \u2192 API \u2192 backend \u2192 DB). Repo-review is whole-repo scope. Gap-analysis is synthesis across multiple sources. Architect is design review, not implementation completeness.",
     "first_signals": [
       "User names a specific feature/workflow.",
       "User says 'does it actually work' or 'is it wired'.",
@@ -4021,7 +4021,7 @@
       "Verify the user named a specific feature; if not, ask before dispatching.",
       "Dispatch feature-completeness-auditor with the feature name as focus.",
       "If repo-cartographer output is available in context, pass it; otherwise the auditor builds a mini-map for the feature.",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "On completion, synthesize findings; if 3+ gaps found, recommend dispatching gap-analysis-lead for prioritization."
     ],
     "validation_strategy": "Auditor must trace at least: UI entry, API client call, backend route, handler, service, data persistence, response render. Every layer's presence/absence/wiring must have file:line evidence. confidence labels mandatory.",
@@ -4095,7 +4095,7 @@
     "description_meta": {
       "default_for": "AUDITOR-ONLY single-feature completeness check (when you already know which feature and do not want orchestration)",
       "produces": "structured completeness audit for one feature with confirmed/likely/missing controls and file:line evidence; no cross-feature orchestration",
-      "different_from": "/gap-analysis (orchestrates this auditor + wiring-gap-inspector — use that for cross-cutting feature gaps), /repo-review (whole repo), /test-gap-analysis (missing tests only).",
+      "different_from": "/gap-analysis (orchestrates this auditor + wiring-gap-inspector \u2014 use that for cross-cutting feature gaps), /repo-review (whole repo), /test-gap-analysis (missing tests only).",
       "triggers": "is <feature> complete, audit <feature> for completeness, does <feature> handle <case>"
     }
   },
@@ -4103,7 +4103,7 @@
     "name": "test-gap-analysis",
     "title": "Test Gap Analysis",
     "tier": "core",
-    "description": "**DEFAULT for MISSING TEST COVERAGE ONLY — uncovered behaviors, lanes, boundary cases, and risky paths without tests: risk-weighted list of missing test coverage with critical lanes, missing test types, and regression-test priorities.** Different from /test-harden (WRITE the missing tests — use this AFTER test-gap-analysis), /gap-analysis (whole-feature gaps incl. wiring/docs), /feature-completeness (single-feature completeness). Triggers: 'missing test coverage, untested paths, what needs a test, where are we test-blind'.",
+    "description": "**DEFAULT for MISSING TEST COVERAGE ONLY \u2014 uncovered behaviors, lanes, boundary cases, and risky paths without tests: risk-weighted list of missing test coverage with critical lanes, missing test types, and regression-test priorities.** Different from /test-harden (WRITE the missing tests \u2014 use this AFTER test-gap-analysis), /gap-analysis (whole-feature gaps incl. wiring/docs), /feature-completeness (single-feature completeness). Triggers: 'missing test coverage, untested paths, what needs a test, where are we test-blind'.",
     "dispatch_to": {
       "agent": "test-gap-analyst"
     },
@@ -4134,7 +4134,7 @@
       "Auditor produces risk-weighted test_gaps entries.",
       "Synthesize: top 5 critical, top 5 high, summary of medium/low.",
       "For each critical/high gap, recommend specific test type (unit/integration/e2e/contract).",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "End with 'next dispatch' suggestion: test-harden to design the tests."
     ],
     "validation_strategy": "Every gap must cite specific file:line for both the behavior and the absence-of-test evidence. Risk weighting must use the lane-based heuristic, not be uniform across findings.",
@@ -4200,9 +4200,9 @@
     ],
     "output_style": "concise-review",
     "description_meta": {
-      "default_for": "MISSING TEST COVERAGE ONLY — uncovered behaviors, lanes, boundary cases, and risky paths without tests",
+      "default_for": "MISSING TEST COVERAGE ONLY \u2014 uncovered behaviors, lanes, boundary cases, and risky paths without tests",
       "produces": "risk-weighted list of missing test coverage with critical lanes, missing test types, and regression-test priorities",
-      "different_from": "/test-harden (WRITE the missing tests — use this AFTER test-gap-analysis), /gap-analysis (whole-feature gaps incl. wiring/docs), /feature-completeness (single-feature completeness).",
+      "different_from": "/test-harden (WRITE the missing tests \u2014 use this AFTER test-gap-analysis), /gap-analysis (whole-feature gaps incl. wiring/docs), /feature-completeness (single-feature completeness).",
       "triggers": "missing test coverage, untested paths, what needs a test, where are we test-blind"
     }
   },
@@ -4210,7 +4210,7 @@
     "name": "dead-code-drift",
     "title": "Dead Code & Drift Audit",
     "tier": "core",
-    "description": "**DEFAULT for UNUSED, STALE, OR DRIFTED CODE ONLY — exports/imports/configs/migrations/fixtures with no live reference: ranked drift findings (safe-to-remove vs needs-review) with reference evidence and quick wins.** Different from /gap-analysis (missing features, not unused code), /feature-completeness (single-feature completeness), /technical-debt-triage (debt with risk×leverage scoring, not drift), /repo-review (whole-repo audit). Triggers: 'dead code, unused exports, stale fixtures, drift, what can we delete'.",
+    "description": "**DEFAULT for UNUSED, STALE, OR DRIFTED CODE ONLY \u2014 exports/imports/configs/migrations/fixtures with no live reference: ranked drift findings (safe-to-remove vs needs-review) with reference evidence and quick wins.** Different from /gap-analysis (missing features, not unused code), /feature-completeness (single-feature completeness), /technical-debt-triage (debt with risk\u00d7leverage scoring, not drift), /repo-review (whole-repo audit). Triggers: 'dead code, unused exports, stale fixtures, drift, what can we delete'.",
     "dispatch_to": {
       "agent": "dead-code-and-drift-hunter"
     },
@@ -4241,7 +4241,7 @@
       "Auditor produces drift_findings with safe-to-remove labels.",
       "Synthesize: summary by safe-to-remove distribution.",
       "Highlight quick wins (label=yes, low risk).",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "Flag needs_review items for human decision."
     ],
     "validation_strategy": "Every drift finding must show evidence (grep results or file:line). Safe-to-remove label must have explicit justification. needs_review items must explain the uncertainty.",
@@ -4307,9 +4307,9 @@
     ],
     "output_style": "concise-review",
     "description_meta": {
-      "default_for": "UNUSED, STALE, OR DRIFTED CODE ONLY — exports/imports/configs/migrations/fixtures with no live reference",
+      "default_for": "UNUSED, STALE, OR DRIFTED CODE ONLY \u2014 exports/imports/configs/migrations/fixtures with no live reference",
       "produces": "ranked drift findings (safe-to-remove vs needs-review) with reference evidence and quick wins",
-      "different_from": "/gap-analysis (missing features, not unused code), /feature-completeness (single-feature completeness), /technical-debt-triage (debt with risk×leverage scoring, not drift), /repo-review (whole-repo audit).",
+      "different_from": "/gap-analysis (missing features, not unused code), /feature-completeness (single-feature completeness), /technical-debt-triage (debt with risk\u00d7leverage scoring, not drift), /repo-review (whole-repo audit).",
       "triggers": "dead code, unused exports, stale fixtures, drift, what can we delete"
     }
   },
@@ -4317,7 +4317,7 @@
     "name": "release-readiness",
     "title": "Release Readiness Audit",
     "tier": "core",
-    "description": "**DEFAULT for shipability assessment — produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence.** Different from /release (writes the release notes / changelog), /review (single-diff review, not whole-tree shipability), /security-audit (security-only, not shipability). Triggers: 'is this ready to ship, release readiness, can we deploy, pre-release audit, ship/no-ship, release scorecard, blocking issues for release, production-ready check'.",
+    "description": "**DEFAULT for shipability assessment \u2014 produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence.** Different from /release (writes the release notes / changelog), /review (single-diff review, not whole-tree shipability), /security-audit (security-only, not shipability). Triggers: 'is this ready to ship, release readiness, can we deploy, pre-release audit, ship/no-ship, release scorecard, blocking issues for release, production-ready check'.",
     "dispatch_to": {
       "agent": "release-readiness-auditor"
     },
@@ -4348,10 +4348,10 @@
       "Auditor produces ready/risky/blocked verdict + structured findings.",
       "Synthesize for the user: clear ship-or-not call with justification.",
       "Order remediation: blockers first, then critical warnings, then warnings.",
-      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions — if a similar gap exists, update its evidence rather than create new.",
+      "After synthesis, persist findings to the gap ledger via the `gap_ledger_write` MCP tool: ONE call per gap with required fields (repo, title, category, severity, confidence, evidence, recommended_fix). Auto-skip if --no-ledger argument supplied. Print the gap IDs assigned (e.g., GAP-celestial-0042) for user reference. Before writing, optionally call `gap_ledger_query` with the same repo to detect duplicates from prior sessions \u2014 if a similar gap exists, update its evidence rather than create new.",
       "End with: gate criteria for each phase + validation commands."
     ],
-    "validation_strategy": "Every blocker and warning must cite file:line evidence (or absence-of-file). Verdict follows verdict rules: 0 blockers + acceptable warnings = ready; 0 blockers + many warnings = risky; ≥1 blocker = blocked.",
+    "validation_strategy": "Every blocker and warning must cite file:line evidence (or absence-of-file). Verdict follows verdict rules: 0 blockers + acceptable warnings = ready; 0 blockers + many warnings = risky; \u22651 blocker = blocked.",
     "output_contract": "Verdict (ready/risky/blocked) | Blockers with evidence | Warnings ranked | Missing operational controls | Required validation commands | Rollback concerns | Phased release sequence with gate criteria",
     "subagent_delegation": "Default: dispatch release-readiness-auditor. For deep follow-up: dispatch security-auditor (if secrets handling flagged) + test-strategist (if test gaps flagged).",
     "primary_agent": "release-readiness-auditor",
@@ -4422,7 +4422,7 @@
     "description_meta": {
       "default_for": "shipability assessment: produces ready/risky/blocked verdict with blockers, warnings, missing controls, and recommended release sequence",
       "produces": "release-readiness audits whether the codebase is shippable",
-      "different_from": "release (writes notes/changelog) — release-readiness audits whether the codebase is shippable.",
+      "different_from": "release (writes notes/changelog) \u2014 release-readiness audits whether the codebase is shippable.",
       "triggers": ""
     }
   },
@@ -4430,13 +4430,13 @@
     "name": "prd-lite",
     "title": "PRD Lite",
     "tier": "core",
-    "description": "**DEFAULT for early-stage thinking that doesn't yet warrant a full PRD — produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria.** Different from /prd-standard (full PRD with users + scope + risks), /prd-technical (infra-heavy PRD), /concept-brief (single concept, not yet a product).",
+    "description": "**DEFAULT for early-stage thinking that doesn't yet warrant a full PRD \u2014 produces a 1-2 page structured product doc with problem, users, goals, scope, success criteria.** Different from /prd-standard (full PRD with users + scope + risks), /prd-technical (infra-heavy PRD), /concept-brief (single concept, not yet a product).",
     "dispatch_to": {
       "agent": "principal-pm"
     },
     "family": "product-prd",
     "artifact_type": "prd_lite",
-    "when_to_use": "When the user wants a fast, structured product brief — typically for early ideas, feature triage, or single-engineer-team scope. Not appropriate for cross-team or regulated changes.",
+    "when_to_use": "When the user wants a fast, structured product brief \u2014 typically for early ideas, feature triage, or single-engineer-team scope. Not appropriate for cross-team or regulated changes.",
     "argument_hint": "<feature or problem name>",
     "editing": false,
     "aliases": [
@@ -4462,7 +4462,7 @@
       "If user has compliance concerns or cross-team scope, recommend escalating to prd-standard.",
       "End with 3-5 open questions ordered by blocking-priority."
     ],
-    "validation_strategy": "Every problem statement cites evidence. Non-goals explicit. Success criteria with baseline + target. Acceptance criteria in given/when/then. Skip the deeper PRD sections (technical_considerations, rollout_plan) — those go to prd-standard.",
+    "validation_strategy": "Every problem statement cites evidence. Non-goals explicit. Success criteria with baseline + target. Acceptance criteria in given/when/then. Skip the deeper PRD sections (technical_considerations, rollout_plan) \u2014 those go to prd-standard.",
     "output_contract": "Problem statement (with evidence) | Users + jobs-to-be-done | Goals + non-goals | Must-have requirements | Scope boundaries | Success criteria (baseline+target) | Top risks | Open questions",
     "subagent_delegation": "Default: dispatch principal-pm. For deeper analysis: recommend prd-standard or prd-technical.",
     "primary_agent": "principal-pm",
@@ -4547,13 +4547,13 @@
     "name": "prd-standard",
     "title": "PRD Standard",
     "tier": "core",
-    "description": "**DEFAULT for any product change crossing teams or with meaningful complexity — produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions.** Different from /prd-lite (1-2 page early-stage), /prd-technical (infra-heavy), /prd-ai-feature (LLM/agentic feature).",
+    "description": "**DEFAULT for any product change crossing teams or with meaningful complexity \u2014 produces a full structured product doc with problem, users, goals, non-goals, must/should/won't-have, scope, technical considerations, risks, metrics, acceptance criteria, rollout plan, validation plan, open questions.** Different from /prd-lite (1-2 page early-stage), /prd-technical (infra-heavy), /prd-ai-feature (LLM/agentic feature).",
     "dispatch_to": {
       "agent": "principal-pm"
     },
     "family": "product-prd",
     "artifact_type": "prd_standard",
-    "when_to_use": "When the user wants a complete PRD for a meaningful product change — cross-team scope, non-trivial complexity, or pre-engineering-kickoff documentation.",
+    "when_to_use": "When the user wants a complete PRD for a meaningful product change \u2014 cross-team scope, non-trivial complexity, or pre-engineering-kickoff documentation.",
     "argument_hint": "<feature or product change name>",
     "editing": false,
     "aliases": [
@@ -4581,8 +4581,8 @@
       "If compliance/regulatory exposure, recommend chaining to risk-and-controls-reviewer.",
       "End with prioritized open_questions."
     ],
-    "validation_strategy": "Every problem claim cites evidence. Non-goals explicit (3-5). All metrics have baseline + target + measurement method. Acceptance criteria in given/when/then. Rollout plan with phase gate criteria. Risks ranked by severity × likelihood with mitigations.",
-    "output_contract": "Problem statement with evidence | Users + jobs-to-be-done | Goals + non-goals (3-5) | Requirements (must/should/won't-have) | Scope (in/out) | Technical considerations | Risks (severity × likelihood + mitigations) | Metrics (leading/lagging/guardrails with baselines+targets) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open questions ranked by blocking-priority",
+    "validation_strategy": "Every problem claim cites evidence. Non-goals explicit (3-5). All metrics have baseline + target + measurement method. Acceptance criteria in given/when/then. Rollout plan with phase gate criteria. Risks ranked by severity \u00d7 likelihood with mitigations.",
+    "output_contract": "Problem statement with evidence | Users + jobs-to-be-done | Goals + non-goals (3-5) | Requirements (must/should/won't-have) | Scope (in/out) | Technical considerations | Risks (severity \u00d7 likelihood + mitigations) | Metrics (leading/lagging/guardrails with baselines+targets) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open questions ranked by blocking-priority",
     "subagent_delegation": "Default: dispatch principal-pm. Follow-up: technical-product-architect for technical design; risk-and-controls-reviewer for compliance/privacy; evaluator for measurement design.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
@@ -4690,13 +4690,13 @@
     "name": "prd-technical",
     "title": "Technical PRD",
     "tier": "core",
-    "description": "**DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk — produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry.** Different from /prd-standard (customer-journey-heavy), /prd-lite (early-stage), /architect (code-level architecture, not product spec).",
+    "description": "**DEFAULT for infrastructure work, platform features, developer tools, or any product where technical shape is the primary risk \u2014 produces a PRD oriented around technical design with deeper technical_considerations, data model implications, API surface, integrations, failure modes, telemetry.** Different from /prd-standard (customer-journey-heavy), /prd-lite (early-stage), /architect (code-level architecture, not product spec).",
     "dispatch_to": {
       "agent": "principal-pm"
     },
     "family": "product-prd",
     "artifact_type": "prd_technical",
-    "when_to_use": "When the product change is technical-heavy — infrastructure, platform, dev tools, APIs, data pipelines. Less time on customer journey; more time on system shape.",
+    "when_to_use": "When the product change is technical-heavy \u2014 infrastructure, platform, dev tools, APIs, data pipelines. Less time on customer journey; more time on system shape.",
     "argument_hint": "<technical feature or platform name>",
     "editing": false,
     "aliases": [
@@ -4724,8 +4724,8 @@
       "End with prioritized open_technical_questions + open_product_questions."
     ],
     "validation_strategy": "Product requirements traceable to technical decisions. Every technical change has a product driver OR is flagged as technical-only. At least 5 failure modes. Telemetry for product validation included. Rollback strategy explicit.",
-    "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design: data model (entities, fields, indexes, migrations) | Technical design: API surface (endpoints, request/response shapes, deprecations) | Technical design: integration points (upstream, downstream, third-party) | Technical design: sequence flows + failure modes (≥5) | Technical design: feature flags + telemetry events + metrics | Performance considerations + security_and_privacy + rollout_technical_plan | Risks (severity × likelihood) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open product questions + open technical questions",
-    "subagent_delegation": "Default: chain principal-pm → technical-product-architect. Follow-up: risk-and-controls-reviewer + security-auditor for sensitive surfaces.",
+    "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design: data model (entities, fields, indexes, migrations) | Technical design: API surface (endpoints, request/response shapes, deprecations) | Technical design: integration points (upstream, downstream, third-party) | Technical design: sequence flows + failure modes (\u22655) | Technical design: feature flags + telemetry events + metrics | Performance considerations + security_and_privacy + rollout_technical_plan | Risks (severity \u00d7 likelihood) | Acceptance criteria (given/when/then) | Rollout plan with phase gates | Validation plan | Open product questions + open technical questions",
+    "subagent_delegation": "Default: chain principal-pm \u2192 technical-product-architect. Follow-up: risk-and-controls-reviewer + security-auditor for sensitive surfaces.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
     "preferred_panel": null,
@@ -4856,7 +4856,7 @@
     "name": "prd-ai-feature",
     "title": "AI Feature PRD",
     "tier": "core",
-    "description": "**DEFAULT for PRD FOR AN AI/LLM/AGENT FEATURE — model selection rationale, eval plan, safety boundaries, cost envelope, failure-mode map: PRD covering AI-specific sections (model selection, eval design, safety boundaries, cost envelope, failure-mode map) on top of the standard PRD shape.** Different from /prd-standard (non-AI features), /prd-technical (deep tech-design PRD, not AI-specific), /llm-eval-design (eval design only). Triggers: 'PRD for an AI feature, AI-feature spec, agent feature PRD, LLM feature spec, model-backed feature'.",
+    "description": "**DEFAULT for PRD FOR AN AI/LLM/AGENT FEATURE \u2014 model selection rationale, eval plan, safety boundaries, cost envelope, failure-mode map: PRD covering AI-specific sections (model selection, eval design, safety boundaries, cost envelope, failure-mode map) on top of the standard PRD shape.** Different from /prd-standard (non-AI features), /prd-technical (deep tech-design PRD, not AI-specific), /llm-eval-design (eval design only). Triggers: 'PRD for an AI feature, AI-feature spec, agent feature PRD, LLM feature spec, model-backed feature'.",
     "dispatch_to": {
       "agent": "principal-pm"
     },
@@ -4877,7 +4877,7 @@
       "Output quality is probabilistic, not deterministic."
     ],
     "failure_modes": [
-      "Treating AI feature like deterministic software — missing eval/safety/hallucination handling.",
+      "Treating AI feature like deterministic software \u2014 missing eval/safety/hallucination handling.",
       "No cost model (AI features have non-trivial unit costs).",
       "No human-in-the-loop fallback for low-confidence outputs.",
       "Missing prompt/model versioning strategy (untracked drift)."
@@ -4892,7 +4892,7 @@
     ],
     "validation_strategy": "Every AI feature PRD must explicitly address: model selection rationale, eval methodology (both offline and online), groundedness/hallucination guardrails, safety filters, human-in-the-loop fallback path, cost model (per-call + scaled), latency budget, prompt versioning, and data privacy posture (training data, retention, opt-out).",
     "output_contract": "Problem statement + evidence | Users + jobs-to-be-done | Goals + non-goals | Must/should/won't-have requirements | Scope (in/out) | Technical design with AI sections | AI: model selection rationale + alternative models considered | AI: eval methodology (offline benchmarks, online metrics, human eval if applicable) | AI: groundedness + hallucination guardrails | AI: safety filters + content policy | AI: human-in-the-loop fallback path + low-confidence handling | AI: cost model (per-call + scaled to expected QPS) | AI: latency targets + budget | AI: prompt versioning + model versioning strategy | AI: data privacy posture (training data, retention, opt-out, residency) | AI: drift monitoring + retraining trigger criteria | Risks + acceptance criteria + rollout plan + validation plan + open questions",
-    "subagent_delegation": "Default: chain principal-pm → technical-product-architect → evaluator → risk-and-controls-reviewer. This is intentionally a 4-agent chain because AI features have multiple risk surfaces.",
+    "subagent_delegation": "Default: chain principal-pm \u2192 technical-product-architect \u2192 evaluator \u2192 risk-and-controls-reviewer. This is intentionally a 4-agent chain because AI features have multiple risk surfaces.",
     "primary_agent": "principal-pm",
     "secondary_agents": [],
     "preferred_panel": null,
@@ -5019,7 +5019,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "PRD FOR AN AI/LLM/AGENT FEATURE — model selection rationale, eval plan, safety boundaries, cost envelope, failure-mode map",
+      "default_for": "PRD FOR AN AI/LLM/AGENT FEATURE \u2014 model selection rationale, eval plan, safety boundaries, cost envelope, failure-mode map",
       "produces": "PRD covering AI-specific sections (model selection, eval design, safety boundaries, cost envelope, failure-mode map) on top of the standard PRD shape",
       "different_from": "/prd-standard (non-AI features), /prd-technical (deep tech-design PRD, not AI-specific), /llm-eval-design (eval design only).",
       "triggers": "PRD for an AI feature, AI-feature spec, agent feature PRD, LLM feature spec, model-backed feature"
@@ -5029,7 +5029,7 @@
     "name": "prd-to-plan",
     "title": "PRD to Implementation Plan",
     "tier": "core",
-    "description": "**DEFAULT for PRD → engineering handoff: converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase: runs the prd-to-plan discipline.** Different from prd-technical (which produces the technical design): prd-to-plan takes a finished PRD and produces the build sequence. Triggers: 'convert this PRD to engineering plan / break down PRD for implementation / make a project plan from this PRD / split this PRD into milestones / what work is needed to ship this PRD / phase plan for PRD X'.",
+    "description": "**DEFAULT for PRD \u2192 engineering handoff: converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase: runs the prd-to-plan discipline.** Different from prd-technical (which produces the technical design): prd-to-plan takes a finished PRD and produces the build sequence. Triggers: 'convert this PRD to engineering plan / break down PRD for implementation / make a project plan from this PRD / split this PRD into milestones / what work is needed to ship this PRD / phase plan for PRD X'.",
     "dispatch_to": {
       "agent": "principal-pm"
     },
@@ -5043,7 +5043,7 @@
       "implementation-plan",
       "engineering-plan"
     ],
-    "distinctive_judgment": "PRD-to-plan converts approved PRD to implementation plan; prd-standard creates the PRD; prd-technical adds technical design. Use in sequence: prd-standard → (optional prd-technical) → prd-to-plan.",
+    "distinctive_judgment": "PRD-to-plan converts approved PRD to implementation plan; prd-standard creates the PRD; prd-technical adds technical design. Use in sequence: prd-standard \u2192 (optional prd-technical) \u2192 prd-to-plan.",
     "first_signals": [
       "User has an approved PRD and wants to start engineering.",
       "User asks for milestones, phases, or build sequence.",
@@ -5143,7 +5143,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "PRD → engineering handoff: converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase",
+      "default_for": "PRD \u2192 engineering handoff: converts a PRD into a phased implementation plan with milestones, dependencies, parallelizable work, sequencing, owner suggestions, validation gates per phase",
       "produces": "runs the prd-to-plan discipline",
       "different_from": "prd-technical (which produces the technical design): prd-to-plan takes a finished PRD and produces the build sequence. Triggers: 'convert this PRD to engineering plan / break down PRD for implementation / make a project plan from this PRD / split this PRD into milestones / what work is needed to ship this PRD / phase plan for PRD X'.",
       "triggers": ""
@@ -5183,7 +5183,7 @@
       "Dispatch market-analyst for competitive analysis + white space map.",
       "If customer signal data available, chain customer-advocate to validate opportunity zones.",
       "Synthesize into opportunity_map artifact with axes, occupied zones, underserved zones, sized opportunities.",
-      "Rank opportunities by impact × feasibility × evidence strength.",
+      "Rank opportunities by impact \u00d7 feasibility \u00d7 evidence strength.",
       "End with recommended_focus (top 2-3 opportunities) and validation_plan for each."
     ],
     "validation_strategy": "Every opportunity zone has evidence (customer signal, market gap, competitive weakness). Every recommendation has reasoning. No 'pursue everything' outputs.",
@@ -5384,7 +5384,7 @@
     "name": "concept-brief",
     "title": "Concept Brief",
     "tier": "core",
-    "description": "**DEFAULT for concept-stage thinking — produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required).** Different from /prd-lite (early-stage PRD), /idea-triage (multi-idea ranking), /problem-framing (problem definition only).",
+    "description": "**DEFAULT for concept-stage thinking \u2014 produces a structured concept brief (problem, target users, proposed approach, key differentiator, success criteria, top risks, validation plan, decision required).** Different from /prd-lite (early-stage PRD), /idea-triage (multi-idea ranking), /problem-framing (problem definition only).",
     "dispatch_to": {
       "agent": "principal-pm"
     },
@@ -5537,7 +5537,7 @@
       "Post-MVP roadmap: what we'd add in phase 2/3 if validation succeeds.",
       "End with explicit cut-list and ship-criteria."
     ],
-    "validation_strategy": "Hypothesis-driven (MVP validates a specific hypothesis). Must-have list capped (typically ≤7 items). Cuts have explicit reasoning. Validation criteria measurable. Post-MVP roadmap present.",
+    "validation_strategy": "Hypothesis-driven (MVP validates a specific hypothesis). Must-have list capped (typically \u22647 items). Cuts have explicit reasoning. Validation criteria measurable. Post-MVP roadmap present.",
     "output_contract": "Hypothesis MVP validates | Must-have (3-7 items, with reason) | Should-have | Won't-have-this-MVP with cut reasons | Validation plan | Success criteria | Failure criteria (when to abandon hypothesis) | Post-MVP roadmap sketch",
     "subagent_delegation": "Default: dispatch principal-pm. Followup: evaluator for validation plan design; prd-to-plan to break the chosen MVP into engineering work.",
     "primary_agent": "principal-pm",
@@ -5622,7 +5622,7 @@
     "name": "problem-framing",
     "title": "Problem Framing",
     "tier": "core",
-    "description": "**DEFAULT for problem-framing decisions — produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications.** Different from /idea-triage (ranks ideas, not frames problems), /concept-brief (after problem is framed), /innovation-lead (idea generation).",
+    "description": "**DEFAULT for problem-framing decisions \u2014 produces structured problem reframings (jobs-to-be-done, constraints, customer segment, substitutes, time horizon lenses) with explicit implications.** Different from /idea-triage (ranks ideas, not frames problems), /concept-brief (after problem is framed), /innovation-lead (idea generation).",
     "dispatch_to": {
       "agent": "innovation-lead"
     },
@@ -5724,7 +5724,7 @@
     "name": "choose",
     "title": "Choose",
     "tier": "core",
-    "description": "**DEFAULT for ROUTING AMBIGUITY — interactive picker that surfaces top skill candidates + 2 LLM-rewritten prompt variants via AskUserQuestion with previews, then dispatches the chosen skill with the chosen phrasing: AskUserQuestion-driven selection moment when the V8 router can't decide; on choice, dispatches the picked skill (or surfaces the slash command for manual_only skills) and logs the choice for the learning queue.** Different from /route (read-only routing table — this is interactive picker), /menu (catalog browser — this is scoped to the current prompt), /pathfind (workflow path across multiple skills — this picks ONE skill). Triggers: 'auto-invoked by the V8.7 UserPromptSubmit hook when top-2 skills are within 15% or top is medium confidence; manually invokable as /ultraprompt:choose <intent>'.",
+    "description": "**DEFAULT for ROUTING AMBIGUITY \u2014 interactive picker that surfaces top skill candidates + 2 LLM-rewritten prompt variants via AskUserQuestion with previews, then dispatches the chosen skill with the chosen phrasing: AskUserQuestion-driven selection moment when the V8 router can't decide; on choice, dispatches the picked skill (or surfaces the slash command for manual_only skills) and logs the choice for the learning queue.** Different from /route (read-only routing table \u2014 this is interactive picker), /menu (catalog browser \u2014 this is scoped to the current prompt), /pathfind (workflow path across multiple skills \u2014 this picks ONE skill). Triggers: 'auto-invoked by the V8.7 UserPromptSubmit hook when top-2 skills are within 15% or top is medium confidence; manually invokable as /ultraprompt:choose <intent>'.",
     "when_to_use": "Use when routing is ambiguous (top-2 skills within ~15% of each other), when the prompt is vague, when the user wants to pick between near-equal options, or whenever the model needs the user to disambiguate before doing work. Auto-invoked by the V8.7 UserPromptSubmit hook directive when ambiguity is detected; also invocable manually via `/ultraprompt:choose <intent>`.",
     "argument_hint": "<original prompt / intent>",
     "editing": false,
@@ -5741,11 +5741,11 @@
     ],
     "failure_modes": [
       "Surfacing the same skill twice across options (dedupe by skill name before building AskUserQuestion)",
-      "Forcing the picker on an already-unambiguous prompt — only run when the hook directive fires or the user invokes manually",
-      "Generating rewrites that route to the SAME top skill as the original — skip those rewrites",
-      "More than 4 options — AskUserQuestion supports max 4 (plus auto Other); cap at 4",
-      "Picking a `manual_only` skill and trying to dispatch it via Skill tool — instead, instruct the user to run the slash command",
-      "Skipping the dispatch after the user picks — the picker is not a report; it must follow through and invoke"
+      "Forcing the picker on an already-unambiguous prompt \u2014 only run when the hook directive fires or the user invokes manually",
+      "Generating rewrites that route to the SAME top skill as the original \u2014 skip those rewrites",
+      "More than 4 options \u2014 AskUserQuestion supports max 4 (plus auto Other); cap at 4",
+      "Picking a `manual_only` skill and trying to dispatch it via Skill tool \u2014 instead, instruct the user to run the slash command",
+      "Skipping the dispatch after the user picks \u2014 the picker is not a report; it must follow through and invoke"
     ],
     "workflow_steps": [
       "Resolve the user's prompt from `$ARGUMENTS` or the inline directive payload. If the hook supplied inline `candidates`, use them directly and skip step 2.",
@@ -5756,9 +5756,9 @@
       "On user selection: parse which skill + which phrasing was chosen. If the skill is `manual_only`, print the slash command for the user to run themselves. Otherwise dispatch via the `Skill` tool with the chosen phrasing as the argument.",
       "Log a `route_picker_choice` event (via Bash: `py -3 -c \"import scripts.ledger-v2 as l; l.write_event('route_picker_choice', chosen_id='<id>', original_top_id='<id>', was_rewrite=<bool>, option_count=<n>)\"`) so the learning queue can detect when users systematically prefer non-top routes."
     ],
-    "validation_strategy": "The picker is a UX layer, not a code-modifying skill — validation is behavioral. Verify the user saw an AskUserQuestion with N options, picked one, and the chosen skill was actually invoked. If the chosen skill was manual_only, verify the slash command was surfaced to the user.",
+    "validation_strategy": "The picker is a UX layer, not a code-modifying skill \u2014 validation is behavioral. Verify the user saw an AskUserQuestion with N options, picked one, and the chosen skill was actually invoked. If the chosen skill was manual_only, verify the slash command was surfaced to the user.",
     "output_contract": "Original Intent | Picker Trigger (hook directive | manual) | Options Presented (with previews) | User Choice (option ID + skill + phrasing) | Dispatch Action (Skill tool invocation | manual slash command surfaced) | Telemetry Event Written",
-    "subagent_delegation": "None. This is an orchestrator skill — it runs inline in the main thread because the picker is interactive (calls AskUserQuestion). The chosen downstream skill handles its own dispatch per its own dispatch policy.",
+    "subagent_delegation": "None. This is an orchestrator skill \u2014 it runs inline in the main thread because the picker is interactive (calls AskUserQuestion). The chosen downstream skill handles its own dispatch per its own dispatch policy.",
     "dispatch_to": null,
     "primary_agent": null,
     "secondary_agents": [],
@@ -5820,9 +5820,9 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "ROUTING AMBIGUITY — interactive picker that surfaces top skill candidates + 2 LLM-rewritten prompt variants via AskUserQuestion with previews, then dispatches the chosen skill with the chosen phrasing",
+      "default_for": "ROUTING AMBIGUITY \u2014 interactive picker that surfaces top skill candidates + 2 LLM-rewritten prompt variants via AskUserQuestion with previews, then dispatches the chosen skill with the chosen phrasing",
       "produces": "AskUserQuestion-driven selection moment when the V8 router can't decide; on choice, dispatches the picked skill (or surfaces the slash command for manual_only skills) and logs the choice for the learning queue",
-      "different_from": "/route (read-only routing table — this is interactive picker), /menu (catalog browser — this is scoped to the current prompt), /pathfind (workflow path across multiple skills — this picks ONE skill).",
+      "different_from": "/route (read-only routing table \u2014 this is interactive picker), /menu (catalog browser \u2014 this is scoped to the current prompt), /pathfind (workflow path across multiple skills \u2014 this picks ONE skill).",
       "triggers": "auto-invoked by the V8.7 UserPromptSubmit hook when top-2 skills are within 15% or top is medium confidence; manually invokable as /ultraprompt:choose <intent>"
     }
   },
@@ -5830,7 +5830,7 @@
     "name": "incident-response",
     "title": "Incident Response",
     "tier": "specialist",
-    "description": "**DEFAULT for live or post-incident response — produces structured incident timeline, impact assessment, root cause, contributing factors, and an action-item list with owners.** Different from /debug (single-failure root-cause hunt), /postmortem-write (post-incident writeup only, not live response), /review (PR review). Triggers: 'incident, page, outage, postmortem, war room, live triage, sev-1, sev-2'.",
+    "description": "**DEFAULT for live or post-incident response \u2014 produces structured incident timeline, impact assessment, root cause, contributing factors, and an action-item list with owners.** Different from /debug (single-failure root-cause hunt), /postmortem-write (post-incident writeup only, not live response), /review (PR review). Triggers: 'incident, page, outage, postmortem, war room, live triage, sev-1, sev-2'.",
     "when_to_use": "Use when an incident is active or just-resolved and the team needs structured triage + postmortem scaffolding. Dispatches the incident-commander agent.",
     "argument_hint": "<incident-id|description>",
     "editing": false,
@@ -5839,7 +5839,7 @@
       "outage-response",
       "postmortem-scaffold"
     ],
-    "distinctive_judgment": "Live incident work is shaped by time pressure — the structure must be useful in the moment AND survive into postmortem. Lead with current state + blast radius, not history. Use the incident-postmortem-template.md playbook as the artifact skeleton.",
+    "distinctive_judgment": "Live incident work is shaped by time pressure \u2014 the structure must be useful in the moment AND survive into postmortem. Lead with current state + blast radius, not history. Use the incident-postmortem-template.md playbook as the artifact skeleton.",
     "first_signals": [
       "Symptom (what users see, what alerts fired)",
       "Time started; time-to-detect; time-to-acknowledge",
@@ -5856,7 +5856,7 @@
     ],
     "workflow_steps": [
       "Capture current state: symptom, blast radius, mitigation in flight.",
-      "Reconstruct the timeline: signals → detection → acknowledgement → mitigation → resolution.",
+      "Reconstruct the timeline: signals \u2192 detection \u2192 acknowledgement \u2192 mitigation \u2192 resolution.",
       "Distinguish root cause from contributing factors.",
       "Draft postmortem scaffold using _shared/playbooks/incident-postmortem-template.md.",
       "Action items: each with an owner and a measurable target.",
@@ -5931,7 +5931,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "live or post-incident response — produces structured incident timeline, impact assessment, root cause, contributing factors, and an action-item list with owners",
+      "default_for": "live or post-incident response \u2014 produces structured incident timeline, impact assessment, root cause, contributing factors, and an action-item list with owners",
       "produces": "incident response artifact + postmortem scaffold",
       "different_from": "/debug (single-failure root-cause hunt), /postmortem-write (post-incident writeup only), /review (PR review)",
       "triggers": "incident, page, outage, postmortem, war room, live triage, sev-1, sev-2"
@@ -5941,7 +5941,7 @@
     "name": "adr-author",
     "title": "ADR Author",
     "tier": "specialist",
-    "description": "**DEFAULT for authoring an Architecture Decision Record — produces a structured ADR with context, decision drivers, considered options, decision, consequences, and status, using the adr-template.md playbook.** Different from /architect (architecture exploration, not the record), /prd-technical (forward-looking product spec, not a decision record), /writer (general technical writing, not ADR-specific). Triggers: 'write an ADR, document this decision, decision record, ADR for X, architecture decision'.",
+    "description": "**DEFAULT for authoring an Architecture Decision Record \u2014 produces a structured ADR with context, decision drivers, considered options, decision, consequences, and status, using the adr-template.md playbook.** Different from /architect (architecture exploration, not the record), /prd-technical (forward-looking product spec, not a decision record), /writer (general technical writing, not ADR-specific). Triggers: 'write an ADR, document this decision, decision record, ADR for X, architecture decision'.",
     "when_to_use": "Use when an architectural decision has been made and needs to be recorded for posterity. Dispatches the writer agent with ADR artifact_type.",
     "argument_hint": "<decision title|short description>",
     "editing": false,
@@ -5961,7 +5961,7 @@
       "Strawmen alternatives that were never seriously considered",
       "No consequences section, or consequences-without-bad",
       "Status missing or wrong (e.g., 'accepted' when not yet implemented)",
-      "Decision drivers list missing — readers can't tell why",
+      "Decision drivers list missing \u2014 readers can't tell why",
       "Authored after the fact with hindsight bias"
     ],
     "workflow_steps": [
@@ -6042,7 +6042,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "authoring an Architecture Decision Record — produces a structured ADR with context, decision drivers, considered options, decision, consequences, and status, using the adr-template.md playbook",
+      "default_for": "authoring an Architecture Decision Record \u2014 produces a structured ADR with context, decision drivers, considered options, decision, consequences, and status, using the adr-template.md playbook",
       "produces": "ADR artifact (structured decision record)",
       "different_from": "/architect (architecture exploration, not the record), /prd-technical (forward-looking product spec, not a decision record), /writer (general technical writing, not ADR-specific)",
       "triggers": "write an ADR, document this decision, decision record, ADR for X, architecture decision"
@@ -6052,7 +6052,7 @@
     "name": "runbook-author",
     "title": "Runbook Author",
     "tier": "specialist",
-    "description": "**DEFAULT for authoring an operational runbook — produces a structured runbook with symptom, severity, verification commands, resolution steps, rollback steps, and escalation paths.** Different from /adr-author (decision record, not operational doc), /docs-sync (documentation drift correction, not runbook authoring), /incident-response (live triage, not the runbook). Triggers: 'write a runbook, on-call playbook, operational doc for X, how to fix Y, escalation path for Z'.",
+    "description": "**DEFAULT for authoring an operational runbook \u2014 produces a structured runbook with symptom, severity, verification commands, resolution steps, rollback steps, and escalation paths.** Different from /adr-author (decision record, not operational doc), /docs-sync (documentation drift correction, not runbook authoring), /incident-response (live triage, not the runbook). Triggers: 'write a runbook, on-call playbook, operational doc for X, how to fix Y, escalation path for Z'.",
     "when_to_use": "Use when an on-call engineer needs a step-by-step playbook for a known failure mode. Dispatches writer agent with artifact_type=runbook.",
     "argument_hint": "<symptom|operation>",
     "editing": false,
@@ -6070,8 +6070,8 @@
     ],
     "failure_modes": [
       "Steps that require interpretation ('check if the service looks healthy')",
-      "No verification commands — engineer can't tell if the symptom is real",
-      "No rollback — fix made things worse and there's no undo",
+      "No verification commands \u2014 engineer can't tell if the symptom is real",
+      "No rollback \u2014 fix made things worse and there's no undo",
       "Escalation chain missing or out of date",
       "Runbook written after the incident with hindsight bias"
     ],
@@ -6147,7 +6147,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "authoring an operational runbook — produces a structured runbook with symptom, severity, verification commands, resolution steps, rollback steps, and escalation paths",
+      "default_for": "authoring an operational runbook \u2014 produces a structured runbook with symptom, severity, verification commands, resolution steps, rollback steps, and escalation paths",
       "produces": "runbook artifact (operational playbook)",
       "different_from": "/adr-author (decision record, not operational doc), /docs-sync (documentation drift correction, not runbook authoring), /incident-response (live triage, not the runbook)",
       "triggers": "write a runbook, on-call playbook, operational doc for X, how to fix Y, escalation path for Z"
@@ -6157,8 +6157,8 @@
     "name": "cost-audit",
     "title": "Cost Audit",
     "tier": "specialist",
-    "description": "**DEFAULT for cost analysis spanning LLM tokens, cloud spend, and database query cost — produces a ranked findings list with monthly $-cost estimate, severity, and remediation suggestion per item.** Different from /auditor (general single-concern auditor — this skill is specifically cost-focused with $-amount evidence), /performance-pass (latency, not $-spend), /supply-chain-hardening (dependency security, not cost). Triggers: 'cost audit, llm cost, cloud cost, expensive query, n+1, runaway tokens, save money, hot path spending'.",
-    "when_to_use": "Use when the team wants to understand where money is leaking — LLM tokens in hot paths, cloud resources that aren't trimmed, N+1 query patterns, unbatched API calls. Dispatches data-analyst agent.",
+    "description": "**DEFAULT for cost analysis spanning LLM tokens, cloud spend, and database query cost \u2014 produces a ranked findings list with monthly $-cost estimate, severity, and remediation suggestion per item.** Different from /auditor (general single-concern auditor \u2014 this skill is specifically cost-focused with $-amount evidence), /performance-pass (latency, not $-spend), /supply-chain-hardening (dependency security, not cost). Triggers: 'cost audit, llm cost, cloud cost, expensive query, n+1, runaway tokens, save money, hot path spending'.",
+    "when_to_use": "Use when the team wants to understand where money is leaking \u2014 LLM tokens in hot paths, cloud resources that aren't trimmed, N+1 query patterns, unbatched API calls. Dispatches data-analyst agent.",
     "argument_hint": "[scope|focus: llm|cloud|db|all]",
     "editing": false,
     "aliases": [
@@ -6183,10 +6183,10 @@
     ],
     "workflow_steps": [
       "Identify scope (LLM / cloud / db / all).",
-      "For LLM: enumerate call sites; estimate monthly tokens × per-token cost.",
+      "For LLM: enumerate call sites; estimate monthly tokens \u00d7 per-token cost.",
       "For cloud: top 5 billing lines; identify untrimmed / overprovisioned.",
       "For DB: slow-query log; N+1 detection; missing-index detection.",
-      "Rank findings by monthly-$ impact × effort-to-fix.",
+      "Rank findings by monthly-$ impact \u00d7 effort-to-fix.",
       "Surface systemic patterns (e.g., 'all LLM calls use max_tokens=4096 even when 512 would do')."
     ],
     "validation_strategy": "Every finding has a $-amount estimate and remediation. No finding without dollars.",
@@ -6246,9 +6246,9 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "cost analysis spanning LLM tokens, cloud spend, and database query cost — produces a ranked findings list with monthly $-cost estimate, severity, and remediation suggestion per item",
+      "default_for": "cost analysis spanning LLM tokens, cloud spend, and database query cost \u2014 produces a ranked findings list with monthly $-cost estimate, severity, and remediation suggestion per item",
       "produces": "cost audit artifact ($-ranked findings list)",
-      "different_from": "/auditor (general single-concern auditor — this skill is specifically cost-focused with $-amount evidence), /performance-pass (latency, not $-spend), /supply-chain-hardening (dependency security, not cost)",
+      "different_from": "/auditor (general single-concern auditor \u2014 this skill is specifically cost-focused with $-amount evidence), /performance-pass (latency, not $-spend), /supply-chain-hardening (dependency security, not cost)",
       "triggers": "cost audit, llm cost, cloud cost, expensive query, n+1, runaway tokens, save money, hot path spending"
     }
   },
@@ -6256,8 +6256,8 @@
     "name": "git-workflow",
     "title": "Git Workflow",
     "tier": "specialist",
-    "description": "**DEFAULT for git workflow advice — branching strategy, commit hygiene, merge vs rebase, release branches, hotfix procedure, recovering from bad history.** Different from /review (PR diff review, not workflow), /release (release notes, not branching), /wip-save (snapshot to wip branch, not workflow advice). Triggers: 'branching strategy, merge or rebase, hotfix, release branch, lost a commit, git history, gitflow, trunk based development'.",
-    "when_to_use": "Use when the team needs git workflow advice — branching strategy, commit hygiene, history recovery. Inline-only (no agent dispatch); read-only.",
+    "description": "**DEFAULT for git workflow advice \u2014 branching strategy, commit hygiene, merge vs rebase, release branches, hotfix procedure, recovering from bad history.** Different from /review (PR diff review, not workflow), /release (release notes, not branching), /wip-save (snapshot to wip branch, not workflow advice). Triggers: 'branching strategy, merge or rebase, hotfix, release branch, lost a commit, git history, gitflow, trunk based development'.",
+    "when_to_use": "Use when the team needs git workflow advice \u2014 branching strategy, commit hygiene, history recovery. Inline-only (no agent dispatch); read-only.",
     "argument_hint": "[scenario]",
     "editing": false,
     "aliases": [
@@ -6349,7 +6349,7 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "git workflow advice — branching strategy, commit hygiene, merge vs rebase, release branches, hotfix procedure, recovering from bad history",
+      "default_for": "git workflow advice \u2014 branching strategy, commit hygiene, merge vs rebase, release branches, hotfix procedure, recovering from bad history",
       "produces": "git workflow recommendation with team-fit rationale",
       "different_from": "/review (PR diff review, not workflow), /release (release notes, not branching), /wip-save (snapshot to wip branch, not workflow advice)",
       "triggers": "branching strategy, merge or rebase, hotfix, release branch, lost a commit, git history, gitflow, trunk based development"
@@ -6359,7 +6359,7 @@
     "name": "onboarding-doc",
     "title": "Onboarding Doc",
     "tier": "specialist",
-    "description": "**DEFAULT for authoring a new-engineer onboarding doc — produces a structured onboarding guide with setup steps, codebase tour, key concepts, common workflows, and a 'first PR' exercise.** Different from /docs-sync (documentation drift correction, not new authoring), /repo-map (machine-readable repo map, not human-facing onboarding), /runbook-author (operational, not onboarding). Triggers: 'onboarding doc, new engineer setup, first day at the repo, codebase tour, getting started, dev environment setup'.",
+    "description": "**DEFAULT for authoring a new-engineer onboarding doc \u2014 produces a structured onboarding guide with setup steps, codebase tour, key concepts, common workflows, and a 'first PR' exercise.** Different from /docs-sync (documentation drift correction, not new authoring), /repo-map (machine-readable repo map, not human-facing onboarding), /runbook-author (operational, not onboarding). Triggers: 'onboarding doc, new engineer setup, first day at the repo, codebase tour, getting started, dev environment setup'.",
     "when_to_use": "Use when the team wants a self-serve onboarding guide for new engineers. Dispatches writer agent.",
     "argument_hint": "[target audience: backend|frontend|fullstack|infra]",
     "editing": false,
@@ -6367,19 +6367,19 @@
       "new-engineer-guide",
       "onboarding"
     ],
-    "distinctive_judgment": "Onboarding docs decay fast. Lean on existing automation (devcontainer, makefile, Justfile, scripts/) instead of reproducing setup steps that will go stale. The 'first PR exercise' should be a real, mergeable task — not synthetic.",
+    "distinctive_judgment": "Onboarding docs decay fast. Lean on existing automation (devcontainer, makefile, Justfile, scripts/) instead of reproducing setup steps that will go stale. The 'first PR exercise' should be a real, mergeable task \u2014 not synthetic.",
     "first_signals": [
       "Existing setup automation (devcontainer.json, Dockerfile.dev, Justfile, scripts/setup.sh)",
       "Codebase structure (entry points, services, packages)",
       "Common workflows (run dev server, run tests, deploy)",
       "Key concepts that aren't obvious from code (auth model, data flow, feature flags)",
-      "Existing onboarding doc (if any) — version it before rewriting"
+      "Existing onboarding doc (if any) \u2014 version it before rewriting"
     ],
     "failure_modes": [
       "Reproducing setup steps the devcontainer / Dockerfile already encodes",
       "Walls of text the new engineer won't read",
       "Synthetic 'first PR' that the engineer can't actually merge",
-      "Missing the 'why' for key concepts — engineer learns *what* but not *why*",
+      "Missing the 'why' for key concepts \u2014 engineer learns *what* but not *why*",
       "Stale links to deprecated docs"
     ],
     "workflow_steps": [
@@ -6459,10 +6459,134 @@
     ],
     "output_style": "evidence-led",
     "description_meta": {
-      "default_for": "authoring a new-engineer onboarding doc — produces a structured onboarding guide with setup steps, codebase tour, key concepts, common workflows, and a 'first PR' exercise",
+      "default_for": "authoring a new-engineer onboarding doc \u2014 produces a structured onboarding guide with setup steps, codebase tour, key concepts, common workflows, and a 'first PR' exercise",
       "produces": "onboarding doc artifact (new-engineer guide)",
       "different_from": "/docs-sync (documentation drift correction, not new authoring), /repo-map (machine-readable repo map, not human-facing onboarding), /runbook-author (operational, not onboarding)",
       "triggers": "onboarding doc, new engineer setup, first day at the repo, codebase tour, getting started, dev environment setup"
+    }
+  },
+  {
+    "name": "vibe",
+    "title": "Vibe",
+    "tier": "core",
+    "description": "**DEFAULT for VIBE CODING \u2014 surface 4\u20138 prompt-path options across 2\u20134 lanes via a two-stage AskUserQuestion picker, then expand the selected seed into a full detailed prompt: dispatches the `vibe-curator` agent to produce a typed `prompt_path_set.v1` artifact, runs lane-pick \u2192 path-pick via AskUserQuestion, and drafts a ready-to-run prompt from the chosen seed.** Different from /choose (routes an existing intent to an existing skill \u2014 this generates new intent options), /idea-triage (ranks pre-supplied ideas \u2014 this generates them), /innovation-lead (long-form ideas without picker UX or per-path seeds). Triggers: 'vibe with me, vibe coding, what should I build, not sure what to work on, help me explore options, kicking around ideas, give me some directions, show me what I could build'.",
+    "when_to_use": "Use when the user has open-ended coding intent and would benefit from picking between concrete next-step paths before committing. Auto-invoked by the vibe-detect UserPromptSubmit hook when vibe phrases are detected; manually invokable as `/ultraprompt:vibe [optional intent]`. Do not use when the intent is already specific (use /build, /refactor, /debug) or when you need product ideation outside a coding repo (use /innovation-lead).",
+    "argument_hint": "[optional intent \u2014 empty for repo-scan]",
+    "editing": false,
+    "aliases": [
+      "vibe-coding",
+      "pick-direction"
+    ],
+    "distinctive_judgment": "Generation is dispatched off the main thread; the orchestrator only runs the two-stage picker and the expansion step. AskUserQuestion's hard 4-option cap is honored by grouping the curator's paths into lanes for stage 1 and showing \u22644 paths per lane in stage 2. The expanded prompt is surfaced for the user to approve or invoke \u2014 it is never auto-executed.",
+    "first_signals": [
+      "User intent from `$ARGUMENTS` or the inline directive payload from the vibe-detect hook",
+      "Repo scan signals available to vibe-curator (README, CHANGELOG, TODOs, recent dirs)",
+      "Output of `Task(subagent_type='vibe-curator', ...)` \u2014 a `prompt_path_set.v1` YAML artifact",
+      "`mcp__plugin_ultraprompt_ultraprompt-meta__artifact_validate` result on the artifact"
+    ],
+    "failure_modes": [
+      "Trying to fit >4 options into one AskUserQuestion panel \u2014 always use the two-stage lane\u2192path split when paths span \u22652 lanes",
+      "Skipping the artifact_validate gate and surfacing an invalid curator artifact to the picker",
+      "Auto-invoking the selected expansion (running /build immediately) \u2014 surface the expanded prompt; let the user decide to invoke",
+      "Showing a stage-1 lane panel when only 1 lane has paths \u2014 collapse to a single stage-2 panel in that case",
+      "Failing to log path/lane selection telemetry \u2014 the learning queue depends on these events",
+      "Stuffing the full expanded prompt into the curator's `seed` field \u2014 the seed is a directive, the expansion is the skill's job"
+    ],
+    "workflow_steps": [
+      "Resolve intent from `$ARGUMENTS` or the inline directive payload. If empty, note 'repo-scan mode' for the curator.",
+      "Dispatch `Task(subagent_type='vibe-curator', description='Generate vibe paths', prompt=<intent + repo context hint>)`.",
+      "Receive the curator's YAML artifact. Call `mcp__plugin_ultraprompt_ultraprompt-meta__artifact_validate` against the `prompt_path_set.v1` schema. On failure, surface the validation error and abort (do not show a half-baked picker).",
+      "Group paths by lane. If \u22652 lanes have paths, run `AskUserQuestion` (stage 1): up to 4 lane options, each with a preview listing the top 1\u20132 path labels in that lane. If only 1 lane, skip stage 1.",
+      "Run `AskUserQuestion` (stage 2): up to 4 paths within the chosen lane, each option's preview = the path's `preview` + a one-line risk/confidence tag. Cap at 4 by confidence-descending if needed.",
+      "Expand the selected path: take the user's original intent + the path's `seed` + `rationale` + `expected_files`, and draft a full, detailed prompt in evidence-led style. The expanded prompt should be ready to paste into a fresh agent invocation.",
+      "Surface the expanded prompt to the user. Do not auto-execute it; offer the matching follow-up skill (`/ultraprompt:build`, `/ultraprompt:refactor`, etc.) based on the chosen lane.",
+      "Log telemetry: `vibe_paths_generated` (after curator), `vibe_lane_picked` (after stage 1), `vibe_path_picked` (after stage 2), `vibe_prompt_drafted` (after expansion). Use `scripts/ledger-v2.py:write_event`, matching the pattern in `hooks/recipes/user-prompt-route-suggest.py`."
+    ],
+    "validation_strategy": "Behavioral. Verify: (a) vibe-curator was dispatched and returned a schema-valid artifact; (b) lane and path AskUserQuestion panels were shown (or stage 1 was correctly skipped when only one lane had paths); (c) the expanded prompt was produced and surfaced; (d) telemetry events were written. The skill writes no files; success is the user receiving an expanded prompt or explicitly cancelling.",
+    "output_contract": "Original Intent | Generation Trigger (hook directive | manual) | Curator Artifact Summary (lane counts + path count) | Lane Choice (if stage 1 shown) | Path Choice | Expanded Prompt | Suggested Follow-up Skill | Telemetry Events Written",
+    "subagent_delegation": "Default dispatch target is `vibe-curator` for the generation phase. The orchestration phases (picker, expansion) run inline in the main thread because they are interactive (AskUserQuestion).",
+    "dispatch_to": {
+      "agent": "vibe-curator",
+      "phase": "analysis"
+    },
+    "primary_agent": "vibe-curator",
+    "secondary_agents": [],
+    "preferred_panel": null,
+    "outputs": [
+      "Original Intent",
+      "Expanded Prompt"
+    ],
+    "mode": "read_only",
+    "risk": "low",
+    "confirmation": "interactive",
+    "cognitive": {
+      "primary_agent": "vibe-curator",
+      "secondary_agents": [],
+      "preferred_panel": null,
+      "outputs": [
+        "Original Intent",
+        "Expanded Prompt"
+      ],
+      "mode": "read_only",
+      "risk": "low",
+      "confirmation": "interactive"
+    },
+    "output_schema": [
+      {
+        "field": "Original Intent",
+        "type": "section",
+        "required": true,
+        "evidence_rule": "verbatim user prompt or 'repo-scan mode'"
+      },
+      {
+        "field": "Generation Trigger",
+        "type": "section",
+        "required": true,
+        "evidence_rule": "hook directive | manual invocation"
+      },
+      {
+        "field": "Curator Artifact Summary",
+        "type": "section",
+        "required": true,
+        "evidence_rule": "lane counts + path count + artifact_validate result"
+      },
+      {
+        "field": "Lane Choice",
+        "type": "section",
+        "required": false,
+        "evidence_rule": "chosen lane name (omit if stage 1 was skipped)"
+      },
+      {
+        "field": "Path Choice",
+        "type": "section",
+        "required": true,
+        "evidence_rule": "chosen path label + fingerprint"
+      },
+      {
+        "field": "Expanded Prompt",
+        "type": "section",
+        "required": true,
+        "evidence_rule": "full drafted prompt, ready to paste"
+      },
+      {
+        "field": "Suggested Follow-up Skill",
+        "type": "section",
+        "required": true,
+        "evidence_rule": "ultraprompt skill best matching the chosen lane"
+      },
+      {
+        "field": "Telemetry Events Written",
+        "type": "section",
+        "required": true,
+        "evidence_rule": "list of ledger event names written"
+      }
+    ],
+    "output_style": "evidence-led",
+    "description_meta": {
+      "default_for": "VIBE CODING \u2014 surface 4\u20138 prompt-path options across 2\u20134 lanes via a two-stage AskUserQuestion picker, then expand the selected seed into a full detailed prompt",
+      "produces": "dispatches the vibe-curator agent to produce a typed prompt_path_set.v1 artifact, runs lane-pick \u2192 path-pick via AskUserQuestion, and drafts a ready-to-run prompt from the chosen seed",
+      "different_from": "/choose (routes existing intent to existing skill \u2014 this generates new intent options), /idea-triage (ranks pre-supplied ideas \u2014 this generates them), /innovation-lead (long-form ideas without picker UX or per-path seeds)",
+      "triggers": "vibe with me, vibe coding, what should I build, not sure what to work on, help me explore options, kicking around ideas, give me some directions, show me what I could build"
     }
   }
 ]

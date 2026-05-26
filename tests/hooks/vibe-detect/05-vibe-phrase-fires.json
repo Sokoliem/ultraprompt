@@ -1,0 +1,5 @@
+{
+  "input": {"prompt": "not sure what to build next in this repo, any ideas?"},
+  "expected_exit": 0,
+  "stdout_contains": "ultraprompt vibe routing"
+}

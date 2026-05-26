@@ -34,6 +34,7 @@ HOOK_TO_SCRIPT = {
     "subagent-scaffold": HOOKS_DIR / "subagent-scaffold.py",
     "user-prompt-route-suggest": HOOKS_DIR / "user-prompt-route-suggest.py",
     "post-tool-use-ledger": HOOKS_DIR / "post-tool-use-ledger.py",
+    "vibe-detect": HOOKS_DIR / "vibe-detect.py",
 }
 
 

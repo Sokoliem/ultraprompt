@@ -159,6 +159,11 @@ SCHEMAS = {
         "required": ["schema", "plugin_version", "nodes", "edges", "health", "source_hash"],
         "valid_schema": ["capability_graph.v1"],
     },
+    "prompt_path_set": {
+        "required": ["schema", "intent", "paths"],
+        "valid_schema": ["prompt_path_set.v1"],
+        "min_lengths": {"intent": 1},
+    },
 }
 
 

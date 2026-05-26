@@ -107,6 +107,28 @@ def main() -> int:
     }
     cases.append(("valid_capability_graph", validator.validate("capability_graph", graph).get("ok") is True))
 
+    prompt_path_set = {
+        "schema": "prompt_path_set.v1",
+        "intent": "i'm not sure what to build next, kicking around ideas",
+        "paths": [
+            {
+                "lane": "new-feature",
+                "label": "Add JSON output mode to the CLI",
+                "preview": "Wire --json to existing renderers for scripting use",
+                "seed": "Add a --json flag to the main CLI; route output through a json renderer.",
+                "rationale": "CLI already has multiple renderers; JSON unlocks scripting use cases.",
+                "confidence": "high",
+                "expected_files": ["src/cli/render.ts"],
+                "expected_risk": "safe",
+                "fingerprint": "abcdef012345",
+            }
+        ],
+    }
+    cases.append(("valid_prompt_path_set", validator.validate("prompt_path_set", prompt_path_set).get("ok") is True))
+    bad_set = json.loads(json.dumps(prompt_path_set))
+    del bad_set["intent"]
+    cases.append(("invalid_prompt_path_set_missing_intent", validator.validate("prompt_path_set", bad_set).get("ok") is False))
+
     failures = [name for name, ok in cases if not ok]
     result = {"ok": not failures, "checked": [name for name, _ in cases], "failures": failures}
     print(json.dumps(result, indent=2))

@@ -77,6 +77,11 @@
     },
     {
       "relation": "validated_by",
+      "source": "artifact:prompt_path_set",
+      "target": "validator:artifact-validate.py"
+    },
+    {
+      "relation": "validated_by",
       "source": "artifact:release_readiness_report",
       "target": "validator:artifact-validate.py"
     },
@@ -1958,6 +1963,17 @@
       "relation": "emits",
       "source": "skill:tui-design-innovate",
       "target": "artifact:structured_output"
+    },
+    {
+      "phase": "analysis",
+      "relation": "dispatches_to",
+      "source": "skill:vibe",
+      "target": "agent:vibe-curator"
+    },
+    {
+      "relation": "emits",
+      "source": "skill:vibe",
+      "target": "artifact:structured_output"
     }
   ],
   "generated_at": null,
@@ -2170,6 +2186,13 @@
       "id": "agent:test-strategist",
       "kind": "agent",
       "label": "test-strategist",
+      "risk": "low"
+    },
+    {
+      "color": "cyan",
+      "id": "agent:vibe-curator",
+      "kind": "agent",
+      "label": "vibe-curator",
       "risk": "low"
     },
     {
@@ -2391,6 +2414,11 @@
       "id": "artifact:problem_framing",
       "kind": "artifact_schema",
       "label": "problem_framing"
+    },
+    {
+      "id": "artifact:prompt_path_set",
+      "kind": "artifact_schema",
+      "label": "prompt_path_set"
     },
     {
       "id": "artifact:recovery plan",
@@ -2746,6 +2774,11 @@
       "id": "hook:user-prompt-route-suggest.py",
       "kind": "hook",
       "label": "user-prompt-route-suggest.py"
+    },
+    {
+      "id": "hook:vibe-detect.py",
+      "kind": "hook",
+      "label": "vibe-detect.py"
     },
     {
       "id": "ledger:cognitive-events",
@@ -4145,6 +4178,15 @@
       "tier": "specialist"
     },
     {
+      "confirmation": "interactive",
+      "id": "skill:vibe",
+      "kind": "skill",
+      "label": "vibe",
+      "mode": "read_only",
+      "risk": "low",
+      "tier": "core"
+    },
+    {
       "id": "validator:artifact-validate.py",
       "kind": "validator",
       "label": "artifact-validate.py"
@@ -4212,5 +4254,5 @@
   ],
   "plugin_version": "9.0.0",
   "schema": "capability_graph.v1",
-  "source_hash": "a1cdef2e2098ac17c064cd62319f114e29b14c2fc0177bc5b4654229707b7064"
+  "source_hash": "a26b0acec288d410da3ef2d2b68c133c20361525f642df5dc559bef256536f89"
 }

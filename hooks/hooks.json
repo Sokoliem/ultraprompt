@@ -20,6 +20,15 @@
             "timeout": 4
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/recipes/vibe-detect.py",
+            "timeout": 3
+          }
+        ]
       }
     ],
     "PreToolUse": [

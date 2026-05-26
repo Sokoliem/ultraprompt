@@ -1,0 +1,5 @@
+{
+  "input": {"prompt": "any ideas for this project?"},
+  "expected_exit": 0,
+  "stdout_contains": "ultraprompt vibe routing"
+}

@@ -46,6 +46,7 @@ stop_validation_check_enabled = false
 route_suggest_enabled = true
 output_style_inject_enabled = true
 personal_lanes_enabled = true
+vibe_detect_enabled = true
 
 [route_suggest]
 # UserPromptSubmit nudge: when a free-form prompt scores high against the V8
@@ -78,3 +79,19 @@ max_chars = 4000
 [claim_check]
 enabled = true
 min_confidence_for_warning = 0.6
+
+[vibe]
+# vibe-detect UserPromptSubmit hook + /ultraprompt:vibe skill.
+# `min_tokens` mirrors route_suggest: shorter prompts are treated as trivial.
+# `short_open_ended_max_tokens` controls when a short prompt with no imperative
+# verb is treated as vibe intent (catches phrases like "any ideas?" without
+# requiring an explicit vibe keyword). Raise to suppress false positives.
+min_tokens = 4
+short_open_ended_max_tokens = 10
+only_unrouted = true
+# Generation bounds for the vibe-curator agent. Honored by the agent body.
+min_paths = 4
+max_paths = 8
+# Fixed lane taxonomy. The vibe-curator artifact and the two-stage picker rely
+# on these exact strings; do not edit unless you also update the schema enum.
+lanes = ["new-feature", "refactor-or-cleanup", "bug-fix-or-investigate", "explore-or-prototype"]

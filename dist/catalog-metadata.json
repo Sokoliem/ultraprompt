@@ -31,21 +31,22 @@
     "technical-product-architect",
     "test-gap-analyst",
     "test-strategist",
+    "vibe-curator",
     "wiring-gap-inspector",
     "workflow-planner",
     "writer"
   ],
   "counts": {
-    "agent_specs": 34,
-    "agents": 34,
-    "artifact_schemas": 17,
+    "agent_specs": 35,
+    "agents": 35,
+    "artifact_schemas": 18,
     "commands": 33,
     "mcp_tools": 42,
     "output_styles": 2,
     "panels": 12,
-    "registered_hooks": 10,
-    "skill_specs": 55,
-    "skills": 55
+    "registered_hooks": 11,
+    "skill_specs": 56,
+    "skills": 56
   },
   "plugin_version": "9.0.0",
   "schema_version": 1,
@@ -104,11 +105,12 @@
     "runbook-author",
     "cost-audit",
     "git-workflow",
-    "onboarding-doc"
+    "onboarding-doc",
+    "vibe"
   ],
-  "source_hash": "d40cd04c57bb5273b4682757d35470b0711831515b697b5ba162c33b7a2634fa",
+  "source_hash": "c5571225f7c71339904169547948e653b6dbce224fe5530f458487d1b8546cd4",
   "tiers": {
-    "core": 29,
+    "core": 30,
     "ecosystem": 5,
     "specialist": 21
   }

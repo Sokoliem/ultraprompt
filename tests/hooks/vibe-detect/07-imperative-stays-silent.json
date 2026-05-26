@@ -1,0 +1,4 @@
+{
+  "input": {"prompt": "fix the failing auth test in src/auth/login.test.ts please"},
+  "expected_exit": 0
+}

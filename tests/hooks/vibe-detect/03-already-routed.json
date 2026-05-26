@@ -1,0 +1,4 @@
+{
+  "input": {"prompt": "/ultraprompt:vibe explore options please"},
+  "expected_exit": 0
+}

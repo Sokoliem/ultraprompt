@@ -1719,7 +1719,7 @@ TOOLS: dict[str, tuple[str, dict[str, Any], Callable[[dict[str, Any]], dict[str,
         {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False},
     ),
     "dashboard_launch": (
-        "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (29 agents, 48 skills, 12 panels, 42 MCP tools, 30 commands, 17 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent — if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
+        "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent — if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
         {
             "type": "object",
             "properties": {

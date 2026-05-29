@@ -59,11 +59,37 @@ def check_discovery():
     skills = sum(1 for p in (ROOT / "skills").iterdir() if p.is_dir())
     agents = sum(1 for p in (ROOT / "agents").glob("*.md"))
     commands = sum(1 for p in (ROOT / "commands").glob("*.md"))
-    return {
+    result = {
         "skills_discovered": skills,
         "agents_discovered": agents,
         "commands_discovered": commands,
     }
+    # Cross-check filesystem walk against canonical catalog counts. Mismatch means
+    # one source of truth has drifted from the other — surface as a finding so a
+    # silent regeneration miss doesn't masquerade as a green scorecard.
+    catalog_path = ROOT / "dist" / "catalog-metadata.json"
+    try:
+        counts = json.loads(catalog_path.read_text(encoding="utf-8")).get("counts", {})
+        catalog_skills = int(counts.get("skills", -1))
+        catalog_agents = int(counts.get("agents", -1))
+        catalog_commands = int(counts.get("commands", -1))
+        mismatches = []
+        if catalog_skills != skills:
+            mismatches.append(f"skills: walk={skills} catalog={catalog_skills}")
+        if catalog_agents != agents:
+            mismatches.append(f"agents: walk={agents} catalog={catalog_agents}")
+        if catalog_commands != commands:
+            mismatches.append(f"commands: walk={commands} catalog={catalog_commands}")
+        result["catalog_consistency"] = {
+            "ok": not mismatches,
+            "mismatches": mismatches,
+        }
+    except Exception as exc:
+        result["catalog_consistency"] = {
+            "ok": False,
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+    return result
 
 
 def check_routing():
@@ -200,12 +226,23 @@ def main():
     if not sp.get("present") or sp.get("error"):
         blockers.append("safety policy missing or unparseable")
 
+    # Catalog-walk vs catalog-counts mismatch is a regeneration miss — degrade to risky.
+    cat_consistency = s["discovery"].get("catalog_consistency") or {}
+    warnings: list[str] = []
+    if s["docs"]["stale_version_refs"] > 0:
+        warnings.append(f"{s['docs']['stale_version_refs']} stale version refs")
+    if not cat_consistency.get("ok", True):
+        if cat_consistency.get("mismatches"):
+            warnings.append(f"catalog-walk drift: {', '.join(cat_consistency['mismatches'])}")
+        elif cat_consistency.get("error"):
+            warnings.append(f"catalog-walk read error: {cat_consistency['error']}")
+
     if blockers:
         s["conclusion"] = "blocked"
         s["blockers"] = blockers
-    elif s["docs"]["stale_version_refs"] > 0:
+    elif warnings:
         s["conclusion"] = "risky"
-        s["warnings"] = [f"{s['docs']['stale_version_refs']} stale version refs"]
+        s["warnings"] = warnings
     else:
         s["conclusion"] = "ready"
 

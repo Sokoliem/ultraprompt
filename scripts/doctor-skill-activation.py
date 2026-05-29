@@ -86,7 +86,7 @@ def main():
                 if len(never_fired) > 20:
                     print(f"  ... and {len(never_fired) - 20} more")
         except Exception as e:
-            pass
+            print(f"  (skill-index read error: {type(e).__name__}: {e})", file=sys.stderr)
 
     print()
     print("MCP tool calls:")

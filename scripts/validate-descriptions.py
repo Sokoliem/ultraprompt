@@ -56,6 +56,7 @@ MANAGED_COUNT_FILES = [
     ROOT / ".claude-plugin" / "marketplace.json",
     ROOT / "commands" / "menu.md",
     ROOT / "commands" / "dashboard.md",
+    ROOT / "mcp" / "ultraprompt_meta.py",
 ]
 
 # Mojibake byte patterns (cp1252-rendered UTF-8): match the decoded string form

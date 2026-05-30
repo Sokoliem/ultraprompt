@@ -1,0 +1,49 @@
+name: Ultraprompt validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  ULTRAPROMPT_STRICT_DESCRIPTIONS: "1"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Description lint (V8.8)
+        run: python3 scripts/validate-descriptions.py
+
+      - name: Catalog consistency audit
+        run: python3 scripts/audit-catalog-consistency.py
+
+      - name: Manifest + version drift gate (V9.2)
+        run: python3 scripts/render-manifest-template.py --check
+
+      - name: Release-integrity tests (V9.2)
+        run: python3 scripts/run-release-integrity-tests.py
+
+      - name: Plugin validator
+        run: python3 scripts/validate-plugin.py
+
+      - name: MCP self-test
+        run: python3 mcp/ultraprompt_meta.py --self-test > /dev/null
+
+      - name: Hook tests
+        run: python3 scripts/run-hook-tests.py
+
+      - name: Router bench (non-regression)
+        run: python3 scripts/run-router-bench.py
+
+      - name: Release scorecard
+        run: python3 scripts/release-scorecard.py

@@ -1,6 +1,6 @@
 # Contributing to Ultraprompt
 
-Thank you for your interest. Ultraprompt is a Claude Code + Codex plugin with 55+ skills, 34+ agents, 33+ commands, 42+ MCP tools, 9+ hooks, and a templated catalog. This guide is your shortest path from clone to merged PR.
+Thank you for your interest. Ultraprompt is a Claude Code + Codex plugin with a broad, templated catalog of skills, agents, commands, MCP tools, and hooks. This guide is your shortest path from clone to merged PR. (Exact catalog counts live in `dist/catalog-metadata.json`, computed from disk — this doc deliberately avoids hard-coded numbers that would drift.)
 
 ## Quickstart
 
@@ -130,6 +130,7 @@ python3 scripts/validate-plugin.py
 python3 scripts/run-hook-tests.py
 python3 scripts/run-router-bench.py
 python3 scripts/render-manifest-template.py --check
+python3 scripts/audit-catalog-counts.py
 python3 scripts/release-scorecard.py
 ```
 

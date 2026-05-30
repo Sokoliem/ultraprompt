@@ -251,10 +251,21 @@ def validate_marketplace(errors: list[str], warnings: list[str]) -> bool:
 
 
 def validate_mcp(errors: list[str], warnings: list[str]) -> int:
+    """Count configured MCP servers.
+
+    The canonical `.mcp.json` referenced by plugin.json is produced at install
+    time by copying the platform variant (`.mcp.windows.json` on Windows, the
+    POSIX equivalent elsewhere). In the source tree only the variant is tracked,
+    so a missing `.mcp.json` is expected and not a warning — we validate the
+    variant instead. Only warn if no MCP manifest exists at all.
+    """
     path = ROOT / ".mcp.json"
     if not path.exists():
-        warnings.append(".mcp.json: missing")
-        return 0
+        variant = ROOT / ".mcp.windows.json"
+        if not variant.exists():
+            warnings.append(".mcp.json: missing (no .mcp.windows.json source variant either)")
+            return 0
+        path = variant
     data = load_json(path, errors) or {}
     return len(data.get("mcpServers") or {})
 

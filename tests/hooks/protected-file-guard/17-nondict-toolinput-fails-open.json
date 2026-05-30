@@ -1,0 +1,4 @@
+{
+  "input": {"tool_input": "notadict"},
+  "expected_exit": 0
+}

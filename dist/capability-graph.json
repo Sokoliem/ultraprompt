@@ -4252,7 +4252,7 @@
       "label": "validate-plugin.py"
     }
   ],
-  "plugin_version": "9.2.0",
+  "plugin_version": "9.3.0",
   "schema": "capability_graph.v1",
-  "source_hash": "c59a198b244a8c03f68c4bd5302b285730ff346dbbd093403a7b330ecd82232d"
+  "source_hash": "c98946f511eb0c22fc94e8fda2687bad1864c02b53336782c7f7afb23e4313a4"
 }

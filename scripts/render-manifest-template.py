@@ -44,6 +44,7 @@ TEMPLATES: list[tuple[Path, Path]] = [
     (ROOT / "commands" / "menu.md.tmpl", ROOT / "commands" / "menu.md"),
     (ROOT / "commands" / "dashboard.md.tmpl", ROOT / "commands" / "dashboard.md"),
     (ROOT / "README.md.tmpl", ROOT / "README.md"),
+    (ROOT / "INSTALL.md.tmpl", ROOT / "INSTALL.md"),
 ]
 
 # Version sites that are NOT rendered from a .tmpl and so must be asserted equal

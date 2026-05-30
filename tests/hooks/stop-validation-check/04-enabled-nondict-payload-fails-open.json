@@ -1,0 +1,5 @@
+{
+  "input": [1, 2, 3],
+  "env": {"ULTRAPROMPT_ENABLE_STOP_HOOK": "1"},
+  "expected_exit": 0
+}

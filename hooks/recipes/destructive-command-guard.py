@@ -11,6 +11,9 @@ Override: ULTRAPROMPT_DISABLE_HOOKS=1 disables ALL hooks (use sparingly).
 Override: ULTRAPROMPT_ALLOW_HIGH_RISK=1 allows HIGH but not CRITICAL.
 
 Fail-open on errors. Records all classifications to V8 ledger for evidence.
+The whole flow runs inside main() under a top-level try/except → exit 0 so an
+unexpected payload shape (e.g. a non-dict tool_input) degrades to allow rather
+than surfacing a traceback on the user's tool call (v9.3 hardening).
 """
 from __future__ import annotations
 
@@ -20,18 +23,6 @@ import os
 import re
 import sys
 from pathlib import Path
-
-if os.environ.get("ULTRAPROMPT_DISABLE_HOOKS") == "1":
-    sys.exit(0)
-
-try:
-    payload = json.load(sys.stdin)
-except Exception:
-    sys.exit(0)
-
-command = str(payload.get("tool_input", {}).get("command", "")) if isinstance(payload, dict) else ""
-if not command:
-    sys.exit(0)
 
 
 # ============================================================
@@ -73,29 +64,19 @@ def _load_safety_policy() -> tuple[list, list, list, int]:
         return [], [], [], 0
 
 
-_CRIT_COMPILED, _HIGH_COMPILED, _MED_COMPILED, _POLICY_VERSION = _load_safety_policy()
-
-
-def classify(cmd: str) -> tuple[str, str | None]:
-    """Return (risk_class, matched_pattern_description). Patterns pre-compiled at module load."""
-    for pat, desc in _CRIT_COMPILED:
+def classify(cmd: str, crit: list, high: list, med: list) -> tuple[str, str | None]:
+    """Return (risk_class, matched_pattern_description). Patterns supplied by caller."""
+    for pat, desc in crit:
         if pat.search(cmd):
             return "CRITICAL", desc
-    for pat, desc in _HIGH_COMPILED:
+    for pat, desc in high:
         if pat.search(cmd):
             return "HIGH", desc
-    for pat, desc in _MED_COMPILED:
+    for pat, desc in med:
         if pat.search(cmd):
             return "MEDIUM", desc
     return "LOW", None
 
-
-risk_class, reason = classify(command)
-
-
-# ============================================================
-# Telemetry — log every classification to V8 ledger
-# ============================================================
 
 def _ledger_write(event_type: str, **kwargs) -> None:
     try:
@@ -109,51 +90,73 @@ def _ledger_write(event_type: str, **kwargs) -> None:
         pass
 
 
-# Always log the classification
-_ledger_write(
-    "destructive_guard_classification",
-    risk_class=risk_class,
-    matched_pattern=reason,
-    command_excerpt=command[:120],
-)
+def main() -> int:
+    if os.environ.get("ULTRAPROMPT_DISABLE_HOOKS") == "1":
+        return 0
 
+    try:
+        payload = json.load(sys.stdin)
+    except Exception:
+        return 0
 
-# ============================================================
-# Action by risk class
-# ============================================================
+    command = str(payload.get("tool_input", {}).get("command", "")) if isinstance(payload, dict) else ""
+    if not command:
+        return 0
 
-if risk_class == "LOW":
-    sys.exit(0)  # Allow silently
+    crit, high, med, _policy_version = _load_safety_policy()
+    risk_class, reason = classify(command, crit, high, med)
 
-if risk_class == "MEDIUM":
-    # Warn-only via stderr; allow execution
-    print(
-        f"[Ultraprompt destructive-guard] MEDIUM-risk command detected: {reason}. "
-        f"Command runs but is logged.",
-        file=sys.stderr,
+    # Always log the classification
+    _ledger_write(
+        "destructive_guard_classification",
+        risk_class=risk_class,
+        matched_pattern=reason,
+        command_excerpt=command[:120],
     )
-    sys.exit(0)
 
-if risk_class == "HIGH":
-    if os.environ.get("ULTRAPROMPT_ALLOW_HIGH_RISK") == "1":
+    # ------------------------------------------------------------
+    # Action by risk class
+    # ------------------------------------------------------------
+    if risk_class == "LOW":
+        return 0  # Allow silently
+
+    if risk_class == "MEDIUM":
+        # Warn-only via stderr; allow execution
         print(
-            f"[Ultraprompt destructive-guard] HIGH-risk allowed by override: {reason}",
+            f"[Ultraprompt destructive-guard] MEDIUM-risk command detected: {reason}. "
+            f"Command runs but is logged.",
             file=sys.stderr,
         )
-        sys.exit(0)
+        return 0
+
+    if risk_class == "HIGH":
+        if os.environ.get("ULTRAPROMPT_ALLOW_HIGH_RISK") == "1":
+            print(
+                f"[Ultraprompt destructive-guard] HIGH-risk allowed by override: {reason}",
+                file=sys.stderr,
+            )
+            return 0
+        print(
+            f"[Ultraprompt destructive-guard] BLOCKED HIGH-risk command: {reason}.\n"
+            f"Override: ULTRAPROMPT_ALLOW_HIGH_RISK=1 for this session (use carefully).\n"
+            f"Full bypass: ULTRAPROMPT_DISABLE_HOOKS=1 (NOT recommended).",
+            file=sys.stderr,
+        )
+        return 2
+
+    # CRITICAL — block unconditionally
     print(
-        f"[Ultraprompt destructive-guard] BLOCKED HIGH-risk command: {reason}.\n"
-        f"Override: ULTRAPROMPT_ALLOW_HIGH_RISK=1 for this session (use carefully).\n"
-        f"Full bypass: ULTRAPROMPT_DISABLE_HOOKS=1 (NOT recommended).",
+        f"[Ultraprompt destructive-guard] BLOCKED CRITICAL-risk command: {reason}.\n"
+        f"This pattern is blocked regardless of override flags due to data-loss / security risk.\n"
+        f"If you genuinely need this, run the command outside the agent session.",
         file=sys.stderr,
     )
-    sys.exit(2)
+    return 2
 
-# CRITICAL — block unconditionally
-print(
-    f"[Ultraprompt destructive-guard] BLOCKED CRITICAL-risk command: {reason}.\n"
-    f"This pattern is blocked regardless of override flags due to data-loss / security risk.\n"
-    f"If you genuinely need this, run the command outside the agent session.",
-    file=sys.stderr,
-)
-sys.exit(2)
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except Exception:
+        # Defense-in-depth: never let an unexpected exception block a tool call.
+        sys.exit(0)

@@ -1,5 +1,48 @@
 # Changelog
 
+## [9.2.0] - 2026-05-29
+
+**V9.2.0 — release-integrity pass.** Closes the class of bug where V9.1's work
+shipped to the repo but never to users: the rendered `plugin.json` kept
+reverting to `9.0.0` because the version was hard-coded in the `.tmpl` source
+and the renderer only tokenized catalog *counts*, never the version — and the
+drift gate was blind to it (`--check` returned exit 0 while the manifest, the
+CHANGELOG, and the Codex manifest disagreed).
+
+### Added
+- **Single `VERSION` file** as the source of truth for the plugin version.
+  `render-manifest-template.py` reads it and substitutes `${version}` /
+  `${version_mm}` into the manifest templates.
+- **Version-drift guard**: `render-manifest-template.py --check` now fails when
+  the VERSION file disagrees with the CHANGELOG top entry, the Codex manifest,
+  or the rendered Claude manifests. Wired into CI (`validate.yml`) as a blocking
+  step, so a stale release bump can no longer pass green.
+- **`scripts/run-release-integrity-tests.py`**: regression tests for the version
+  single-source and for SubagentStart hook parity. Wired into CI.
+- **`README.md.tmpl`**: the README catalog line (version + counts) now renders
+  from one template instead of being hand-maintained, killing the 17-vs-18
+  artifact-schema drift.
+
+### Changed
+- **SubagentStart hook is single-sourced.** `subagent-scaffold.py` now emits the
+  payload directly; `subagent-scaffold.sh` is a thin delegator to it. POSIX and
+  Windows share one payload and cannot diverge (previously the `.py` re-parsed
+  the `.sh` with a regex).
+- **SessionStart banner reads the version dynamically** from
+  `dist/catalog-metadata.json` (then the VERSION file), removing another
+  hand-maintained version site. Default artifact-schema count corrected 17 → 18.
+- Manifest and Codex descriptions updated to the V9.2 narrative; `docs/CLAUDE.md`
+  and README bumped to 9.2.0 / 18 artifact schemas.
+
+### Fixed
+- `dist/catalog-metadata.json` and `dist/skill-index.json` were stale
+  (`validate-plugin.py` was failing on a clean tree); regenerated and now
+  consistent with the version single-source.
+- Documented `artifact_schema_count()` — it counts registered validators
+  (`SCHEMAS`, 18), which is intentionally broader than the 5 standalone files in
+  `artifact-schemas/`, so the advertised number is now explainable.
+- Annotated the intentional unbounded `subprocess.Popen` in `dashboard_launch`.
+
 ## [9.1.0] - 2026-05-26
 
 **V9.1.0 — vibe coding picker + SessionStart banner fix.** Turns open-ended

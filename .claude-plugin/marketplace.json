@@ -8,8 +8,8 @@
     {
       "name": "ultraprompt",
       "source": "./",
-      "description": "Ultraprompt V9.0 cognitive control-plane plugin for Claude Code and Codex: 56 skills, 35 agents, 42 MCP tools, 33 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V9.0 completes the trust-completeness pass: 42/42 MCP tools carry full risk metadata; destructive-command policy is a single _shared/safety-policy.json source loaded by hook + agent; PostToolUse evidence-ledger hook makes claim_check reliable; CONTRIBUTING.md onboards external contributors.",
-      "version": "9.0.0",
+      "description": "Ultraprompt V9.2 cognitive control-plane plugin for Claude Code and Codex: 56 skills, 35 agents, 42 MCP tools, 33 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V9.2 completes the release-integrity pass: one VERSION file feeds every version site; render-manifest --check fails CI on any version drift; the SubagentStart hook is single-sourced across POSIX and Windows; README and manifest catalog counts render from one template.",
+      "version": "9.2.0",
       "category": "Coding"
     }
   ]

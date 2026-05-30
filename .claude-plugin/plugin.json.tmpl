@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ultraprompt",
-  "version": "9.0.0",
-  "description": "Ultraprompt V9.0 cognitive control-plane plugin for Claude Code and Codex: ${catalog.skills} skills, ${catalog.agents} agents, ${catalog.mcp_tools} MCP tools, ${catalog.commands} commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V9.0 completes the trust-completeness pass: all 42 MCP tools declare full risk metadata (readOnlyHint, destructiveHint, idempotentHint, openWorldHint); destructive-command policy lives in a single _shared/safety-policy.json source loaded by both the hook and the builder agent; PostToolUse evidence-ledger hook gives claim_check real signal across every tool call; new CONTRIBUTING.md guides external contributors through the source → regenerate → validate flow.",
+  "version": "${version}",
+  "description": "Ultraprompt V${version_mm} cognitive control-plane plugin for Claude Code and Codex: ${catalog.skills} skills, ${catalog.agents} agents, ${catalog.mcp_tools} MCP tools, ${catalog.commands} commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V${version_mm} completes the release-integrity pass: a single VERSION file is the source of truth for every version site; render-manifest --check now fails CI on any version drift (CHANGELOG, the Codex manifest, and the rendered manifests must all agree); the SubagentStart hook is single-sourced so POSIX and Windows cannot diverge; and README plus manifest catalog counts render from one template so they cannot go stale.",
   "author": {
     "name": "Ultraprompt Toolkit"
   },

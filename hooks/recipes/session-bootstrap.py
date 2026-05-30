@@ -21,7 +21,7 @@ def _catalog_counts() -> dict[str, int]:
     on stale numbers regardless of catalog growth. (Bug fixed in V9.1.)
     """
     defaults = {"skills": 56, "agents": 35, "mcp_tools": 42, "commands": 33,
-                "panels": 12, "artifact_schemas": 17, "output_styles": 2}
+                "panels": 12, "artifact_schemas": 18, "output_styles": 2}
     try:
         data = json.loads((PR / "dist" / "catalog-metadata.json").read_text(encoding="utf-8"))
         counts = data.get("counts") if isinstance(data, dict) else None
@@ -32,16 +32,36 @@ def _catalog_counts() -> dict[str, int]:
         return defaults
 
 
+def _plugin_version() -> str:
+    """Read the live plugin version from generated metadata, then the VERSION
+    file, so the banner can never drift from the single source of truth."""
+    try:
+        data = json.loads((PR / "dist" / "catalog-metadata.json").read_text(encoding="utf-8"))
+        version = data.get("plugin_version") if isinstance(data, dict) else None
+        if version:
+            return str(version)
+    except Exception:
+        pass
+    try:
+        return (PR / "VERSION").read_text(encoding="utf-8").strip() or "unknown"
+    except Exception:
+        return "unknown"
+
+
 def _v8_banner() -> str:
     c = _catalog_counts()
+    v = _plugin_version()
     return (
-        f"Ultraprompt V9.1.0 active. Catalog: "
+        f"Ultraprompt V{v} active. Catalog: "
         f"{c['skills']} skills, {c['agents']} agents, {c['mcp_tools']} MCP tools, "
         f"{c['commands']} commands, {c['panels']} panels, {c['artifact_schemas']} artifact schemas, "
         f"{c['output_styles']} output styles.\n\n"
-        "**V9.1 adds (on top of V9.0):**\n"
-        "- New `ultraprompt:vibe` skill + `vibe-curator` agent + `vibe-detect` UserPromptSubmit hook: vibe-flavored prompts ('not sure what to build', 'vibe with me', 'any ideas?') auto-trigger a two-stage AskUserQuestion picker (lane → path) over a typed `prompt_path_set.v1` artifact, then expand the chosen seed into a full prompt.\n"
-        "- Fixed SessionStart banner: catalog counts now correctly read from `dist/catalog-metadata.json[\"counts\"]` instead of silently falling back to hard-coded defaults.\n\n"
+        "**V9.2 adds (release integrity):**\n"
+        "- Single `VERSION` file is the source of truth for every version site; the banner, manifests, CHANGELOG, and Codex manifest are all checked against it.\n"
+        "- `render-manifest-template.py --check` now fails CI on any version drift — the bug where the rendered manifest silently reverted to an old version is structurally impossible now.\n"
+        "- SubagentStart hook is single-sourced (`subagent-scaffold.py`) so POSIX and Windows can't diverge; README and manifest counts render from one template.\n\n"
+        "**V9.1 baseline:**\n"
+        "- `ultraprompt:vibe` skill + `vibe-curator` agent + `vibe-detect` hook turn open-ended intents into a two-stage AskUserQuestion picker over a typed `prompt_path_set.v1` artifact.\n\n"
         "**V9.0 baseline:**\n"
         "- All 42 MCP tools declare full risk metadata (readOnlyHint, destructiveHint, idempotentHint, openWorldHint).\n"
         "- Single safety-policy source: `_shared/safety-policy.json` loaded by both the destructive-command-guard hook and the builder agent body table.\n"

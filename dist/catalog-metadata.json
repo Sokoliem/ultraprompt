@@ -48,7 +48,7 @@
     "skill_specs": 56,
     "skills": 56
   },
-  "plugin_version": "9.1.0",
+  "plugin_version": "9.2.0",
   "schema_version": 1,
   "skills": [
     "review",
@@ -108,7 +108,7 @@
     "onboarding-doc",
     "vibe"
   ],
-  "source_hash": "c5571225f7c71339904169547948e653b6dbce224fe5530f458487d1b8546cd4",
+  "source_hash": "cdbb912d37b7e2f1d7a89f48c3e37bb242e65ff6ee75d0bd3d4ab27b3a444bcc",
   "tiers": {
     "core": 30,
     "ecosystem": 5,

@@ -146,13 +146,22 @@ scripts/install-windows.ps1    # Windows
 
 ## Shipping a release (maintainers only)
 
-1. Bump version in `.claude-plugin/plugin.json.tmpl`, `.claude-plugin/marketplace.json.tmpl`, `.codex-plugin/plugin.json`, `README.md`, `docs/CLAUDE.md`, `hooks/recipes/session-bootstrap.py` banner.
-2. `python3 scripts/render-manifest-template.py`
-3. `python3 scripts/build-catalog-metadata.py && python3 scripts/build-capability-graph.py && python3 scripts/build-skill-index.py`
-4. Run the validation gate above.
-5. `git commit -am "Bump ultraprompt to vX.Y.Z"`
-6. `git tag vX.Y.Z -m "Ultraprompt vX.Y.Z — <one-line theme>"`
-7. `git push origin main && git push origin vX.Y.Z`
+Version lives in **one** place — the `VERSION` file. Everything else is rendered
+from it or checked against it; do not hand-edit version strings in the manifests.
+
+1. Set the new version in `VERSION` (e.g. `9.2.0`).
+2. Add the matching `## [X.Y.Z] - YYYY-MM-DD` entry at the top of `CHANGELOG.md`.
+3. Bump the one hand-maintained version site: `.codex-plugin/plugin.json`
+   (`version` + description). The drift guard asserts it equals `VERSION`.
+4. `python3 scripts/build-catalog-metadata.py && python3 scripts/build-capability-graph.py && python3 scripts/build-skill-index.py`
+   (regenerates `dist/` so `plugin_version` flows through).
+5. `python3 scripts/render-manifest-template.py` (renders plugin.json,
+   marketplace.json, README.md, menu.md, dashboard.md from `${version}` + counts).
+6. Run the validation gate above — `render-manifest-template.py --check` and
+   `run-release-integrity-tests.py` will fail if any version site drifts.
+7. `git commit -am "Bump ultraprompt to vX.Y.Z"`
+8. `git tag vX.Y.Z -m "Ultraprompt vX.Y.Z — <one-line theme>"`
+9. `git push origin main && git push origin vX.Y.Z`
 
 ## Reaching maintainers
 

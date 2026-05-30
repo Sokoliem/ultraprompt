@@ -55,6 +55,14 @@ def mcp_tool_count() -> int:
 
 
 def artifact_schema_count() -> int:
+    """Number of registered artifact validators (``artifact-validate.SCHEMAS``).
+
+    This is intentionally broader than ``ls artifact-schemas/*.json``: that
+    directory holds only the standalone JSON Schema files, whereas ``SCHEMAS``
+    is the full registry of artifact types the validator enforces (including
+    schemas defined inline). The registry count is the user-facing number, so
+    it is what the manifests and README advertise.
+    """
     path = ROOT / "scripts" / "artifact-validate.py"
     spec = importlib.util.spec_from_file_location("artifact_validate", path)
     if spec is None or spec.loader is None:

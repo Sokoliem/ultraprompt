@@ -2835,7 +2835,7 @@
       "label": "claim_check"
     },
     {
-      "description": "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree (29 agents, 48 skills, 12 panels, 42 MCP tools, 30 commands, 17 artifact schemas) on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent \u2014 if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
+      "description": "V8: Launch the Ultraprompt live dashboard (localhost browser UI). Three-pane layout: catalog tree on the left; entity detail in the center; live invocation feed on the right via Server-Sent Events. Auto-opens browser. Idempotent \u2014 if already running, returns the existing URL. Optional args: no_open (skip browser launch), port (override default).",
       "id": "mcp:dashboard_launch",
       "kind": "mcp_tool",
       "label": "dashboard_launch"
@@ -4252,7 +4252,7 @@
       "label": "validate-plugin.py"
     }
   ],
-  "plugin_version": "9.1.0",
+  "plugin_version": "9.2.0",
   "schema": "capability_graph.v1",
-  "source_hash": "dc7cb18e1e910f31f234647098b74b80360fd6a0d82d0ff4c085c14b1d39c5d9"
+  "source_hash": "c59a198b244a8c03f68c4bd5302b285730ff346dbbd093403a7b330ecd82232d"
 }

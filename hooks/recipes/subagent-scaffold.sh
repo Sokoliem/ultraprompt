@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-if [[ "${ULTRAPROMPT_DISABLE_HOOKS:-0}" == "1" ]]; then
-  exit 0
-fi
-
-cat <<'JSON'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SubagentStart",
-    "additionalContext": "Return concise, evidence-tagged findings. Prefer Observed > Inferred > Assumed claims. Stay read-only unless the parent task explicitly grants edits. Do not claim validation you did not run. When uncertain, name the highest-leverage next inspection target instead of padding the answer. Apply discipline per ${CLAUDE_PLUGIN_ROOT}/_shared/DISCIPLINE.md."
-  }
-}
-JSON
+# Thin delegator — the payload lives in subagent-scaffold.py (single source of
+# truth for both POSIX and Windows). Fails open if python3 is unavailable so a
+# scaffold hook can never block a subagent from starting.
+exec python3 "$(dirname "$0")/subagent-scaffold.py" 2>/dev/null || exit 0

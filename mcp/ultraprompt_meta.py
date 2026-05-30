@@ -1170,6 +1170,11 @@ def tool_dashboard_launch(args):
         log_dir.mkdir(parents=True, exist_ok=True)
         log_path = log_dir / "dashboard.log"
 
+        # Intentionally unbounded (no timeout): the dashboard is a long-lived
+        # detached server, not a one-shot command. start_new_session detaches it
+        # from this process group so it outlives the MCP call; liveness is
+        # confirmed below by polling for the pid/port files (3s budget) rather
+        # than by waiting on the process.
         proc = subprocess.Popen(
             cmd,
             stdout=open(log_path, "a"),

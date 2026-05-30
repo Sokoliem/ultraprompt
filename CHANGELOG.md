@@ -1,5 +1,20 @@
 # Changelog
 
+## [9.3.0] - 2026-05-30
+
+## Added
+- Catalog-count drift guard (`scripts/audit-catalog-counts.py`): recomputes every catalog count from disk and asserts `dist/catalog-metadata.json` and the SessionStart banner's fallback dict agree. Wired into CI after the manifest drift gate. v9.2 made the *version* self-enforcing; this closes the same loop for *counts*.
+- `INSTALL.md` is now rendered from `INSTALL.md.tmpl` via `render-manifest-template.py`, so its catalog shape can no longer drift (it carried stale V8-era counts).
+- Hook fail-open regression fixtures: non-dict `tool_input` payloads now assert exit 0 for `destructive-command-guard` and `protected-file-guard`, plus a non-dict payload contract test for `stop-validation-check`.
+
+## Changed
+- Hardened the three module-scope hooks (`destructive-command-guard.py`, `protected-file-guard.py`, `stop-validation-check.py`) to run inside `main()` under a top-level `try/except → exit 0`, matching the other hooks. Intentional block paths (HIGH/CRITICAL command block, secret-file block, Stop claim-gate block) are preserved.
+- `CONTRIBUTING.md` no longer hard-codes catalog counts (they live in `dist/catalog-metadata.json`); added the count guard to the documented validation gate.
+
+## Fixed
+- `validate-plugin.py` no longer warns about a missing `.mcp.json` in the source tree: that file is generated at install time from the platform variant, so the validator now falls back to `.mcp.windows.json`.
+- Cleared the `WEAK_SELF_RANKING` description-lint warning for the `debug` catch-all skill via a documented self-ranking exemption (its generic triggers intentionally overlap `ci-repair`).
+
 ## [9.2.0] - 2026-05-29
 
 **V9.2.0 — release-integrity pass.** Closes the class of bug where V9.1's work

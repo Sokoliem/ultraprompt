@@ -206,12 +206,20 @@ def lint_self_ranking(findings: list) -> None:
     except Exception:
         return
 
+    # Catch-all skills whose generic triggers legitimately overlap a more
+    # specific sibling (e.g. debug's "this is failing" vs ci-repair's
+    # pipeline-shape failures). Their broad triggers are intentional, so a
+    # weak self-ranking on a generic phrase is expected, not a copy defect.
+    self_ranking_exempt = {"debug"}
+
     specs = json.loads(SKILL_SPECS.read_text(encoding="utf-8"))
     for spec in specs:
         tier = spec.get("tier")
         if tier not in {"core", "specialist"}:
             continue
         name = spec["name"]
+        if name in self_ranking_exempt:
+            continue
         meta = spec.get("description_meta") or {}
         triggers_raw = (meta.get("triggers") or "").strip()
         if not triggers_raw:

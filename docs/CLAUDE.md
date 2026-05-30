@@ -1,4 +1,4 @@
-# Ultraprompt V9.2.0 Plugin Repo Notes
+# Ultraprompt V9.3.0 Plugin Repo Notes
 
 This file governs work on the Ultraprompt plugin itself, not work done by it.
 

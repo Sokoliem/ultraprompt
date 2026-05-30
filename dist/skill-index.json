@@ -625,11 +625,11 @@
     "commands": 33,
     "skills": 56
   },
-  "generated_at": "2026-05-30T00:50:33+00:00",
+  "generated_at": "2026-05-30T20:14:58+00:00",
   "plugin": {
-    "description": "Ultraprompt V9.2 cognitive control-plane plugin for Claude Code and Codex: 56 skills, 35 agents, 42 MCP tools, 33 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V9.2 completes the release-integrity pass: a single VERSION file is the source of truth for every version site; render-manifest --check now fails CI on any version drift (CHANGELOG, the Codex manifest, and the rendered manifests must all agree); the SubagentStart hook is single-sourced so POSIX and Windows cannot diverge; and README plus manifest catalog counts render from one template so they cannot go stale.",
+    "description": "Ultraprompt V9.3 cognitive control-plane plugin for Claude Code and Codex: 56 skills, 35 agents, 42 MCP tools, 33 commands, typed local memory, safe dream jobs, governed learning, workflow pathfinding, capability graph, live Mission Control dashboard, evidence-led release gates, dual-runtime install. V9.3 hardens the safety and integrity surface: every PreToolUse and Stop hook is structurally fail-open (a malformed payload can never brick a tool call); a catalog-count drift guard asserts every count site against the files on disk; and the install guide renders from one template so it cannot go stale \u2014 building on V9.2's single-VERSION release-integrity pass.",
     "name": "ultraprompt",
-    "version": "9.2.0"
+    "version": "9.3.0"
   },
   "skills": [
     {

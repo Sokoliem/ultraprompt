@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Block edits to secret-like or protected files. Fail-open on errors."""
+"""Block edits to secret-like or protected files. Fail-open on errors.
+
+The whole flow runs inside main() under a top-level try/except → exit 0 so an
+unexpected payload shape (e.g. a non-dict tool_input) degrades to allow rather
+than surfacing a traceback on the user's tool call (v9.3 hardening). The
+intentional `return 2` block path for a matched secret file is preserved.
+"""
 from __future__ import annotations
 
 import importlib.util
@@ -8,27 +14,6 @@ import os
 import re
 import sys
 from pathlib import Path
-
-if os.environ.get("ULTRAPROMPT_DISABLE_HOOKS") == "1":
-    sys.exit(0)
-
-try:
-    payload = json.load(sys.stdin)
-except Exception:
-    sys.exit(0)
-
-tool_input = payload.get("tool_input", {}) if isinstance(payload, dict) else {}
-paths: list[str] = []
-for key in ("file_path", "path"):
-    value = tool_input.get(key)
-    if isinstance(value, str):
-        paths.append(value)
-
-edits = tool_input.get("edits", [])
-if isinstance(edits, list):
-    for e in edits:
-        if isinstance(e, dict) and isinstance(e.get("file_path"), str):
-            paths.append(e["file_path"])
 
 PROTECTED = re.compile(
     r"(^|/)("
@@ -62,14 +47,44 @@ def record_block(reason: str) -> None:
         pass
 
 
-for path in paths:
-    if PROTECTED.search(path):
-        reason = (
-            f"Blocked by Ultraprompt: {path!r} looks like a secrets or protected file. "
-            "Edit it manually, or set ULTRAPROMPT_DISABLE_HOOKS=1 if intentional."
-        )
-        record_block(reason)
-        print(reason, file=sys.stderr)
-        sys.exit(2)
+def main() -> int:
+    if os.environ.get("ULTRAPROMPT_DISABLE_HOOKS") == "1":
+        return 0
 
-sys.exit(0)
+    try:
+        payload = json.load(sys.stdin)
+    except Exception:
+        return 0
+
+    tool_input = payload.get("tool_input", {}) if isinstance(payload, dict) else {}
+    paths: list[str] = []
+    for key in ("file_path", "path"):
+        value = tool_input.get(key)
+        if isinstance(value, str):
+            paths.append(value)
+
+    edits = tool_input.get("edits", [])
+    if isinstance(edits, list):
+        for e in edits:
+            if isinstance(e, dict) and isinstance(e.get("file_path"), str):
+                paths.append(e["file_path"])
+
+    for path in paths:
+        if PROTECTED.search(path):
+            reason = (
+                f"Blocked by Ultraprompt: {path!r} looks like a secrets or protected file. "
+                "Edit it manually, or set ULTRAPROMPT_DISABLE_HOOKS=1 if intentional."
+            )
+            record_block(reason)
+            print(reason, file=sys.stderr)
+            return 2
+
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except Exception:
+        # Defense-in-depth: never let an unexpected exception block a tool call.
+        sys.exit(0)

@@ -30,6 +30,9 @@ jobs:
       - name: Manifest + version drift gate (V9.2)
         run: python3 scripts/render-manifest-template.py --check
 
+      - name: Catalog-count drift guard (V9.3)
+        run: python3 scripts/audit-catalog-counts.py
+
       - name: Release-integrity tests (V9.2)
         run: python3 scripts/run-release-integrity-tests.py
 

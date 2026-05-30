@@ -48,7 +48,7 @@
     "skill_specs": 56,
     "skills": 56
   },
-  "plugin_version": "9.2.0",
+  "plugin_version": "9.3.0",
   "schema_version": 1,
   "skills": [
     "review",

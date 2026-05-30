@@ -2,7 +2,7 @@
 
 Ultraprompt is a local-first Claude Code and Codex plugin for senior engineering workflows. V8 adds a cognitive control plane on top of the proven catalog: typed memory, safe dream jobs, governed learning, workflow pathfinding, capability graph health, and a Mission Control dashboard.
 
-**Version 9.2.0** | **56 skills** | **35 agents** | **42 MCP tools** | **33 commands** | **11 registered hooks** | **18 artifact schemas** | **12 panels** | **2 output styles**
+**Version 9.3.0** | **56 skills** | **35 agents** | **42 MCP tools** | **33 commands** | **11 registered hooks** | **18 artifact schemas** | **12 panels** | **2 output styles**
 
 ## What It Does
 
@@ -55,6 +55,7 @@ python3 scripts/build-capability-graph.py --check
 python3 scripts/regenerate-skills.py --check
 python3 scripts/regenerate-agents.py --check
 python3 scripts/render-manifest-template.py --check
+python3 scripts/audit-catalog-counts.py
 python3 scripts/run-pathfinder-tests.py
 python3 scripts/run-cognitive-tests.py
 python3 scripts/run-release-integrity-tests.py
